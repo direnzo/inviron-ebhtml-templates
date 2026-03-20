@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html class="bg-black h-full w-full overflow-hidden">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HojeMais - Notícias</title>
+    <link rel="stylesheet" href="css/master.css">
+    <script src="js/ebhtml.js"></script>
+    <script src="js/master.js"></script>
+    <!-- <script src="js/mock-data.js"></script> -->
+</head>
+
+<body class="relative min-h-screen w-full overflow-hidden opacity-0 transition-opacity duration-1000 bg-black">
+
+    <!-- FOTO DE FUNDO -->
+    <div id="photoContainer" class="absolute inset-0 w-full h-full overflow-hidden">
+        <img id="image" src="" alt="notícia" class="absolute right-0 h-full w-[55%] object-cover object-right transition-all ease-linear duration-[15000ms]">
+    </div>
+
+    <!-- ELEMENTOS GEOMÉTRICOS -->
+    <div id="geometricShapes" class="absolute inset-0 w-full h-full pointer-events-none">
+        <!-- Shape principal (fundo colorido esquerdo) -->
+        <div id="mainShape" class="absolute left-0 top-0 h-full w-[52%] origin-left" 
+             style="clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%);"></div>
+        
+        <!-- Shape secundária (camada intermediária) -->
+        <div id="secondaryShape" class="absolute left-0 top-0 h-full w-[50%] origin-left opacity-90"
+             style="clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);"></div>
+        
+        <!-- Shape terciária (camada de destaque) -->
+        <div id="tertiaryShape" class="absolute left-0 top-0 h-full w-[48%] origin-left opacity-80"
+             style="clip-path: polygon(0 0, 100% 0, 95% 100%, 0 100%);"></div>
+    </div>
+
+    <!-- LOGO AGITTA FIXO (canto superior direito) -->
+    <div id="agittaLogo" class="absolute top-6 right-6 z-50">
+        <img src="img/grupo_agitta.png" alt="Agitta" class="h-16 w-auto object-contain">
+    </div>
+
+    <!-- CONTEÚDO -->
+    <main id="main" class="absolute inset-0 w-full h-full flex flex-col z-20 pointer-events-none">
+        
+        <!-- Header com logo do cliente -->
+        <header id="clientHeader" class="flex items-center px-12 pt-8 pb-6">
+            <img id="clientLogo" src="img/logo.png" alt="Logo" class="h-20 w-auto object-contain">
+        </header>
+
+        <!-- Área de conteúdo -->
+        <div id="contentArea" class="flex-1 flex flex-col justify-center px-12 max-w-[45%]">
+            
+            <!-- Tag de categoria -->
+            <div id="categoryTag" class="inline-block mb-6 px-8 py-3 w-fit">
+                <span id="categoryText" class="text-white font-montserrat text-2xl font-bold uppercase tracking-wide"></span>
+            </div>
+
+            <!-- Título -->
+            <div id="titleContainer" class="mb-8">
+                <h1 id="title" class="text-white font-montserrat font-bold text-5xl leading-tight"></h1>
+            </div>
+
+            <!-- Descrição -->
+            <div id="descriptionContainer" class="max-h-[30vh] overflow-hidden">
+                <p id="description" class="text-white font-gotham text-2xl leading-relaxed"></p>
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>

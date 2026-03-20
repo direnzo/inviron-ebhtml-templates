@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: 'Gotham Bold';
+    src: url('fonts/Gotham-Bold.otf') format('opentype');
+}
+@font-face{
+    font-family: 'Gotham Book';
+    src: url('fonts/GothamBook.ttf') format('truetype');
+}
+
+@font-face{
+    font-family: 'Gotham Ultra';
+    src: url('fonts/GothamHTF-Ultra.otf') format('opentype');
+
+}
+@font-face{
+    font-family: 'Gotham Ultra Italic';
+    src: url('fonts/GothamHTF-UltraItalic.otf') format('opentype');
+}
+
+
+/* classes personalizadas para uso no projeto */
+/* Classe personalizada diagonal-strike */
+.diagonal-strike {
+    @apply relative inline-block;
+    /* Usa utilidades do Tailwind */
+}
+
+.diagonal-strike {
+    @apply relative inline-block;
+}
+
+.diagonal-strike::after {
+    content: '';
+    position: absolute;
+    height: 0px;
+    width: 0;
+    /* top: 80%; */
+    left: 0;
+    border-top: 15px solid #cf0e00c7;
+    transform: rotate(-20deg);
+    transform-origin: left top;
+    z-index: 11;
+    animation: growLine 0.5s ease-in-out forwards;
+    /* Animação automática */
+    animation-delay: 1.2s;
+    /* Adiciona um atraso de 1 segundo */
+}
+
+.diagonal-strike span {
+    @apply relative z-10;
+}
+
+/* Keyframes para o crescimento da linha */
+@keyframes growLine {
+    to {
+        width: 110%;
+    }
+}

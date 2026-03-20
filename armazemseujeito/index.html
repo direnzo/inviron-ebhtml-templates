@@ -1,0 +1,108 @@
+sim<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Projeto Especial</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/master.css">
+    <script src="js/ebhtml.js"></script>
+    <script src="js/mock-data.js"></script>
+    <script src="js/master.js"></script>
+    <script src="js/preview.js"></script>
+    <script>
+        var checkElement = null;
+        try {
+            if (window.parent && window.parent.document) {
+                checkElement = window.parent.document.getElementById('template_check');
+            }
+        } catch (e) {
+            checkElement = null;
+        }
+
+        if (checkElement !== null) {
+            extranetView();
+        } else {
+            playerView();
+        }
+    </script>
+</head>
+
+<body class="bg-white overflow-hidden text-[4.5vh] landscape:text-[2vw] text-black font-gotham-bold opacity-0 transition-opacity duration-500">
+    <div id="size" class="absolute top-0 left-0 z-50 bg-yellow-400 text-red-600 p-5 hidden"></div>
+    <!-- Fundo para a foto com animação de fade-in e scale -->
+    <div id="backgroundImage" class="absolute inset-0 bg-cover bg-center z-0">
+        <video id="video" class="h-full w-full object-fill" muted autoplay>
+            <source src="img/armazzem-03.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <div id="fullContent"
+        class="relative w-full h-screen flex flex-col z-2 gap-2 opacity-0 transition-opacity duration-300 delay-75">
+
+        <!-- Logo Container -->
+        <div id="logo_container" class="flex items-center justify-center h-[10vh] w-full ">
+            <img id="logo" class="max-h-full" />
+        </div>
+
+        <!-- Conteúdo Flexível -->
+        <div class="flex flex-col w-full h-full gap-2">
+            <!-- Seção Título, Imagem e Preço (lado esquerdo no landscape) -->
+            <div class="flex flex-col w-full gap-2">
+
+
+                <!-- Imagem Container (no portrait está entre o título e o preço) -->
+                <div id="img_container"
+                    class="flex items-center justify-center h-[38vh] mt-[22vh] translate-x-full transition-transform duration-1000">
+                    <img id="product_img" src="" class="w-full h-auto object-contain max-h-full max-w-full p-8 animate-[wiggle_1s_ease-in-out_infinite]" />
+                </div>
+
+                <div id="title_container" class="flex items-center justify-center w-full opacity-0 -translate-x-full transition-all duration-1000 delay-100 text-[80%] max-h-60">
+                    <div id="title" class="w-[90%] text-[120%] text-center mx-2 leading-none resize overflow-hidden"></div>
+                </div>
+
+                <!-- Container onde o template será inserido -->
+                <div id="price_display" class="absolute bottom-0 left-0 w-full scale-[300%] transition-transform duration-1000"></div>
+
+                <!-- TEMPLATE PREÇO REGULAR -->
+                <template id="template_regular">
+                    <div class="w-full absolute bottom-8 flex flex-row items-center justify-center h-[14vh] text-center animate-pulseScaleWithDelay font-gotham-ultra leading-none gap-x-4 text-red-600">
+                        <div class="flex flex-row font-gotham-ultra-italic ml-5">R$</div>
+                        <div id="price" class="price flex flex-row text-[240%]"></div>
+                        <div class="flex flex-col items-start">
+                            <div id="cents" class="cents"></div>
+                            <div id="texto4" class="unit text-[60%]"></div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- TEMPLATE DE POR -->
+                <template id="template_depor">
+                    <div class="w-full absolute -bottom-2 flex flex-col items-center justify-start h-[14vh] text-center animate-pulseScaleWithDelay font-gotham-ultra leading-none gap-x-4 text-red-600">
+                        <div id="price2" class="text-[40%] line-through font-gotham-bold text-gray-700"></div>
+                        <div class="flex flex-row gap-4">
+                            <div class="flex flex-col items-end font-gotham-ultra-italic">
+                                <div class="text-[40%]">POR</div>
+                                <div class="flex flex-row ml-5">R$</div>
+                            </div>
+                            <div id="price" class="price flex flex-row text-[200%]"></div>
+                            <div class="flex flex-col items-start">
+                                <div id="cents" class="cents"></div>
+                                <div id="texto4" class="unit text-[40%]"></div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+
+
+            </div>
+
+
+        </div>
+        <div id="legal_text" class="absolute text-[50%] flex items-center justify-center w-full bottom-[200px]"></div>
+    </div>
+</body>
+
+</html>

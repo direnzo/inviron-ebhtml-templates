@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   FONTES - copiar de _template-base/css/fonts/
+   ======================================== */
+
+@font-face {
+    font-family: 'Roboto Regular';
+    src: url('fonts/Roboto-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'Roboto Medium';
+    src: url('fonts/Roboto-Medium.ttf');
+}
+
+@font-face {
+    font-family: 'Roboto Bold';
+    src: url('fonts/Roboto-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'Roboto Black';
+    src: url('fonts/Roboto-Black.ttf');
+}
+
+/* ========================================
+   CORES — variáveis padrão (sobrescritas por aplicarCores() em master.js)
+   ======================================== */
+
+:root {
+    --cor-destaque:       #FBBF24;
+    --cor-destaque-glow:  rgba(251, 191, 36, 0.7);
+    --cor-fundo-painel:   rgba(0, 0, 0, 0.60);
+    --cor-fundo-area:     rgba(0, 0, 0, 0.40);
+    --cor-borda:          rgba(255, 255, 255, 0.10);
+    --cor-texto:          #FFFFFF;
+    --cor-texto-sec:      rgba(255, 255, 255, 0.50);
+    --cor-texto-ter:      rgba(255, 255, 255, 0.38);
+    --cor-grad-from:      rgba(0, 0, 0, 0.70);
+    --cor-grad-mid:       rgba(0, 0, 0, 0.60);
+    --cor-grad-to:        rgba(0, 0, 0, 0.80);
+}
+
+header                 { background-color: var(--cor-fundo-painel); border-bottom-color: var(--cor-borda); }
+footer                 { background-color: var(--cor-fundo-painel); border-top-color:    var(--cor-borda); }
+#gameAreaInner         { background-color: var(--cor-fundo-area); }
+#gradientOverlay       { background: linear-gradient(to bottom, var(--cor-grad-from), var(--cor-grad-mid), var(--cor-grad-to)); }
+#torneio               { color: var(--cor-texto); }
+#rodada                { color: var(--cor-texto-sec); }
+#headerSep             { color: var(--cor-texto-sec); }
+#time1Nome, #time2Nome { color: var(--cor-texto); }
+#estadioCentro         { color: var(--cor-texto-sec); }
+#hora                  { color: var(--cor-destaque); }
+#data                  { color: var(--cor-texto); }
+#horaSmall             { color: var(--cor-texto-sec); }
+#placar                { color: var(--cor-texto); }
+#tempo                 { color: var(--cor-destaque); }
+#penPlacar             { color: var(--cor-texto-sec); }
+#sponsorFrase          { color: var(--cor-texto-ter); }
+
+@keyframes pulseWin {
+    0%, 100% { transform: scale(1);    filter: brightness(1); }
+    50%      { transform: scale(1.06); filter: brightness(1.4) drop-shadow(0 0 12px var(--cor-destaque-glow)); }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "c2r-busdoor",
+  "version": "1.0.0",
+  "description": "Template de exibição dinâmica para portas de ônibus - Olho Vivo SPTrans",
+  "scripts": {
+    "dev": "tailwindcss -i css/input.css -o css/master.css --watch",
+    "build": "tailwindcss -i css/input.css -o css/master.css --minify"
+  },
+  "keywords": ["digital-signage", "edgecontents", "tailwindcss", "busdoor", "olhovivo"],
+  "author": "Eduardo Di Renzo - Inviron Technologies",
+  "license": "ISC"
+}

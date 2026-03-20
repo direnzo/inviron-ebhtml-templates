@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Registrar as fontes personalizadas */
+@font-face {
+    font-family: 'Montserrat Bold';
+    src: url('fonts/Montserrat-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'GothamNarrow Bold';
+    src: url('fonts/GothamNarrow-Bold.otf');
+}
+
+/* Classe custom para t\u00edtulo responsivo */
+.titulo-principal {
+    font-size: clamp(2rem, 5vw, 8rem);
+}
+/* Melhorias de layout */
+body {
+    background-color: #000;
+}
+
+#agittaLogo {
+    z-index: 100;
+}
+
+/* Garantir que a foto fica atrás */
+#photoContainer {
+    z-index: 0;
+}
+
+#geometricShapes {
+    z-index: 10;
+}
+
+#main {
+    z-index: 20;
+}
