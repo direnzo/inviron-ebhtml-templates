@@ -63,9 +63,11 @@ EdgeContents CMS → XML (/content/data/{DATASET}) → EBHTML parse → Template
 ```
 
 **Ambientes:**
-- **Dev**: `http://localhost:12099/FILES/1/` (servidor: ebcliente4.exe)
+- **Dev**: `http://localhost:12099/FILES/1/index.html` (URL orquestrada pelo ebhtmlbuilder; servidor: ebcliente4.exe)
 - **Build**: ebhtmlbuilder4 (compilador)
 - **Mock**: js/mock-data.js (dados locais para testes)
+
+**Regra de URL no navegador:** sempre validar em `http://localhost:12099/FILES/1/index.html`. Nao usar URL com subpasta de template (`.../FILES/1/{template}/index.html`) quando o caminho ja estiver configurado no ebhtmlbuilder.
 
 ---
 

@@ -61,10 +61,50 @@ module.exports = {
         wiggle: {
           '0%, 100%': { transform: 'rotate(-3deg)' },
           '50%': { transform: 'rotate(3deg)' },
-        }
+        },
+        slideInRight: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
+        slideInLeft: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
+        slideInUp: {
+          '0%': { transform: 'translateY(100%)' },
+          '100%': { transform: 'translateY(0)' },
+        },
+        slideInDown: {
+          '0%': { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(0)' },
+        },
+        popIn: {
+          '0%': { transform: 'scale(0)', opacity: '0' },
+          '70%': { transform: 'scale(1.1)' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        heartbeat: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '14%': { transform: 'scale(1.15)' },
+          '28%': { transform: 'scale(1)' },
+          '42%': { transform: 'scale(1.15)' },
+          '70%': { transform: 'scale(1)' },
+        },
       },
       animation: {
-        pulseScaleWithDelay: 'pulseScaleWithDelay 5s ease-in-out infinite', // Mantém a duração e efeito de escala
+        pulseScaleWithDelay: 'pulseScaleWithDelay 5s ease-in-out infinite',
+        wiggle: 'wiggle 1s ease-in-out infinite',
+        slideInRight: 'slideInRight 0.8s ease-out forwards',
+        slideInLeft: 'slideInLeft 0.8s ease-out forwards',
+        slideInUp: 'slideInUp 0.8s ease-out forwards',
+        slideInDown: 'slideInDown 0.8s ease-out forwards',
+        popIn: 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+        fadeIn: 'fadeIn 0.6s ease-out forwards',
+        heartbeat: 'heartbeat 1.5s ease-in-out infinite',
       },
       // Define cores explicitamente em hexadecimal para maior compatibilidade
       colors: {
@@ -146,8 +186,18 @@ module.exports = {
         },
       },
       textShadow: {
-        'gold-shadow': '3px 3px 8px rgba(0, 0, 0, 0.8)',  // Sombra mais intensa
+        'gold-shadow': '3px 3px 8px rgba(0, 0, 0, 0.8)',
       }
+    },
+    // Breakpoints por aspect-ratio (Digital Signage)
+    screens: {
+      'portrait': { 'raw': '(max-aspect-ratio: 3/4)' },
+      'square': { 'raw': '(aspect-ratio: 1/1)' },
+      'landscape': { 'raw': '(min-aspect-ratio: 4/3) and (max-aspect-ratio: 2/1)' },
+      'ultrawide': { 'raw': '(min-aspect-ratio: 3/1)' },
+      'superbanner': { 'raw': '(min-aspect-ratio: 5/1) and (max-aspect-ratio: 15/1)' },
+      'footer': { 'raw': '(min-aspect-ratio: 15/1)' },
+      'empena': { 'raw': '(max-aspect-ratio: 1/3)' },
     },
   },
   plugins: [

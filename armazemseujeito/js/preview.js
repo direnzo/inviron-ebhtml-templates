@@ -126,6 +126,11 @@ function extranetView() {
             return;
         }
 
+        if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled && typeof MOCK_DATA.getData === 'function') {
+            app.applyDataToView(MOCK_DATA.getData(), getPreviewLoader(null));
+            return;
+        }
+
         startPreviewWithDataset(app);
     };
 }

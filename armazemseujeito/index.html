@@ -1,4 +1,4 @@
-sim<html>
+<html>
 
 <head>
     <meta charset="UTF-8">
@@ -6,10 +6,16 @@ sim<html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/master.css">
+    <script src="js/config.js"></script>
     <script src="js/ebhtml.js"></script>
     <script src="js/mock-data.js"></script>
+    <script src="js/layout-engine.js"></script>
+    <script src="js/price-engine.js"></script>
+    <script src="js/mock-loader-engine.js"></script>
+    <script src="js/runtime-engine.js"></script>
     <script src="js/master.js"></script>
     <script src="js/preview.js"></script>
+    
     <script>
         var checkElement = null;
         try {
@@ -28,81 +34,199 @@ sim<html>
     </script>
 </head>
 
-<body class="bg-white overflow-hidden text-[4.5vh] landscape:text-[2vw] text-black font-gotham-bold opacity-0 transition-opacity duration-500">
+<body class="bg-white overflow-hidden text-[4.5vh] portrait:text-[3.5vh] landscape:text-[2vw] ultrawide:text-[3vh] text-black font-gotham-bold opacity-0 transition-opacity duration-500">
     <div id="size" class="absolute top-0 left-0 z-50 bg-yellow-400 text-red-600 p-5 hidden"></div>
-    <!-- Fundo para a foto com animação de fade-in e scale -->
-    <div id="backgroundImage" class="absolute inset-0 bg-cover bg-center z-0">
+
+    <!-- Fundo: vídeo -->
+    <div class="absolute inset-0 z-0">
         <video id="video" class="h-full w-full object-fill" muted autoplay>
             <source src="img/armazzem-03.mp4" type="video/mp4">
-            Your browser does not support the video tag.
         </video>
     </div>
 
-    <div id="fullContent"
-        class="relative w-full h-screen flex flex-col z-2 gap-2 opacity-0 transition-opacity duration-300 delay-75">
+    <!-- Safe area branca: elementos dinamicos ficam somente aqui -->
+    <div id="fullContent" class="absolute inset-x-0 bottom-0 top-[34vh] portrait:top-[34vh] landscape:top-[30vh] ultrawide:top-[24vh] bg-[#f1f1f1] z-10 opacity-0 transition-opacity duration-300 delay-75 overflow-hidden">
 
-        <!-- Logo Container -->
-        <div id="logo_container" class="flex items-center justify-center h-[10vh] w-full ">
+        <!-- 1. LOGO -->
+        <div id="logo_container" class="hidden shrink-0 items-center justify-center h-[10vh] portrait:h-[11vh] w-full px-4">
             <img id="logo" class="max-h-full" />
         </div>
 
-        <!-- Conteúdo Flexível -->
-        <div class="flex flex-col w-full h-full gap-2">
-            <!-- Seção Título, Imagem e Preço (lado esquerdo no landscape) -->
-            <div class="flex flex-col w-full gap-2">
+        <div id="content_split" class="w-full h-full flex flex-col landscape:flex-row">
 
-
-                <!-- Imagem Container (no portrait está entre o título e o preço) -->
-                <div id="img_container"
-                    class="flex items-center justify-center h-[38vh] mt-[22vh] translate-x-full transition-transform duration-1000">
-                    <img id="product_img" src="" class="w-full h-auto object-contain max-h-full max-w-full p-8 animate-[wiggle_1s_ease-in-out_infinite]" />
+            <!-- Coluna esquerda (landscape): somente imagem -->
+            <div id="img_container" class="basis-[45%] landscape:basis-[52%] shrink-0 flex items-center justify-center overflow-hidden min-h-0 translate-x-full transition-transform duration-1000 px-4 py-1 landscape:py-3">
+                <div id="product_frame" class="w-[80vw] h-[100%] portrait:w-[86vw] landscape:w-[92%] ultrawide:w-[72%] flex items-center justify-center overflow-hidden rounded-xl">
+                    <img id="product_img" src="" class="w-full h-full object-contain p-3 animate-[wiggle_1s_ease-in-out_infinite]" />
                 </div>
-
-                <div id="title_container" class="flex items-center justify-center w-full opacity-0 -translate-x-full transition-all duration-1000 delay-100 text-[80%] max-h-60">
-                    <div id="title" class="w-[90%] text-[120%] text-center mx-2 leading-none resize overflow-hidden"></div>
-                </div>
-
-                <!-- Container onde o template será inserido -->
-                <div id="price_display" class="absolute bottom-0 left-0 w-full scale-[300%] transition-transform duration-1000"></div>
-
-                <!-- TEMPLATE PREÇO REGULAR -->
-                <template id="template_regular">
-                    <div class="w-full absolute bottom-8 flex flex-row items-center justify-center h-[14vh] text-center animate-pulseScaleWithDelay font-gotham-ultra leading-none gap-x-4 text-red-600">
-                        <div class="flex flex-row font-gotham-ultra-italic ml-5">R$</div>
-                        <div id="price" class="price flex flex-row text-[240%]"></div>
-                        <div class="flex flex-col items-start">
-                            <div id="cents" class="cents"></div>
-                            <div id="texto4" class="unit text-[60%]"></div>
-                        </div>
-                    </div>
-                </template>
-
-                <!-- TEMPLATE DE POR -->
-                <template id="template_depor">
-                    <div class="w-full absolute -bottom-2 flex flex-col items-center justify-start h-[14vh] text-center animate-pulseScaleWithDelay font-gotham-ultra leading-none gap-x-4 text-red-600">
-                        <div id="price2" class="text-[40%] line-through font-gotham-bold text-gray-700"></div>
-                        <div class="flex flex-row gap-4">
-                            <div class="flex flex-col items-end font-gotham-ultra-italic">
-                                <div class="text-[40%]">POR</div>
-                                <div class="flex flex-row ml-5">R$</div>
-                            </div>
-                            <div id="price" class="price flex flex-row text-[200%]"></div>
-                            <div class="flex flex-col items-start">
-                                <div id="cents" class="cents"></div>
-                                <div id="texto4" class="unit text-[40%]"></div>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-
-
-
             </div>
 
+            <!-- Coluna direita (landscape): titulo + preco + legal -->
+            <div id="info_column" class="flex-1 min-w-0 flex flex-col border-t border-black/15 landscape:border-t-0 landscape:border-l landscape:border-black/15">
+                <!-- 3. TÍTULO DO PRODUTO -->
+                <div id="title_container" class="basis-[30%] landscape:basis-[31%] shrink-0 flex items-center justify-center landscape:justify-end w-full opacity-0 -translate-x-full transition-all duration-1000 delay-100 px-4 py-1 landscape:pb-0">
+                    <div id="title" class="w-full text-center leading-tight overflow-hidden max-h-[100%]"></div>
+                </div>
 
+                <!-- 4. PREÇO -->
+                <div id="price_display" class="basis-[52%] landscape:basis-[53%] shrink-0 w-full flex items-center justify-center landscape:items-start translate-y-full transition-transform duration-700 delay-200 mt-1 landscape:mt-0"></div>
+
+                <!-- 5. TEXTO LEGAL -->
+                <div id="legal_text" class="basis-[18%] landscape:basis-[16%] shrink-0 text-[36%] portrait:text-[34%] landscape:text-[28%] text-center w-full px-4 py-1 opacity-50 flex items-center justify-center"></div>
+            </div>
         </div>
-        <div id="legal_text" class="absolute text-[50%] flex items-center justify-center w-full bottom-[200px]"></div>
     </div>
+
+    <!-- ── TEMPLATES DE PREÇO ──────────────────────────────────────────────── -->
+    <!-- Fora do #fullContent para não interferir no layout flex               -->
+
+    <!-- REGULAR: R$ 99,99 / kg -->
+    <template id="template_regular">
+        <div class="w-full flex flex-row items-end justify-center py-4 portrait:py-5 px-4 leading-none gap-[0.2em] max-w-[96vw] mx-auto whitespace-nowrap"
+            data-price-layout="regular" data-theme="default">
+
+            <span data-price-part="symbol"
+                class="font-gotham-ultra-italic text-[145%] landscape:text-[165%] self-end mb-[0.18em] leading-none">R$</span>
+
+            <span data-price-part="integer"
+                class="font-gotham-ultra text-[235%] landscape:text-[270%] leading-none tracking-tight min-w-0"></span>
+
+            <span class="flex flex-col items-start leading-none self-end mb-[0.08em]">
+                <span data-price-part="decimal"
+                    class="font-gotham-ultra text-[92%] landscape:text-[104%] leading-none"><span class="opacity-70">,</span><span></span></span>
+                <span data-price-part="unit"
+                    class="font-gotham-bold text-[55%] leading-none mt-[0.2em] opacity-80"></span>
+            </span>
+        </div>
+    </template>
+
+    <!-- DE/POR: DE R$ 99,99 → POR R$ 79,99 / kg -->
+    <template id="template_depor">
+        <div class="w-full flex flex-col items-center justify-center py-3 portrait:py-4 px-4 leading-none gap-[0.2em] landscape:gap-[0.12em] max-w-[96vw] mx-auto"
+            data-price-layout="depor" data-theme="default">
+
+            <!-- Linha "DE" -->
+            <div data-price-part="old-price"
+                class="flex flex-row items-end gap-[0.2em] opacity-70">
+                <span class="font-gotham-bold text-[55%] leading-none">DE</span>
+                <span class="font-gotham-ultra-italic text-[55%] leading-none">R$</span>
+                <span class="font-gotham-bold text-[65%] leading-none line-through decoration-2"></span>
+            </div>
+
+            <!-- Linha "POR" -->
+            <div class="flex flex-row items-end justify-center gap-[0.18em] landscape:gap-[0.22em] w-full max-w-[94vw] mx-auto whitespace-nowrap">
+                <span class="font-gotham-ultra text-[115%] landscape:text-[138%] leading-none self-end mb-[0.16em]">POR</span>
+                <span class="font-gotham-ultra-italic text-[130%] landscape:text-[160%] leading-none self-end mb-[0.18em]">R$</span>
+                <span data-price-part="integer"
+                    class="font-gotham-ultra text-[210%] landscape:text-[252%] leading-none tracking-tight min-w-0"></span>
+                <span class="flex flex-col items-start leading-none self-end mb-[0.08em]">
+                    <span data-price-part="decimal"
+                        class="font-gotham-ultra text-[82%] landscape:text-[98%] leading-none"><span class="opacity-70">,</span><span></span></span>
+                    <span data-price-part="unit"
+                        class="font-gotham-bold text-[50%] landscape:text-[58%] leading-none mt-[0.2em] opacity-80"></span>
+                </span>
+            </div>
+        </div>
+    </template>
+
+    <!-- LEVE 3 PAGUE 2 -->
+    <template id="template_leve3pague2">
+        <div class="w-full flex flex-col items-center justify-center py-3 portrait:py-4 px-4 leading-none gap-[0.35em] max-w-[96vw] mx-auto"
+            data-price-layout="leve3pague2" data-theme="promo">
+
+            <div data-price-label class="bg-current text-white font-gotham-ultra px-5 py-[0.2em] rounded-full text-[55%] tracking-wide uppercase w-auto">
+                LEVE 3 PAGUE 2
+            </div>
+
+            <div class="flex flex-row items-end justify-center gap-[0.2em] w-full max-w-[94vw] mx-auto whitespace-nowrap">
+                <span data-price-part="symbol"
+                    class="font-gotham-ultra-italic text-[135%] leading-none self-end mb-[0.18em]">R$</span>
+                <span data-price-part="integer"
+                    class="font-gotham-ultra text-[212%] leading-none tracking-tight min-w-0"></span>
+                <span class="flex flex-col items-start leading-none self-end mb-[0.08em]">
+                    <span data-price-part="decimal"
+                        class="font-gotham-ultra text-[82%] leading-none"><span class="opacity-70">,</span><span></span></span>
+                    <span data-price-part="unit"
+                        class="font-gotham-bold text-[50%] leading-none mt-[0.2em] opacity-80"></span>
+                </span>
+            </div>
+            <div class="font-gotham-book text-[45%] opacity-70">cada unidade</div>
+        </div>
+    </template>
+
+    <!-- LEVE 3 PAGUE 1 -->
+    <template id="template_leve3pague1">
+        <div class="w-full flex flex-col items-center justify-center py-3 portrait:py-4 px-4 leading-none gap-[0.35em] max-w-[96vw] mx-auto"
+            data-price-layout="leve3pague1" data-theme="promo">
+
+            <div data-price-label class="bg-green-700 text-white font-gotham-ultra px-5 py-[0.2em] rounded-full text-[55%] tracking-wide uppercase w-auto">
+                LEVE 3 PAGUE 1
+            </div>
+
+            <div class="flex flex-row items-end justify-center gap-[0.2em] w-full max-w-[94vw] mx-auto whitespace-nowrap">
+                <span data-price-part="symbol"
+                    class="font-gotham-ultra-italic text-[135%] leading-none self-end mb-[0.18em]">R$</span>
+                <span data-price-part="integer"
+                    class="font-gotham-ultra text-[220%] leading-none tracking-tight min-w-0"></span>
+                <span class="flex flex-col items-start leading-none self-end mb-[0.08em]">
+                    <span data-price-part="decimal"
+                        class="font-gotham-ultra text-[84%] leading-none"><span class="opacity-70">,</span><span></span></span>
+                    <span data-price-part="unit"
+                        class="font-gotham-bold text-[50%] leading-none mt-[0.2em] opacity-80"></span>
+                </span>
+            </div>
+            <div class="font-gotham-book text-[45%] opacity-70">na compra de 3 unidades</div>
+        </div>
+    </template>
+
+    <!-- CLUBE -->
+    <template id="template_clube">
+        <div class="w-full flex flex-col items-center justify-center py-3 portrait:py-4 px-4 leading-none gap-[0.35em] max-w-[96vw] mx-auto"
+            data-price-layout="clube" data-theme="clube">
+
+            <div class="bg-blue-700 text-white font-gotham-ultra px-5 py-[0.2em] rounded-md text-[50%] tracking-wide uppercase">
+                ★ <span data-price-label>PRECO CLUBE</span> ★
+            </div>
+
+            <div class="flex flex-row items-end justify-center gap-[0.2em] text-blue-700 w-full max-w-[94vw] mx-auto whitespace-nowrap">
+                <span data-price-part="symbol"
+                    class="font-gotham-ultra-italic text-[138%] leading-none self-end mb-[0.18em]">R$</span>
+                <span data-price-part="integer"
+                    class="font-gotham-ultra text-[220%] leading-none tracking-tight min-w-0"></span>
+                <span class="flex flex-col items-start leading-none self-end mb-[0.08em]">
+                    <span data-price-part="decimal"
+                        class="font-gotham-ultra text-[84%] leading-none"><span class="opacity-70">,</span><span></span></span>
+                    <span data-price-part="unit"
+                        class="font-gotham-bold text-[50%] leading-none mt-[0.2em] opacity-80 text-blue-500"></span>
+                </span>
+            </div>
+        </div>
+    </template>
+
+    <!-- OFERTA -->
+    <template id="template_oferta">
+        <div class="w-full flex flex-col items-center justify-center py-4 portrait:py-5 px-4 leading-none gap-[0.3em] bg-red-600 max-w-[96vw] mx-auto"
+            data-price-layout="oferta" data-theme="oferta">
+
+            <div data-price-label class="text-white font-gotham-ultra text-[50%] tracking-widest uppercase">
+                OFERTA IMPERDIVEL
+            </div>
+
+            <div class="flex flex-row items-end justify-center gap-[0.2em] text-yellow-300 w-full max-w-[94vw] mx-auto whitespace-nowrap">
+                <span data-price-part="symbol"
+                    class="font-gotham-ultra-italic text-[150%] leading-none self-end mb-[0.18em]">R$</span>
+                <span data-price-part="integer"
+                    class="font-gotham-ultra text-[235%] leading-none tracking-tight min-w-0"></span>
+                <span class="flex flex-col items-start leading-none self-end mb-[0.08em]">
+                    <span data-price-part="decimal"
+                        class="font-gotham-ultra text-[92%] leading-none"><span class="opacity-70">,</span><span></span></span>
+                    <span data-price-part="unit"
+                        class="font-gotham-bold text-[50%] leading-none mt-[0.2em] text-white opacity-80"></span>
+                </span>
+            </div>
+        </div>
+    </template>
+
 </body>
 
 </html>
