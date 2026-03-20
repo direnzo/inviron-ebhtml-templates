@@ -1,9 +1,18 @@
 /**
- * layout-engine.js - regras de layout responsivo por perfil
+ * @file layout-engine.js
+ * Aplica configurações de layout responsivo ao DOM com base no aspect ratio da viewport.
+ * Chamado pelo runtime-engine no carregamento e a cada resize de janela.
+ * Não acessa dados de produto — só manipula estrutura/classes CSS dos blocos.
+ * @namespace ArmazemSeuJeitoLayoutEngine
  */
 (function() {
     var currentProfile = 'default';
 
+    /**
+     * Detecta o perfil de layout com base no aspect ratio atual da viewport.
+     * Limiares: portrait ≤ 3:4 | default = 3:4 a 4:3 | landscape ≥ 4:3 | ultrawide ≥ 3:1.
+     * @returns {'portrait'|'landscape'|'ultrawide'|'default'} Perfil detectado.
+     */
     function getViewportProfile() {
         var ratio = window.innerWidth / window.innerHeight;
         if (ratio >= 3) {
@@ -18,6 +27,13 @@
         return 'default';
     }
 
+    /**
+     * Lê um valor de um mapa de configuração por perfil, com duplo fallback.
+     * @param {Object} map      - Mapa com chaves por perfil (default, portrait, landscape...).
+     * @param {string} profile  - Perfil atual da viewport.
+     * @param {*}      fallback - Valor de último recurso se map for nulo ou vazio.
+     * @returns {*} Valor do perfil, ou do 'default', ou do fallback.
+     */
     function getProfileValue(map, profile, fallback) {
         if (!map) {
             return fallback;
@@ -31,6 +47,13 @@
         return fallback;
     }
 
+    /**
+     * Aplica ao DOM todas as regras de layout para o perfil atual da viewport.
+     * Ajusta: topo da safe area, flex-direction, flex-basis dos blocos,
+     * alinhamento do título, opacidade/tamanho do texto legal e borda da coluna.
+     * @param {Object} cfg - Referência a TEMPLATE_CONFIG (global).
+     * @returns {'portrait'|'landscape'|'ultrawide'|'default'} Perfil aplicado.
+     */
     function applyLayoutConfig(cfg) {
         var profile = getViewportProfile();
         currentProfile = profile;
@@ -98,6 +121,7 @@
         return profile;
     }
 
+    /** API pública do layout engine. Consumida por runtime-engine.js. */
     window.ArmazemSeuJeitoLayoutEngine = {
         applyLayoutConfig: applyLayoutConfig,
         getProfileValue: getProfileValue,

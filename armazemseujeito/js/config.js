@@ -1,7 +1,24 @@
 /**
- * config.js — Configurações centralizadas do template
- * Tudo que o cliente pode personalizar está aqui.
- * Edite aqui antes de alterar HTML ou CSS.
+ * @file config.js
+ * Configurações centralizadas do template Armazém Seu Jeito.
+ * Tudo que o cliente pode personalizar está aqui — sem precisar abrir HTML ou JS.
+ *
+ * Estrutura de alto nível:
+ *   timing           — duração e delay de animação
+ *   dataset          — nome do dataset EBHTML
+ *   priceTemplates   — mapeia condição → id do <template> HTML
+ *   priceConditionAliases — normaliza strings soltas do CMS para chaves canônicas
+ *   priceConditionLabels  — rótulos exibidos nos badges dos templates
+ *   priceConditionRules   — regras de fallback quando TEXTO3 for ambíguo
+ *   currencySymbol   — símbolo monetário (R$, $, €...)
+ *   defaultLegalText — texto legal padrão se TEXTO5 vier vazio
+ *   priceAnimations  — classe Tailwind de animação por condição
+ *   priceColors      — classe Tailwind de cor por condição
+ *   titleFit         — parâmetros do ajuste automático de fonte do título
+ *   layout           — perfis de safe area, blocos, escala e proporções
+ *
+ * @global
+ * @type {Object} TEMPLATE_CONFIG
  */
 var TEMPLATE_CONFIG = {
 

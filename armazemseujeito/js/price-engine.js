@@ -1,7 +1,21 @@
 /**
- * price-engine.js - formatacao de preco e selecao de templates
+ * @file price-engine.js
+ * Responsável por toda a lógica de preço do template:
+ *   - Leitura segura de campos do dataSource EBHTML
+ *   - Formatação numérica brasileira (separadores milhar/decimal)
+ *   - Resolução da condição de preço (REGULAR, DEPOR, LEVE3PAGUE2...)
+ *   - Clonagem e preenchimento do template HTML correto
+ *   - Ajuste proporcional de fontes baseado em proporção áurea (phi ≈ 1.618)
+ * @namespace ArmazemSeuJeitoPriceEngine
  */
 (function() {
+    /**
+     * Lê com segurança o valor de um campo em um dataSource EBHTML.
+     * Retorna string vazia em caso de falha ou campo ausente.
+     * @param {Object} item - dataSource retornado por loader.data() ou MOCK_DATA.wrap().
+     * @param {string} key  - Nome do campo (ex: 'TITULO', 'PRICE').
+     * @returns {string} Valor do campo ou ''.
+     */
     function getField(item, key) {
         try {
             if (item && typeof item.value === 'function') {
@@ -16,6 +30,12 @@
         return '';
     }
 
+    /**
+     * Converte qualquer valor em string no formato "0,00" (dois decimais).
+     * Valores não numéricos são tratados como zero.
+     * @param {*} value - Valor bruto (número ou string).
+     * @returns {string} Ex: '5,99', '1234,00'.
+     */
     function toNumber(value) {
         var num = parseFloat(value);
         if (isNaN(num)) {
@@ -24,6 +44,14 @@
         return num.toFixed(2).replace('.', ',');
     }
 
+    /**
+     * Formata um valor monetário separando inteiro e decimal, com separador de milhar.
+     * @param {string|number} price - Valor bruto (ex: '1234.5', '1234,50', 1234.5).
+     * @returns {{integer: string, decimal: string, full: string}}
+     *   integer: parte inteira com ponto de milhar (ex: '1.234')
+     *   decimal: centavos com 2 dígitos (ex: '50')
+     *   full:    string completa (ex: '1.234,50')
+     */
     function formatPrice(price) {
         var cleaned = toNumber(price).replace(/[^\d,]/g, '');
         var parts = cleaned.split(',');
@@ -43,6 +71,13 @@
         };
     }
 
+    /**
+     * Reduz iterativamente o font-size de descriptionDiv até ele caber em containerDiv.
+     * Seguro para WebKit legado; não usa ResizeObserver nem Promises (ES5).
+     * @param {HTMLElement} descriptionDiv   - Elemento cujo texto deve ser ajustado.
+     * @param {HTMLElement} containerDiv     - Contêiner com altura máxima restritiva.
+     * @param {number}      [minFontSize=12] - Tamanho mínimo permitido em px.
+     */
     function fitDescriptionFont(descriptionDiv, containerDiv, minFontSize) {
         var minSize = minFontSize || 12;
         var fontSize = parseInt(window.getComputedStyle(descriptionDiv).fontSize, 10);
@@ -54,12 +89,28 @@
         }
     }
 
+    /**
+     * Normaliza a string de condição vinda do CMS através da tabela de aliases do config.
+     * Converte para maiúsculas e faz trim antes da busca.
+     * @param {Object} cfg    - TEMPLATE_CONFIG.
+     * @param {string} texto3 - Valor bruto do campo TEXTO3.
+     * @returns {string} Condição normalizada (ex: 'DEPOR', 'LEVE3PAGUE2').
+     */
     function normalizeCondition(cfg, texto3) {
         var raw = String(texto3 || '').toUpperCase().trim();
         var aliases = cfg.priceConditionAliases || {};
         return aliases[raw] || raw;
     }
 
+    /**
+     * Determina a condição de preço a usar para um item do dataset.
+     * Fluxo de resolução (ordem de prioridade):
+     *   1. Alias direto de TEXTO3 normalizado (se mapeado em cfg.priceTemplates)
+     *   2. Regras em cfg.priceConditionRules: whenHasPrice2, whenTextContains, fallback
+     * @param {Object} cfg        - TEMPLATE_CONFIG.
+     * @param {Object} dataSource - dataSource EBHTML ou mock.
+     * @returns {string} Chave de condição (ex: 'REGULAR', 'DEPOR', 'CLUBE').
+     */
     function resolvePriceCondition(cfg, dataSource) {
         var rawText = getField(dataSource, 'TEXTO3');
         var normalized = normalizeCondition(cfg, rawText);
@@ -96,6 +147,15 @@
         return 'REGULAR';
     }
 
+    /**
+     * Ajusta os tamanhos de fonte das partes do preço usando proporção áurea.
+     * Aplica escala por perfil (cfg.layout.priceScale) e reduz iterativamente
+     * até que o bloco caiba horizontalmente (máx 60 iterações por linha).
+     * Proporções: symbol ≈ 0.62, decimal ≈ 0.39, unit ≈ 0.24 do inteiro (phi-derived).
+     * @param {Object}      cfg       - TEMPLATE_CONFIG.
+     * @param {string}      profile   - Perfil atual de layout.
+     * @param {HTMLElement} container - Elemento #price_display.
+     */
     function fitPriceLayout(cfg, profile, container) {
         if (!container) {
             return;
@@ -158,6 +218,18 @@
         }
     }
 
+    /**
+     * Seleciona, clona e preenche o template HTML de preço correto para o item.
+     * Sequência de operações:
+     *   1. Resolve condição de preço via resolvePriceCondition()
+     *   2. Clona o <template id="template_*"> correspondente
+     *   3. Preenche slots: symbol, integer, decimal, unit, old-price, data-price-label
+     *   4. Aplica classes de cor e animação Tailwind ao root do clone
+     *   5. Chama fitPriceLayout() para ajuste proporcional de fontes
+     * @param {Object} cfg        - TEMPLATE_CONFIG.
+     * @param {Object} dataSource - dataSource EBHTML ou mock.
+     * @param {string} profile    - Perfil de layout atual.
+     */
     function setupPriceTemplate(cfg, dataSource, profile) {
         var condition = resolvePriceCondition(cfg, dataSource);
         var price = getField(dataSource, 'PRICE');
@@ -233,6 +305,7 @@
         fitPriceLayout(cfg, profile, container);
     }
 
+    /** API pública do price engine. Consumida por runtime-engine.js. */
     window.ArmazemSeuJeitoPriceEngine = {
         getField: getField,
         fitDescriptionFont: fitDescriptionFont,

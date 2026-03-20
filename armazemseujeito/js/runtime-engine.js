@@ -1,5 +1,17 @@
 /**
- * runtime-engine.js - orquestracao do template
+ * @file runtime-engine.js
+ * Orquestrador principal do template. Conecta layout-engine + price-engine
+ * ao ciclo de vida do EBHTML (loader) e ao modo mock.
+ *
+ * Fluxo normal (player):
+ *   startRuntime() → applyLayoutConfig() → EBHTML loader → applyDataToView()
+ *                 → image.onload → loader.loaded() + revealLayout()
+ *                 → setTimeout → loader.finished()
+ *
+ * Fluxo mock (MOCK_DATA.enabled = true):
+ *   startRuntime() → MOCK_DATA.getData() → applyDataToView() → revealLayout()
+ *
+ * @namespace ArmazemSeuJeitoEngine
  */
 (function() {
     var CFG = (typeof TEMPLATE_CONFIG !== 'undefined') ? TEMPLATE_CONFIG : {
@@ -26,14 +38,24 @@
         }
     };
 
+    /**
+     * @returns {ArmazemSeuJeitoLayoutEngine|undefined}
+     */
     function getLayoutEngine() {
         return window.ArmazemSeuJeitoLayoutEngine;
     }
 
+    /**
+     * @returns {ArmazemSeuJeitoPriceEngine|undefined}
+     */
     function getPriceEngine() {
         return window.ArmazemSeuJeitoPriceEngine;
     }
 
+    /**
+     * Delega para ArmazemSeuJeitoLayoutEngine.applyLayoutConfig com o CFG atual.
+     * @returns {string} Perfil aplicado ou 'default' se o engine não estiver disponível.
+     */
     function applyLayoutConfig() {
         var layoutEngine = getLayoutEngine();
         if (!layoutEngine || typeof layoutEngine.applyLayoutConfig !== 'function') {
@@ -42,6 +64,12 @@
         return layoutEngine.applyLayoutConfig(CFG);
     }
 
+    /**
+     * Dispara as animações CSS de entrada dos elementos visíveis:
+     * body fade-in, safe area fade-in, price slide-up,
+     * imagem slide-right, título slide-left + fade-in.
+     * Inicia o vídeo de fundo se presente.
+     */
     function revealLayout() {
         var body = document.body;
         var content = document.getElementById('fullContent');
@@ -78,6 +106,16 @@
         }
     }
 
+    /**
+     * Popula o DOM com os dados de um item e controla o fluxo do loader.
+     * - Lê título, preço, texto legal e URL da imagem do dataSource
+     * - Renderiza o template de preço via price engine
+     * - Ajusta fonte do título para caber no container
+     * - Aguarda carregamento da imagem antes de chamar loader.loaded()
+     * - Em erro de imagem: oculta a tag img, mas ainda chama loaded() + revealLayout()
+     * @param {Object} dataSource - dataSource EBHTML ou mock.
+     * @param {{loaded: Function, finished: Function}} loader - Loader EBHTML ou stub mock.
+     */
     function applyDataToView(dataSource, loader) {
         var priceEngine = getPriceEngine();
         if (!priceEngine) {
@@ -137,10 +175,37 @@
         image.src = imageUrl;
     }
 
-    function getMockEngine() {
-        return window.ArmazemSeuJeitoMockLoaderEngine;
+    /**
+     * Retorna o dataSource mock se MOCK_DATA estiver ativo e tiver getData(), caso contrário null.
+     * @returns {Object|null}
+     */
+    function getMockSource() {
+        if (typeof MOCK_DATA === 'undefined' || !MOCK_DATA.enabled || typeof MOCK_DATA.getData !== 'function') {
+            return null;
+        }
+        return MOCK_DATA.getData();
     }
 
+    /**
+     * Cria um stub de loader compatível com a API EBHTML para uso no modo mock.
+     * @returns {{loaded: Function, finished: Function}}
+     */
+    function getMockLoader() {
+        return {
+            loaded: function() {
+                console.log('[Mock] Carregado');
+            },
+            finished: function() {
+                console.log('[Mock] Finalizado');
+            }
+        };
+    }
+
+    /**
+     * Extrai o dataSource do loader EBHTML e chama applyDataToView.
+     * Encerra com finished() se o dataset não for encontrado.
+     * @param {{data: Function, finished: Function, loaded: Function}} loader - Loader EBHTML.
+     */
     function startWithLoader(loader) {
         var priceEngine = getPriceEngine();
         if (!priceEngine) {
@@ -156,17 +221,18 @@
         applyDataToView(dataSource, loader);
     }
 
+    /**
+     * Ponto de entrada do player. Chamado por window.playerView() via HTML.
+     * Detecta modo mock e despacha para o fluxo correto.
+     * Não deve ser chamado em contexto de extranet/preview.
+     */
     function startRuntime() {
         applyLayoutConfig();
 
-        var mockEngine = getMockEngine();
-        if (mockEngine && mockEngine.isEnabled && mockEngine.isEnabled()) {
-            var mockSource = mockEngine.getMockData();
-            var mockLoader = mockEngine.createMockLoader();
-            if (mockSource) {
-                applyDataToView(mockSource, mockLoader);
-                return;
-            }
+        var mockSource = getMockSource();
+        if (mockSource) {
+            applyDataToView(mockSource, getMockLoader());
+            return;
         }
 
         ebhtml.create2({}, function(loader) {
@@ -183,16 +249,9 @@
         applyLayoutConfig();
     });
 
+    /** API pública do runtime. Consumida por master.js e preview.js. */
     window.ArmazemSeuJeitoEngine = {
         startRuntime: startRuntime,
-        applyDataToView: applyDataToView,
-        getField: function(item, key) {
-            var priceEngine = getPriceEngine();
-            if (!priceEngine) {
-                return '';
-            }
-            return priceEngine.getField(item, key);
-        },
-        applyLayoutConfig: applyLayoutConfig
+        applyDataToView: applyDataToView
     };
 })();

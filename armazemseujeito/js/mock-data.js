@@ -1,5 +1,22 @@
+/**
+ * @file mock-data.js
+ * Dados de teste locais para desenvolvimento sem servidor EdgeContents.
+ * Para ativar: MOCK_DATA.enabled = true e script incluso no HTML (já está por padrão).
+ * Para desativar em produção: comente o <script src="js/mock-data.js"> no index.html.
+ */
+
+/** @type {Object} MOCK_DATA */
 var MOCK_DATA = {
+    /**
+     * Habilita o modo mock. false em produção.
+     * @type {boolean}
+     */
     enabled: true,
+    /**
+     * Lista de itens de exemplo, cada um simulando um registro do dataset D_MENUBOARD_PRICES.
+     * Campos em MAIÚsCULAS seguem a convenção XML do EdgeContents.
+     * @type {Array<Object>}
+     */
     dados: [
         {
             TITULO: 'REFRIG GUARANA KUAT PET 2L',
@@ -56,6 +73,10 @@ var MOCK_DATA = {
             TEXTO5: 'Promoção válida somente hoje'
         }
     ],
+    /**
+     * Retorna um item aleatório da lista encapsulado como dataSource EBHTML.
+     * @returns {{value: function(string): {value: string}}} dataSource compatível com loader.data().
+     */
     getData: function() {
         if (!this.dados || this.dados.length === 0) {
             return this.wrap({});
@@ -63,6 +84,12 @@ var MOCK_DATA = {
         var randomIndex = Math.floor(Math.random() * this.dados.length);
         return this.wrap(this.dados[randomIndex]);
     },
+    /**
+     * Encapsula um objeto plano como dataSource EBHTML.
+     * Permite que o mesmo código de runtime funcione com dados reais e mock sem alterações.
+     * @param {Object} item - Objeto com campos em MAIÚsCULAS (ex: {TITULO: 'Arroz', PRICE: '5.99'}).
+     * @returns {{value: function(string): {value: string}}} dataSource compatível.
+     */
     wrap: function(item) {
         return {
             value: function(key) {

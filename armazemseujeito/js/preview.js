@@ -1,6 +1,32 @@
+/**
+ * @file preview.js
+ * Ponto de entrada do modo preview (extranet EdgeContents).
+ * A função extranetView() é definida no escopo global e chamada pelo inline script do HTML.
+ *
+ * Prioridade de origem dos dados (em ordem):
+ *   1. window.parent.getTemplatePreviewData() / .templatePreviewData / .TEMPLATE_PREVIEW_DATA
+ *   2. MOCK_DATA (se ativo)
+ *   3. Fallback EBHTML loader (dataset D_MENUBOARD_PRICES)
+ *
+ * O loader de preview nunca chama finished() para manter o template
+ * visível na extranet sem avançar a playlist.
+ * @global
+ */
+
+/**
+ * Inicializa o template no modo preview/extranet.
+ * Definida no escopo global para ser chamada pelo inline script do HTML.
+ * @global
+ */
 function extranetView() {
     var DATASET_NAME = 'D_MENUBOARD_PRICES';
 
+    /**
+     * Cria um stub de loader que repassa loaded() mas suprime finished().
+     * Isso mantém o template visível na extranet sem avançar a playlist.
+     * @param {{loaded: Function, finished: Function}|null} realLoader - Loader EBHTML real, ou null.
+     * @returns {{loaded: Function, finished: Function}}
+     */
     function getPreviewLoader(realLoader) {
         return {
             loaded: function() {
@@ -14,10 +40,21 @@ function extranetView() {
         };
     }
 
+    /**
+     * Normaliza a chave de campo para maiúsculas.
+     * @param {string} key
+     * @returns {string}
+     */
     function normalizeKey(key) {
         return String(key || '').toUpperCase();
     }
 
+    /**
+     * Encapsula um objeto plano vindo do frame pai como dataSource EBHTML.
+     * Resolve múltiplos aliases de chave para tolerar variações de naming do CMS.
+     * @param {Object} data - Dados vindos do frame pai da extranet.
+     * @returns {{value: function(string): {value: string}}} dataSource compatível.
+     */
     function wrapPlainData(data) {
         var aliases = {
             TITULO: ['TITULO', 'titulo'],
@@ -48,6 +85,13 @@ function extranetView() {
         };
     }
 
+    /**
+     * Tenta extrair os dados de preview do frame pai da extranet.
+     * Tenta três propriedades do parent em ordem: getTemplatePreviewData(),
+     * templatePreviewData, TEMPLATE_PREVIEW_DATA.
+     * Retorna null se nenhuma for encontrada ou se houver erro cross-origin.
+     * @returns {Object|null} dataSource encapsulado, ou null.
+     */
     function extractParentData() {
         var parentRef = null;
         var data = null;
@@ -97,6 +141,11 @@ function extranetView() {
         return wrapPlainData(data);
     }
 
+    /**
+     * Fallback final: inicia um runner EBHTML normal para carregar o dataset no preview.
+     * Usado quando não há dados do frame pai e o mock está desativado.
+     * @param {{applyDataToView: Function}} app - window.ArmazemSeuJeitoApp.
+     */
     function startPreviewWithDataset(app) {
         ebhtml.create2({}, function(loader) {
             loader.addData(DATASET_NAME, false);
