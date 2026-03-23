@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/master.css">
     <script src="js/config.js"></script>
     <script src="js/ebhtml.js"></script>
-    <script src="js/mock-data.js"></script>
+    <!-- <script src="js/mock-data.js"></script> -->
     <script src="js/layout-engine.js"></script>
     <script src="js/price-engine.js"></script>
     <script src="js/runtime-engine.js"></script>
@@ -59,7 +59,7 @@
             </div>
 
             <!-- Coluna direita (landscape): titulo + preco + legal -->
-            <div id="info_column" class="flex-1 min-w-0 flex flex-col border-t border-black/15 landscape:justify-center landscape:border-t-0 landscape:border-l landscape:border-black/15">
+            <div id="info_column" class="flex-1 min-w-0 flex flex-col border-t border-black/15 justify-center landscape:border-t-0 landscape:border-l landscape:border-black/15">
                 <!-- 3. TÍTULO DO PRODUTO -->
                 <div id="title_container" class="basis-[30%] landscape:basis-[31%] shrink-0 flex items-center justify-center landscape:justify-end w-full opacity-0 -translate-x-full transition-all duration-1000 delay-100 px-4 py-0 my-2 landscape:pb-0">
                     <div id="title" class="w-full text-center leading-tight overflow-hidden max-h-[100%]"></div>
@@ -187,7 +187,7 @@
                 <span class="font-gotham-book text-[58%] self-center opacity-70">em</span>
                 <span data-price-part="qty" class="font-gotham-ultra leading-none text-[292%] landscape:text-[320%] self-start"></span>
                 <span class="font-gotham-bold self-center leading-none">X</span>
-                <div class="text-[40%] flex ml-2" data-price2-hero></div>
+                <div class="text-[40%] flex ml-2 gap-1" data-price2-hero></div>
             </div>
             <div data-price-label class="price-badge bg-emerald-600 text-white rounded-full tracking-[0.12em] text-[58%]">SEM JUROS</div>
             <div class="price-row opacity-65 max-w-[84vw] gap-[0.14em]">
