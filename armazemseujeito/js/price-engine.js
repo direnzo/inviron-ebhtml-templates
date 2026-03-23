@@ -112,11 +112,25 @@
      * @returns {string} Chave de condição (ex: 'REGULAR', 'DEPOR', 'CLUBE').
      */
     function resolvePriceCondition(cfg, dataSource) {
-        var rawText = getField(dataSource, 'TEXTO3');
+        var fieldMap = cfg.fieldMap || {};
+        var texto3Fields = (fieldMap.texto3 && fieldMap.texto3.length) ? fieldMap.texto3 : ['TEXTO3'];
+        var price2Fields = (fieldMap.price2 && fieldMap.price2.length) ? fieldMap.price2 : ['PRICE2'];
+
+        var rawText = '';
+        var i;
+        for (i = 0; i < texto3Fields.length; i++) {
+            rawText = getField(dataSource, texto3Fields[i]);
+            if (rawText !== '') { break; }
+        }
+
+        var price2 = '';
+        for (i = 0; i < price2Fields.length; i++) {
+            price2 = getField(dataSource, price2Fields[i]);
+            if (price2 !== '') { break; }
+        }
+
         var normalized = normalizeCondition(cfg, rawText);
-        var price2 = getField(dataSource, 'PRICE2');
         var rules = cfg.priceConditionRules || [];
-        var i = 0;
 
         if (normalized && cfg.priceTemplates[normalized]) {
             return normalized;
@@ -124,9 +138,7 @@
 
         for (i = 0; i < rules.length; i++) {
             var rule = rules[i];
-            if (!rule) {
-                continue;
-            }
+            if (!rule) { continue; }
 
             if (rule.whenHasPrice2 === true && price2 !== '') {
                 return rule.condition;
@@ -164,6 +176,17 @@
         var rows = container.querySelectorAll('[data-price-layout]');
         var i = 0;
 
+        function findClosestPriceRow(el, fallback) {
+            var cursor = el;
+            while (cursor && cursor !== fallback) {
+                if (cursor.className && String(cursor.className).indexOf('price-row') !== -1) {
+                    return cursor;
+                }
+                cursor = cursor.parentNode;
+            }
+            return fallback;
+        }
+
         function getProfileValue(map, fallback) {
             if (!map) {
                 return fallback;
@@ -179,41 +202,100 @@
 
         for (i = 0; i < rows.length; i++) {
             var row = rows[i];
-            var integerEl = row.querySelector('[data-price-part="integer"]');
-            var symbolEl = row.querySelector('[data-price-part="symbol"]');
-            var decimalEl = row.querySelector('[data-price-part="decimal"]');
-            var unitEl = row.querySelector('[data-price-part="unit"]');
+            var integerCandidates = row.querySelectorAll('[data-price-part="integer"], [data-price-part="price2-integer"]');
+            var c;
 
-            if (!integerEl) {
-                continue;
-            }
+            for (c = 0; c < integerCandidates.length; c++) {
+                var integerEl = integerCandidates[c];
+                var part = integerEl.getAttribute('data-price-part');
+                var decimalPart = (part === 'price2-integer') ? 'price2-decimal' : 'decimal';
+                var line = findClosestPriceRow(integerEl, row);
+                var symbolEl = line.querySelector('[data-price-part="symbol"]');
+                var decimalEl = line.querySelector('[data-price-part="' + decimalPart + '"]');
+                var unitEl = line.querySelector('[data-price-part="unit"]');
 
-            integerEl.style.fontSize = '';
-            if (symbolEl) { symbolEl.style.fontSize = ''; }
-            if (decimalEl) { decimalEl.style.fontSize = ''; }
-            if (unitEl) { unitEl.style.fontSize = ''; }
+                integerEl.style.fontSize = '';
+                if (symbolEl) { symbolEl.style.fontSize = ''; }
+                if (decimalEl) { decimalEl.style.fontSize = ''; }
+                if (unitEl) { unitEl.style.fontSize = ''; }
 
-            var integerSize = parseFloat(window.getComputedStyle(integerEl).fontSize);
-            var minInteger = 34;
-            var guard = 0;
-            var scale = getProfileValue(cfg.layout.priceScale, 1);
-            var ratios = cfg.layout.priceRatios || { symbol: 0.62, decimal: 0.39, unit: 0.24 };
+                var integerSize = parseFloat(window.getComputedStyle(integerEl).fontSize);
+                var digits = String(integerEl.innerHTML || '').replace(/\D/g, '').length;
+                var minInteger = (profile === 'portrait') ? 20 : 24;
+                var guard = 0;
+                var scale = getProfileValue(cfg.layout.priceScale, 1);
+                var ratios = cfg.layout.priceRatios || { symbol: 0.50, decimal: 0.50, unit: 0.50 };
 
-            integerSize = integerSize * scale;
-            integerEl.style.fontSize = Math.round(integerSize) + 'px';
-            if (symbolEl) { symbolEl.style.fontSize = Math.round(integerSize * ratios.symbol) + 'px'; }
-            if (decimalEl) { decimalEl.style.fontSize = Math.round(integerSize * ratios.decimal) + 'px'; }
-            if (unitEl) { unitEl.style.fontSize = Math.round(integerSize * ratios.unit) + 'px'; }
+                // Escala preventiva por número de dígitos: evita que o loop de shrink
+                // precise de muitas iterações para valores longos (milhar, centena etc).
+                // digits: 1=unid, 2=dezena, 3=centena, 4=milhar, 5=dezMilhar, 6+=centMilhar
+                var digitScales = [1.00, 1.00, 1.00, 0.82, 0.64, 0.52, 0.44];
+                var digitScale = digitScales[Math.min(digits, digitScales.length - 1)] || 0.40;
 
-            while (row.scrollWidth > row.clientWidth && integerSize > minInteger && guard < 60) {
-                integerSize -= 1;
-                integerEl.style.fontSize = integerSize + 'px';
-
+                integerSize = integerSize * scale * digitScale;
+                integerEl.style.fontSize = Math.round(integerSize) + 'px';
                 if (symbolEl) { symbolEl.style.fontSize = Math.round(integerSize * ratios.symbol) + 'px'; }
                 if (decimalEl) { decimalEl.style.fontSize = Math.round(integerSize * ratios.decimal) + 'px'; }
                 if (unitEl) { unitEl.style.fontSize = Math.round(integerSize * ratios.unit) + 'px'; }
 
-                guard += 1;
+                while (line.scrollWidth > line.clientWidth && integerSize > minInteger && guard < 80) {
+                    integerSize -= 1;
+                    integerEl.style.fontSize = integerSize + 'px';
+
+                    if (symbolEl) { symbolEl.style.fontSize = Math.round(integerSize * ratios.symbol) + 'px'; }
+                    if (decimalEl) { decimalEl.style.fontSize = Math.round(integerSize * ratios.decimal) + 'px'; }
+                    if (unitEl) { unitEl.style.fontSize = Math.round(integerSize * ratios.unit) + 'px'; }
+
+                    guard += 1;
+                }
+
+                // Stack ocupa altura exata do inteiro.
+                // Com unidade: decimal no topo, unidade na base (space-between).
+                // Sem unidade: decimal no topo (flex-start).
+                var stackEl = line.querySelector('.price-stack');
+                if (stackEl) {
+                    // stackEl.style.height = Math.round(integerSize) + 'px';
+                    var unitContent = unitEl ? String(unitEl.innerHTML || '').trim() : '';
+                    stackEl.style.justifyContent = unitContent !== '' ? '' : 'flex-start';
+                }
+
+                // Unidade = 40% do tamanho dos centavos (ratio fixo, sem clamp por largura).
+            }
+        }
+
+        // Clamp vertical: reduz todos os inteiros proporcionalmente até o
+        // price-root caber dentro do container (price_display).
+        var priceRoot = container.querySelector('[data-price-layout]');
+        if (priceRoot && container.clientHeight > 0) {
+            var vertGuard = 0;
+            while (priceRoot.offsetHeight > container.clientHeight && vertGuard < 80) {
+                var allIntegers = priceRoot.querySelectorAll('[data-price-part="integer"], [data-price-part="price2-integer"]');
+                var ai;
+                var didShrink = false;
+                for (ai = 0; ai < allIntegers.length; ai++) {
+                    var aIntEl = allIntegers[ai];
+                    var aSize = parseFloat(aIntEl.style.fontSize) || parseFloat(window.getComputedStyle(aIntEl).fontSize);
+                    if (aSize <= 18) { continue; }
+                    var aNewSize = aSize - 1;
+                    aIntEl.style.fontSize = aNewSize + 'px';
+                    var aPart = aIntEl.getAttribute('data-price-part');
+                    var aDecPart = (aPart === 'price2-integer') ? 'price2-decimal' : 'decimal';
+                    var aLine = findClosestPriceRow(aIntEl, priceRoot);
+                    var aSym = aLine.querySelector('[data-price-part="symbol"]');
+                    var aDec = aLine.querySelector('[data-price-part="' + aDecPart + '"]');
+                    var aUni = aLine.querySelector('[data-price-part="unit"]');
+                    var aRatios = cfg.layout.priceRatios || { symbol: 0.50, decimal: 0.50, unit: 0.50 };
+                    if (aSym) { aSym.style.fontSize = Math.round(aNewSize * aRatios.symbol) + 'px'; }
+                    if (aDec) { aDec.style.fontSize = Math.round(aNewSize * aRatios.decimal) + 'px'; }
+                    if (aUni && String(aUni.innerHTML || '').trim() !== '') {
+                        aUni.style.fontSize = Math.round(aNewSize * aRatios.unit) + 'px';
+                    }
+                    var aStack = aLine.querySelector('.price-stack');
+                    if (aStack) { aStack.style.height = Math.round(aNewSize) + 'px'; }
+                    didShrink = true;
+                }
+                if (!didShrink) { break; }
+                vertGuard += 1;
             }
         }
     }
@@ -231,10 +313,35 @@
      * @param {string} profile    - Perfil de layout atual.
      */
     function setupPriceTemplate(cfg, dataSource, profile) {
+        var fieldMap = cfg.fieldMap || {};
+
+        function getFirstField(fields) {
+            var i, val;
+            for (i = 0; i < fields.length; i++) {
+                val = getField(dataSource, fields[i]);
+                if (val !== '') { return val; }
+            }
+            return '';
+        }
+
+        var priceFields  = (fieldMap.price  && fieldMap.price.length)  ? fieldMap.price  : ['PRICE',  'PRECO'];
+        var price2Fields = (fieldMap.price2 && fieldMap.price2.length) ? fieldMap.price2 : ['PRICE2', 'PRECO2'];
+        var price3Fields = (fieldMap.price3 && fieldMap.price3.length) ? fieldMap.price3 : ['PRICE3'];
+        var price4Fields = (fieldMap.price4 && fieldMap.price4.length) ? fieldMap.price4 : ['PRICE4'];
+        var texto4Fields = (fieldMap.texto4 && fieldMap.texto4.length) ? fieldMap.texto4 : ['TEXTO4'];
+        var texto8Fields = (fieldMap.texto8 && fieldMap.texto8.length) ? fieldMap.texto8 : ['TEXTO8'];
+        var texto9Fields = (fieldMap.texto9 && fieldMap.texto9.length) ? fieldMap.texto9 : ['TEXTO9'];
+
         var condition = resolvePriceCondition(cfg, dataSource);
-        var price = getField(dataSource, 'PRICE');
-        var price2 = getField(dataSource, 'PRICE2');
-        var unidade = getField(dataSource, 'TEXTO4');
+        var price   = getFirstField(priceFields);
+        var price2  = getFirstField(price2Fields);
+        /*eslint-disable no-unused-vars*/
+        var price3  = getFirstField(price3Fields); // preço por peso (Regular/Por)
+        var price4  = getFirstField(price4Fields); // preço por peso (De/Fidelidade)
+        /*eslint-enable no-unused-vars*/
+        var unidade = getFirstField(texto4Fields);
+        var qty     = getFirstField(texto8Fields);
+        var qty2    = getFirstField(texto9Fields); // "pague" em LEVE-X-PAGUE-Y
 
         var templateId = (cfg.priceTemplates[condition] || cfg.priceTemplates['_default']);
         var animClass = (cfg.priceAnimations[condition] || cfg.priceAnimations['_default']);
@@ -299,6 +406,47 @@
         }
         if (unitEl && unidade) {
             unitEl.innerHTML = unidade.toUpperCase();
+        }
+
+        // Slots qty: TEXTO8 (qtd atacarejo / nº parcelas)
+        var qtyEls = clone.querySelectorAll('[data-price-part="qty"]');
+        var qi;
+        for (qi = 0; qi < qtyEls.length; qi++) {
+            qtyEls[qi].innerHTML = qty;
+        }
+
+        // Slots price2-integer / price2-decimal: para templates que exibem PRICE2 como hero
+        if (price2 !== '') {
+            var price2Formatted = formatPrice(price2);
+            var p2IntEls = clone.querySelectorAll('[data-price-part="price2-integer"]');
+            var p2DecEls = clone.querySelectorAll('[data-price-part="price2-decimal"]');
+            var pi2, pd2;
+            for (pi2 = 0; pi2 < p2IntEls.length; pi2++) {
+                p2IntEls[pi2].innerHTML = price2Formatted.integer;
+            }
+            for (pd2 = 0; pd2 < p2DecEls.length; pd2++) {
+                var p2Span = p2DecEls[pd2].querySelector('span:last-child');
+                if (p2Span) {
+                    p2Span.innerHTML = price2Formatted.decimal;
+                }
+            }
+        }
+
+        // Slots qty2: TEXTO9 (pague em LEVE-X-PAGUE-Y)
+        var qty2Els = clone.querySelectorAll('[data-price-part="qty2"]');
+        var q2i;
+        for (q2i = 0; q2i < qty2Els.length; q2i++) {
+            qty2Els[q2i].innerHTML = qty2;
+        }
+
+        // Slot price-original: exibe PRICE (base) — usado no "DE" do template_fidelidade
+        var priceOrigEl = clone.querySelector('[data-price-part="price-original"]');
+        if (priceOrigEl && price !== '') {
+            var priceOrigFormatted = formatPrice(price);
+            var poSpan = priceOrigEl.querySelector('span:last-child');
+            if (poSpan) {
+                poSpan.innerHTML = priceOrigFormatted.full;
+            }
         }
 
         container.appendChild(clone);

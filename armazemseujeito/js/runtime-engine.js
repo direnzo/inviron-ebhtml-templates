@@ -76,6 +76,7 @@
         var priceDisplay = document.getElementById('price_display');
         var imgContainer = document.getElementById('img_container');
         var titleContainer = document.getElementById('title_container');
+        var legalTextEl = document.getElementById('legal_text');
 
         body.classList.remove('opacity-0');
         body.classList.add('opacity-100');
@@ -98,6 +99,13 @@
         if (titleContainer) {
             titleContainer.classList.remove('-translate-x-full', 'opacity-0');
             titleContainer.classList.add('translate-x-0', 'opacity-100');
+        }
+
+        if (legalTextEl) {
+            setTimeout(function() {
+                legalTextEl.classList.remove('opacity-0');
+                legalTextEl.classList.add('opacity-50');
+            }, 900);
         }
 
         var video = document.getElementById('video');
@@ -134,19 +142,73 @@
         }
 
         var profile = applyLayoutConfig();
+        var fieldMap = CFG.fieldMap || {};
 
-        title.innerHTML = priceEngine.getField(dataSource, 'TITULO').toUpperCase();
+        /**
+         * Lê o primeiro campo não-vazio de uma lista de fallbacks.
+         * @param {Array<string>} fields
+         * @returns {string}
+         */
+        function getFirstField(fields) {
+            var i, val;
+            for (i = 0; i < fields.length; i++) {
+                val = priceEngine.getField(dataSource, fields[i]);
+                if (val !== '') { return val; }
+            }
+            return '';
+        }
+
+        var tituloFields = (fieldMap.titulo && fieldMap.titulo.length) ? fieldMap.titulo : ['TITULO'];
+        var fotoFields   = (fieldMap.foto   && fieldMap.foto.length)   ? fieldMap.foto   : ['FOTO', 'FOTO1'];
+        var texto5Fields = (fieldMap.texto5 && fieldMap.texto5.length) ? fieldMap.texto5 : ['TEXTO5'];
+
+        title.innerHTML = getFirstField(tituloFields).toUpperCase();
         priceEngine.setupPriceTemplate(CFG, dataSource, profile);
+
+        // Limita título a 2 linhas: calcula lineHeight real e seta maxHeight no container.
+        // fitDescriptionFont reduz a fonte até caber dentro desse limite.
+        var maxLines = CFG.titleFit.maxLines || 2;
+        var titleFontSize = parseFloat(window.getComputedStyle(title).fontSize);
+        var titleLineHeightRaw = window.getComputedStyle(title).lineHeight;
+        var titleLineHeight = parseFloat(titleLineHeightRaw);
+        if (isNaN(titleLineHeight) || titleLineHeight <= 0) {
+            titleLineHeight = titleFontSize * 1.25; // fallback leading-tight
+        }
+        titleContainer.style.maxHeight = Math.ceil(titleLineHeight * maxLines) + 'px';
+
         priceEngine.fitDescriptionFont(title, titleContainer, CFG.titleFit.minFontSize);
 
         if (legalText) {
-            var legal = priceEngine.getField(dataSource, 'TEXTO5');
+            var legal = getFirstField(texto5Fields);
             legalText.innerHTML = legal !== '' ? legal : (CFG.defaultLegalText || '');
         }
 
-        var imageUrl = priceEngine.getField(dataSource, 'FOTO');
+        var imageUrl = getFirstField(fotoFields);
+
+        /**
+         * Remove o container de imagem do fluxo flex e expande a coluna de info.
+         * Chamado quando o produto não tem imagem cadastrada ou quando a URL falha.
+         */
+        function collapseImageContainer() {
+            var imgCont = document.getElementById('img_container');
+            var infoCont = document.getElementById('info_column');
+            if (imgCont) {
+                imgCont.style.display = 'none';
+            }
+            if (infoCont) {
+                infoCont.style.flex = '1 1 100%';
+                infoCont.classList.remove('border-t', 'border-l', 'landscape:border-l', 'landscape:border-t-0');
+                infoCont.style.borderLeft = 'none';
+                infoCont.style.borderTop = 'none';
+            }
+        }
+
+        // Sem imagem no dataset: colapsa o container e centraliza conteudo
         if (imageUrl === '') {
-            loader.finished();
+            collapseImageContainer();
+            loader.loaded();
+            revealLayout();
+            setTimeout(function() { loader.finished(); }, CFG.timing.duration);
             return;
         }
 
@@ -156,7 +218,6 @@
             image.style.display = 'block';
             loader.loaded();
             revealLayout();
-
             setTimeout(function() {
                 loader.finished();
             }, CFG.timing.duration);
@@ -164,7 +225,7 @@
 
         image.onerror = function() {
             console.warn('[armazemseujeito] Imagem nao carregou: ' + imageUrl);
-            image.style.display = 'none';
+            collapseImageContainer();
             loader.loaded();
             revealLayout();
             setTimeout(function() {
@@ -197,6 +258,11 @@
             },
             finished: function() {
                 console.log('[Mock] Finalizado');
+                if (typeof MOCK_DATA !== 'undefined' &&
+                    typeof MOCK_DATA.shouldCycle === 'function' &&
+                    MOCK_DATA.shouldCycle()) {
+                    // setTimeout(function() { window.location.reload(); }, 1500);
+                }
             }
         };
     }

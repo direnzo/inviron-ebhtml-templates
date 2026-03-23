@@ -35,15 +35,20 @@ var TEMPLATE_CONFIG = {
     // Controla QUAL template HTML usar para cada condição de TEXTO3.
     // Para usar um template customizado, basta alterar o id aqui.
     priceTemplates: {
-        'REGULAR':      'template_regular',
-        'DEPOR':        'template_depor',
-        'DE-POR':       'template_depor',
-        'LEVE3PAGUE1':  'template_leve3pague1',
-        'LEVE3PAGUE2':  'template_leve3pague2',
-        'LEVE2PAGUE1':  'template_leve3pague2',
-        'CLUBE':        'template_clube',
-        'OFERTA':       'template_oferta',
-        '_default':     'template_regular'
+        'REGULAR':       'template_regular',
+        'DEPOR':         'template_depor',
+        'DE-POR':        'template_depor',
+        'LEVE3PAGUE1':   'template_leve3pague1',
+        'LEVE3PAGUE2':   'template_leve3pague2',
+        'LEVE2PAGUE1':   'template_leve3pague2',
+        'LEVE-X-PAGUE-Y':'template_levexaguey',
+        'CLUBE':         'template_clube',
+        'FIDELIDADE':    'template_fidelidade',
+        'OFERTA':        'template_oferta',
+        'COMPRE-GANHE':  'template_oferta',
+        'ATACAREJO':     'template_atacarejo',
+        'PARC-SEM-J':    'template_parcsemj',
+        '_default':      'template_regular'
     },
 
     // Aliases para normalizar valores vindos do CMS/interface
@@ -57,7 +62,10 @@ var TEMPLATE_CONFIG = {
         'PROMOÇÃO': 'OFERTA',
         'PROMO': 'OFERTA',
         'OFERTA': 'OFERTA',
+        'COMPRE-GANHE': 'COMPRE-GANHE',
+        'COMPRE GANHE': 'COMPRE-GANHE',
         'CLUBE': 'CLUBE',
+        'FIDELIDADE': 'FIDELIDADE',
         'LEVE3PAGUE1': 'LEVE3PAGUE1',
         'LEVE 3 PAGUE 1': 'LEVE3PAGUE1',
         'L3P1': 'LEVE3PAGUE1',
@@ -66,30 +74,65 @@ var TEMPLATE_CONFIG = {
         'L3P2': 'LEVE3PAGUE2',
         'LEVE2PAGUE1': 'LEVE2PAGUE1',
         'LEVE 2 PAGUE 1': 'LEVE2PAGUE1',
-        'REGULAR': 'REGULAR'
+        'LEVE-X-PAGUE-Y': 'LEVE-X-PAGUE-Y',
+        'LEVE X PAGUE Y': 'LEVE-X-PAGUE-Y',
+        'REGULAR': 'REGULAR',
+        'ATACAREJO': 'ATACAREJO',
+        'ATAC': 'ATACAREJO',
+        'PARC-SEM-J': 'PARC-SEM-J',
+        'PARC SEM J': 'PARC-SEM-J',
+        'PARCELADO': 'PARC-SEM-J',
+        'SEM JUROS': 'PARC-SEM-J'
     },
 
     // Rótulos visuais por condição (usados nos badges dos templates)
     priceConditionLabels: {
-        'LEVE3PAGUE1': 'LEVE 3 PAGUE 1',
-        'LEVE3PAGUE2': 'LEVE 3 PAGUE 2',
-        'LEVE2PAGUE1': 'LEVE 2 PAGUE 1',
-        'CLUBE': 'PRECO CLUBE',
-        'OFERTA': 'OFERTA IMPERDIVEL',
-        '_default': ''
+        'LEVE3PAGUE1':   'LEVE 3 PAGUE 1',
+        'LEVE3PAGUE2':   'LEVE 3 PAGUE 2',
+        'LEVE2PAGUE1':   'LEVE 2 PAGUE 1',
+        'LEVE-X-PAGUE-Y':'LEVE X PAGUE Y',
+        'CLUBE':         'PREÇO CLUBE',
+        'FIDELIDADE':    'FIDELIDADE',
+        'OFERTA':        'OFERTA IMPERDIVEL',
+        'COMPRE-GANHE':  'COMPRE E GANHE',
+        'ATACAREJO':     'ATACAREJO',
+        'PARC-SEM-J':    'SEM JUROS',
+        '_default':      ''
     },
 
     // Regras de fallback quando TEXTO3 vier vazio ou inconsistente
     // Ordem importa: primeira regra válida vence.
     priceConditionRules: [
-        { whenHasPrice2: true, condition: 'DEPOR' },
-        { whenTextContains: 'CLUBE', condition: 'CLUBE' },
+        { whenHasPrice2: true,  condition: 'DEPOR' },
+        { whenTextContains: 'CLUBE',                        condition: 'CLUBE' },
+        { whenTextContains: 'FIDELIDADE',                   condition: 'FIDELIDADE' },
+        { whenTextContains: 'ATACAREJO|ATAC',               condition: 'ATACAREJO' },
+        { whenTextContains: 'PARC-SEM-J|SEM JUROS|PARCELA', condition: 'PARC-SEM-J' },
+        { whenTextContains: 'COMPRE.GANHE|COMPRE E GANHE',  condition: 'COMPRE-GANHE' },
         { whenTextContains: 'LEVE 3 PAGUE 1|LEVE3PAGUE1|L3P1', condition: 'LEVE3PAGUE1' },
         { whenTextContains: 'LEVE 3 PAGUE 2|LEVE3PAGUE2|L3P2', condition: 'LEVE3PAGUE2' },
-        { whenTextContains: 'LEVE 2 PAGUE 1|LEVE2PAGUE1', condition: 'LEVE2PAGUE1' },
-        { whenTextContains: 'OFERTA|PROMO', condition: 'OFERTA' },
-        { fallback: true, condition: 'REGULAR' }
+        { whenTextContains: 'LEVE 2 PAGUE 1|LEVE2PAGUE1',   condition: 'LEVE2PAGUE1' },
+        { whenTextContains: 'LEVE.X.PAGUE.Y',               condition: 'LEVE-X-PAGUE-Y' },
+        { whenTextContains: 'OFERTA|PROMO',                  condition: 'OFERTA' },
+        { fallback: true,       condition: 'REGULAR' }
     ],
+
+    // ─── Mapeamento de Campos do Dataset ────────────────────────────────────────
+    // Ajuste aqui se o dataset real usar nomes de campos diferentes.
+    // Cada entrada é uma lista de fallback: o primeiro campo não-vazio é usado.
+    fieldMap: {
+        titulo: ['TITULO', 'TITLE', 'CATEGORY_TITLE'],
+        foto:   ['FOTO',  'FOTO1', 'FOTO2', 'FOTO3', 'FOTO4', 'FOTO5', 'SELO1'],
+        price:  ['PRICE', 'PRECO'],
+        price2: ['PRICE2', 'PRECO2'],
+        texto3: ['TEXTO3'],
+        texto4: ['TEXTO4'],
+        texto5: ['TEXTO5'],
+        texto8: ['TEXTO8'],  // qtd itens (ATACAREJO) / nº parcelas (PARC-SEM-J) / leve (LEVE-X-PAGUE-Y)
+        texto9: ['TEXTO9'],  // pague (LEVE-X-PAGUE-Y)
+        price3: ['PRICE3'], // preço por peso Regular / Por
+        price4: ['PRICE4']  // preço por peso De / Fidelidade Peso
+    },
 
     // ─── Símbolo de Moeda ─────────────────────────────────────────────────────
     // Altere para '$', '€', etc conforme o cliente
@@ -103,44 +146,54 @@ var TEMPLATE_CONFIG = {
     // Classes Tailwind de animação mapeadas por condição de preço.
     // Troque aqui para mudar o comportamento visual por tipo de oferta.
     priceAnimations: {
-        'REGULAR':      'animate-pulseScaleWithDelay',
-        'DEPOR':        'animate-pulseScaleWithDelay',
-        'DE-POR':       'animate-pulseScaleWithDelay',
-        'LEVE3PAGUE1':  'animate-heartbeat',
-        'LEVE3PAGUE2':  'animate-heartbeat',
-        'LEVE2PAGUE1':  'animate-heartbeat',
-        'CLUBE':        'animate-popIn',
-        'OFERTA':       'animate-heartbeat',
-        '_default':     'animate-pulseScaleWithDelay'
+        'REGULAR':       'animate-pulseScaleWithDelay',
+        'DEPOR':         'animate-pulseScaleWithDelay',
+        'DE-POR':        'animate-pulseScaleWithDelay',
+        'LEVE3PAGUE1':   'animate-heartbeat',
+        'LEVE3PAGUE2':   'animate-heartbeat',
+        'LEVE2PAGUE1':   'animate-heartbeat',
+        'LEVE-X-PAGUE-Y':'animate-heartbeat',
+        'CLUBE':         'animate-popIn',
+        'FIDELIDADE':    'animate-popIn',
+        'OFERTA':        'animate-heartbeat',
+        'COMPRE-GANHE':  'animate-heartbeat',
+        'ATACAREJO':     'animate-pulseScaleWithDelay',
+        'PARC-SEM-J':    'animate-pulseScaleWithDelay',
+        '_default':      'animate-pulseScaleWithDelay'
     },
 
     // ─── Cores por Condição ───────────────────────────────────────────────────
     // Classe Tailwind de cor do preço por tipo. Aplicada no container do template.
     priceColors: {
-        'REGULAR':      'text-red-600',
-        'DEPOR':        'text-red-600',
-        'DE-POR':       'text-red-600',
-        'LEVE3PAGUE1':  'text-green-700',
-        'LEVE3PAGUE2':  'text-green-600',
-        'LEVE2PAGUE1':  'text-green-600',
-        'CLUBE':        'text-blue-600',
-        'OFERTA':       'text-red-700',
-        '_default':     'text-red-600'
+        'REGULAR':       'text-red-600',
+        'DEPOR':         'text-red-600',
+        'DE-POR':        'text-red-600',
+        'LEVE3PAGUE1':   'text-green-700',
+        'LEVE3PAGUE2':   'text-green-600',
+        'LEVE2PAGUE1':   'text-green-600',
+        'LEVE-X-PAGUE-Y':'text-green-600',
+        'CLUBE':         'text-blue-600',
+        'FIDELIDADE':    'text-blue-700',
+        'OFERTA':        'text-red-700',
+        'COMPRE-GANHE':  'text-red-700',
+        'ATACAREJO':     'text-orange-600',
+        'PARC-SEM-J':    'text-emerald-700',
+        '_default':      'text-red-600'
     },
 
     // ─── Auto-fit de Fonte ────────────────────────────────────────────────────
     titleFit: {
         minFontSize: 10,        // Tamanho mínimo em px
-        maxLines: 3,            // Truncar além de N linhas
+        maxLines: 2,            // Máximo de linhas permitidas no título
     },
 
     // ─── Phase 2: Layout centralizado por formato ────────────────────────────
     layout: {
         // Topo da area branca (safe area)
         safeAreaTop: {
-            default: '34vh',
-            portrait: '34vh',
-            landscape: '30vh',
+            default: '30vh',
+            portrait: '30vh',
+            landscape: '26vh',
             ultrawide: '24vh'
         },
 
@@ -190,11 +243,14 @@ var TEMPLATE_CONFIG = {
             ultrawide: 1.18
         },
 
-        // Razoes entre partes do preco (base proporcao aurea)
+        // Razões entre partes do preco
+        // symbol: 0.50 = R$ ocupa metade da altura do inteiro, alinhado ao topo
+        // decimal: 0.50 = centavos ocupam metade da altura do inteiro
+        // unit:    0.15 = unidade ocupa 15% da altura do inteiro
         priceRatios: {
-            symbol: 0.62,
-            decimal: 0.39,
-            unit: 0.24
+            symbol: 0.50,
+            decimal: 0.50,
+            unit: 0.15
         }
     }
 };

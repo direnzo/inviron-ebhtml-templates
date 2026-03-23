@@ -44,7 +44,7 @@
     </div>
 
     <!-- Safe area branca: elementos dinamicos ficam somente aqui -->
-    <div id="fullContent" class="absolute inset-x-0 bottom-0 top-[34vh] portrait:top-[34vh] landscape:top-[30vh] ultrawide:top-[24vh] bg-[#f1f1f1] z-10 opacity-0 transition-opacity duration-300 delay-75 overflow-hidden">
+    <div id="fullContent" class="absolute inset-x-0 bottom-0 bg-[#FFFFFF] z-10 opacity-0 transition-opacity duration-300 delay-75 overflow-hidden">
 
         <!-- 1. LOGO -->
         <div id="logo_container" class="hidden shrink-0 items-center justify-center h-[10vh] portrait:h-[11vh] w-full px-4">
@@ -63,17 +63,18 @@
             <!-- Coluna direita (landscape): titulo + preco + legal -->
             <div id="info_column" class="flex-1 min-w-0 flex flex-col border-t border-black/15 landscape:border-t-0 landscape:border-l landscape:border-black/15">
                 <!-- 3. TÍTULO DO PRODUTO -->
-                <div id="title_container" class="basis-[30%] landscape:basis-[31%] shrink-0 flex items-center justify-center landscape:justify-end w-full opacity-0 -translate-x-full transition-all duration-1000 delay-100 px-4 py-1 landscape:pb-0">
+                <div id="title_container" class="basis-[30%] landscape:basis-[31%] shrink-0 flex items-center justify-center landscape:justify-end w-full opacity-0 -translate-x-full transition-all duration-1000 delay-100 px-4 py-0 my-2 landscape:pb-0">
                     <div id="title" class="w-full text-center leading-tight overflow-hidden max-h-[100%]"></div>
                 </div>
 
                 <!-- 4. PREÇO -->
                 <div id="price_display" class="basis-[52%] landscape:basis-[53%] shrink-0 w-full flex items-center justify-center landscape:items-start translate-y-full transition-transform duration-700 delay-200 mt-1 landscape:mt-0"></div>
 
-                <!-- 5. TEXTO LEGAL -->
-                <div id="legal_text" class="basis-[18%] landscape:basis-[16%] shrink-0 text-[36%] portrait:text-[34%] landscape:text-[28%] text-center w-full px-4 py-1 opacity-50 flex items-center justify-center"></div>
             </div>
         </div>
+
+        <!-- Texto legal: fixo na borda inferior, anima com opacity -->
+        <div id="legal_text" class="absolute inset-x-0 bottom-[0.5vh] text-[36%] portrait:text-[34%] landscape:text-[28%] text-center w-full px-4 opacity-0 transition-opacity duration-700 delay-1000"></div>
     </div>
 
     <!-- ── TEMPLATES DE PREÇO ──────────────────────────────────────────────── -->
@@ -81,58 +82,59 @@
 
     <!-- REGULAR: R$ 99,99 / kg -->
     <template id="template_regular">
-        <div class="w-full flex flex-row items-end justify-center py-4 portrait:py-5 px-4 leading-none gap-[0.2em] max-w-[96vw] mx-auto whitespace-nowrap" data-price-layout="regular" data-theme="default">
-
-            <span data-price-part="symbol" class="font-gotham-ultra-italic text-[145%] landscape:text-[165%] self-end mb-[0.18em] leading-none">R$</span>
-
-            <span data-price-part="integer" class="font-gotham-ultra text-[235%] landscape:text-[270%] leading-none tracking-tight min-w-0"></span>
-
-            <span class="flex flex-col items-start leading-none self-end mb-[0.08em]">
-                <span data-price-part="decimal" class="font-gotham-ultra text-[92%] landscape:text-[104%] leading-none"><span class="opacity-70">,</span><span></span></span>
-                <span data-price-part="unit" class="font-gotham-bold text-[55%] leading-none mt-[0.2em] opacity-80"></span>
-            </span>
+        <div class="price-root gap-[0.15em]" data-price-layout="regular" data-theme="default">
+            <div class="price-row">
+                <span data-price-part="symbol" class="price-symbol">R$</span>
+                <span data-price-part="integer" class="price-integer"></span>
+                <div class="price-stack">
+                    <span data-price-part="decimal" class="price-decimal">
+                        <span class="opacity-70">,</span><span></span>
+                    </span>
+                    <span data-price-part="unit" class="price-unit"></span>
+                </div>
+            </div>
         </div>
     </template>
 
     <!-- DE/POR: DE R$ 99,99 → POR R$ 79,99 / kg -->
     <template id="template_depor">
-        <div class="w-full flex flex-col items-center justify-center py-3 portrait:py-4 px-4 leading-none gap-[0.2em] landscape:gap-[0.12em] max-w-[96vw] mx-auto" data-price-layout="depor" data-theme="default">
+        <div class="price-root gap-[0.2em] landscape:gap-[0.14em] font-gotham-bold" data-price-layout="depor" data-theme="default">
 
-            <!-- Linha "DE" -->
-            <div data-price-part="old-price" class="flex flex-row items-end gap-[0.2em] opacity-70">
-                <span class="font-gotham-bold text-[55%] leading-none">DE</span>
-                <span class="font-gotham-ultra-italic text-[55%] leading-none">R$</span>
-                <span class="font-gotham-bold text-[65%] leading-none line-through decoration-2"></span>
+            <!-- Linha DE -->
+            <div data-price-part="old-price" class="flex flex-row items-center gap-[0.2em] opacity-70">
+                <span class="text-[55%]">DE</span>
+                <span class="text-[60%] line-through decoration-2 price-symbol">R$</span>
+                <span class="text-[100%] line-through decoration-2"></span>
             </div>
 
-            <!-- Linha "POR" -->
-            <div class="flex flex-row items-end justify-center gap-[0.18em] landscape:gap-[0.22em] w-full max-w-[94vw] mx-auto whitespace-nowrap">
-                <span class="font-gotham-ultra text-[115%] landscape:text-[138%] leading-none self-end mb-[0.16em]">POR</span>
-                <span class="font-gotham-ultra-italic text-[130%] landscape:text-[160%] leading-none self-end mb-[0.18em]">R$</span>
-                <span data-price-part="integer" class="font-gotham-ultra text-[210%] landscape:text-[252%] leading-none tracking-tight min-w-0"></span>
-                <span class="flex flex-col items-start leading-none self-end mb-[0.08em]">
-                    <span data-price-part="decimal" class="font-gotham-ultra text-[82%] landscape:text-[98%] leading-none"><span class="opacity-70">,</span><span></span></span>
-                    <span data-price-part="unit" class="font-gotham-bold text-[50%] landscape:text-[58%] leading-none mt-[0.2em] opacity-80"></span>
-                </span>
+            <!-- Linha POR -->
+            <div class="price-row">
+                <span class="text-[75%] self-start">POR</span>
+                <span data-price-part="symbol" class="price-symbol">R$</span>
+                <span data-price-part="integer" class="price-integer"></span>
+                <div class="price-stack">
+                    <span data-price-part="decimal" class="price-decimal">
+                        <span class="opacity-70">,</span><span></span>
+                    </span>
+                    <span data-price-part="unit" class="price-unit"></span>
+                </div>
             </div>
         </div>
     </template>
 
     <!-- LEVE 3 PAGUE 2 -->
     <template id="template_leve3pague2">
-        <div class="w-full flex flex-col items-center justify-center py-3 portrait:py-4 px-4 leading-none gap-[0.35em] max-w-[96vw] mx-auto" data-price-layout="leve3pague2" data-theme="promo">
-
-            <div data-price-label class="bg-current text-white font-gotham-ultra px-5 py-[0.2em] rounded-full text-[55%] tracking-wide uppercase w-auto">
-                LEVE 3 PAGUE 2
-            </div>
-
-            <div class="flex flex-row items-end justify-center gap-[0.2em] w-full max-w-[94vw] mx-auto whitespace-nowrap">
-                <span data-price-part="symbol" class="font-gotham-ultra-italic text-[135%] leading-none self-end mb-[0.18em]">R$</span>
-                <span data-price-part="integer" class="font-gotham-ultra text-[212%] leading-none tracking-tight min-w-0"></span>
-                <span class="flex flex-col items-start leading-none self-end mb-[0.08em]">
-                    <span data-price-part="decimal" class="font-gotham-ultra text-[82%] leading-none"><span class="opacity-70">,</span><span></span></span>
-                    <span data-price-part="unit" class="font-gotham-bold text-[50%] leading-none mt-[0.2em] opacity-80"></span>
-                </span>
+        <div class="price-root gap-[0.35em]" data-price-layout="leve3pague2" data-theme="promo">
+            <div data-price-label class="price-badge bg-current text-white">LEVE 3 PAGUE 2</div>
+            <div class="price-row">
+                <span data-price-part="symbol" class="price-symbol">R$</span>
+                <span data-price-part="integer" class="price-integer"></span>
+                <div class="price-stack">
+                    <span data-price-part="decimal" class="price-decimal">
+                        <span class="opacity-70">,</span><span></span>
+                    </span>
+                    <span data-price-part="unit" class="price-unit"></span>
+                </div>
             </div>
             <div class="font-gotham-book text-[45%] opacity-70">cada unidade</div>
         </div>
@@ -140,19 +142,17 @@
 
     <!-- LEVE 3 PAGUE 1 -->
     <template id="template_leve3pague1">
-        <div class="w-full flex flex-col items-center justify-center py-3 portrait:py-4 px-4 leading-none gap-[0.35em] max-w-[96vw] mx-auto" data-price-layout="leve3pague1" data-theme="promo">
-
-            <div data-price-label class="bg-green-700 text-white font-gotham-ultra px-5 py-[0.2em] rounded-full text-[55%] tracking-wide uppercase w-auto">
-                LEVE 3 PAGUE 1
-            </div>
-
-            <div class="flex flex-row items-end justify-center gap-[0.2em] w-full max-w-[94vw] mx-auto whitespace-nowrap">
-                <span data-price-part="symbol" class="font-gotham-ultra-italic text-[135%] leading-none self-end mb-[0.18em]">R$</span>
-                <span data-price-part="integer" class="font-gotham-ultra text-[220%] leading-none tracking-tight min-w-0"></span>
-                <span class="flex flex-col items-start leading-none self-end mb-[0.08em]">
-                    <span data-price-part="decimal" class="font-gotham-ultra text-[84%] leading-none"><span class="opacity-70">,</span><span></span></span>
-                    <span data-price-part="unit" class="font-gotham-bold text-[50%] leading-none mt-[0.2em] opacity-80"></span>
-                </span>
+        <div class="price-root gap-[0.35em]" data-price-layout="leve3pague1" data-theme="promo">
+            <div data-price-label class="price-badge bg-green-700 text-white">LEVE 3 PAGUE 1</div>
+            <div class="price-row">
+                <span data-price-part="symbol" class="price-symbol">R$</span>
+                <span data-price-part="integer" class="price-integer"></span>
+                <div class="price-stack">
+                    <span data-price-part="decimal" class="price-decimal">
+                        <span class="opacity-70">,</span><span></span>
+                    </span>
+                    <span data-price-part="unit" class="price-unit"></span>
+                </div>
             </div>
             <div class="font-gotham-book text-[45%] opacity-70">na compra de 3 unidades</div>
         </div>
@@ -160,38 +160,172 @@
 
     <!-- CLUBE -->
     <template id="template_clube">
-        <div class="w-full flex flex-col items-center justify-center py-3 portrait:py-4 px-4 leading-none gap-[0.35em] max-w-[96vw] mx-auto" data-price-layout="clube" data-theme="clube">
-
-            <div class="bg-blue-700 text-white font-gotham-ultra px-5 py-[0.2em] rounded-md text-[50%] tracking-wide uppercase">
+        <div class="price-root gap-[0.35em]" data-price-layout="clube" data-theme="clube">
+            <div class="bg-blue-700 text-white font-gotham-ultra px-5 py-[0.2em] rounded-md
+                        text-[50%] tracking-wide uppercase">
                 ★ <span data-price-label>PRECO CLUBE</span> ★
             </div>
-
-            <div class="flex flex-row items-end justify-center gap-[0.2em] text-blue-700 w-full max-w-[94vw] mx-auto whitespace-nowrap">
-                <span data-price-part="symbol" class="font-gotham-ultra-italic text-[138%] leading-none self-end mb-[0.18em]">R$</span>
-                <span data-price-part="integer" class="font-gotham-ultra text-[220%] leading-none tracking-tight min-w-0"></span>
-                <span class="flex flex-col items-start leading-none self-end mb-[0.08em]">
-                    <span data-price-part="decimal" class="font-gotham-ultra text-[84%] leading-none"><span class="opacity-70">,</span><span></span></span>
-                    <span data-price-part="unit" class="font-gotham-bold text-[50%] leading-none mt-[0.2em] opacity-80 text-blue-500"></span>
-                </span>
+            <div class="price-row text-blue-700">
+                <span data-price-part="symbol" class="price-symbol">R$</span>
+                <span data-price-part="integer" class="price-integer"></span>
+                <div class="price-stack">
+                    <span data-price-part="decimal" class="price-decimal">
+                        <span class="opacity-70">,</span><span></span>
+                    </span>
+                    <span data-price-part="unit" class="price-unit text-blue-500"></span>
+                </div>
             </div>
         </div>
     </template>
 
     <!-- OFERTA -->
     <template id="template_oferta">
-        <div class="w-full flex flex-col items-center justify-center py-4 portrait:py-5 px-4 leading-none gap-[0.3em] bg-red-600 max-w-[96vw] mx-auto" data-price-layout="oferta" data-theme="oferta">
-
+        <div class="price-root gap-[0.3em] bg-red-600" data-price-layout="oferta" data-theme="oferta">
             <div data-price-label class="text-white font-gotham-ultra text-[50%] tracking-widest uppercase">
                 OFERTA IMPERDIVEL
             </div>
+            <div class="price-row text-yellow-300">
+                <span data-price-part="symbol" class="price-symbol">R$</span>
+                <span data-price-part="integer" class="price-integer"></span>
+                <div class="price-stack">
+                    <span data-price-part="decimal" class="price-decimal">
+                        <span class="opacity-70">,</span><span></span>
+                    </span>
+                    <span data-price-part="unit" class="price-unit text-white"></span>
+                </div>
+            </div>
+        </div>
+    </template>
 
-            <div class="flex flex-row items-end justify-center gap-[0.2em] text-yellow-300 w-full max-w-[94vw] mx-auto whitespace-nowrap">
-                <span data-price-part="symbol" class="font-gotham-ultra-italic text-[150%] leading-none self-end mb-[0.18em]">R$</span>
-                <span data-price-part="integer" class="font-gotham-ultra text-[235%] leading-none tracking-tight min-w-0"></span>
-                <span class="flex flex-col items-start leading-none self-end mb-[0.08em]">
-                    <span data-price-part="decimal" class="font-gotham-ultra text-[92%] leading-none"><span class="opacity-70">,</span><span></span></span>
-                    <span data-price-part="unit" class="font-gotham-bold text-[50%] leading-none mt-[0.2em] text-white opacity-80"></span>
-                </span>
+    <!-- ATACAREJO: preço unitário + preço atacado + qtd mínima -->
+    <template id="template_atacarejo">
+        <div class="price-root gap-[0.12em]" data-price-layout="atacarejo" data-theme="atacarejo">
+
+            <!-- Atacado: hero (PRICE2) -->
+            <div class="flex flex-col items-center gap-[0.12em] w-full">
+                <!-- <span class="font-gotham-bold text-[52%] uppercase tracking-[0.16em] opacity-70">atacado</span> -->
+                <div class="price-row">
+                    <span data-price-part="symbol" class="price-symbol">R$</span>
+                    <span data-price-part="price2-integer" class="price-integer"></span>
+                    <div class="price-stack">
+                        <span data-price-part="price2-decimal" class="price-decimal">
+                            <span class="opacity-70">,</span><span></span>
+                        </span>
+                        <span data-price-part="unit" class="price-unit"></span>
+                    </div>
+                </div>
+                <div class="font-gotham-book text-[52%] landscape:text-[48%] text-center opacity-70 max-w-[90%]">
+                    a partir de <span data-price-part="qty" class="font-gotham-bold"></span> unidades
+                </div>
+            </div>
+
+            <!-- Separador -->
+            <div class="w-[82%] h-px bg-current opacity-25"></div>
+
+            <!-- Unitário: secundário (PRICE) -->
+            <div class="price-row opacity-65 max-w-[84vw] gap-[0.14em] text-[40%]">
+                <span data-price-part="symbol" class="price-symbol">R$</span>
+                <span data-price-part="integer" class="price-integer"></span>
+                <div class="price-stack">
+                    <span data-price-part="decimal" class="price-decimal">
+                        <span class="opacity-70">,</span><span></span>
+                    </span>
+                    <span data-price-part="unit" class="price-unit"></span>
+                </div>
+            </div>
+            <span class="text-[40%] -mt-1">Preço normal por unidade</span>
+
+
+        </div>
+    </template>
+
+    <!-- PARC-SEM-J: parcelas sem juros (X × R$ Y,YY) + à vista -->
+    <template id="template_parcsemj">
+        <div class="price-root gap-[0.32em]" data-price-layout="parcsemj" data-theme="parcsemj">
+
+            <!-- Parcelas: hero (TEXTO8 × PRICE2) -->
+            <div class="price-row gap-[0.24em] items-center">
+                <span class="font-gotham-book text-[58%] self-center opacity-70">em</span>
+                <span data-price-part="qty" class="font-gotham-ultra leading-none text-[292%] landscape:text-[320%] self-start"></span>
+                <span class="font-gotham-bold self-center leading-none">X</span>
+                <div class="text-[40%] flex ml-4">
+                    <span data-price-part="symbol" class="price-symbol">R$</span>
+                    <span data-price-part="price2-integer" class="price-integer"></span>
+                    <div class="price-stack">
+                        <span data-price-part="price2-decimal" class="price-decimal">
+                            <span class="opacity-70">,</span><span></span>
+                        </span>
+                        <span data-price-part="unit" class="price-unit"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Badge -->
+            <div data-price-label class="price-badge bg-emerald-600 text-white rounded-full tracking-[0.12em] text-[58%]">
+                SEM JUROS
+            </div>
+
+            <!-- À vista: secundário (PRICE) -->
+            <div class="price-row opacity-65 max-w-[84vw] gap-[0.14em]">
+                <span class="font-gotham-bold text-[46%] uppercase tracking-[0.08em] self-start">a vista</span>
+                <span data-price-part="symbol" class="price-symbol">R$</span>
+                <span data-price-part="integer" class="font-gotham-ultra leading-none tracking-tight text-[178%] landscape:text-[192%]"></span>
+                <div class="price-stack">
+                    <span data-price-part="decimal" class="font-gotham-ultra leading-none text-[78%]">
+                        <span class="opacity-70">,</span><span></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- LEVE X PAGUE Y (dinâmico: TEXTO8=leve, TEXTO9=pague) -->
+    <template id="template_levexaguey">
+        <div class="price-root gap-[0.35em]" data-price-layout="levexaguey" data-theme="promo">
+            <div class="price-badge bg-current text-white">
+                LEVE&nbsp;<span data-price-part="qty" class="font-gotham-ultra">X</span>&nbsp;PAGUE&nbsp;<span data-price-part="qty2" class="font-gotham-ultra">Y</span>
+            </div>
+            <div class="price-row">
+                <span data-price-part="symbol" class="price-symbol">R$</span>
+                <span data-price-part="integer" class="price-integer"></span>
+                <div class="price-stack">
+                    <span data-price-part="decimal" class="price-decimal">
+                        <span class="opacity-70">,</span><span></span>
+                    </span>
+                    <span data-price-part="unit" class="price-unit"></span>
+                </div>
+            </div>
+            <div class="font-gotham-book text-[45%] opacity-70">preço por unidade</div>
+        </div>
+    </template>
+
+    <!-- FIDELIDADE: preço regular (DE) + preço fidelidade hero (PRICE2) -->
+    <template id="template_fidelidade">
+        <div class="price-root gap-[0.2em] landscape:gap-[0.14em] font-gotham-bold" data-price-layout="fidelidade" data-theme="clube">
+
+            <!-- Badge -->
+            <div class="bg-blue-700 text-white font-gotham-ultra px-5 py-[0.2em] rounded-md
+                        text-[50%] tracking-wide uppercase">
+                ★ FIDELIDADE ★
+            </div>
+
+            <!-- Linha DE (PRICE regular) -->
+            <div data-price-part="price-original" class="flex flex-row items-center gap-[0.2em] opacity-60">
+                <span class="text-[55%]">DE</span>
+                <span class="text-[60%] line-through decoration-2">R$</span>
+                <span class="text-[100%] line-through decoration-2"></span>
+            </div>
+
+            <!-- Hero: PRICE2 fidelidade (azul) -->
+            <div class="price-row text-blue-700">
+                <span data-price-part="symbol" class="price-symbol">R$</span>
+                <span data-price-part="price2-integer" class="price-integer"></span>
+                <div class="price-stack">
+                    <span data-price-part="price2-decimal" class="price-decimal">
+                        <span class="opacity-70">,</span><span></span>
+                    </span>
+                    <span data-price-part="unit" class="price-unit text-blue-500"></span>
+                </div>
             </div>
         </div>
     </template>

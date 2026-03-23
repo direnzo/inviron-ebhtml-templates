@@ -2,6 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+    /* ── Estrutura base de todos os templates de preço ── */
+    .price-root {
+        @apply w-full flex flex-col items-center justify-center py-3 portrait:py-4 px-4
+               leading-none max-w-[96vw] mx-auto;
+    }
+
+    /* Linha com símbolo + inteiro + bloco decimal/unidade */
+    .price-row {
+        @apply flex flex-row items-start justify-center gap-[0.18em]
+               w-full max-w-[94vw] mx-auto whitespace-nowrap;
+    }
+
+    .price-symbol {
+        @apply font-gotham-ultra-italic leading-none self-start mt-[3%];
+    }
+
+    /* Número inteiro — tamanho base que o JS escala via ratio (phi-derived)
+       Consideravelmente maior para leitura a distância em displays */
+    .price-integer {
+        @apply font-gotham-ultra leading-none tracking-tight min-w-0
+               text-[360%] landscape:text-[420%];
+    }
+
+    /* Coluna empilhada: decimal (cima) + unidade (baixo)
+       Altura = igual ao integer (controlada via JS).
+       justify-content definido via JS: space-between quando tem unidade, flex-start sem. */
+    .price-stack {
+        @apply flex flex-col items-end leading-none self-start mt-[3%];
+    }
+
+    /* Centavos — tamanho overrideável por JS */
+    .price-decimal {
+        @apply font-gotham-ultra leading-none;
+    }
+
+    /* Unidade (kg, un...) — tamanho overrideável por JS.
+       Sem mt — espaçamento controlado via justify-content no price-stack. */
+    .price-unit {
+        @apply font-gotham-bold leading-none opacity-80;
+    }
+
+    /* Badge tipo LEVE 3 PAGUE 2, CLUBE etc */
+    .price-badge {
+        @apply font-gotham-ultra px-5 py-[0.2em] rounded-full
+               text-[55%] tracking-wide uppercase;
+    }
+}
+
 @font-face {
     font-family: 'Gotham Bold';
     src: url('fonts/Gotham-Bold.otf') format('opentype');
