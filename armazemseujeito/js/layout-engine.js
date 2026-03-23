@@ -94,18 +94,10 @@
             if (priceDisplay) {
                 priceDisplay.style.flexBasis = blocks.price + '%';
             }
-            if (legalText) {
-                legalText.style.flexBasis = blocks.legal + '%';
-            }
         }
 
         if (title) {
             title.style.textAlign = getProfileValue(cfg.layout.titleAlign, profile, 'center');
-        }
-
-        if (legalText) {
-            legalText.style.opacity = String(getProfileValue(cfg.layout.legal.opacity, profile, 0.7));
-            legalText.style.fontSize = String(getProfileValue(cfg.layout.legal.fontSize, profile, '36%'));
         }
 
         if (infoColumn) {

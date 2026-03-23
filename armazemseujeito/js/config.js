@@ -54,32 +54,20 @@ var TEMPLATE_CONFIG = {
     // Aliases para normalizar valores vindos do CMS/interface
     // Ex.: "DE POR", "DE/POR", "PROMOCAO" etc.
     priceConditionAliases: {
-        'DEPOR': 'DEPOR',
         'DE-POR': 'DEPOR',
         'DE POR': 'DEPOR',
         'DE/POR': 'DEPOR',
         'PROMOCAO': 'OFERTA',
         'PROMOÇÃO': 'OFERTA',
         'PROMO': 'OFERTA',
-        'OFERTA': 'OFERTA',
-        'COMPRE-GANHE': 'COMPRE-GANHE',
         'COMPRE GANHE': 'COMPRE-GANHE',
-        'CLUBE': 'CLUBE',
-        'FIDELIDADE': 'FIDELIDADE',
-        'LEVE3PAGUE1': 'LEVE3PAGUE1',
         'LEVE 3 PAGUE 1': 'LEVE3PAGUE1',
         'L3P1': 'LEVE3PAGUE1',
-        'LEVE3PAGUE2': 'LEVE3PAGUE2',
         'LEVE 3 PAGUE 2': 'LEVE3PAGUE2',
         'L3P2': 'LEVE3PAGUE2',
-        'LEVE2PAGUE1': 'LEVE2PAGUE1',
         'LEVE 2 PAGUE 1': 'LEVE2PAGUE1',
-        'LEVE-X-PAGUE-Y': 'LEVE-X-PAGUE-Y',
         'LEVE X PAGUE Y': 'LEVE-X-PAGUE-Y',
-        'REGULAR': 'REGULAR',
-        'ATACAREJO': 'ATACAREJO',
         'ATAC': 'ATACAREJO',
-        'PARC-SEM-J': 'PARC-SEM-J',
         'PARC SEM J': 'PARC-SEM-J',
         'PARCELADO': 'PARC-SEM-J',
         'SEM JUROS': 'PARC-SEM-J'
@@ -148,7 +136,6 @@ var TEMPLATE_CONFIG = {
     priceAnimations: {
         'REGULAR':       'animate-pulseScaleWithDelay',
         'DEPOR':         'animate-pulseScaleWithDelay',
-        'DE-POR':        'animate-pulseScaleWithDelay',
         'LEVE3PAGUE1':   'animate-heartbeat',
         'LEVE3PAGUE2':   'animate-heartbeat',
         'LEVE2PAGUE1':   'animate-heartbeat',
@@ -167,7 +154,6 @@ var TEMPLATE_CONFIG = {
     priceColors: {
         'REGULAR':       'text-red-600',
         'DEPOR':         'text-red-600',
-        'DE-POR':        'text-red-600',
         'LEVE3PAGUE1':   'text-green-700',
         'LEVE3PAGUE2':   'text-green-600',
         'LEVE2PAGUE1':   'text-green-600',
@@ -205,12 +191,12 @@ var TEMPLATE_CONFIG = {
             ultrawide: true
         },
 
-        // Percentuais de altura/largura dos blocos dinamicos
+        // Percentuais de altura/largura dos blocos dinamicos (legal agora é absolute, sem flexBasis)
         blocks: {
-            default:   { image: 45, title: 30, price: 52, legal: 18 },
-            portrait:  { image: 45, title: 30, price: 52, legal: 18 },
-            landscape: { image: 52, title: 31, price: 53, legal: 16 },
-            ultrawide: { image: 50, title: 30, price: 54, legal: 16 }
+            default:   { image: 45, title: 30, price: 52 },
+            portrait:  { image: 45, title: 30, price: 52 },
+            landscape: { image: 52, title: 31, price: 53 },
+            ultrawide: { image: 50, title: 30, price: 54 }
         },
 
         titleAlign: {
@@ -218,21 +204,6 @@ var TEMPLATE_CONFIG = {
             portrait: 'center',
             landscape: 'center',
             ultrawide: 'center'
-        },
-
-        legal: {
-            opacity: {
-                default: 0.70,
-                portrait: 0.70,
-                landscape: 0.50,
-                ultrawide: 0.45
-            },
-            fontSize: {
-                default: '36%',
-                portrait: '34%',
-                landscape: '28%',
-                ultrawide: '24%'
-            }
         },
 
         // Escala geral de preco por formato (aplicada no runtime)

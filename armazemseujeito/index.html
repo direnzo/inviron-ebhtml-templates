@@ -34,8 +34,6 @@
 </head>
 
 <body class="bg-white overflow-hidden text-[4.5vh] portrait:text-[3.5vh] landscape:text-[2vw] ultrawide:text-[3vh] text-black font-gotham-bold opacity-0 transition-opacity duration-500">
-    <div id="size" class="absolute top-0 left-0 z-50 bg-yellow-400 text-red-600 p-5 hidden"></div>
-
     <!-- Fundo: vídeo -->
     <div class="absolute inset-0 z-0">
         <video id="video" class="h-full w-full object-fill" muted autoplay>
@@ -61,7 +59,7 @@
             </div>
 
             <!-- Coluna direita (landscape): titulo + preco + legal -->
-            <div id="info_column" class="flex-1 min-w-0 flex flex-col border-t border-black/15 landscape:border-t-0 landscape:border-l landscape:border-black/15">
+            <div id="info_column" class="flex-1 min-w-0 flex flex-col border-t border-black/15 landscape:justify-center landscape:border-t-0 landscape:border-l landscape:border-black/15">
                 <!-- 3. TÍTULO DO PRODUTO -->
                 <div id="title_container" class="basis-[30%] landscape:basis-[31%] shrink-0 flex items-center justify-center landscape:justify-end w-full opacity-0 -translate-x-full transition-all duration-1000 delay-100 px-4 py-0 my-2 landscape:pb-0">
                     <div id="title" class="w-full text-center leading-tight overflow-hidden max-h-[100%]"></div>
@@ -248,7 +246,7 @@
                 <span class="font-gotham-book text-[58%] self-center opacity-70">em</span>
                 <span data-price-part="qty" class="font-gotham-ultra leading-none text-[292%] landscape:text-[320%] self-start"></span>
                 <span class="font-gotham-bold self-center leading-none">X</span>
-                <div class="text-[40%] flex ml-4">
+                <div class="text-[40%] flex ml-2">
                     <span data-price-part="symbol" class="price-symbol">R$</span>
                     <span data-price-part="price2-integer" class="price-integer"></span>
                     <div class="price-stack">

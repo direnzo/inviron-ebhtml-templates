@@ -887,6 +887,10 @@ video {
   margin-bottom: 0.5rem;
 }
 
+.-mt-1 {
+  margin-top: -0.25rem;
+}
+
 .mb-36 {
   margin-bottom: 9rem;
 }
@@ -957,10 +961,6 @@ video {
 
 .mt-\[3\%\] {
   margin-top: 3%;
-}
-
-.-mt-1 {
-  margin-top: -0.25rem;
 }
 
 .box-border {
@@ -2709,6 +2709,11 @@ video {
   padding-right: 1.5rem;
 }
 
+.py-0 {
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
 .py-1 {
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
@@ -2737,11 +2742,6 @@ video {
 .py-\[0\.2em\] {
   padding-top: 0.2em;
   padding-bottom: 0.2em;
-}
-
-.py-0 {
-  padding-top: 0px;
-  padding-bottom: 0px;
 }
 
 .pb-0 {
@@ -3541,20 +3541,20 @@ video {
   transition-delay: 100ms;
 }
 
-.delay-200 {
-  transition-delay: 200ms;
+.delay-1000 {
+  transition-delay: 1000ms;
 }
 
-.delay-75 {
-  transition-delay: 75ms;
+.delay-200 {
+  transition-delay: 200ms;
 }
 
 .delay-500 {
   transition-delay: 500ms;
 }
 
-.delay-1000 {
-  transition-delay: 1000ms;
+.delay-75 {
+  transition-delay: 75ms;
 }
 
 .duration-1000 {
@@ -3844,6 +3844,10 @@ video {
 
   .landscape\:justify-end {
     justify-content: flex-end;
+  }
+
+  .landscape\:justify-center {
+    justify-content: center;
   }
 
   .landscape\:gap-\[0\.14em\] {

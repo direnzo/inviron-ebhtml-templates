@@ -34,7 +34,7 @@
                 fontSize: { default: '36%', portrait: '34%', landscape: '28%', ultrawide: '24%' }
             },
             priceScale: { default: 1.00, portrait: 1.00, landscape: 1.12, ultrawide: 1.18 },
-            priceRatios: { symbol: 0.62, decimal: 0.39, unit: 0.24 }
+            priceRatios: { symbol: 0.50, decimal: 0.50, unit: 0.15 }
         }
     };
 
