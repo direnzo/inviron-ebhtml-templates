@@ -362,15 +362,49 @@
         container.innerHTML = '';
         var clone = template.content.cloneNode(true);
 
+        // Injetar blocos de preço padronizados nos slots data-price-hero / data-price2-hero.
+        // Cada slot recebe uma cópia do sub-template correto; data-unit-class aplica cor extra na unit.
+        var _innerTpl = document.getElementById('tpl-price-inner');
+        var _inner2Tpl = document.getElementById('tpl-price2-inner');
+        var _hi, _h2i, _heroSlot, _uClass, _uEl, _innerClone;
+        if (_innerTpl && _innerTpl.content) {
+            var _heroSlots = clone.querySelectorAll('[data-price-hero]');
+            for (_hi = 0; _hi < _heroSlots.length; _hi++) {
+                _heroSlot = _heroSlots[_hi];
+                _innerClone = _innerTpl.content.cloneNode(true);
+                _uClass = _heroSlot.getAttribute('data-unit-class');
+                if (_uClass) {
+                    _uEl = _innerClone.querySelector('[data-price-part="unit"]');
+                    if (_uEl) { _uEl.className += ' ' + _uClass; }
+                }
+                _heroSlot.appendChild(_innerClone);
+            }
+        }
+        if (_inner2Tpl && _inner2Tpl.content) {
+            var _hero2Slots = clone.querySelectorAll('[data-price2-hero]');
+            for (_h2i = 0; _h2i < _hero2Slots.length; _h2i++) {
+                _heroSlot = _hero2Slots[_h2i];
+                _innerClone = _inner2Tpl.content.cloneNode(true);
+                _uClass = _heroSlot.getAttribute('data-unit-class');
+                if (_uClass) {
+                    _uEl = _innerClone.querySelector('[data-price-part="unit"]');
+                    if (_uEl) { _uEl.className += ' ' + _uClass; }
+                }
+                _heroSlot.appendChild(_innerClone);
+            }
+        }
+
         var priceRoot = clone.querySelector('[data-price-layout]');
         if (priceRoot) {
             priceRoot.classList.add(animClass);
             priceRoot.classList.add(colorClass);
         }
 
-        var symbolEl = clone.querySelector('[data-price-part="symbol"]');
-        if (symbolEl) {
-            symbolEl.innerHTML = cfg.currencySymbol;
+        // Preenche todos os symbols (pode haver múltiplos em templates com preço secundário)
+        var symbolEls = clone.querySelectorAll('[data-price-part="symbol"]');
+        var _si;
+        for (_si = 0; _si < symbolEls.length; _si++) {
+            symbolEls[_si].innerHTML = cfg.currencySymbol;
         }
 
         var labelEl = clone.querySelector('[data-price-label]');
