@@ -200,6 +200,23 @@
             return fallback;
         }
 
+        /**
+         * Aplica os ratios de symbol/decimal/unit relativos ao tamanho do inteiro.
+         * @param {Object}      ratios        - { symbol, decimal, unit }
+         * @param {number}      size          - Tamanho base (inteiro) em px.
+         * @param {HTMLElement} symEl         - Elemento symbol (ou null).
+         * @param {HTMLElement} decEl         - Elemento decimal (ou null).
+         * @param {HTMLElement} uniEl         - Elemento unit (ou null).
+         * @param {boolean}     [skipEmpty]   - Se true, ignora unit quando innerHTML vazio.
+         */
+        function applyRatios(ratios, size, symEl, decEl, uniEl, skipEmpty) {
+            if (symEl) { symEl.style.fontSize = Math.round(size * ratios.symbol) + 'px'; }
+            if (decEl) { decEl.style.fontSize = Math.round(size * ratios.decimal) + 'px'; }
+            if (uniEl && (!skipEmpty || String(uniEl.innerHTML || '').trim() !== '')) {
+                uniEl.style.fontSize = Math.round(size * ratios.unit) + 'px';
+            }
+        }
+
         for (i = 0; i < rows.length; i++) {
             var row = rows[i];
             var integerCandidates = row.querySelectorAll('[data-price-part="integer"], [data-price-part="price2-integer"]');
@@ -234,32 +251,21 @@
 
                 integerSize = integerSize * scale * digitScale;
                 integerEl.style.fontSize = Math.round(integerSize) + 'px';
-                if (symbolEl) { symbolEl.style.fontSize = Math.round(integerSize * ratios.symbol) + 'px'; }
-                if (decimalEl) { decimalEl.style.fontSize = Math.round(integerSize * ratios.decimal) + 'px'; }
-                if (unitEl) { unitEl.style.fontSize = Math.round(integerSize * ratios.unit) + 'px'; }
+                applyRatios(ratios, integerSize, symbolEl, decimalEl, unitEl);
 
                 while (line.scrollWidth > line.clientWidth && integerSize > minInteger && guard < 80) {
                     integerSize -= 1;
                     integerEl.style.fontSize = integerSize + 'px';
-
-                    if (symbolEl) { symbolEl.style.fontSize = Math.round(integerSize * ratios.symbol) + 'px'; }
-                    if (decimalEl) { decimalEl.style.fontSize = Math.round(integerSize * ratios.decimal) + 'px'; }
-                    if (unitEl) { unitEl.style.fontSize = Math.round(integerSize * ratios.unit) + 'px'; }
-
+                    applyRatios(ratios, integerSize, symbolEl, decimalEl, unitEl);
                     guard += 1;
                 }
 
-                // Stack ocupa altura exata do inteiro.
-                // Com unidade: decimal no topo, unidade na base (space-between).
-                // Sem unidade: decimal no topo (flex-start).
+                // Stack: com unidade → space-between; sem unidade → flex-start.
                 var stackEl = line.querySelector('.price-stack');
                 if (stackEl) {
-                    // stackEl.style.height = Math.round(integerSize) + 'px';
                     var unitContent = unitEl ? String(unitEl.innerHTML || '').trim() : '';
                     stackEl.style.justifyContent = unitContent !== '' ? '' : 'flex-start';
                 }
-
-                // Unidade = 40% do tamanho dos centavos (ratio fixo, sem clamp por largura).
             }
         }
 
@@ -285,13 +291,7 @@
                     var aDec = aLine.querySelector('[data-price-part="' + aDecPart + '"]');
                     var aUni = aLine.querySelector('[data-price-part="unit"]');
                     var aRatios = cfg.layout.priceRatios || { symbol: 0.50, decimal: 0.50, unit: 0.50 };
-                    if (aSym) { aSym.style.fontSize = Math.round(aNewSize * aRatios.symbol) + 'px'; }
-                    if (aDec) { aDec.style.fontSize = Math.round(aNewSize * aRatios.decimal) + 'px'; }
-                    if (aUni && String(aUni.innerHTML || '').trim() !== '') {
-                        aUni.style.fontSize = Math.round(aNewSize * aRatios.unit) + 'px';
-                    }
-                    var aStack = aLine.querySelector('.price-stack');
-                    if (aStack) { aStack.style.height = Math.round(aNewSize) + 'px'; }
+                    applyRatios(aRatios, aNewSize, aSym, aDec, aUni, true);
                     didShrink = true;
                 }
                 if (!didShrink) { break; }
@@ -326,8 +326,6 @@
 
         var priceFields  = (fieldMap.price  && fieldMap.price.length)  ? fieldMap.price  : ['PRICE',  'PRECO'];
         var price2Fields = (fieldMap.price2 && fieldMap.price2.length) ? fieldMap.price2 : ['PRICE2', 'PRECO2'];
-        var price3Fields = (fieldMap.price3 && fieldMap.price3.length) ? fieldMap.price3 : ['PRICE3'];
-        var price4Fields = (fieldMap.price4 && fieldMap.price4.length) ? fieldMap.price4 : ['PRICE4'];
         var texto4Fields = (fieldMap.texto4 && fieldMap.texto4.length) ? fieldMap.texto4 : ['TEXTO4'];
         var texto8Fields = (fieldMap.texto8 && fieldMap.texto8.length) ? fieldMap.texto8 : ['TEXTO8'];
         var texto9Fields = (fieldMap.texto9 && fieldMap.texto9.length) ? fieldMap.texto9 : ['TEXTO9'];
@@ -335,10 +333,6 @@
         var condition = resolvePriceCondition(cfg, dataSource);
         var price   = getFirstField(priceFields);
         var price2  = getFirstField(price2Fields);
-        /*eslint-disable no-unused-vars*/
-        var price3  = getFirstField(price3Fields); // preço por peso (Regular/Por)
-        var price4  = getFirstField(price4Fields); // preço por peso (De/Fidelidade)
-        /*eslint-enable no-unused-vars*/
         var unidade = getFirstField(texto4Fields);
         var qty     = getFirstField(texto8Fields);
         var qty2    = getFirstField(texto9Fields); // "pague" em LEVE-X-PAGUE-Y

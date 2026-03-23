@@ -117,9 +117,7 @@ var TEMPLATE_CONFIG = {
         texto4: ['TEXTO4'],
         texto5: ['TEXTO5'],
         texto8: ['TEXTO8'],  // qtd itens (ATACAREJO) / nº parcelas (PARC-SEM-J) / leve (LEVE-X-PAGUE-Y)
-        texto9: ['TEXTO9'],  // pague (LEVE-X-PAGUE-Y)
-        price3: ['PRICE3'], // preço por peso Regular / Por
-        price4: ['PRICE4']  // preço por peso De / Fidelidade Peso
+        texto9: ['TEXTO9']   // pague (LEVE-X-PAGUE-Y)
     },
 
     // ─── Símbolo de Moeda ─────────────────────────────────────────────────────
