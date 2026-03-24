@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Classe simples para cortina - delays aplicados via classes Tailwind (delay-75, delay-300, delay-500) */
+@layer components {
+  .wipe-curtain {
+    @apply absolute inset-0 w-full h-full translate-x-0 transition-transform duration-1000 ease-in-out pointer-events-none;
+  }
+  
+  /* Estado final - para aplicar via JavaScript */
+  .wipe-curtain-reveal {
+    @apply translate-x-full;
+  }
+  
+  /* Gradiente compatível com navegadores antigos - usando RGB em vez de transparent */
+  .wipe-curtain-gradient {
+    /* Fallback para navegadores muito antigos */
+    background: #e6e6e6;
+    
+    /* Gradiente com RGB sólido para compatibilidade */
+    background: linear-gradient(to right, 
+      rgba(230, 230, 230, 0) 0%, 
+      rgba(230, 230, 230, 0.1) 5%, 
+      rgba(230, 230, 230, 0.8) 8%, 
+      rgb(230, 230, 230) 10%);
+    
+    /* Prefixos para navegadores antigos */
+    background: -webkit-linear-gradient(left, 
+      rgba(230, 230, 230, 0) 0%, 
+      rgba(230, 230, 230, 0.1) 5%, 
+      rgba(230, 230, 230, 0.8) 8%, 
+      rgb(230, 230, 230) 10%);
+    
+    background: -moz-linear-gradient(left, 
+      rgba(230, 230, 230, 0) 0%, 
+      rgba(230, 230, 230, 0.1) 5%, 
+      rgba(230, 230, 230, 0.8) 8%, 
+      rgb(230, 230, 230) 10%);
+  }
+}
+
+
+/* Registrar as fontes personalizadas */
+@font-face {
+    font-family: 'Anton';
+    font-display: swap;
+    src: url('fonts/Anton-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    font-display: swap;
+    src: url('fonts/OpenSans-Regular.ttf') format('truetype');
+}
