@@ -161,6 +161,19 @@ var MOCK_DATA = {
             TEXTO5: 'Preço fidelidade para clientes cadastrados no programa'
         },
         {
+            TITULO: 'CHOCOLAT PREMIUM IMPORT BELGA 100G',
+            FOTO: 'img/produtos/chocolat.webp',
+            PRICE: '24.90',
+            PRICE2: '',
+            PRICE3: '',
+            PRICE4: '',
+            TEXTO3: 'COMPRE_E_GANHE',
+            TEXTO4: 'un',
+            TEXTO8: '',
+            TEXTO9: '',
+            TEXTO5: 'Compre este produto e ganhe um brinde especial!'
+        },
+        {
             TITULO: 'KIT MERCEARIA PREMIUM TRADICIONAL EXTRA GRANDE PARA TESTE DE TITULO LONGO',
             FOTO: 'img/produtos/shopping.webp',
             PRICE: '9999.99',

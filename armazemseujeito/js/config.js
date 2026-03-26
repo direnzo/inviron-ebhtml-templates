@@ -45,7 +45,8 @@ var TEMPLATE_CONFIG = {
         'CLUBE':         'template_clube',
         'FIDELIDADE':    'template_fidelidade',
         'OFERTA':        'template_oferta',
-        'COMPRE-GANHE':  'template_oferta',
+        'COMPRE-GANHE':  'template_compre_e_ganhe',
+        'COMPRE_E_GANHE':'template_compre_e_ganhe',
         'ATACAREJO':     'template_atacarejo',
         'PARC-SEM-J':    'template_parcsemj',
         '_default':      'template_regular'
@@ -83,6 +84,7 @@ var TEMPLATE_CONFIG = {
         'FIDELIDADE':    'FIDELIDADE',
         'OFERTA':        'OFERTA IMPERDIVEL',
         'COMPRE-GANHE':  'COMPRE E GANHE',
+        'COMPRE_E_GANHE':'COMPRE E GANHE',
         'ATACAREJO':     'ATACAREJO',
         'PARC-SEM-J':    'SEM JUROS',
         '_default':      ''
@@ -141,7 +143,8 @@ var TEMPLATE_CONFIG = {
         'CLUBE':         'animate-popIn',
         'FIDELIDADE':    'animate-popIn',
         'OFERTA':        'animate-heartbeat',
-        'COMPRE-GANHE':  'animate-heartbeat',
+        'COMPRE-GANHE':  'animate-bounce',
+        'COMPRE_E_GANHE':'animate-bounce',
         'ATACAREJO':     'animate-pulseScaleWithDelay',
         'PARC-SEM-J':    'animate-pulseScaleWithDelay',
         '_default':      'animate-pulseScaleWithDelay'
@@ -159,7 +162,8 @@ var TEMPLATE_CONFIG = {
         'CLUBE':         'text-blue-600',
         'FIDELIDADE':    'text-blue-700',
         'OFERTA':        'text-red-700',
-        'COMPRE-GANHE':  'text-red-700',
+        'COMPRE-GANHE':  'text-violet-700',
+        'COMPRE_E_GANHE':'text-violet-700',
         'ATACAREJO':     'text-orange-600',
         'PARC-SEM-J':    'text-emerald-700',
         '_default':      'text-red-600'

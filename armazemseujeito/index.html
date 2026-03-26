@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/master.css">
     <script src="js/config.js"></script>
     <script src="js/ebhtml.js"></script>
-    <!-- <script src="js/mock-data.js"></script> -->
+    <script src="js/mock-data.js"></script>
     <script src="js/layout-engine.js"></script>
     <script src="js/price-engine.js"></script>
     <script src="js/runtime-engine.js"></script>
@@ -118,7 +118,7 @@
     <template id="template_depor">
         <div class="price-root gap-[0.2em] landscape:gap-[0.14em] font-gotham-bold" data-price-layout="depor" data-theme="default">
             <div data-price-part="old-price" class="flex flex-row items-center gap-[0.2em] opacity-70">
-                <span class="text-[55%]">DE</span>
+                <span class="text-[60%]">DE</span>
                 <span class="text-[60%] line-through decoration-2 price-symbol">R$</span>
                 <span class="text-[100%] line-through decoration-2"></span>
             </div>
@@ -161,6 +161,21 @@
         <div class="price-root gap-[0.3em] bg-red-600" data-price-layout="oferta" data-theme="oferta">
             <div data-price-label class="text-white font-gotham-ultra text-[50%] tracking-widest uppercase">OFERTA IMPERDIVEL</div>
             <div class="price-row text-yellow-300" data-price-hero data-unit-class="text-white"></div>
+        </div>
+    </template>
+
+    <!-- COMPRE E GANHE: fundo violeta, badge brinde destacado, preço em amarelo -->
+    <template id="template_compre_e_ganhe">
+        <div class="price-root gap-[0.32em] bg-gradient-to-r from-violet-600 to-violet-700" data-price-layout="compre_e_ganhe" data-theme="compre_e_ganhe">
+            <div class="flex flex-col gap-[0.15em] items-center">
+                <div class="text-white font-gotham-ultra text-[48%] tracking-wider uppercase">COMPRE</div>
+                <div data-price-label class="text-white font-gotham-ultra text-[48%] tracking-wider uppercase">A PARTIR DE</div>
+            </div>
+            <div class="price-row text-amber-300" data-price-hero data-unit-class="text-white"></div>
+            <div class="w-[95%] mx-auto h-px bg-white opacity-30"></div>
+            <div class="bg-amber-400 text-violet-900 font-gotham-ultra px-4 py-2 rounded-lg text-[52%] tracking-wide uppercase text-center">
+                🎁 GANHE BRINDE!
+            </div>
         </div>
     </template>
 
