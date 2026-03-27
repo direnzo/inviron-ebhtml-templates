@@ -8,8 +8,7 @@
 
 @font-face {
     font-family: 'Carbona-MonoBoldSlanted';
-    src: url('fonts/Carbona-MonoBoldSlanted.ttf') format('truetype'),
-         url('fonts/Carbona-MonoBoldSlanted.otf') format('opentype');
+    src: url('fonts/Carbona-MonoBoldSlanted.otf') format('opentype');
     font-weight: bold;
     font-style: italic;
 }
@@ -32,6 +31,7 @@ body {
     width: 100%;
     height: 100%;
     overflow: hidden;
+    background: #000;
 }
 
 /* ========================================
@@ -65,8 +65,8 @@ body {
     transition: opacity 300ms ease-in-out;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    padding: 8px 12px;
+    justify-content: center;
+    padding: 8px 10px;
     font-family: 'Carbona-MonoBoldSlanted', monospace;
 }
 
@@ -79,24 +79,17 @@ body {
    CONTENT LAYOUT POR TIPO DE SLIDE
    ======================================== */
 
-.slide-content {
+.slide-row {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 2px;
+    align-items: center;
+    gap: 7px;
     width: 100%;
     height: 100%;
 }
 
-.slide-content.with-icon {
-    flex-direction: row;
-    align-items: center;
-    gap: 6px;
-}
-
 .slide-icon {
-    width: 24px;
-    height: 24px;
+    width: 34px;
+    height: 34px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -109,77 +102,192 @@ body {
     object-fit: contain;
 }
 
-.slide-text {
+.hora-main {
+    flex: 1 1 auto;
+}
+
+.hora-value {
+    font-size: 52px;
+    line-height: 0.85;
+    letter-spacing: -1px;
+}
+
+.hora-side {
+    width: 108px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: 1px;
 }
 
-.slide-label {
-    font-size: 10px;
+.hora-weekday {
+    font-size: 14px;
     line-height: 1;
-    opacity: 0.85;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
-.slide-value {
-    font-size: 15px;
-    font-weight: bold;
-    line-height: 1;
-    letter-spacing: -0.5px;
-}
-
-.slide-unit {
+.hora-date {
     font-size: 9px;
     line-height: 1;
-    opacity: 0.8;
+}
+
+.clima-main {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+}
+
+.clima-label {
+    font-size: 12px;
+    line-height: 1;
+}
+
+.clima-temp-line {
+    display: flex;
+    align-items: flex-end;
+}
+
+.clima-temp {
+    font-size: 58px;
+    line-height: 0.8;
+    letter-spacing: -2px;
+}
+
+.clima-unit {
+    font-size: 20px;
+    line-height: 1;
+    margin-left: 3px;
+    margin-bottom: 7px;
+}
+
+.clima-metrics {
+    width: 122px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px 7px;
+    font-size: 8px;
+    line-height: 1;
+}
+
+.metric-line span {
+    font-size: 20px;
+    line-height: 0.9;
     margin-left: 2px;
 }
 
+.ondas-main {
+    flex: 1 1 auto;
+}
+
+.ondas-label {
+    font-size: 11px;
+    line-height: 1;
+}
+
+.ondas-value-line {
+    font-size: 30px;
+    line-height: 1;
+}
+
+.ondas-time {
+    font-size: 10px;
+    line-height: 1;
+}
+
+.uv-main {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.uv-title {
+    font-size: 15px;
+    line-height: 1;
+}
+
+.uv-msg {
+    font-size: 11px;
+    line-height: 1.1;
+}
+
+.cambio-grid {
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.quote-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.quote-arrow {
+    width: 10px;
+    height: 10px;
+    object-fit: contain;
+    margin-bottom: 1px;
+}
+
+.quote-value-line {
+    display: flex;
+    align-items: baseline;
+    gap: 1px;
+}
+
+.quote-value {
+    font-size: 13px;
+    line-height: 1;
+}
+
+.quote-unit {
+    font-size: 9px;
+    line-height: 1;
+}
+
+.quote-time {
+    font-size: 9px;
+    line-height: 1;
+    margin-top: 2px;
+}
+
+.comunicado-main {
+    flex: 1 1 auto;
+}
+
+.comunicado-msg {
+    font-size: 18px;
+    line-height: 1.05;
+    white-space: normal;
+}
+
 /* ========================================
-   OVERRIDE PARA TIPOS ESPECIAIS
+   TEMA BRANCO (fundos dos parques)
    ======================================== */
 
-/* Hora: grande, sem ícone */
-.slide-hora .slide-value {
-    font-size: 22px;
-}
-
-.slide-hora .slide-label {
-    font-size: 9px;
-}
-
-/* Clima: ícone + temperatura grande */
-.slide-clima .slide-value {
-    font-size: 18px;
-}
-
-/* Ondas: valor grande */
-.slide-ondas .slide-value {
-    font-size: 16px;
-}
-
-/* Cotação: símbolo + valor */
-.slide-cambio .slide-value {
-    font-size: 16px;
-}
-
-/* Mensagem: texto centralizado */
-.slide-comunicado {
-    justify-content: center;
-    padding: 6px 12px;
-}
-
-.slide-comunicado .slide-text {
-    width: 100%;
-    text-align: center;
-}
-
-.slide-comunicado .slide-value {
-    font-size: 11px;
-    line-height: 1.2;
-    word-wrap: break-word;
-    hyphens: auto;
+.tema-branco,
+.tema-branco .slide,
+.tema-branco .hora-value,
+.tema-branco .hora-weekday,
+.tema-branco .hora-date,
+.tema-branco .clima-label,
+.tema-branco .clima-temp,
+.tema-branco .clima-unit,
+.tema-branco .clima-metrics,
+.tema-branco .metric-line,
+.tema-branco .ondas-label,
+.tema-branco .ondas-value-line,
+.tema-branco .ondas-time,
+.tema-branco .uv-title,
+.tema-branco .uv-msg,
+.tema-branco .cambio-grid,
+.tema-branco .quote-value,
+.tema-branco .quote-unit,
+.tema-branco .quote-time,
+.tema-branco .comunicado-msg {
+    color: #ffffff;
 }

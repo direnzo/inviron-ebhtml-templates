@@ -4,7 +4,46 @@
  * 5 segundos por slide, rotação contínua
  */
 
+/* ========================================
+   CONFIGURAÇÃO DE LOCAL
+   Altere LOCAL para: SANTANA | DONA_LINDU | JAQUEIRA | APIPUCOS | GENERICO
+   ======================================== */
+var CONFIG = {
+    LOCAL: 'GENERICO'
+};
+
+var FUNDOS = {
+    'SANTANA':    'img/Tarja Parque Santana.png',
+    'DONA_LINDU': 'img/Tarja Parque Dona Lindu.png',
+    'JAQUEIRA':   'img/Tarja Parque da Jaqueira.png',
+    'APIPUCOS':   'img/Tarja Parque Apipucos.png',
+    'GENERICO':   'img/fundo.png'
+};
+
+var LOCAIS_TEMA_BRANCO = ['SANTANA', 'DONA_LINDU', 'JAQUEIRA', 'APIPUCOS'];
+
+function aplicarTema() {
+    var local = CONFIG.LOCAL;
+    var container = document.getElementById('container');
+    var fundo = FUNDOS[local] || FUNDOS['GENERICO'];
+    container.style.backgroundImage = "url('" + fundo + "')";
+
+    var temaBranco = false;
+    for (var i = 0; i < LOCAIS_TEMA_BRANCO.length; i++) {
+        if (LOCAIS_TEMA_BRANCO[i] === local) {
+            temaBranco = true;
+            break;
+        }
+    }
+    if (temaBranco) {
+        container.classList.add('tema-branco');
+    } else {
+        container.classList.remove('tema-branco');
+    }
+}
+
 window.onload = function() {
+    aplicarTema();
     // Debug
     console.log('[VIDEOPORTO] Iniciando...');
     
@@ -42,6 +81,8 @@ window.onload = function() {
         });
     }
 };
+
+var horaTimerId = null;
 
 /**
  * Inicializa o template e renderiza slides
@@ -108,22 +149,35 @@ function inicializarTemplate(loader) {
  * Renderiza slide de Hora (Quarta-feira, HH:MM, DD de mês de YYYY)
  */
 function renderizarSlideHora() {
+    atualizarSlideHoraLocal();
+
+    if (horaTimerId) {
+        clearInterval(horaTimerId);
+    }
+
+    horaTimerId = setInterval(function() {
+        atualizarSlideHoraLocal();
+    }, 1000);
+
+    // Injetar ícone de relógio
+    injetarIcone('hora-icon', 'img/clock_5279650.png');
+}
+
+function atualizarSlideHoraLocal() {
     var data = new Date();
     var dias = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
     var meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
     
-    var hora = String(data.getHours()).padStart(2, '0');
-    var minuto = String(data.getMinutes()).padStart(2, '0');
+    var hora = formatarDoisDigitos(data.getHours());
+    var minuto = formatarDoisDigitos(data.getMinutes());
     var dia = dias[data.getDay()];
     var dataDia = data.getDate();
     var dataMes = meses[data.getMonth()];
     var dataAno = data.getFullYear();
     
+    document.getElementById('hora-weekday').innerText = dia;
     document.getElementById('hora-value').innerText = hora + ':' + minuto;
     document.getElementById('hora-date').innerText = dataDia + ' de ' + dataMes + ' de ' + dataAno;
-    
-    // Injetar ícone de relógio
-    injetarIcone('hora-icon', 'img/clock_5279650.png');
 }
 
 /**
@@ -152,9 +206,12 @@ function obterDadosClima(loader) {
  * Renderiza slide de Clima
  */
 function renderizarSlideClima(dados) {
+    document.getElementById('clima-condicao').innerText = dados.condicao;
     document.getElementById('clima-temp').innerText = dados.temperatura;
     document.getElementById('clima-min').innerText = dados.minima;
     document.getElementById('clima-max').innerText = dados.maxima;
+    document.getElementById('clima-umidade').innerText = dados.umidade;
+    document.getElementById('clima-vento').innerText = dados.vento;
     
     // Injetar ícone de clima
     injetarIcone('clima-icon', 'img/clouds-sun_7587425.png');
@@ -218,7 +275,11 @@ function obterDadosUV(loader) {
  * Renderiza slide de UV
  */
 function renderizarSlideUV(dados) {
-    document.getElementById('uv-msg').innerText = dados.descricao + ' UV';
+    var textoUv = 'O nível de UV agora pela manhã está altíssimo.';
+    if (dados.indice) {
+        textoUv = 'Índice UV ' + dados.indice + '. Proteja-se do sol.';
+    }
+    document.getElementById('uv-msg').innerText = textoUv;
     
     // Injetar ícone de raios solares
     injetarIcone('uv-icon', 'img/sun_2354809.png');
@@ -232,9 +293,19 @@ function obterDadosCambio(loader) {
         var item = loader.data('D_CAMBIO');
         if (!item) return null;
         
+        var lista = [];
+        var v1 = obterCampo(item, 'V1', null);
+        if (v1) {
+            lista.push({ valor: v1, hora: obterCampo(item, 'H1', '--:--') });
+            lista.push({ valor: obterCampo(item, 'V2', '--'), hora: obterCampo(item, 'H2', '--:--') });
+            lista.push({ valor: obterCampo(item, 'V3', '--'), hora: obterCampo(item, 'H3', '--:--') });
+            lista.push({ valor: obterCampo(item, 'V4', '--'), hora: obterCampo(item, 'H4', '--:--') });
+        }
+
         return {
             moeda: obterCampo(item, 'MOEDA', 'USD'),
             cotacao: obterCampo(item, 'COTACAO', '5.45'),
+            lista: lista
         };
     } catch (e) {
         console.error('[VIDEOPORTO] Erro ao extrair câmbio:', e);
@@ -246,8 +317,24 @@ function obterDadosCambio(loader) {
  * Renderiza slide de Câmbio
  */
 function renderizarSlideCambio(dados) {
-    document.getElementById('cambio-moeda').innerText = dados.moeda;
-    document.getElementById('cambio-valor').innerText = dados.cotacao;
+    var valores = dados.lista;
+    if (!valores || valores.length < 4) {
+        valores = [
+            { valor: '2.46m', hora: '04:02' },
+            { valor: '0.11m', hora: '10:08' },
+            { valor: '2.10m', hora: '16:17' },
+            { valor: '0.32m', hora: '22:14' }
+        ];
+    }
+
+    document.getElementById('cambio-v1').innerText = extrairNumeroValor(valores[0].valor);
+    document.getElementById('cambio-h1').innerText = valores[0].hora;
+    document.getElementById('cambio-v2').innerText = extrairNumeroValor(valores[1].valor);
+    document.getElementById('cambio-h2').innerText = valores[1].hora;
+    document.getElementById('cambio-v3').innerText = extrairNumeroValor(valores[2].valor);
+    document.getElementById('cambio-h3').innerText = valores[2].hora;
+    document.getElementById('cambio-v4').innerText = extrairNumeroValor(valores[3].valor);
+    document.getElementById('cambio-h4').innerText = valores[3].hora;
     
     // Injetar ícone de câmbio
     injetarIcone('cambio-icon', 'img/drink_10885667.png');
@@ -275,6 +362,7 @@ function obterDadosComunicado(loader) {
  */
 function renderizarSlideComunicado(dados) {
     document.getElementById('comunicado-msg').innerText = dados.mensagem;
+    injetarIcone('comunicado-icon', 'img/sun_2354809.png');
 }
 
 /**
@@ -287,9 +375,7 @@ function injetarIcone(elementId, imagemSrc) {
             container.innerHTML = '';
             var img = document.createElement('img');
             img.src = imagemSrc;
-            img.style.width = '100%';
-            img.style.height = '100%';
-            img.style.objectFit = 'contain';
+            img.className = 'w-full h-full object-contain';
             container.appendChild(img);
         }
     } catch (e) {
@@ -366,19 +452,12 @@ function iniciarSlideshow(slides, loader) {
         
         console.log('[VIDEOPORTO] Slide ' + current + ' (' + totalExibins + ' total)');
         
-        // Após exibir todos os slides, terminar
-        if (totalExibins >= slides.length) {
-            console.log('[VIDEOPORTO] Ciclo completo, expondo 1 ciclo adicional');
-        }
-        
-        // Após 2 ciclos completos, terminar
-        if (totalExibins >= slides.length * 2) {
+        // Finaliza após um ciclo completo
+        if (totalExibins >= slides.length - 1) {
             clearInterval(interval);
             console.log('[VIDEOPORTO] Finalizando slideshow');
             
-            // Fade out último slide
             setTimeout(function() {
-                slides[current].classList.remove('active');
                 loader.finished();
             }, SLIDE_DURATION);
             
@@ -387,21 +466,17 @@ function iniciarSlideshow(slides, loader) {
     }, SLIDE_DURATION);
 }
 
-/**
- * String pad helper para ES5 compatibility
- */
-if (!String.prototype.padStart) {
-    String.prototype.padStart = function(targetLength, padString) {
-        targetLength = targetLength >> 0;
-        padString = String((typeof padString !== 'undefined') ? padString : ' ');
-        if (this.length > targetLength) {
-            return String(this);
-        } else {
-            targetLength = targetLength - this.length;
-            if (targetLength > padString.length) {
-                padString += padString.repeat(targetLength / padString.length);
-            }
-            return padString.slice(0, targetLength) + String(this);
-        }
-    };
+function formatarDoisDigitos(numero) {
+    if (numero < 10) {
+        return '0' + numero;
+    }
+    return '' + numero;
+}
+
+function extrairNumeroValor(valor) {
+    if (!valor) {
+        return '--';
+    }
+
+    return ('' + valor).replace('m', '').replace('M', '');
 }

@@ -47,6 +47,14 @@ var MOCK_DATA = {
                     'MOEDA': 'USD',
                     'COTACAO': '5.45',
                     'VARIACAO': '+0.15',
+                    'V1': '2.46m',
+                    'H1': '04:02',
+                    'V2': '0.11m',
+                    'H2': '10:08',
+                    'V3': '2.10m',
+                    'H3': '16:17',
+                    'V4': '0.32m',
+                    'H4': '22:14'
                 };
                 
                 if (dados[campo]) {
@@ -68,7 +76,7 @@ var MOCK_DATA = {
         'D_COMUNICADO': {
             value: function(campo) {
                 var dados = {
-                    'MENSAGEM': 'Proteja sua pele!\nO nível de UV agora pela manhã\nestá otíssimo.',
+                    'MENSAGEM': 'Proteja sua pele! O nível de UV agora pela manhã está altíssimo.',
                     'TIPO': 'ALERTA',
                 };
                 

@@ -14,106 +14,102 @@
     <script src="js/master.js"></script>
     
     <title>VIDEOPORTO - Tarja de Serviços</title>
-    
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #000;
-        }
-    </style>
-    
-    <script>
-        // Injeta background dinamicamente
-        document.addEventListener('DOMContentLoaded', function() {
-            var container = document.getElementById('container');
-            container.style.backgroundImage = 'url(img/fundo.png)';
-            container.style.backgroundSize = 'cover';
-            container.style.backgroundPosition = 'center';
-        });
-    </script>
 </head>
 
-<body>
+<body class="m-0 p-0 w-full h-full overflow-hidden bg-black">
     <!-- Container fixo 312x100px -->
-    <div id="container" class="w-312 h-100">
+    <div id="container" class="w-312 h-100 text-[#134123]">
         <!-- Slide 1: Data e Hora -->
         <div class="slide slide-hora" data-type="hora">
-            <div class="slide-content with-icon">
+            <div class="slide-row">
                 <div class="slide-icon" id="hora-icon">
                     <!-- Ícone será injetado por JS -->
                 </div>
-                <div class="slide-text">
-                    <div class="slide-label">Quarta-feira</div>
-                    <div class="slide-value" id="hora-value">13:45</div>
-                    <div class="slide-label" id="hora-date">13 de março de 2026</div>
+                <div class="hora-main">
+                    <div class="hora-value" id="hora-value">13:45</div>
+                </div>
+                <div class="hora-side">
+                    <div class="hora-weekday" id="hora-weekday">Quarta-feira</div>
+                    <div class="hora-date" id="hora-date">13 de março de 2026</div>
                 </div>
             </div>
         </div>
 
         <!-- Slide 2: Clima -->
         <div class="slide slide-clima" data-type="clima">
-            <div class="slide-content with-icon">
+            <div class="slide-row">
                 <div class="slide-icon" id="clima-icon">
                     <!-- Ícone será injetado por JS -->
                 </div>
-                <div class="slide-text">
-                    <div class="slide-label">Nublado</div>
-                    <div style="display: flex; align-items: baseline;">
-                        <div class="slide-value" id="clima-temp">30</div>
-                        <div style="font-size: 11px; margin-left: 2px;">°C</div>
+                <div class="clima-main">
+                    <div class="clima-label" id="clima-condicao">Nublado</div>
+                    <div class="clima-temp-line">
+                        <div class="clima-temp" id="clima-temp">30</div>
+                        <div class="clima-unit">°C</div>
                     </div>
-                    <div style="display: flex; gap: 10px; font-size: 9px;">
-                        <div>Mín <span id="clima-min">28</span>°C</div>
-                        <div>Máx <span id="clima-max">34</span>°C</div>
-                    </div>
+                </div>
+                <div class="clima-metrics">
+                    <div class="metric-line">Máx <span id="clima-max">34</span>°C</div>
+                    <div class="metric-line">Precipitação <span id="clima-umidade">78</span>%</div>
+                    <div class="metric-line">Mín <span id="clima-min">28</span>°C</div>
+                    <div class="metric-line">Vento <span id="clima-vento">26</span>km/h</div>
                 </div>
             </div>
         </div>
 
         <!-- Slide 3: Ondas -->
         <div class="slide slide-ondas" data-type="ondas">
-            <div class="slide-content with-icon">
+            <div class="slide-row">
                 <div class="slide-icon" id="ondas-icon">
                     <!-- Ícone será injetado por JS -->
                 </div>
-                <div class="slide-text">
-                    <div class="slide-label">Ondas</div>
-                    <div style="display: flex; align-items: center; gap: 4px;">
-                        <div class="slide-value" id="ondas-altura">2.4</div>
-                        <div style="font-size: 11px;">m</div>
-                    </div>
-                    <div style="font-size: 9px;" id="ondas-horario">04:02</div>
+                <div class="ondas-main">
+                    <div class="ondas-label">Ondas</div>
+                    <div class="ondas-value-line"><span id="ondas-altura">2.4</span>m</div>
+                    <div class="ondas-time" id="ondas-horario">04:02</div>
                 </div>
             </div>
         </div>
 
         <!-- Slide 4: Raios Solar (UV) -->
         <div class="slide slide-uv" data-type="uv">
-            <div class="slide-content with-icon">
+            <div class="slide-row">
                 <div class="slide-icon" id="uv-icon">
                     <!-- Ícone será injetado por JS -->
                 </div>
-                <div class="slide-text">
-                    <div class="slide-label">Proteção Solar</div>
-                    <div class="slide-value" id="uv-msg">Máxima  UV</div>
+                <div class="uv-main">
+                    <div class="uv-title">Proteja sua pele!</div>
+                    <div class="uv-msg" id="uv-msg">O nível de UV agora pela manhã está altíssimo.</div>
                 </div>
             </div>
         </div>
 
         <!-- Slide 5: Cotações -->
         <div class="slide slide-cambio" data-type="cambio">
-            <div class="slide-content with-icon">
+            <div class="slide-row">
                 <div class="slide-icon" id="cambio-icon">
                     <!-- Ícone será injetado por JS -->
                 </div>
-                <div class="slide-text">
-                    <div class="slide-label" id="cambio-moeda">USD</div>
-                    <div style="display: flex; align-items: baseline;">
-                        <div class="slide-value" id="cambio-valor">5.45</div>
+                <div class="cambio-grid">
+                    <div class="quote-item">
+                        <img class="quote-arrow" src="img/seta_amarala.png" alt="seta">
+                        <div class="quote-value-line"><span class="quote-value" id="cambio-v1">2.46</span><span class="quote-unit">m</span></div>
+                        <div class="quote-time" id="cambio-h1">04:02</div>
+                    </div>
+                    <div class="quote-item">
+                        <img class="quote-arrow" src="img/seta_amarala.png" alt="seta">
+                        <div class="quote-value-line"><span class="quote-value" id="cambio-v2">0.11</span><span class="quote-unit">m</span></div>
+                        <div class="quote-time" id="cambio-h2">10:08</div>
+                    </div>
+                    <div class="quote-item">
+                        <img class="quote-arrow" src="img/seta_amarala.png" alt="seta">
+                        <div class="quote-value-line"><span class="quote-value" id="cambio-v3">2.10</span><span class="quote-unit">m</span></div>
+                        <div class="quote-time" id="cambio-h3">16:17</div>
+                    </div>
+                    <div class="quote-item">
+                        <img class="quote-arrow" src="img/seta_amarala.png" alt="seta">
+                        <div class="quote-value-line"><span class="quote-value" id="cambio-v4">0.32</span><span class="quote-unit">m</span></div>
+                        <div class="quote-time" id="cambio-h4">22:14</div>
                     </div>
                 </div>
             </div>
@@ -121,9 +117,12 @@
 
         <!-- Slide 6: Mensagem de Aviso -->
         <div class="slide slide-comunicado" data-type="comunicado">
-            <div class="slide-content">
-                <div class="slide-text">
-                    <div class="slide-value" id="comunicado-msg">Proteja sua pele!\nO nível de UV agora pela manhã\nestá otíssimo.</div>
+            <div class="slide-row">
+                <div class="slide-icon" id="comunicado-icon">
+                    <!-- Ícone será injetado por JS -->
+                </div>
+                <div class="comunicado-main">
+                    <div class="comunicado-msg" id="comunicado-msg">Mensagem de aviso</div>
                 </div>
             </div>
         </div>
