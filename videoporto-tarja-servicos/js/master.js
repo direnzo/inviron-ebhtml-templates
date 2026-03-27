@@ -121,6 +121,9 @@ function renderizarSlideHora() {
     
     document.getElementById('hora-value').innerText = hora + ':' + minuto;
     document.getElementById('hora-date').innerText = dataDia + ' de ' + dataMes + ' de ' + dataAno;
+    
+    // Injetar ícone de relógio
+    injetarIcone('hora-icon', 'img/clock_5279650.png');
 }
 
 /**
@@ -152,6 +155,9 @@ function renderizarSlideClima(dados) {
     document.getElementById('clima-temp').innerText = dados.temperatura;
     document.getElementById('clima-min').innerText = dados.minima;
     document.getElementById('clima-max').innerText = dados.maxima;
+    
+    // Injetar ícone de clima
+    injetarIcone('clima-icon', 'img/clouds-sun_7587425.png');
 }
 
 /**
@@ -182,6 +188,9 @@ function obterDadosOndas(loader) {
 function renderizarSlideOndas(dados) {
     document.getElementById('ondas-altura').innerText = dados.altura;
     document.getElementById('ondas-horario').innerText = dados.horario;
+    
+    // Injetar ícone de ondas
+    injetarIcone('ondas-icon', 'img/sea-level_4978353.png');
 }
 
 /**
@@ -210,6 +219,9 @@ function obterDadosUV(loader) {
  */
 function renderizarSlideUV(dados) {
     document.getElementById('uv-msg').innerText = dados.descricao + ' UV';
+    
+    // Injetar ícone de raios solares
+    injetarIcone('uv-icon', 'img/sun_2354809.png');
 }
 
 /**
@@ -236,6 +248,9 @@ function obterDadosCambio(loader) {
 function renderizarSlideCambio(dados) {
     document.getElementById('cambio-moeda').innerText = dados.moeda;
     document.getElementById('cambio-valor').innerText = dados.cotacao;
+    
+    // Injetar ícone de câmbio
+    injetarIcone('cambio-icon', 'img/drink_10885667.png');
 }
 
 /**
@@ -260,6 +275,26 @@ function obterDadosComunicado(loader) {
  */
 function renderizarSlideComunicado(dados) {
     document.getElementById('comunicado-msg').innerText = dados.mensagem;
+}
+
+/**
+ * Auxiliar: Injeta ícone em um container
+ */
+function injetarIcone(elementId, imagemSrc) {
+    try {
+        var container = document.getElementById(elementId);
+        if (container) {
+            container.innerHTML = '';
+            var img = document.createElement('img');
+            img.src = imagemSrc;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'contain';
+            container.appendChild(img);
+        }
+    } catch (e) {
+        console.warn('[VIDEOPORTO] Erro ao injetar ícone: ' + elementId);
+    }
 }
 
 /**

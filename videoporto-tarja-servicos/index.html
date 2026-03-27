@@ -25,6 +25,16 @@
             background: #000;
         }
     </style>
+    
+    <script>
+        // Injeta background dinamicamente
+        document.addEventListener('DOMContentLoaded', function() {
+            var container = document.getElementById('container');
+            container.style.backgroundImage = 'url(img/fundo.png)';
+            container.style.backgroundSize = 'cover';
+            container.style.backgroundPosition = 'center';
+        });
+    </script>
 </head>
 
 <body>
@@ -32,10 +42,15 @@
     <div id="container" class="w-312 h-100">
         <!-- Slide 1: Data e Hora -->
         <div class="slide slide-hora" data-type="hora">
-            <div class="slide-content">
-                <div class="slide-label">Quarta-feira</div>
-                <div class="slide-value" id="hora-value">13:45</div>
-                <div class="slide-label" id="hora-date">13 de março de 2026</div>
+            <div class="slide-content with-icon">
+                <div class="slide-icon" id="hora-icon">
+                    <!-- Ícone será injetado por JS -->
+                </div>
+                <div class="slide-text">
+                    <div class="slide-label">Quarta-feira</div>
+                    <div class="slide-value" id="hora-value">13:45</div>
+                    <div class="slide-label" id="hora-date">13 de março de 2026</div>
+                </div>
             </div>
         </div>
 
