@@ -2,12 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Registrar as fontes personalizadas */
 @font-face {
     font-family: 'Poppins Medium';
     src: url('fonts/Poppins-Medium.ttf');
 }
-
 @font-face {
     font-family: 'Poppins Bold';
     src: url('fonts/Poppins-ExtraBold.ttf');
@@ -15,4 +13,520 @@
 @font-face {
     font-family: 'Poppins Regular';
     src: url('fonts/Poppins-Regular.ttf');
+}
+
+/* =====================================================
+   BASE
+===================================================== */
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.news-body {
+    position: relative;
+    background: #000;
+    color: #fff;
+    font-family: 'Poppins Medium', sans-serif;
+    opacity: 0;
+    -webkit-transition: opacity 0.9s ease;
+    transition: opacity 0.9s ease;
+}
+
+.news-body.is-ready {
+    opacity: 1;
+}
+
+/* =====================================================
+   FOTO — camada de fundo fullscreen
+===================================================== */
+
+.photo-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+}
+
+.photo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    -webkit-transition: -webkit-transform 15s linear;
+    transition: transform 15s linear;
+}
+
+.photo-img.zoom {
+    -webkit-transform: scale(1.08);
+    transform: scale(1.08);
+}
+
+/* =====================================================
+   BLOCO DE CONTEÚDO — padrão LANDSCAPE (default)
+===================================================== */
+
+.content-block {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: 36vh;
+    padding: 0 3.2vw 4vh;
+    z-index: 20;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-pack: end;
+    -webkit-justify-content: flex-end;
+    justify-content: flex-end;
+    background: -webkit-linear-gradient(bottom, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.55) 55%, rgba(0, 0, 0, 0) 100%);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.55) 55%, rgba(0, 0, 0, 0) 100%);
+}
+
+/* =====================================================
+   BRAND AREA — logo + editoria em linha (padrão)
+===================================================== */
+
+.brand-area {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    margin-bottom: 1.6vh;
+    gap: 2vw;
+}
+
+.logo-wrap {
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 auto;
+    flex: 0 0 auto;
+    height: 9vh;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+}
+
+.logo-img {
+    height: 100%;
+    width: auto;
+    max-width: 13vw;
+    object-fit: contain;
+    display: block;
+}
+
+.editoria-wrap {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1 1 auto;
+    flex: 1 1 auto;
+    height: 9vh;
+    border-radius: 9999px;
+    padding: 0 3.5vw;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    overflow: hidden;
+    background: rgba(252, 201, 8, 0.85);
+}
+
+.editoria-text {
+    font-family: 'Poppins Bold', sans-serif;
+    font-size: 4.8vh;
+    color: #fff;
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+    line-height: 1;
+}
+
+/* =====================================================
+   HEADLINE
+===================================================== */
+
+.headline-wrap {
+    max-height: 22vh;
+    overflow: hidden;
+}
+
+.headline-text {
+    font-family: 'Poppins Medium', sans-serif;
+    font-size: 6vh;
+    line-height: 1.1;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+/* =====================================================
+   CRÉDITO DA FOTO
+===================================================== */
+
+.credit-text {
+    position: absolute;
+    z-index: 40;
+    left: 1.2vh;
+    top: 50%;
+    -webkit-transform: translateY(-50%) rotate(-90deg);
+    transform: translateY(-50%) rotate(-90deg);
+    -webkit-transform-origin: left center;
+    transform-origin: left center;
+    font-family: 'Poppins Regular', sans-serif;
+    font-size: 1.8vh;
+    color: rgba(255, 255, 255, 0.85);
+    white-space: nowrap;
+    margin: 0;
+    padding: 0;
+}
+
+/* =====================================================
+   RATIO: PORTRAIT LEVE (3:4 → ~1:1)
+===================================================== */
+
+.ratio-portrait-mild .content-block {
+    min-height: 44vh;
+    padding: 0 4vw 4.5vh;
+}
+
+.ratio-portrait-mild .logo-img {
+    max-width: 16vw;
+}
+
+.ratio-portrait-mild .editoria-text {
+    font-size: 4.6vh;
+}
+
+.ratio-portrait-mild .headline-text {
+    font-size: 5.4vh;
+}
+
+.ratio-portrait-mild .headline-wrap {
+    max-height: 26vh;
+}
+
+/* =====================================================
+   RATIO: PORTRAIT TALL (≤ 3:4 / 9:16)
+===================================================== */
+
+.ratio-portrait .content-block {
+    min-height: 52vh;
+    padding: 0 4.5vw 4vh;
+}
+
+.ratio-portrait .brand-area {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-align: stretch;
+    -webkit-align-items: stretch;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: 2vh;
+}
+
+.ratio-portrait .logo-wrap {
+    height: 10vh;
+    width: 100%;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    margin-bottom: 1.2vh;
+}
+
+.ratio-portrait .logo-img {
+    height: 100%;
+    max-width: 48vw;
+}
+
+.ratio-portrait .editoria-wrap {
+    height: 9vh;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    border-radius: 9999px;
+}
+
+.ratio-portrait .editoria-text {
+    font-size: 4.4vh;
+}
+
+.ratio-portrait .headline-wrap {
+    max-height: 28vh;
+}
+
+.ratio-portrait .headline-text {
+    font-size: 5.2vh;
+}
+
+/* =====================================================
+   RATIO: SQUARE (~1:1)
+===================================================== */
+
+.ratio-square .content-block {
+    min-height: 44vh;
+}
+
+.ratio-square .logo-img {
+    max-width: 18vw;
+}
+
+.ratio-square .editoria-text {
+    font-size: 4.6vh;
+}
+
+.ratio-square .headline-wrap {
+    max-height: 24vh;
+}
+
+.ratio-square .headline-text {
+    font-size: 5.6vh;
+}
+
+/* =====================================================
+   RATIO: ULTRAWIDE (≥ 3:1)
+===================================================== */
+
+.ratio-ultrawide .content-block {
+    left: auto;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 38vw;
+    min-height: 0;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    padding: 0 3.8vw;
+    background: -webkit-linear-gradient(right, rgba(0, 0, 0, 0.93) 55%, rgba(0, 0, 0, 0) 100%);
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.93) 55%, rgba(0, 0, 0, 0) 100%);
+}
+
+.ratio-ultrawide .brand-area {
+    margin-bottom: 2.4vh;
+}
+
+.ratio-ultrawide .logo-img {
+    max-width: 9vw;
+}
+
+.ratio-ultrawide .editoria-text {
+    font-size: 5.5vh;
+}
+
+.ratio-ultrawide .headline-wrap {
+    max-height: 50vh;
+}
+
+.ratio-ultrawide .headline-text {
+    font-size: 6.8vh;
+}
+
+/* =====================================================
+   RATIO: SUPERBANNER (5:1 a 15:1)
+===================================================== */
+
+.ratio-superbanner .content-block {
+    left: 22vw;
+    right: 22vw;
+    top: 0;
+    bottom: 0;
+    min-height: 0;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    padding: 0 3vw;
+    background: -webkit-linear-gradient(left, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.90) 12%, rgba(0, 0, 0, 0.90) 88%, rgba(0, 0, 0, 0) 100%);
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.90) 12%, rgba(0, 0, 0, 0.90) 88%, rgba(0, 0, 0, 0) 100%);
+}
+
+.ratio-superbanner .editoria-text {
+    font-size: 8vh;
+}
+
+.ratio-superbanner .headline-wrap {
+    max-height: 60vh;
+}
+
+.ratio-superbanner .headline-text {
+    font-size: 8vh;
+    line-height: 1.06;
+}
+
+/* =====================================================
+   RATIO: FOOTER (≥ 15:1)
+===================================================== */
+
+.ratio-footer .content-block {
+    top: 0;
+    min-height: 0;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    gap: 4vw;
+    padding: 0 6vw;
+    background: rgba(0, 0, 0, 0.88);
+}
+
+.ratio-footer .brand-area {
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 auto;
+    flex: 0 0 auto;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    margin-bottom: 0;
+    gap: 1vh;
+}
+
+.ratio-footer .logo-wrap {
+    height: 14vh;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+}
+
+.ratio-footer .logo-img {
+    max-width: 10vw;
+}
+
+.ratio-footer .editoria-wrap {
+    height: 14vh;
+}
+
+.ratio-footer .editoria-text {
+    font-size: 11vh;
+}
+
+.ratio-footer .headline-wrap {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+    max-height: 100%;
+}
+
+.ratio-footer .headline-text {
+    font-size: 16vh;
+    line-height: 1;
+}
+
+.ratio-footer .credit-text {
+    display: none;
+}
+
+/* =====================================================
+   RATIO: EMPENA (≤ 1:3)
+===================================================== */
+
+.ratio-empena .content-block {
+    min-height: 58vh;
+    padding: 0 3.5vw 3.5vh;
+}
+
+.ratio-empena .brand-area {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-align: stretch;
+    -webkit-align-items: stretch;
+    align-items: stretch;
+    gap: 1vh;
+}
+
+.ratio-empena .logo-wrap {
+    height: 8vh;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+}
+
+.ratio-empena .logo-img {
+    max-width: 44vw;
+}
+
+.ratio-empena .editoria-wrap {
+    height: 8vh;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+}
+
+.ratio-empena .editoria-text {
+    font-size: 3.6vh;
+}
+
+.ratio-empena .headline-wrap {
+    max-height: 36vh;
+}
+
+.ratio-empena .headline-text {
+    font-size: 3.8vh;
+}
+
+/* =====================================================
+   LEGACY WEBKIT — Android 7 / engines sem CSS moderno
+===================================================== */
+
+body.legacy-webkit {
+    color: #ffffff;
+}
+
+body.legacy-webkit .editoria-text,
+body.legacy-webkit .headline-text,
+body.legacy-webkit .credit-text {
+    color: #ffffff !important;
+}
+
+body.legacy-webkit .brand-area {
+    display: -webkit-box;
+    -webkit-box-orient: horizontal;
+    -webkit-box-align: center;
+}
+
+body.legacy-webkit .logo-wrap {
+    margin-right: 2vw;
+    -webkit-box-flex: 0;
+}
+
+body.legacy-webkit .editoria-wrap {
+    -webkit-box-flex: 1;
+    padding-left: 3.2vw;
+    padding-right: 3.2vw;
+}
+
+body.legacy-webkit .headline-text {
+    line-height: 1.08;
+}
+
+body.legacy-webkit .content-block {
+    background: -webkit-gradient(linear, left bottom, left top, color-stop(0%, rgba(0, 0, 0, 0.92)), color-stop(55%, rgba(0, 0, 0, 0.55)), color-stop(100%, rgba(0, 0, 0, 0)));
 }

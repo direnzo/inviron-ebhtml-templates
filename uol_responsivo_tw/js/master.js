@@ -1,84 +1,180 @@
 window.onload = function () {
 
-    var image = document.querySelector('#image');
-    var image2 = document.querySelector('#image2');
-    var title = document.querySelector('#title');
-    var titleContainer = document.querySelector('#titleContainer');
-    var text = document.querySelector('#description');
-    var textContent = document.querySelector('#descriptionContainer');
+    var photo = document.querySelector('#photo');
+    var logo = document.querySelector('#logo');
+    var editoria = document.querySelector('#editoria');
+    var editoriaWrap = document.querySelector('#editoria-wrap');
+    var headline = document.querySelector('#headline');
+    var headlineWrap = document.querySelector('.headline-wrap');
     var credit = document.querySelector('#credit');
     var body = document.querySelector('body');
 
-    function isWebkit() {
-        return 'WebkitAppearance' in document.documentElement.style;
+    var ALL_RATIO_CLASSES = [
+        'ratio-portrait',
+        'ratio-portrait-mild',
+        'ratio-square',
+        'ratio-landscape',
+        'ratio-ultrawide',
+        'ratio-superbanner',
+        'ratio-footer',
+        'ratio-empena'
+    ];
+
+    function isLegacyWebkit() {
+        if (!window.CSS || !window.CSS.supports) {
+            return true;
+        }
+        return !(window.CSS.supports('color', 'rgb(255 255 255 / 1)') &&
+                 window.CSS.supports('gap', '1rem'));
     }
 
-    function isAndroid() {
-        return /Android/i.test(navigator.userAgent);
+    if (isLegacyWebkit()) {
+        body.classList.add('legacy-webkit');
     }
 
-    if (isWebkit() || isAndroid()) {
-        document.body.classList.add('no-expand');
+    function definirClasseAspectRatio() {
+        var ar = window.innerWidth / window.innerHeight;
+        if (ar <= (1 / 3)) {
+            return 'ratio-empena';
+        }
+        if (ar <= (3 / 4)) {
+            return 'ratio-portrait';
+        }
+        if (ar <= 1) {
+            return 'ratio-portrait-mild';
+        }
+        if (ar < 1.05) {
+            return 'ratio-square';
+        }
+        if (ar >= 15) {
+            return 'ratio-footer';
+        }
+        if (ar >= 5) {
+            return 'ratio-superbanner';
+        }
+        if (ar >= 3) {
+            return 'ratio-ultrawide';
+        }
+        return 'ratio-landscape';
+    }
+
+    function aplicarClasseAspectRatio() {
+        var i;
+        var ratioClass = definirClasseAspectRatio();
+
+        for (i = 0; i < ALL_RATIO_CLASSES.length; i++) {
+            body.classList.remove(ALL_RATIO_CLASSES[i]);
+        }
+        body.classList.add(ratioClass);
+    }
+
+    function aplicarLayoutConfig(layoutConfig) {
+        var key;
+        if (!layoutConfig) {
+            return;
+        }
+        for (key in layoutConfig) {
+            if (layoutConfig.hasOwnProperty(key)) {
+                document.documentElement.style.setProperty('--' + key, layoutConfig[key]);
+            }
+        }
+    }
+
+    function ler(item, campo) {
+        var node;
+        if (!item || !campo) {
+            return '';
+        }
+        try {
+            node = item.value(campo);
+            if (node && node.value !== undefined && node.value !== null) {
+                return '' + node.value;
+            }
+        } catch (e) {
+            return '';
+        }
+        return '';
+    }
+
+    function lerPrimeiro(item, campos, fallback) {
+        var i;
+        var v;
+        for (i = 0; i < campos.length; i++) {
+            v = ler(item, campos[i]);
+            if (v !== '') {
+                return v;
+            }
+        }
+        return fallback || '';
     }
 
     function renderizarTemplate(dados) {
-        title.innerHTML = dados.TITULO.toUpperCase();
-        text.innerHTML = dados.TEXTO;
+        editoria.innerHTML = dados.EDITORIA ? dados.EDITORIA.toUpperCase() : '';
+        headline.innerHTML = dados.TITULO;
         credit.innerHTML = dados.IMAGECREDIT;
 
-        if (title && titleContainer) {
-            fitDescriptionFont(title, titleContainer, 6);
-        }
-        if (text && textContent) {
-            fitDescriptionFont(text, textContent, 6);
+        if (dados.LOGO && logo) {
+            logo.src = dados.LOGO;
         }
 
-        mudaCor(dados.EDITORIA);
+        mudaCor(dados.EDITORIA, editoriaWrap);
 
-        body.classList.remove('opacity-0');
-        body.classList.add('opacity-100');
+        aplicarClasseAspectRatio();
 
-        var aspectRatio = window.innerWidth / window.innerHeight;
-        var isEmpena = aspectRatio <= (1 / 2);
-        var isPortrait = aspectRatio <= (3 / 4);
-
-        if (isEmpena || isPortrait) {
-            image.classList.remove('empena:object-left', 'portrait:object-left', 'scale-110');
-            image.classList.add('object-right');
-        } else {
-            image.classList.add('scale-110');
+        if (headline && headlineWrap) {
+            fitDescriptionFont(headline, headlineWrap, 8);
         }
+
+        body.classList.add('is-ready');
     }
 
     function carregarImagem(imageUrl, loader) {
-        image.src = imageUrl;
-        image2.src = imageUrl;
+        if (!imageUrl || !photo) {
+            loader.finished();
+            return;
+        }
 
-        image.onload = function () {
+        photo.src = imageUrl;
+
+        photo.onload = function () {
+            photo.classList.add('zoom');
             loader.loaded();
             setTimeout(function () {
                 loader.finished();
             }, 15000);
         };
 
-        image.onerror = function () {
+        photo.onerror = function () {
             console.error('Erro ao carregar imagem: ' + imageUrl);
             loader.finished();
         };
     }
 
-    // --- Modo mock (desenvolvimento local) ---
+    var resizeTimer = null;
+    window.addEventListener('resize', function () {
+        if (resizeTimer) {
+            clearTimeout(resizeTimer);
+        }
+        resizeTimer = setTimeout(function () {
+            aplicarClasseAspectRatio();
+        }, 120);
+    });
+
     if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
         var mockLoader = {
             loaded: function () { console.log('[Mock] loaded'); },
             finished: function () { console.log('[Mock] finished'); }
         };
+
+        if (MOCK_DATA.config && MOCK_DATA.config.layout) {
+            aplicarLayoutConfig(MOCK_DATA.config.layout);
+        }
+
         renderizarTemplate(MOCK_DATA.dados);
         carregarImagem(MOCK_DATA.dados.FOTO, mockLoader);
         return;
     }
 
-    // --- Modo EdgeContents ---
     ebhtml.create2({}, function (loader) {
         loader.addData('D_UOL');
         loader.nodataiserror = false;
@@ -91,12 +187,13 @@ window.onload = function () {
                 return;
             }
 
+            var item = loader.data('D_UOL');
             var dados = {
-                TITULO:      loader.data('D_UOL').value('TITULO').value,
-                TEXTO:       loader.data('D_UOL').value('TEXTO').value,
-                IMAGECREDIT: loader.data('D_UOL').value('IMAGECREDIT').value,
-                FOTO:        loader.data('D_UOL').value('FOTO').value,
-                EDITORIA:    loader.data('D_UOL').value('EDITORIA').value
+                TITULO: lerPrimeiro(item, ['TITULO', 'HEADLINE', 'MANCHETE'], ''),
+                IMAGECREDIT: lerPrimeiro(item, ['IMAGECREDIT', 'CREDITO', 'CREDITO_FOTO'], ''),
+                FOTO: lerPrimeiro(item, ['FOTO', 'IMAGEM', 'FOTO1'], ''),
+                EDITORIA: lerPrimeiro(item, ['EDITORIA', 'CATEGORIA', 'SECAO'], 'GERAL'),
+                LOGO: lerPrimeiro(item, ['LOGO', 'LOGO_URL'], '')
             };
 
             renderizarTemplate(dados);
@@ -105,62 +202,67 @@ window.onload = function () {
     });
 };
 
-function mudaCor(editoria) {
-    var cor = 'rgba(252, 201, 8, 0.7)';
+function mudaCor(nomeEditoria, wrapper) {
+    var cor = 'rgba(252, 201, 8, 0.85)';
+    var el = wrapper || document.querySelector('#editoria-wrap');
+    var editoria = nomeEditoria ? nomeEditoria.toUpperCase() : '';
+
+    if (!el) {
+        return;
+    }
+
     switch (editoria) {
         case 'ESPORTE':
         case 'FUTEBOL':
-            cor = 'rgba(50, 168, 82, 0.7)';
+            cor = 'rgba(50, 168, 82, 0.85)';
             break;
         case 'POLÍTICA':
         case 'INTERNACIONAL':
-            cor = 'rgba(171, 2, 2, 0.7)';
+            cor = 'rgba(171, 2, 2, 0.85)';
             break;
         case 'ECONOMIA':
-            cor = 'rgba(13, 25, 186, 0.7)';
+            cor = 'rgba(13, 25, 186, 0.85)';
             break;
         case 'EDUCAÇÃO':
-            cor = 'rgba(13, 123, 186, 0.7)';
+            cor = 'rgba(13, 123, 186, 0.85)';
             break;
         case 'TECNOLOGIA':
-            cor = 'rgba(172, 186, 13, 0.7)';
+            cor = 'rgba(172, 186, 13, 0.85)';
             break;
         case 'COTIDIANO':
-            cor = 'rgba(154, 13, 186, 0.7)';
+            cor = 'rgba(154, 13, 186, 0.85)';
             break;
         case 'ENTRETENIMENTO':
         case 'TELEVISÃO':
-            cor = 'rgba(186, 74, 13, 0.7)';
+            cor = 'rgba(186, 74, 13, 0.85)';
             break;
         case 'MÚSICA':
-            cor = 'rgba(245, 239, 0, 0.7)';
+            cor = 'rgba(245, 239, 0, 0.85)';
             break;
         case 'CELEBRIDADES':
-            cor = 'rgba(186, 13, 172, 0.7)';
+            cor = 'rgba(186, 13, 172, 0.85)';
             break;
         default:
-            cor = 'rgba(252, 201, 8, 0.7)';
+            cor = 'rgba(252, 201, 8, 0.85)';
             break;
     }
-    var fundoTitulo = document.querySelector('#titleContainer');
-    fundoTitulo.style.backgroundColor = cor;
+
+    el.style.backgroundColor = cor;
 }
 
-// Ajusta o tamanho da fonte até o conteúdo caber no container
-function fitDescriptionFont(descriptionDiv, containerDiv, minFontSize) {
-    minFontSize = minFontSize || 12;
-    var fontSize = parseInt(window.getComputedStyle(descriptionDiv).fontSize);
-    var containerMaxHeight = parseInt(window.getComputedStyle(containerDiv).maxHeight) || containerDiv.offsetHeight;
-    while (
-        (containerDiv.scrollHeight > containerMaxHeight || descriptionDiv.scrollHeight > containerMaxHeight) &&
-        fontSize > minFontSize
-    ) {
+function fitDescriptionFont(textEl, wrapEl, minFontSize) {
+    minFontSize = minFontSize || 8;
+    var maxH = wrapEl.offsetHeight;
+    var fontSize;
+
+    if (!maxH) {
+        return;
+    }
+
+    fontSize = parseInt(window.getComputedStyle(textEl).fontSize, 10);
+
+    while (textEl.scrollHeight > maxH && fontSize > minFontSize) {
         fontSize -= 1;
-        descriptionDiv.style.fontSize = fontSize + 'px';
+        textEl.style.fontSize = fontSize + 'px';
     }
 }
-
-// Recarrega ao redimensionar para reaplicar breakpoints Tailwind por aspect-ratio
-window.addEventListener('resize', function () {
-    location.reload();
-});
