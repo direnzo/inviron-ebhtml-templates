@@ -1,0 +1,185 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   FONTES CUSTOMIZADAS
+   ======================================== */
+
+@font-face {
+    font-family: 'Carbona-MonoBoldSlanted';
+    src: url('fonts/Carbona-MonoBoldSlanted.ttf') format('truetype'),
+         url('fonts/Carbona-MonoBoldSlanted.otf') format('opentype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+/* ========================================
+   ESTILOS GLOBAIS
+   ======================================== */
+
+html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* ========================================
+   CONTAINER PRINCIPAL (312x100px fixo)
+   ======================================== */
+
+#container {
+    position: relative;
+    width: 312px;
+    height: 100px;
+    max-width: 312px;
+    max-height: 100px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* ========================================
+   SLIDES (Posicionamento e Transições)
+   ======================================== */
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 0;
+    transition: opacity 300ms ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 8px 12px;
+    font-family: 'Carbona-MonoBoldSlanted', monospace;
+}
+
+.slide.active {
+    opacity: 1;
+    z-index: 10;
+}
+
+/* ========================================
+   CONTENT LAYOUT POR TIPO DE SLIDE
+   ======================================== */
+
+.slide-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    width: 100%;
+    height: 100%;
+}
+
+.slide-content.with-icon {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}
+
+.slide-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slide-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.slide-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1px;
+}
+
+.slide-label {
+    font-size: 10px;
+    line-height: 1;
+    opacity: 0.85;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.slide-value {
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1;
+    letter-spacing: -0.5px;
+}
+
+.slide-unit {
+    font-size: 9px;
+    line-height: 1;
+    opacity: 0.8;
+    margin-left: 2px;
+}
+
+/* ========================================
+   OVERRIDE PARA TIPOS ESPECIAIS
+   ======================================== */
+
+/* Hora: grande, sem ícone */
+.slide-hora .slide-value {
+    font-size: 22px;
+}
+
+.slide-hora .slide-label {
+    font-size: 9px;
+}
+
+/* Clima: ícone + temperatura grande */
+.slide-clima .slide-value {
+    font-size: 18px;
+}
+
+/* Ondas: valor grande */
+.slide-ondas .slide-value {
+    font-size: 16px;
+}
+
+/* Cotação: símbolo + valor */
+.slide-cambio .slide-value {
+    font-size: 16px;
+}
+
+/* Mensagem: texto centralizado */
+.slide-comunicado {
+    justify-content: center;
+    padding: 6px 12px;
+}
+
+.slide-comunicado .slide-text {
+    width: 100%;
+    text-align: center;
+}
+
+.slide-comunicado .slide-value {
+    font-size: 11px;
+    line-height: 1.2;
+    word-wrap: break-word;
+    hyphens: auto;
+}
