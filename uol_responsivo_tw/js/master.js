@@ -1,6 +1,9 @@
 window.onload = function () {
 
     var photo = document.querySelector('#photo');
+    var photoLeft = document.querySelector('#photo-left-img');
+    var photoRight = document.querySelector('#photo-right-img');
+    var photoCenter = document.querySelector('#photo-center-img');
     var logo = document.querySelector('#logo');
     var editoria = document.querySelector('#editoria');
     var editoriaWrap = document.querySelector('#editoria-wrap');
@@ -101,11 +104,86 @@ window.onload = function () {
         var v;
         for (i = 0; i < campos.length; i++) {
             v = ler(item, campos[i]);
-            if (v !== '') {
+            if (v !== '' && !isPlaceholderValue(v)) {
                 return v;
             }
         }
         return fallback || '';
+    }
+
+    function coletarValores(item, campos) {
+        var i;
+        var v;
+        var lista = [];
+        for (i = 0; i < campos.length; i++) {
+            v = ler(item, campos[i]);
+            if (v !== '' && !isPlaceholderValue(v)) {
+                lista.push(v);
+            }
+        }
+        return lista;
+    }
+
+    function looksLikeSectionLabel(texto) {
+        var txt = texto;
+        var palavras;
+        if (!txt) {
+            return false;
+        }
+        txt = ('' + txt).replace(/^\s+|\s+$/g, '');
+        if (txt === '') {
+            return false;
+        }
+        if (txt.length > 38) {
+            return false;
+        }
+        if (/[\.!\?\:]/.test(txt)) {
+            return false;
+        }
+        palavras = txt.split(/\s+/);
+        return palavras.length <= 3;
+    }
+
+    function resolverTextos(item) {
+        var editoriaFields = ['EDITORIA', 'CATEGORIA', 'SECAO', 'CANAL', 'TOPICO', 'TEMA', 'ASSUNTO'];
+        var tituloFields = ['TITULO', 'HEADLINE', 'MANCHETE', 'CHAMADA', 'TEXTO', 'DESCRICAO', 'RESUMO', 'SUBTITULO', 'LINHAFINA'];
+        var editoria = lerPrimeiro(item, editoriaFields, '');
+        var titulos = coletarValores(item, tituloFields);
+        var titulo = titulos.length ? titulos[0] : '';
+        var i;
+
+        if (editoria === '' && looksLikeSectionLabel(titulo)) {
+            editoria = titulo;
+            titulo = '';
+            for (i = 0; i < titulos.length; i++) {
+                if (!looksLikeSectionLabel(titulos[i])) {
+                    titulo = titulos[i];
+                    break;
+                }
+            }
+        }
+
+        if (titulo === '') {
+            titulo = lerPrimeiro(item, ['TEXTO', 'DESCRICAO', 'RESUMO', 'SUBTITULO', 'LINHAFINA'], '');
+        }
+
+        if (editoria === '') {
+            editoria = 'GERAL';
+        }
+
+        return {
+            TITULO: titulo,
+            EDITORIA: editoria
+        };
+    }
+
+    function isPlaceholderValue(value) {
+        var txt = value;
+        if (txt === undefined || txt === null) {
+            return false;
+        }
+        txt = ('' + txt).replace(/^\s+|\s+$/g, '');
+        return /^\[[^\]]+\]$/.test(txt);
     }
 
     function renderizarTemplate(dados) {
@@ -113,7 +191,7 @@ window.onload = function () {
         headline.innerHTML = dados.TITULO;
         credit.innerHTML = dados.IMAGECREDIT;
 
-        if (dados.LOGO && logo) {
+        if (dados.LOGO && logo && !isPlaceholderValue(dados.LOGO)) {
             logo.src = dados.LOGO;
         }
 
@@ -135,6 +213,15 @@ window.onload = function () {
         }
 
         photo.src = imageUrl;
+        if (photoLeft) {
+            photoLeft.src = imageUrl;
+        }
+        if (photoRight) {
+            photoRight.src = imageUrl;
+        }
+        if (photoCenter) {
+            photoCenter.src = imageUrl;
+        }
 
         photo.onload = function () {
             photo.classList.add('zoom');
@@ -188,11 +275,12 @@ window.onload = function () {
             }
 
             var item = loader.data('D_UOL');
+            var textos = resolverTextos(item);
             var dados = {
-                TITULO: lerPrimeiro(item, ['TITULO', 'HEADLINE', 'MANCHETE'], ''),
+                TITULO: textos.TITULO,
                 IMAGECREDIT: lerPrimeiro(item, ['IMAGECREDIT', 'CREDITO', 'CREDITO_FOTO'], ''),
                 FOTO: lerPrimeiro(item, ['FOTO', 'IMAGEM', 'FOTO1'], ''),
-                EDITORIA: lerPrimeiro(item, ['EDITORIA', 'CATEGORIA', 'SECAO'], 'GERAL'),
+                EDITORIA: textos.EDITORIA,
                 LOGO: lerPrimeiro(item, ['LOGO', 'LOGO_URL'], '')
             };
 

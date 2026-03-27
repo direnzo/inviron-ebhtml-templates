@@ -17,8 +17,22 @@
         <img id="photo" class="photo-img" src="" alt="">
     </div>
 
+    <!-- Foto duplicada para formatos 3:1+ (pontas esquerda/direita) -->
+    <div id="photo-left" class="photo-side-layer">
+        <img id="photo-left-img" class="photo-side-img" src="" alt="">
+    </div>
+    <div id="photo-right" class="photo-side-layer">
+        <img id="photo-right-img" class="photo-side-img" src="" alt="">
+    </div>
+
     <!-- 2. Bloco de conteúdo (posição controlada por classe ratio-X no body) -->
     <div id="content-block" class="content-block">
+
+        <!-- Terceira foto (blur) por trás do texto para formatos 3:1+ -->
+        <div class="content-blur-layer">
+            <img id="photo-center-img" class="content-blur-img" src="" alt="">
+            <div class="content-blur-tint"></div>
+        </div>
 
         <!-- Faixa de marca: Logo + Editoria -->
         <div id="brand-area" class="brand-area">
