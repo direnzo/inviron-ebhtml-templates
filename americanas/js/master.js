@@ -1,6 +1,6 @@
 // ========== CONFIGURAÇÃO ========== PREÇOS
-// var ENDPOINT = "http://localhost:13199/INFO/AMERICANAS_BARCODE"
-var ENDPOINT = "http://192.168.4.167:14199/produto"
+var ENDPOINT = "http://localhost:13199/INFO/AMERICANAS_BARCODE"
+// var ENDPOINT = "http://192.168.4.167:14199/produto"
 var canLoad = true;
 
 // Verifica se o modo offline está habilitado (definido em mock.js)
@@ -54,6 +54,7 @@ window.onload = function () {
 
             var mockProduct = MOCK[MOCK_INDEX % MOCK.length];
             var image = document.getElementById('produto');
+            var imageWrapper = image ? image.parentNode : null;
 
             // Insere os textos primeiro
             titulo.innerText = mockProduct.descricao;
@@ -62,31 +63,47 @@ window.onload = function () {
             if (moeda) moeda.innerText = 'R$';
             if (moedaPortrait) moedaPortrait.innerText = 'R$';
 
-            image.onload = function () {
-                // Aplica textFit após carregar o conteúdo
-                // Se modo de baixa performance, aplica imediatamente, senão aguarda animação
-                var isLowPerformance = document.documentElement.classList.contains('no-animations');
-                var delay = isLowPerformance ? 50 : 100;
+            // Sem imagem no mock: oculta o bloco de imagem (igual ao modo online)
+            var mainElement = document.querySelector('main');
+            var hasImage = mockProduct.hasOwnProperty('image') && mockProduct.image && String(mockProduct.image).trim() !== '';
 
-                setTimeout(() => {
-                    aplicarTextFit();
-                    var mainDiv = document.querySelector('main');
-                    if (mainDiv) {
-                        mainDiv.classList.remove('opacity-0');
-                        mainDiv.classList.add('opacity-100');
+            if (!hasImage) {
+                if (image) {
+                    image.onload = null;
+                    image.onerror = null;
+                    image.src = '';
+                    image.style.display = 'none';
+                }
+                if (imageWrapper) imageWrapper.style.display = 'none';
+                if (mainElement) {
+                    var isPortraitMode = window.innerHeight > window.innerWidth;
+                    if (isPortraitMode) {
+                        mainElement.classList.remove('no-image');
+                    } else {
+                        mainElement.classList.add('no-image');
                     }
-                }, delay);
+                }
+            }
 
+            var isLowPerformance = document.documentElement.classList.contains('no-animations');
+            var delay = isLowPerformance ? 50 : 100;
+
+            setTimeout(function () {
+                aplicarTextFit();
                 showMedia();
-                loader.loaded();
-                setTimeout(() => {
-                    loader.finished();
-                    MOCK_INDEX++; // Próximo produto no reload
-                }, 10000);
-            };
+                if (mainElement) {
+                    mainElement.classList.remove('opacity-0');
+                    mainElement.classList.add('opacity-100');
+                }
+            }, delay);
 
-            image.src = mockProduct.image;
+            loader.loaded();
+            setTimeout(function () {
+                loader.finished();
+                MOCK_INDEX++; // Próximo produto no reload
+            }, 10000);
 
+            return; // Não continua para o modo online
         }
         // ========== MODO ONLINE ==========
         console.log('🟢 MODO ONLINE ATIVO - Consultando endpoint');
@@ -320,11 +337,21 @@ function aplicarTextFit() {
     var isPortrait = window.innerHeight > window.innerWidth;
     console.log('📐 Orientação:', isPortrait ? 'PORTRAIT' : 'LANDSCAPE');
 
+    // Detecta se está no modo sem imagem (layout expandido)
+    var mainElement = document.querySelector('main');
+    var noImage = mainElement && mainElement.classList.contains('no-image');
+    console.log('🖼️ Modo sem imagem:', noImage);
+
     // Ajusta o título (sempre visível)
     var titulo = document.getElementById('titulo');
     if (titulo && titulo.innerText.trim() !== '') {
         console.log('📝 Título conteúdo:', titulo.innerText);
         console.log('📏 Título dimensões:', titulo.offsetWidth + 'x' + titulo.offsetHeight);
+
+        // Sem imagem: força altura maior para o textFit ocupar mais espaço
+        if (noImage) {
+            titulo.style.height = Math.round(window.innerHeight * 0.42) + 'px';
+        }
 
         applyTextFitIfSized(titulo, {
             alignVert: true,
@@ -332,7 +359,7 @@ function aplicarTextFit() {
             multiLine: true,
             detectMultiLine: true,
             minFontSize: 20,
-            maxFontSize: 80,  // Reduzido de 150 para 80
+            maxFontSize: noImage ? 160 : 80,
             reProcess: true
         }, 'titulo');
         console.log('✅ Título ajustado');
@@ -350,15 +377,15 @@ function aplicarTextFit() {
         // Remove hidden e aplica dimensões
         if (moedaPortrait && moedaPortrait.innerText.trim() !== '') {
             moedaPortrait.style.display = 'flex';
-            moedaPortrait.style.width = '180px';
-            moedaPortrait.style.height = '300px';
+            moedaPortrait.style.width = noImage ? '260px' : '180px';
+            moedaPortrait.style.height = noImage ? '420px' : '300px';
 
             applyTextFitIfSized(moedaPortrait, {
                 alignVert: true,
                 alignHoriz: false,
                 multiLine: false,
                 minFontSize: 20,
-                maxFontSize: 150,
+                maxFontSize: noImage ? 220 : 150,
                 reProcess: true
             }, 'moeda-portrait');
             console.log('✅ Moeda (portrait) ajustada');
@@ -366,15 +393,15 @@ function aplicarTextFit() {
 
         if (precoPortrait && precoPortrait.innerText.trim() !== '') {
             precoPortrait.style.display = 'flex';
-            precoPortrait.style.width = '400px';
-            precoPortrait.style.height = '300px';
+            precoPortrait.style.width = noImage ? '620px' : '400px';
+            precoPortrait.style.height = noImage ? '420px' : '300px';
 
             applyTextFitIfSized(precoPortrait, {
                 alignVert: true,
                 alignHoriz: false,
                 multiLine: false,
                 minFontSize: 30,
-                maxFontSize: 200,
+                maxFontSize: noImage ? 320 : 200,
                 reProcess: true
             }, 'preco-portrait');
 
@@ -399,15 +426,15 @@ function aplicarTextFit() {
 
         if (moeda && moeda.innerText.trim() !== '') {
             moeda.style.display = 'flex';
-            moeda.style.width = '150px';
-            moeda.style.height = '200px';
+            moeda.style.width = noImage ? '210px' : '150px';
+            moeda.style.height = noImage ? '320px' : '200px';
 
             applyTextFitIfSized(moeda, {
                 alignVert: true,
                 alignHoriz: false,
                 multiLine: false,
                 minFontSize: 20,
-                maxFontSize: 150,
+                maxFontSize: noImage ? 220 : 150,
                 reProcess: true
             }, 'moeda');
             console.log('✅ Moeda (landscape) ajustada');
@@ -415,15 +442,15 @@ function aplicarTextFit() {
 
         if (preco && preco.innerText.trim() !== '') {
             preco.style.display = 'flex';
-            preco.style.width = '350px';
-            preco.style.height = '200px';
+            preco.style.width = noImage ? '540px' : '350px';
+            preco.style.height = noImage ? '320px' : '200px';
 
             applyTextFitIfSized(preco, {
                 alignVert: true,
                 alignHoriz: false,
                 multiLine: false,
                 minFontSize: 30,
-                maxFontSize: 200,
+                maxFontSize: noImage ? 320 : 200,
                 reProcess: true
             }, 'preco');
 

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html class="h-full w-full overflow-hidden">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Americanas - Consulta de Preços</title>
+    <link rel="stylesheet" href="css/master.css">
+    <!-- Mock: descomente para desenvolvimento local -->
+    <!-- <script src="js/mock-data.js"></script> -->
+    <script src="js/ebhtml.js"></script>
+    <script src="js/master.js"></script>
+</head>
+
+<body class="m-0 w-full h-full overflow-hidden bg-white flex flex-col opacity-0">
+
+    <!-- Cabeçalho com logo -->
+    <header class="w-full bg-red-600 flex items-center justify-center py-4 shrink-0">
+        <img src="img/logo_branco.png" class="h-12 w-auto" />
+    </header>
+
+    <!-- Produto -->
+    <main class="flex-1 flex flex-col items-center justify-evenly px-10 py-4">
+
+        <!-- Nome do produto -->
+        <div id="titulo"
+             class="w-full text-center font-poppins-semibold text-black leading-tight
+                    text-[5vw] portrait:text-[7vw]">
+        </div>
+
+        <!-- Preço -->
+        <div class="flex items-baseline justify-center gap-[2vw]">
+            <span class="font-poppins-bold text-red-600 text-[5vw] portrait:text-[7vw] leading-none">R$</span>
+            <span id="preco"
+                  class="font-poppins-bold text-red-600 text-[16vw] portrait:text-[20vw] leading-none"></span>
+        </div>
+
+    </main>
+
+    <!-- Tela de erro -->
+    <div id="erro" style="display:none"
+         class="fixed inset-0 bg-white flex-col items-center justify-center text-center">
+        <p class="font-poppins-bold text-black text-[6vw] portrait:text-[9vw]">PRODUTO NÃO</p>
+        <p class="font-poppins-bold text-black text-[6vw] portrait:text-[9vw]">ENCONTRADO</p>
+    </div>
+
+</body>
+</html>
