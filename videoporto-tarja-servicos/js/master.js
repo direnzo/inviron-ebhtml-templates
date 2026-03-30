@@ -9,14 +9,15 @@
    Altere LOCAL para: SANTANA | DONA_LINDU | JAQUEIRA | APIPUCOS | GENERICO
    ======================================== */
 var CONFIG = {
-    LOCAL: 'GENERICO'
+    LOCAL: 'DONA_LINDU',
+    SLIDE_DURATION: 15000 // ms por slide
 };
 
 var FUNDOS = {
-    'SANTANA':    'img/Tarja Parque Santana.png',
-    'DONA_LINDU': 'img/Tarja Parque Dona Lindu.png',
-    'JAQUEIRA':   'img/Tarja Parque da Jaqueira.png',
-    'APIPUCOS':   'img/Tarja Parque Apipucos.png',
+    'SANTANA':    'img/santana.png',
+    'DONA_LINDU': 'img/dona_lindu.png',
+    'JAQUEIRA':   'img/jaqueira.png',
+    'APIPUCOS':   'img/apipucos.png',
     'GENERICO':   'img/fundo.png'
 };
 
@@ -431,13 +432,13 @@ function iniciarSlideshow(slides, loader) {
         // Se apenas 1 slide, mostrar por 5s e terminar
         setTimeout(function() {
             loader.finished();
-        }, 5000);
+        }, CONFIG.SLIDE_DURATION);
         return;
     }
     
     var current = 0;
     var totalExibins = 0;
-    var SLIDE_DURATION = 5000; // 5 segundos
+    var SLIDE_DURATION = CONFIG.SLIDE_DURATION;
     
     var interval = setInterval(function() {
         // Ocultar slide atual
