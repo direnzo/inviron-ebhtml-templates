@@ -15,41 +15,142 @@ window.onload = function() {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', ENDPOINT, true);
 
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState !== 4) return;
-            var data = null;
-            if (xhr.status === 200) {
-                try { data = JSON.parse(xhr.responseText); } catch(e) {}
-            }
+        var requestHandled = false;
+
+        function handleResponse(data) {
+            if (requestHandled) return;
+            requestHandled = true;
             if (!data || data.httpStatusCode) {
                 mostrarErro(loader);
                 return;
             }
             renderizar(data, loader);
+        }
+
+        xhr.onabort = function() {
+            // Cancelamento normal pelo ciclo de vida do Android/browser — não exibe erro
+            requestHandled = true;
         };
 
-        xhr.onerror = function() { mostrarErro(loader); };
+        xhr.onerror = function() {
+            if (requestHandled) return;
+            requestHandled = true;
+            mostrarErro(loader);
+        };
+
+        xhr.ontimeout = function() {
+            if (requestHandled) return;
+            requestHandled = true;
+            mostrarErro(loader);
+        };
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState !== 4 || requestHandled) return;
+            if (xhr.status === 0) {
+                // Cancelado antes da resposta — não é falha do backend
+                requestHandled = true;
+                return;
+            }
+            var data = null;
+            if (xhr.status === 200) {
+                try { data = JSON.parse(xhr.responseText); } catch(e) {}
+            }
+            handleResponse(data);
+        };
+
         xhr.send();
 
     });
 };
 
+function formatarPreco(valor) {
+    var str = String(valor).trim();
+    // Já está em formato pt-BR (tem vírgula) — não altera
+    if (str.indexOf(',') !== -1) return str;
+    // Separa parte decimal: o último segmento após o último ponto
+    var partes = str.split('.');
+    var inteiro, centavos;
+    if (partes.length === 1) {
+        inteiro = partes[0];
+        centavos = '00';
+    } else {
+        centavos = partes[partes.length - 1];
+        if (centavos.length === 1) centavos = centavos + '0';
+        if (centavos.length > 2) centavos = centavos.substring(0, 2);
+        inteiro = partes.slice(0, partes.length - 1).join('');
+    }
+    // Adiciona pontos de milhar na parte inteira
+    var resultado = '';
+    var n = inteiro.length;
+    for (var i = 0; i < n; i++) {
+        if (i > 0 && (n - i) % 3 === 0) resultado += '.';
+        resultado += inteiro[i];
+    }
+    return resultado + ',' + centavos;
+}
+
+function ajustarFontePreco(textoPreco) {
+    var len = textoPreco.length;
+    var isPortrait = window.innerHeight > window.innerWidth;
+    var fracao = isPortrait ? 0.80 : 0.50;
+    // "POR:" em elemento separado — sempre conta só "R$" (2.5 chars)
+    var charsTotal = len + 2.5;
+    var vw = (fracao * 100) / (charsTotal * 0.60);
+    var maxVw = isPortrait ? 24 : 18;
+    var minVw = 4;
+    vw = Math.max(minVw, Math.min(maxVw, vw));
+
+    document.getElementById('preco').style.fontSize = vw + 'vw';
+    document.getElementById('preco-simbolo').style.fontSize = (vw * 0.38) + 'vw';
+    // "POR:" acompanha proporção de "R$"
+    var porLabel = document.getElementById('preco-por-label');
+    if (porLabel) porLabel.style.fontSize = (vw * 0.20) + 'vw';
+}
+
 function renderizar(produto, loader) {
-    var precoValor = (produto.preco_promoc && String(produto.preco_promoc).trim())
-        ? produto.preco_promoc
-        : (produto.preco || '');
+    var temPromoc = produto.preco_promoc != null && String(produto.preco_promoc).trim() !== '';
+    var precoFinal = temPromoc ? produto.preco_promoc : (produto.preco || '');
+    var precoFormatado = formatarPreco(precoFinal);
 
     document.getElementById('titulo').innerText = produto.descricao || '';
-    document.getElementById('preco').innerText = String(precoValor).replace('.', ',');
+    document.getElementById('preco').innerText = precoFormatado;
 
-    document.body.style.opacity = '1';
-    loader.loaded();
-    setTimeout(function() { loader.finished(); }, DURATION);
+    // Bloco DE: visível somente com promoção
+    var precoDeBloco = document.getElementById('preco-de');
+    var porLabel = document.getElementById('preco-por-label');
+    if (temPromoc) {
+        document.getElementById('preco-de-valor').innerText = 'R$ ' + formatarPreco(produto.preco);
+        precoDeBloco.style.display = 'flex';
+        porLabel.style.display = 'block'; // "POR:" preto aparece
+    } else {
+        precoDeBloco.style.display = 'none';
+        porLabel.style.display = 'none';
+    }
+    // "R$" sempre vermelho — não altera cor
+
+    ajustarFontePreco(precoFormatado);
+
+    var main = document.getElementById('main-content');
+    var imgEl = document.getElementById('produto');
+
+    function revelar() {
+        document.body.style.opacity = '1';
+        loader.loaded();
+        setTimeout(function() { loader.finished(); }, DURATION);
+    }
+
+    if (produto.image && String(produto.image).trim() !== '') {
+        imgEl.onload  = function() { main.classList.add('has-image'); revelar(); };
+        imgEl.onerror = function() { revelar(); }; // falhou: exibe sem imagem
+        imgEl.src = produto.image;
+    } else {
+        revelar();
+    }
 }
 
 function mostrarErro(loader) {
-    var erro = document.getElementById('erro');
-    erro.style.display = 'flex';
+    document.getElementById('main-content').style.display = 'none';
+    document.getElementById('erro').style.display = 'flex';
     document.body.style.opacity = '1';
     setTimeout(function() { loader.finished(); }, 5000);
 }

@@ -6,41 +6,53 @@
     <title>Americanas - Consulta de Preços</title>
     <link rel="stylesheet" href="css/master.css">
     <!-- Mock: descomente para desenvolvimento local -->
-    <!-- <script src="js/mock-data.js"></script> -->
+    <script src="js/mock-data.js"></script>
     <script src="js/ebhtml.js"></script>
     <script src="js/master.js"></script>
 </head>
 
-<body class="m-0 w-full h-full overflow-hidden bg-white flex flex-col opacity-0">
+<body class="m-0 w-full h-full overflow-hidden bg-white flex flex-col opacity-0 transition-opacity duration-700 ease-in-out">
 
     <!-- Cabeçalho com logo -->
-    <header class="w-full bg-red-600 flex items-center justify-center py-4 shrink-0">
-        <img src="img/logo_branco.png" class="h-12 w-auto" />
+    <header class="w-full bg-[#ed0030] flex items-center justify-center py-6 shrink-0">
+        <img src="img/logo_branco.png" class="h-16 w-auto" />
     </header>
 
     <!-- Produto -->
-    <main class="flex-1 flex flex-col items-center justify-evenly px-10 py-4">
+    <main id="main-content" class="flex-1 flex flex-col items-center justify-evenly py-6">
 
-        <!-- Nome do produto -->
-        <div id="titulo"
-             class="w-full text-center font-poppins-semibold text-black leading-tight
-                    text-[5vw] portrait:text-[7vw]">
+        <!-- Imagem do produto (visível somente quando has-image) -->
+        <div id="img-container" class="w-full flex items-center justify-center px-12">
+            <img id="produto" class="max-w-full object-contain" />
         </div>
 
-        <!-- Preço -->
-        <div class="flex items-baseline justify-center gap-[2vw]">
-            <span class="font-poppins-bold text-red-600 text-[5vw] portrait:text-[7vw] leading-none">R$</span>
-            <span id="preco"
-                  class="font-poppins-bold text-red-600 text-[16vw] portrait:text-[20vw] leading-none"></span>
+        <!-- Título + Preço -->
+        <div id="texto-container" class="flex flex-col items-center justify-center w-full px-10 gap-4">
+            <div id="titulo" class="w-full text-center font-roboto-flex font-[400] text-black leading-snug"></div>
+
+            <!-- Preço DE (somente com promoção) -->
+            <div id="preco-de" style="display:none" class="flex items-baseline justify-center gap-[1.5vw] w-full px-6">
+                <span class="font-roboto-flex font-[400] text-black leading-none" id="preco-de-label">DE:</span>
+                <span class="font-roboto-flex font-[600] text-black leading-none line-through" id="preco-de-valor"></span>
+            </div>
+
+            <!-- Preço POR (principal) -->
+            <div id="preco-bloco" class="flex items-start justify-center gap-[2vw] w-full px-6 mt-8 animate-pulseScaleWithDelay">
+                <div class="flex flex-col items-end shrink-0">
+                    <span id="preco-por-label" style="display:none" class="font-roboto-flex font-[700] text-black leading-none text-[1vw]">POR:</span>
+                    <span id="preco-simbolo" class="font-roboto-flex font-[700] text-[#ed0030] leading-tight">R$</span>
+                </div>
+                <span id="preco" class="font-roboto-flex font-[700] text-[#ed0030] leading-none min-w-0"></span>
+            </div>
         </div>
 
     </main>
 
     <!-- Tela de erro -->
     <div id="erro" style="display:none"
-         class="fixed inset-0 bg-white flex-col items-center justify-center text-center">
-        <p class="font-poppins-bold text-black text-[6vw] portrait:text-[9vw]">PRODUTO NÃO</p>
-        <p class="font-poppins-bold text-black text-[6vw] portrait:text-[9vw]">ENCONTRADO</p>
+         class="flex-1 flex flex-col items-center justify-center text-center bg-[#ed0030]">
+        <p class="font-roboto-flex font-[700] text-white text-[6vw] portrait:text-[9vw]">PRODUTO NÃO</p>
+        <p class="font-roboto-flex font-[700] text-white text-[6vw] portrait:text-[9vw]">ENCONTRADO</p>
     </div>
 
 </body>
