@@ -1,0 +1,25 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./**/*.html",
+    "./**/*.js",
+    "./css/*.css"
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        'roboto-regular': ['Roboto Regular', 'sans-serif'],
+        'roboto-bold': ['Roboto Bold', 'sans-serif'],
+        'roboto-black': ['Roboto Black', 'sans-serif'],
+      },
+      screens: {
+        'portrait':     { 'raw': '(max-aspect-ratio: 3/4)' },
+        'landscape':    { 'raw': '(min-aspect-ratio: 4/3) and (max-aspect-ratio: 2/1)' },
+        'ultrawide':    { 'raw': '(min-aspect-ratio: 3/1)' },
+        'superbanner':  { 'raw': '(min-aspect-ratio: 5/1) and (max-aspect-ratio: 15/1)' },
+        'footer':       { 'raw': '(min-aspect-ratio: 15/1)' },
+      }
+    },
+  },
+  plugins: [],
+}
