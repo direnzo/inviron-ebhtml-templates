@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fontes Roboto (Legado) */
+@font-face {
+    font-family: 'Roboto Black';
+    src: url('fonts/Roboto-Black.ttf');
+}
+
+@font-face {
+    font-family: 'Roboto Bold';
+    src: url('fonts/Roboto-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'Roboto Light';
+    src: url('fonts/Roboto-Light.ttf');
+}
+
+@font-face {
+    font-family: 'Roboto Medium';
+    src: url('fonts/Roboto-Medium.ttf');
+}
+
+@font-face {
+    font-family: 'Roboto Regular';
+    src: url('fonts/Roboto-Regular.ttf');
+}
+
+/* Fontes Corporativas */
+@font-face {
+    font-family: 'Gotham Book';
+    src: url('fonts/GothamBook.ttf');
+}
+
+@font-face {
+    font-family: 'Futura Bold BT';
+    src: url('fonts/futura-bold-bt.ttf');
+}
+
+/* Classes customizadas */
+@layer components {
+    .texto-comunicado {
+        font-family: 'Gotham Book', sans-serif;
+        font-size: clamp(1rem, 3vw, 3.8rem);
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+        font-weight: 400;
+        line-height: 1.25;
+        word-break: break-word;
+        padding: 0 1rem;
+        max-height: 90%;
+        overflow-y: auto;
+    }
+    
+    .editoria-chapeu {
+        font-family: 'Futura Bold BT', sans-serif;
+        font-size: clamp(1.2rem, 2.5vw, 2.2rem);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+        font-weight: 700;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+        border-radius: 0.5rem;
+        display: inline-block;
+        min-width: fit-content;
+        padding-bottom: 0.5rem;
+    }
+
+    /* Máscaras para fotos com clip-path */
+    .mascara-circulo {
+        clip-path: circle(50%);
+    }
+
+    .mascara-diagonal {
+        clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
+    }
+
+    .mascara-trapezio {
+        clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+    }
+
+    .mascara-hexagono {
+        clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    }
+
+    .mascara-ondas {
+        clip-path: polygon(
+            0% 0%, 100% 0%, 100% 85%, 95% 88%, 90% 85%, 85% 90%, 80% 85%, 75% 90%, 
+            70% 85%, 65% 90%, 60% 85%, 55% 90%, 50% 85%, 45% 90%, 40% 85%, 35% 90%, 
+            30% 85%, 25% 90%, 20% 85%, 15% 90%, 10% 85%, 5% 90%, 0% 85%
+        );
+    }
+
+    .mascara-canto-cortado {
+        clip-path: polygon(0 0, calc(100% - 40px) 0, 100% 40px, 100% 100%, 0 100%);
+    }
+
+    .mascara-dupla-diagonal {
+        clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
+    }
+}
+
+/* Ajustes responsivos por aspect ratio para telas portrait */
+@media (max-aspect-ratio: 3/4) {
+    .texto-comunicado {
+        font-size: clamp(1.5rem, 5vh, 4rem);
+    }
+}

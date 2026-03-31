@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="h-full w-full overflow-hidden">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/master.css">
+
+    <!-- Mock data para desenvolvimento (comentar em producao) -->
+    <script src="js/mock-data.js"></script>
+
+    <script src="js/ebhtml.js"></script>
+    <script src="js/master.js"></script>
+    <title>G&amp;G Comunicado</title>
+</head>
+
+<body class="relative w-full h-screen overflow-hidden opacity-0 transition-opacity duration-1000">
+
+    <!-- Fundo dinâmico - Controlado por TEXTO6 via JavaScript -->
+    <div class="absolute inset-0 z-0">
+        <img id="fundo" src="" alt="" class="w-full h-full object-cover">
+    </div>
+
+    <!-- Container principal com alinhamento inferior -->
+    <div class="relative z-10 flex items-end justify-center w-full h-full pb-8">
+
+        <!-- Layout 50/50 responsivo (horizontal/vertical) -->
+        <div class="flex w-full h-[68%] portrait:h-[70%] portrait:flex-col relative">
+
+
+
+            <!-- Lado esquerdo: Texto com background semi-transparente -->
+            <div id="texto-container" class="w-1/2 portrait:w-full portrait:h-1/2 flex items-center justify-center px-10 opacity-0 -translate-x-full transition-all duration-1000 ease-out">
+                <!-- Editoria: Flutuante ACIMA do layout inteiro (fora de texto-container) -->
+                <div id="editoria" class="editoria-chapeu absolute -top-5 left-1/2 transform -translate-x-1/2 z-40 px-4 py-2 rounded-lg opacity-0 transition-opacity duration-500 shadow-lg w-auto text-nowrap">
+                    <!-- Editoria inserida dinamicamente via JS -->
+                </div>
+
+                <!-- Box de texto principal -->
+                <div id="texto-box" class="relative w-full h-full text-center max-w-full max-h-full flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl px-8 py-12 portrait:px-4 portrait:py-8 overflow-hidden">
+                    <div id="titulo" class="texto-comunicado text-white drop-shadow-lg font-black ">
+                        <!-- Título inserido dinamicamente via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lado direito: Foto do comunicado -->
+            <div id="foto-container" class="h-full w-1/2 portrait:w-full portrait:h-1/2 flex items-center justify-center px-10 opacity-0 translate-x-full transition-all duration-1000 ease-out">
+                <img id="foto" src="" alt="Foto Comunicado" class="h-full max-w-full max-h-full object-cover rounded-2xl shadow-2xl">
+            </div>
+
+        </div>
+    </div>
+
+</body>
+
+</html>
