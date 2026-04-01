@@ -7,7 +7,11 @@
 var CONFIG = {
     duration:          15000,  // tempo total do template (ms)
     minTempoPorSlide:  7500,   // minimo por slide em layouts de imagem/texto (ms)
-    transicaoDuracao:  800     // duracao da transicao CSS (ms)
+    transicaoDuracao:  800,    // duracao da transicao CSS (ms)
+    // Filtro de categoria: string exata do campo CATEGORY do XML.
+    // Deixar vazio ('') para mostrar todos os comunicados.
+    // Exemplos: 'noticias_internas', 'comunicados', 'meetup'
+    filterCategory:    'noticias_internas'
 };
 
 var CATEGORY_CONFIG = {
@@ -41,7 +45,8 @@ function playerView() {
 
     } else {
         ebhtml.create2({}, function(loader) {
-            loader.addData('D_COMUNICADO', false);
+            var filtro = CONFIG.filterCategory ? 'f_CATEGORY=' + CONFIG.filterCategory : '';
+            loader.addData('D_COMUNICADO', false, filtro);
             loader.autoloaded    = false;
             loader.nodataiserror = false;
 
@@ -223,13 +228,15 @@ function playerView() {
     function criarSlideFullText(slide, idx) {
         var outer = document.createElement('div');
         outer.id = 'slide-' + idx;
-        // items-stretch + p-10: caixa ocupa toda a altura definida do slide
-        outer.className = 'absolute inset-0 flex items-stretch p-10';
+        outer.className = 'absolute inset-0 flex items-stretch';
+        outer.style.padding = '2vw';
         outer.setAttribute('data-layout', 'full-text');
 
         var box = document.createElement('div');
-        // flex-1 garante altura definida = slide - padding, igual ao split
-        box.className = 'flex-1 bg-black/40 backdrop-blur-sm rounded-2xl px-10 py-10 flex flex-col gap-5 overflow-hidden';
+        box.className = 'flex-1 bg-black/40 backdrop-blur-sm flex flex-col overflow-hidden';
+        box.style.padding = '2vw';
+        box.style.gap = '1vw';
+        box.style.borderRadius = '1vw';
         box.setAttribute('data-role', 'caixa');
 
         if (slide.titulo) {
@@ -255,18 +262,20 @@ function playerView() {
     function criarSlideFullImage(slide, idx) {
         var outer = document.createElement('div');
         outer.id = 'slide-' + idx;
-        // mesmo padding do split para manter margem consistente
-        outer.className = 'absolute inset-0 flex items-stretch p-8';
+        outer.className = 'absolute inset-0 flex items-stretch';
+        outer.style.padding = '2vw';
 
         var midiaSide = document.createElement('div');
-        midiaSide.className = 'flex-1 relative rounded-2xl overflow-hidden';
+        midiaSide.className = 'flex-1 relative overflow-hidden';
+        midiaSide.style.borderRadius = '1vw';
 
         var midiaEl = criarMidiaEl(slide.midia, slide.ehVideo, 'w-full h-full object-cover');
         midiaSide.appendChild(midiaEl);
 
         if (slide.titulo) {
             var overlay = document.createElement('div');
-            overlay.className = 'absolute bottom-0 left-0 right-0 px-10 pb-8 pt-20';
+            overlay.className = 'absolute bottom-0 left-0 right-0';
+            overlay.style.padding = '4vw 2vw 2vw 2vw';
             overlay.style.background = 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 50%, transparent 100%)';
 
             var tEl = document.createElement('div');
@@ -285,12 +294,17 @@ function playerView() {
         var outer = document.createElement('div');
         outer.id = 'slide-' + idx;
         // portrait empilha vertical; landscape lado a lado
-        outer.className = 'absolute inset-0 flex portrait:flex-col gap-6 p-8';
+        outer.className = 'absolute inset-0 flex portrait:flex-col';
+        outer.style.padding = '2vw';
+        outer.style.gap = '1.2vw';
         outer.setAttribute('data-layout', 'split');
 
         // Lado texto (flex-1 = 50%)
         var textoSide = document.createElement('div');
-        textoSide.className = 'flex-1 flex flex-col min-w-0 min-h-0 bg-black/40 backdrop-blur-sm rounded-2xl px-10 py-10 gap-5 justify-center overflow-hidden';
+        textoSide.className = 'flex-1 flex flex-col min-w-0 min-h-0 bg-black/40 backdrop-blur-sm justify-center overflow-hidden';
+        textoSide.style.padding = '2vw';
+        textoSide.style.gap = '1vw';
+        textoSide.style.borderRadius = '1vw';
         textoSide.setAttribute('data-role', 'caixa');
 
         if (slide.titulo) {
@@ -309,7 +323,8 @@ function playerView() {
 
         // Lado mídia (flex-1 = 50%)
         var midiaSide = document.createElement('div');
-        midiaSide.className = 'flex-1 min-w-0 min-h-0 rounded-2xl overflow-hidden';
+        midiaSide.className = 'flex-1 min-w-0 min-h-0 overflow-hidden';
+        midiaSide.style.borderRadius = '1vw';
 
         var midiaEl = criarMidiaEl(slide.midia, slide.ehVideo, 'w-full h-full object-cover');
         midiaSide.appendChild(midiaEl);
