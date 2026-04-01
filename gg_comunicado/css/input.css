@@ -30,6 +30,11 @@
 
 /* Fontes Corporativas */
 @font-face {
+    font-family: 'Gotham Black';
+    src: url('fonts/Gotham-Black.otf');
+}
+
+@font-face {
     font-family: 'Gotham Book';
     src: url('fonts/GothamBook.ttf');
 }
@@ -42,15 +47,21 @@
 /* Classes customizadas */
 @layer components {
     .texto-comunicado {
-        font-family: 'Gotham Book', sans-serif;
-        font-size: clamp(1rem, 3vw, 3.8rem);
+        font-family: 'Gotham Black', 'Gotham Book', sans-serif;
+        font-size: clamp(1.2rem, 3vw, 4.5rem);
         text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
-        font-weight: 400;
-        line-height: 1.25;
+        font-weight: 900;
+        line-height: 1.15;
         word-break: break-word;
-        padding: 0 1rem;
-        max-height: 90%;
-        overflow-y: auto;
+    }
+
+    .texto-comunicado-body {
+        font-family: 'Gotham Book', sans-serif;
+        font-size: clamp(0.8rem, 1.6vw, 2.2rem);
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+        color: #FFFFFF;
+        line-height: 1.5;
+        word-break: break-word;
     }
     
     .editoria-chapeu {
@@ -102,9 +113,12 @@
     }
 }
 
-/* Ajustes responsivos por aspect ratio para telas portrait */
+/* Ajuste portrait: reduz font do badge para caber em tela estreita */
 @media (max-aspect-ratio: 3/4) {
     .texto-comunicado {
-        font-size: clamp(1.5rem, 5vh, 4rem);
+        font-size: clamp(1.2rem, 4vh, 3.5rem);
+    }
+    .editoria-chapeu {
+        font-size: clamp(1rem, 3vw, 1.8rem);
     }
 }
