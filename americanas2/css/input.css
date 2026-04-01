@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: 'Roboto Flex';
+    font-style: normal;
+    font-weight: 100 1000;
+    font-stretch: 100%;
+    font-display: swap;
+    src: url('fonts/RobotoFlex-VariableFont_GRAD,XOPQ,XTRA,YOPQ,YTAS,YTDE,YTFI,YTLC,YTUC,opsz,slnt,wdth,wght.ttf') format('truetype');
+}
+
+/* =====================================================
+   VARIÁVEIS GLOBAIS
+   portrait-default → sem imagem / com imagem
+   ===================================================== */
+:root {
+    --titulo-size:   clamp(2rem, 8vw, 8rem);
+    --img-max-h:     40vh;
+    --img-padding:   0.5rem 2.5rem;
+    --main-direction: column;
+    --img-width:     100%;
+}
+
+@media (orientation: portrait) {
+    :root { --titulo-size: clamp(2rem, 9vw, 7rem); }
+}
+
+/* =====================================================
+   ELEMENTOS BASE
+   ===================================================== */
+
+#img-container { display: none; }
+
+#titulo {
+    font-size: var(--titulo-size);
+    line-height: 1.25;
+}
+
+#preco        { line-height: 1; white-space: nowrap; }
+/* #preco-simbolo { margin-top: 0.3em; } */
+#preco-bloco  { overflow: hidden; max-width: 100%; }
+
+#preco-de-label,
+#preco-de-valor {
+    font-size: clamp(1rem, 3.5vw, 3.5rem);
+    line-height: 1.2;
+}
+
+@media (orientation: portrait) {
+    #preco-de-label,
+    #preco-de-valor { font-size: clamp(1rem, 4.5vw, 3rem); }
+}
+
+/* =====================================================
+   COM IMAGEM
+   ===================================================== */
+
+#main-content.has-image {
+    flex-direction: var(--main-direction);
+}
+
+#main-content.has-image #img-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--img-width);
+    padding: var(--img-padding);
+}
+
+#main-content.has-image #img-container img {
+    max-height: var(--img-max-h);
+    max-width: 100%;
+    object-fit: contain;
+}
+
+#main-content.has-image #titulo {
+    font-size: clamp(1.2rem, 5.5vw, 5rem);
+}
+
+@media (orientation: portrait) {
+    #main-content.has-image #titulo {
+        font-size: clamp(1.2rem, 6.5vw, 5rem);
+    }
+}
+
+/* =====================================================
+   LANDSCAPE COM IMAGEM — divide em duas colunas
+   ===================================================== */
+
+@media (orientation: landscape) {
+    :root {
+        --main-direction: row;
+        --img-width:      42%;
+        --img-max-h:      75vh;
+        --img-padding:    1.5rem;
+    }
+
+    #main-content.has-image #texto-container { flex: 1; width: auto; }
+
+    #main-content.has-image #titulo {
+        font-size: clamp(1rem, 3.5vw, 4rem);
+    }
+}

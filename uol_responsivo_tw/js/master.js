@@ -1,196 +1,356 @@
 window.onload = function () {
 
-    var image = this.document.querySelector('#image');
-    var image2 = this.document.querySelector('#image2');
-    // var background = document.querySelector('#bgImage');
-    var title = this.document.querySelector('#title');
-    var titleContainer = this.document.querySelector('#titleContainer');
-    var text = this.document.querySelector('#description');
-    var textContent = this.document.querySelector('#descriptionContainer');
+    var photo = document.querySelector('#photo');
+    var photoLeft = document.querySelector('#photo-left-img');
+    var photoRight = document.querySelector('#photo-right-img');
+    var photoCenter = document.querySelector('#photo-center-img');
+    var logo = document.querySelector('#logo');
+    var editoria = document.querySelector('#editoria');
+    var editoriaWrap = document.querySelector('#editoria-wrap');
+    var headline = document.querySelector('#headline');
+    var headlineWrap = document.querySelector('.headline-wrap');
+    var credit = document.querySelector('#credit');
+    var body = document.querySelector('body');
 
-    var credit = this.document.querySelector('#credit');
-    var body = document.querySelector('body')
+    var ALL_RATIO_CLASSES = [
+        'ratio-portrait',
+        'ratio-portrait-mild',
+        'ratio-square',
+        'ratio-landscape',
+        'ratio-ultrawide',
+        'ratio-superbanner',
+        'ratio-footer',
+        'ratio-empena'
+    ];
+
+    function isLegacyWebkit() {
+        if (!window.CSS || !window.CSS.supports) {
+            return true;
+        }
+        return !(window.CSS.supports('color', 'rgb(255 255 255 / 1)') &&
+                 window.CSS.supports('gap', '1rem'));
+    }
+
+    if (isLegacyWebkit()) {
+        body.classList.add('legacy-webkit');
+    }
+
+    function definirClasseAspectRatio() {
+        var ar = window.innerWidth / window.innerHeight;
+        if (ar <= (1 / 3)) {
+            return 'ratio-empena';
+        }
+        if (ar <= (3 / 4)) {
+            return 'ratio-portrait';
+        }
+        if (ar <= 1) {
+            return 'ratio-portrait-mild';
+        }
+        if (ar < 1.05) {
+            return 'ratio-square';
+        }
+        if (ar >= 15) {
+            return 'ratio-footer';
+        }
+        if (ar >= 5) {
+            return 'ratio-superbanner';
+        }
+        if (ar >= 3) {
+            return 'ratio-ultrawide';
+        }
+        return 'ratio-landscape';
+    }
+
+    function aplicarClasseAspectRatio() {
+        var i;
+        var ratioClass = definirClasseAspectRatio();
+
+        for (i = 0; i < ALL_RATIO_CLASSES.length; i++) {
+            body.classList.remove(ALL_RATIO_CLASSES[i]);
+        }
+        body.classList.add(ratioClass);
+    }
+
+    function aplicarLayoutConfig(layoutConfig) {
+        var key;
+        if (!layoutConfig) {
+            return;
+        }
+        for (key in layoutConfig) {
+            if (layoutConfig.hasOwnProperty(key)) {
+                document.documentElement.style.setProperty('--' + key, layoutConfig[key]);
+            }
+        }
+    }
+
+    function ler(item, campo) {
+        var node;
+        if (!item || !campo) {
+            return '';
+        }
+        try {
+            node = item.value(campo);
+            if (node && node.value !== undefined && node.value !== null) {
+                return '' + node.value;
+            }
+        } catch (e) {
+            return '';
+        }
+        return '';
+    }
+
+    function lerPrimeiro(item, campos, fallback) {
+        var i;
+        var v;
+        for (i = 0; i < campos.length; i++) {
+            v = ler(item, campos[i]);
+            if (v !== '' && !isPlaceholderValue(v)) {
+                return v;
+            }
+        }
+        return fallback || '';
+    }
+
+    function coletarValores(item, campos) {
+        var i;
+        var v;
+        var lista = [];
+        for (i = 0; i < campos.length; i++) {
+            v = ler(item, campos[i]);
+            if (v !== '' && !isPlaceholderValue(v)) {
+                lista.push(v);
+            }
+        }
+        return lista;
+    }
+
+    function looksLikeSectionLabel(texto) {
+        var txt = texto;
+        var palavras;
+        if (!txt) {
+            return false;
+        }
+        txt = ('' + txt).replace(/^\s+|\s+$/g, '');
+        if (txt === '') {
+            return false;
+        }
+        if (txt.length > 38) {
+            return false;
+        }
+        if (/[\.!\?\:]/.test(txt)) {
+            return false;
+        }
+        palavras = txt.split(/\s+/);
+        return palavras.length <= 3;
+    }
+
+    function resolverTextos(item) {
+        var editoriaFields = ['EDITORIA', 'CATEGORIA', 'SECAO', 'CANAL', 'TOPICO', 'TEMA', 'ASSUNTO'];
+        var tituloFields = ['TITULO', 'HEADLINE', 'MANCHETE', 'CHAMADA', 'TEXTO', 'DESCRICAO', 'RESUMO', 'SUBTITULO', 'LINHAFINA'];
+        var editoria = lerPrimeiro(item, editoriaFields, '');
+        var titulos = coletarValores(item, tituloFields);
+        var titulo = titulos.length ? titulos[0] : '';
+        var i;
+
+        if (editoria === '' && looksLikeSectionLabel(titulo)) {
+            editoria = titulo;
+            titulo = '';
+            for (i = 0; i < titulos.length; i++) {
+                if (!looksLikeSectionLabel(titulos[i])) {
+                    titulo = titulos[i];
+                    break;
+                }
+            }
+        }
+
+        if (titulo === '') {
+            titulo = lerPrimeiro(item, ['TEXTO', 'DESCRICAO', 'RESUMO', 'SUBTITULO', 'LINHAFINA'], '');
+        }
+
+        if (editoria === '') {
+            editoria = 'GERAL';
+        }
+
+        return {
+            TITULO: titulo,
+            EDITORIA: editoria
+        };
+    }
+
+    function isPlaceholderValue(value) {
+        var txt = value;
+        if (txt === undefined || txt === null) {
+            return false;
+        }
+        txt = ('' + txt).replace(/^\s+|\s+$/g, '');
+        return /^\[[^\]]+\]$/.test(txt);
+    }
+
+    function renderizarTemplate(dados) {
+        editoria.innerHTML = dados.EDITORIA ? dados.EDITORIA.toUpperCase() : '';
+        headline.innerHTML = dados.TITULO;
+        credit.innerHTML = dados.IMAGECREDIT;
+
+        if (dados.LOGO && logo && !isPlaceholderValue(dados.LOGO)) {
+            logo.src = dados.LOGO;
+        }
+
+        mudaCor(dados.EDITORIA, editoriaWrap);
+
+        aplicarClasseAspectRatio();
+
+        if (headline && headlineWrap) {
+            fitDescriptionFont(headline, headlineWrap, 8);
+        }
+
+        body.classList.add('is-ready');
+    }
+
+    function carregarImagem(imageUrl, loader) {
+        if (!imageUrl || !photo) {
+            loader.finished();
+            return;
+        }
+
+        photo.src = imageUrl;
+        if (photoLeft) {
+            photoLeft.src = imageUrl;
+        }
+        if (photoRight) {
+            photoRight.src = imageUrl;
+        }
+        if (photoCenter) {
+            photoCenter.src = imageUrl;
+        }
+
+        photo.onload = function () {
+            photo.classList.add('zoom');
+            loader.loaded();
+            setTimeout(function () {
+                loader.finished();
+            }, 15000);
+        };
+
+        photo.onerror = function () {
+            console.error('Erro ao carregar imagem: ' + imageUrl);
+            loader.finished();
+        };
+    }
+
+    var resizeTimer = null;
+    window.addEventListener('resize', function () {
+        if (resizeTimer) {
+            clearTimeout(resizeTimer);
+        }
+        resizeTimer = setTimeout(function () {
+            aplicarClasseAspectRatio();
+        }, 120);
+    });
+
+    if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
+        var mockLoader = {
+            loaded: function () { console.log('[Mock] loaded'); },
+            finished: function () { console.log('[Mock] finished'); }
+        };
+
+        if (MOCK_DATA.config && MOCK_DATA.config.layout) {
+            aplicarLayoutConfig(MOCK_DATA.config.layout);
+        }
+
+        renderizarTemplate(MOCK_DATA.dados);
+        carregarImagem(MOCK_DATA.dados.FOTO, mockLoader);
+        return;
+    }
 
     ebhtml.create2({}, function (loader) {
-
         loader.addData('D_UOL');
         loader.nodataiserror = false;
         loader.autoloaded = false;
+
         loader.load(function () {
-
-            title.innerHTML = loader.data('D_UOL').value('TITULO').value.toUpperCase();
-
-            text.innerHTML = loader.data('D_UOL').value('TEXTO').value;
-            credit.innerHTML = loader.data('D_UOL').value('IMAGECREDIT').value;
-
-            if (title && titleContainer) {
-                fitDescriptionFont(title, titleContainer, 6);
-            }
-            if (text && textContent) {
-                fitDescriptionFont(text, textContent, 6);
-            }
-
-            const imageUrl = loader.data('D_UOL').value('FOTO').value;
-            image.src = imageUrl;
-            image2.src = imageUrl;
-            // image.style.backgroundImage = `url(${imageUrl})`;
-            // background.src = imageUrl;
-
-            image.onload = function () {
-
-                loader.loaded();
-
-                setTimeout(function () {
-                    loader.finished();
-                }, 15000);
-            }
-
-            image.onerror = function () {
+            if (loader.data('D_UOL') == undefined) {
+                console.error('D_UOL: sem dados');
                 loader.finished();
+                return;
             }
 
-            mudaCor(title.innerHTML);
-            // capturarTamanhoDoNavegador();
-            body.classList.remove('opacity-0');
-            body.classList.add('opacity-1');
+            var item = loader.data('D_UOL');
+            var textos = resolverTextos(item);
+            var dados = {
+                TITULO: textos.TITULO,
+                IMAGECREDIT: lerPrimeiro(item, ['IMAGECREDIT', 'CREDITO', 'CREDITO_FOTO'], ''),
+                FOTO: lerPrimeiro(item, ['FOTO', 'IMAGEM', 'FOTO1'], ''),
+                EDITORIA: textos.EDITORIA,
+                LOGO: lerPrimeiro(item, ['LOGO', 'LOGO_URL'], '')
+            };
 
-            // background.classList.remove('opacity-0');
-            // background.classList.add('opacity-50', 'blur-xl');
-
-            const aspectRatio = window.innerWidth / window.innerHeight;
-
-            const isEmpena = aspectRatio <= (1 / 2);
-            const isPortrait = aspectRatio <= (3 / 4);
-
-            
-            if (isEmpena || isPortrait) {
-                image.classList.remove('empena:object-left', 'portrait:object-left', 'scale-110');
-                image.classList.add('object-right');
-           
-            } else {
-                image.classList.add('scale-110');
-            }
-
-
+            renderizarTemplate(dados);
+            carregarImagem(dados.FOTO, loader);
         });
     });
-
-
-
-    function isWebkit() {
-        return 'WebkitAppearance' in document.documentElement.style;
-    }
-
-    function isAndroid() {
-        return /Android/i.test(navigator.userAgent);
-    }
-
-    if (isWebkit() || isAndroid()) {
-        document.body.classList.add('no-expande');
-    }
 };
-function mudaCor(editoria) {
-    //console.log(editoria)
-    var cor = 'rgba(252, 201, 8, 0.7)'; // cor default com 10% de opacidade
-    console.log(editoria);
+
+function mudaCor(nomeEditoria, wrapper) {
+    var cor = 'rgba(252, 201, 8, 0.85)';
+    var el = wrapper || document.querySelector('#editoria-wrap');
+    var editoria = nomeEditoria ? nomeEditoria.toUpperCase() : '';
+
+    if (!el) {
+        return;
+    }
+
     switch (editoria) {
-        case "ESPORTE":
-            cor = "rgba(50, 168, 82, 0.7)";
+        case 'ESPORTE':
+        case 'FUTEBOL':
+            cor = 'rgba(50, 168, 82, 0.85)';
             break;
-        case "FUTEBOL":
-            cor = "rgba(50, 168, 82, 0.7)";
+        case 'POLÍTICA':
+        case 'INTERNACIONAL':
+            cor = 'rgba(171, 2, 2, 0.85)';
             break;
-        case "POLÍTICA":
-            cor = "rgba(171, 2, 2, 0.7)";
+        case 'ECONOMIA':
+            cor = 'rgba(13, 25, 186, 0.85)';
             break;
-        case "INTERNACIONAL":
-            cor = "rgba(171, 2, 2, 0.7)";
+        case 'EDUCAÇÃO':
+            cor = 'rgba(13, 123, 186, 0.85)';
             break;
-        case "ECONOMIA":
-            cor = "rgba(13, 25, 186, 0.7)";
+        case 'TECNOLOGIA':
+            cor = 'rgba(172, 186, 13, 0.85)';
             break;
-        case "EDUCAÇÃO":
-            cor = "rgba(13, 123, 186, 0.7)";
+        case 'COTIDIANO':
+            cor = 'rgba(154, 13, 186, 0.85)';
             break;
-        case "TECNOLOGIA":
-            cor = "rgba(172, 186, 13, 0.7)";
+        case 'ENTRETENIMENTO':
+        case 'TELEVISÃO':
+            cor = 'rgba(186, 74, 13, 0.85)';
             break;
-        case "COTIDIANO":
-            cor = "rgba(154, 13, 186, 0.7)";
+        case 'MÚSICA':
+            cor = 'rgba(245, 239, 0, 0.85)';
             break;
-        case "ENTRETENIMENTO":
-            cor = "rgba(186, 74, 13, 0.7)";
-            break;
-        case "TELEVISÃO":
-            cor = "rgba(186, 128, 13, 0.7)";
-            break;
-        case "MÚSICA":
-            cor = "rgba(245, 239, 0, 0.7)";
-            break;
-        case "CELEBRIDADES":
-            cor = "rgba(186, 13, 172, 0.7)";
+        case 'CELEBRIDADES':
+            cor = 'rgba(186, 13, 172, 0.85)';
             break;
         default:
-            cor = "rgba(252, 201, 8, 0.7)";
+            cor = 'rgba(252, 201, 8, 0.85)';
             break;
     }
-    var fundoTitulo = document.querySelector('#titleContainer');
-    fundoTitulo.style.backgroundColor = cor;
+
+    el.style.backgroundColor = cor;
 }
 
+function fitDescriptionFont(textEl, wrapEl, minFontSize) {
+    minFontSize = minFontSize || 8;
+    var maxH = wrapEl.offsetHeight;
+    var fontSize;
 
-// Função para ajustar a fonte da descrição até caber no container
-function fitDescriptionFont(descriptionDiv, containerDiv, minFontSize = 12) {
-    let fontSize = parseInt(window.getComputedStyle(descriptionDiv).fontSize);
-    const containerMaxHeight = parseInt(window.getComputedStyle(containerDiv).maxHeight) || containerDiv.offsetHeight;
-    // descriptionDiv.style.overflow = "auto";
-    while (
-        (containerDiv.scrollHeight > containerMaxHeight || descriptionDiv.scrollHeight > containerMaxHeight)
-        && fontSize > minFontSize
-    ) {
-        fontSize -= 1;
-        descriptionDiv.style.fontSize = fontSize + "px";
-        console.log(`Ajustando fonte para ${fontSize}px`);
+    if (!maxH) {
+        return;
     }
-}
 
+    fontSize = parseInt(window.getComputedStyle(textEl).fontSize, 10);
 
-
-// Função para capturar o tamanho do navegador e atualizar a div
-function capturarTamanhoDoNavegador() {
-    // Captura a largura e altura do navegador
-    let largura = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-    let altura = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-
-    // Atualiza o texto da div com o tamanho do navegador
-    document.getElementById('size').innerHTML = largura + ' X ' + altura;
-}
-
-// Chama a função uma vez para exibir o tamanho inicial
-//capturarTamanhoDoNavegador();
-
-// Adiciona um listener de redimensionamento para atualizar o tamanho quando o navegador for redimensionado
-window.addEventListener('resize', function () {
-    location.reload();
-    capturarTamanhoDoNavegador();
-    // document.body.classList.add('opacity-0');
-    capturarTamanhoDoNavegador();
-    updateAspectRatio();
-});
-
-window.addEventListener("load", updateAspectRatio);
-
-function getAspectRatio() {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b));
-    const divisor = gcd(width, height);
-
-    return `${width / divisor}:${height / divisor}`;
-}
-
-function updateAspectRatio() {
-    const aspectRatio = getAspectRatio();
-    console.log("Aspect Ratio:", aspectRatio);
-    // document.getElementById("aspect-ratio").textContent = `Aspect Ratio: ${aspectRatio}`;
+    while (textEl.scrollHeight > maxH && fontSize > minFontSize) {
+        fontSize -= 1;
+        textEl.style.fontSize = fontSize + 'px';
+    }
 }

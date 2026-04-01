@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/master.css">
+    
+    <!-- Mock data para desenvolvimento (comentar em produção) -->
+    <script src="js/mock-data.js"></script>
+    
+    <script src="js/ebhtml.js"></script>
+    <script src="js/master.js"></script>
+    
+    <title>VIDEOPORTO - Tarja de Serviços</title>
+</head>
+
+<body class="m-0 p-0 w-full h-full overflow-hidden bg-black">
+    <!-- Container fixo 312x100px -->
+    <div id="container" class="w-312 h-100 text-[#134123]">
+        <!-- Slide 1: Data e Hora -->
+        <div class="slide slide-hora" data-type="hora">
+            <div class="slide-row">
+                <div class="slide-icon" id="hora-icon">
+                    <!-- Ícone será injetado por JS -->
+                </div>
+                <div class="hora-main">
+                    <div class="hora-value" id="hora-value">13:45</div>
+                </div>
+                <div class="hora-side">
+                    <div class="hora-weekday" id="hora-weekday">Quarta-feira</div>
+                    <div class="hora-date" id="hora-date">13 de março de 2026</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Clima -->
+        <div class="slide slide-clima" data-type="clima">
+            <div class="slide-row">
+                <div class="slide-icon" id="clima-icon">
+                    <!-- Ícone será injetado por JS -->
+                </div>
+                <div class="clima-main">
+                    <div class="clima-label" id="clima-condicao">Nublado</div>
+                    <div class="clima-temp-line">
+                        <div class="clima-temp" id="clima-temp">30</div>
+                        <div class="clima-unit">°C</div>
+                    </div>
+                </div>
+                <div class="clima-metrics">
+                    <div class="metric-line flex-col">Máx <span id="clima-max" class="flex">34 °C</span></div>
+                    <div class="metric-line flex-col">Precipitação <span id="clima-umidade" class="flex">78 %</span></div>
+                    <div class="metric-line flex-col">Mín <span id="clima-min" class="flex">28 °C</span></div>
+                    <div class="metric-line flex-col">Vento <span id="clima-vento" class="flex">26 km/h</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Ondas -->
+        <div class="slide slide-ondas" data-type="ondas">
+            <div class="slide-row">
+                <div class="slide-icon" id="ondas-icon">
+                    <!-- Ícone será injetado por JS -->
+                </div>
+                <div class="ondas-main">
+                    <div class="ondas-label">Ondas</div>
+                    <div class="ondas-value-line"><span id="ondas-altura">2.4</span>m</div>
+                    <div class="ondas-time" id="ondas-horario">04:02</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Raios Solar (UV) -->
+        <div class="slide slide-uv" data-type="uv">
+            <div class="slide-row">
+                <div class="slide-icon" id="uv-icon">
+                    <!-- Ícone será injetado por JS -->
+                </div>
+                <div class="uv-main">
+                    <div class="uv-title">Proteja sua pele!</div>
+                    <div class="uv-msg" id="uv-msg">O nível de UV agora pela manhã está altíssimo.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Cotações -->
+        <div class="slide slide-cambio" data-type="cambio">
+            <div class="slide-row">
+                <div class="slide-icon" id="cambio-icon">
+                    <!-- Ícone será injetado por JS -->
+                </div>
+                <div class="cambio-grid">
+                    <div class="quote-item">
+                        <img class="quote-arrow" src="img/seta_amarala.png" alt="seta">
+                        <div class="quote-value-line"><span class="quote-value" id="cambio-v1">2.46</span><span class="quote-unit">m</span></div>
+                        <div class="quote-time" id="cambio-h1">04:02</div>
+                    </div>
+                    <div class="quote-item">
+                        <img class="quote-arrow" src="img/seta_amarala.png" alt="seta">
+                        <div class="quote-value-line"><span class="quote-value" id="cambio-v2">0.11</span><span class="quote-unit">m</span></div>
+                        <div class="quote-time" id="cambio-h2">10:08</div>
+                    </div>
+                    <div class="quote-item">
+                        <img class="quote-arrow" src="img/seta_amarala.png" alt="seta">
+                        <div class="quote-value-line"><span class="quote-value" id="cambio-v3">2.10</span><span class="quote-unit">m</span></div>
+                        <div class="quote-time" id="cambio-h3">16:17</div>
+                    </div>
+                    <div class="quote-item">
+                        <img class="quote-arrow" src="img/seta_amarala.png" alt="seta">
+                        <div class="quote-value-line"><span class="quote-value" id="cambio-v4">0.32</span><span class="quote-unit">m</span></div>
+                        <div class="quote-time" id="cambio-h4">22:14</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Mensagem de Aviso -->
+        <div class="slide slide-comunicado" data-type="comunicado">
+            <div class="slide-row">
+                <div class="slide-icon" id="comunicado-icon">
+                    <!-- Ícone será injetado por JS -->
+                </div>
+                <div class="comunicado-main">
+                    <div class="comunicado-msg" id="comunicado-msg">Mensagem de aviso</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

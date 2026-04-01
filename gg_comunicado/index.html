@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="h-full w-full overflow-hidden">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/master.css">
+
+    <!-- Mock data para desenvolvimento (comentar em producao) -->
+    <!-- <script src="js/mock-data.js"></script> -->
+
+    <script src="js/ebhtml.js"></script>
+    <script src="js/master.js"></script>
+    <script src="js/preview.js"></script>
+
+    <title>G&amp;G Comunicado</title>
+</head>
+
+<body class="relative w-full h-screen overflow-hidden opacity-0 transition-opacity duration-700">
+
+    <!-- Fundo dinâmico -->
+    <div class="absolute inset-0 z-0">
+        <img id="fundo-img" src="" alt="" class="w-full h-full object-cover">
+    </div>
+
+    <!-- Container de slides (criado dinamicamente pelo master.js) -->
+    <!-- top:25% preserva o header do fundo estático -->
+    <div id="slide-container" class="absolute inset-x-0 bottom-0 z-10 overflow-hidden top-[25%]"></div>
+
+    <script>
+        // Detecta se está sendo exibido na extranet (preview) ou no player normal
+        // Executado aqui (final do body) para garantir que o DOM está pronto
+        var _ggCheckEl = null;
+        try {
+            if (window.parent && window.parent.document) {
+                _ggCheckEl = window.parent.document.getElementById('template_check');
+            }
+        } catch (e) { _ggCheckEl = null; }
+        if (_ggCheckEl !== null) { extranetView(); } else { playerView(); }
+    </script>
+
+</body>
+
+</html>
