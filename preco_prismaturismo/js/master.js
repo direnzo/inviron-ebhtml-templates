@@ -97,9 +97,13 @@ function ativarAnimacoes() {
         precoRs.classList.add('anim-fade-left');
     }, 200);
 
-    /* 3. Numero punch-in */
+    /* 3. Numero punch-in; pulse inicia apos o punch terminar (650ms) */
     setTimeout(function() {
         precoValor.classList.add('anim-punch-in');
+        setTimeout(function() {
+            precoValor.classList.remove('anim-punch-in');
+            precoValor.classList.add('anim-pulse');
+        }, 650);
     }, 350);
 
     /* 4. Footer sobe de baixo */

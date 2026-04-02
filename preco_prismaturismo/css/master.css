@@ -652,6 +652,10 @@ video {
   outline-style: solid;
 }
 
+.ease-in-out {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .ease-out {
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
@@ -771,6 +775,25 @@ video {
 
 .anim-fade-left {
   animation: fadeLeft 0.4s ease-out forwards;
+}
+
+@keyframes pricePulse {
+  0%   {
+    transform: scale(1);
+  }
+
+  50%  {
+    transform: scale(1.06);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.anim-pulse {
+  animation: pricePulse 1.8s ease-in-out 3;
+  /* 3 pulses depois do punch-in */
 }
 
 html, body {
