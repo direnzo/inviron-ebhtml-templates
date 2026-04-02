@@ -161,17 +161,17 @@ var MOCK_DATA = {
             TEXTO5: 'Preço fidelidade para clientes cadastrados no programa'
         },
         {
-            TITULO: 'CHOCOLAT PREMIUM IMPORT BELGA 100G',
+            TITULO: 'TEMPERO COMPLETO TIA DEDÊ',
             FOTO: 'img/produtos/chocolat.webp',
-            PRICE: '24.90',
+            PRICE: '10.68',
             PRICE2: '',
             PRICE3: '',
             PRICE4: '',
-            TEXTO3: 'COMPRE_E_GANHE',
-            TEXTO4: 'un',
-            TEXTO8: '',
-            TEXTO9: '',
-            TEXTO5: 'Compre este produto e ganhe um brinde especial!'
+            TEXTO3: 'COMPRE-GANHE',
+            TEXTO4: 'UNID.',
+            TEXTO8: '2',
+            TEXTO9: 'Coca Cola Lata 350ml',
+            TEXTO5: ''
         },
         {
             TITULO: 'KIT MERCEARIA PREMIUM TRADICIONAL EXTRA GRANDE PARA TESTE DE TITULO LONGO',
