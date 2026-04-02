@@ -42,7 +42,7 @@ html, body {
 }
 
 /* =====================================================
-   FOTO — camada de fundo fullscreen
+   FOTO — fullscreen background
 ===================================================== */
 
 .photo-layer {
@@ -80,7 +80,7 @@ html, body {
 }
 
 /* =====================================================
-   BLOCO DE CONTEÚDO — padrão LANDSCAPE (default)
+   CONTENT BLOCK — lower-third: [logo] [editoria / headline]
 ===================================================== */
 
 .content-block {
@@ -88,8 +88,6 @@ html, body {
     left: 0;
     right: 0;
     bottom: 0;
-    min-height: 45vh;
-    padding: 0 0 3.2vw 5vh;
     z-index: 20;
     display: -webkit-box;
     display: -webkit-flex;
@@ -98,12 +96,12 @@ html, body {
     -webkit-box-direction: normal;
     -webkit-flex-direction: column;
     flex-direction: column;
-    -webkit-box-pack: end;
-    -webkit-justify-content: flex-end;
-    justify-content: flex-end;
-    overflow: hidden;
-    background: -webkit-linear-gradient(bottom, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.55) 75%, rgba(0, 0, 0, 0) 100%);
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.55) 75%, rgba(0, 0, 0, 0) 100%);
+    -webkit-box-align: start;
+    -webkit-align-items: flex-start;
+    align-items: flex-start;
+    padding: 0 0 2.5vh 2.5vh;
+    overflow: visible;
+    background: none;
 }
 
 .content-blur-layer {
@@ -131,10 +129,51 @@ html, body {
 }
 
 /* =====================================================
-   BRAND AREA — logo + editoria em linha (padrão)
+   LOGO — caixa preta à esquerda
 ===================================================== */
 
-.brand-area {
+.logo-spacer {
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 20vh;
+    flex: 0 0 20vh;
+    width: 20vh;
+    margin-right: 1.2vh;
+}
+
+.logo-wrap {
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 20vh;
+    flex: 0 0 20vh;
+    width: 20vh;
+    background: #000;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    padding: 1.4vh 1.2vh;
+    margin-right: 1.2vh;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.logo-img {
+    height: 9.5vh;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+/* =====================================================
+   EDITORIA ROW + BOTTOM ROW
+===================================================== */
+
+.editoria-row {
     display: -webkit-box;
     display: -webkit-flex;
     display: flex;
@@ -142,80 +181,81 @@ html, body {
     -webkit-box-direction: normal;
     -webkit-flex-direction: row;
     flex-direction: row;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    align-items: center;
-    margin-bottom: 1.6vh;
-    gap: 2vw;
-    position: relative;
-    z-index: 2;
+    -webkit-box-align: end;
+    -webkit-align-items: flex-end;
+    align-items: flex-end;
+    width: 100%;
+    margin-bottom: 0.5vh;
 }
 
-.logo-wrap {
-    -webkit-box-flex: 0;
-    -webkit-flex: 0 0 auto;
-    flex: 0 0 auto;
-    height: 9vh;
+.bottom-row {
     display: -webkit-box;
     display: -webkit-flex;
     display: flex;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    align-items: center;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -webkit-box-align: stretch;
+    -webkit-align-items: stretch;
+    align-items: stretch;
+    width: 100%;
 }
 
-.logo-img {
-    height: 100%;
-    width: auto;
-    max-width: 13vw;
-    object-fit: contain;
-    display: block;
-}
+/* =====================================================
+   EDITORIA — retângulo azul pequeno
+===================================================== */
 
 .editoria-wrap {
-    -webkit-box-flex: 1;
-    -webkit-flex: 1 1 auto;
-    flex: 1 1 auto;
-    height: 9vh;
-    border-radius: 9999px 0 0 9999px;
-    padding: 0 3.5vw;
+    -webkit-align-self: flex-start;
+    align-self: flex-start;
+    background: rgba(0, 104, 180, 0.95);
+    padding: 1vh 2.2vw 1vh 1.4vw;
     display: -webkit-box;
     display: -webkit-flex;
     display: flex;
     -webkit-box-align: center;
     -webkit-align-items: center;
     align-items: center;
-    overflow: hidden;
-    background: rgba(0, 104, 180, 0.9);
 }
 
 .editoria-text {
     font-family: 'Poppins Bold', sans-serif;
-    font-size: 4.8vh;
+    font-size: 5.4vh;
     color: #fff;
     white-space: nowrap;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.08em;
     line-height: 1;
 }
 
 /* =====================================================
-   HEADLINE
+   HEADLINE — retângulo azul grande (full width)
 ===================================================== */
 
 .headline-wrap {
-    max-height: 30vh;
+    width: 100%;
+    background: rgba(0, 104, 180, 0.95);
+    padding: 3.4vh 2.2vw;
     overflow: hidden;
-    position: relative;
-    z-index: 2;
+    max-height: 12vw;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    align-items: center;
 }
 
 .headline-text {
     font-family: 'Poppins Medium', sans-serif;
-    font-size: 6vh;
-    line-height: 1.1;
+    font-size: 4vw;
+    line-height: 1.15;
     color: #fff;
     margin: 0;
     padding: 0;
+    width: 100%;
 }
 
 /* =====================================================
@@ -243,44 +283,16 @@ html, body {
    RATIO: PORTRAIT LEVE (3:4 → ~1:1)
 ===================================================== */
 
-.ratio-portrait-mild .content-block {
-    min-height: 44vh;
-    padding: 0 4vw 4.5vh;
-    background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.18) 58%, rgba(0, 0, 0, 0.64) 100%);
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.18) 58%, rgba(0, 0, 0, 0.64) 100%);
-    -webkit-backdrop-filter: blur(7px);
-    backdrop-filter: blur(7px);
-}
-
-.ratio-portrait-mild .content-blur-layer {
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    overflow: hidden;
-    z-index: 1;
-    -webkit-mask-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.28) 32%, rgba(0, 0, 0, 1) 72%);
-    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.28) 32%, rgba(0, 0, 0, 1) 72%);
-    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.28) 32%, rgba(0, 0, 0, 1) 72%);
-}
-
-.ratio-portrait-mild .content-blur-tint {
-    background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.15) 42%, rgba(0, 0, 0, 0.40) 100%);
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.15) 42%, rgba(0, 0, 0, 0.40) 100%);
-}
-
 .ratio-portrait-mild .logo-img {
-    max-width: 16vw;
+    height: 6.5vh;
 }
 
 .ratio-portrait-mild .editoria-text {
-    font-size: 4.6vh;
+    font-size: 2.2vh;
 }
 
 .ratio-portrait-mild .headline-text {
-    font-size: 5.4vh;
+    font-size: 4.2vh;
 }
 
 .ratio-portrait-mild .headline-wrap {
@@ -291,332 +303,93 @@ html, body {
    RATIO: PORTRAIT TALL (≤ 3:4 / 9:16)
 ===================================================== */
 
-.ratio-portrait .content-block {
-    min-height: 52vh;
-    padding: 0 4.5vw 4vh;
-    background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.20) 36%, rgba(0, 0, 0, 0.70) 100%);
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.20) 36%, rgba(0, 0, 0, 0.70) 100%);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-}
-
-.ratio-portrait .content-blur-layer {
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    overflow: hidden;
-    z-index: 1;
-    -webkit-mask-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 30%, rgba(0, 0, 0, 1) 70%);
-    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 30%, rgba(0, 0, 0, 1) 70%);
-    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 30%, rgba(0, 0, 0, 1) 70%);
-}
-
-.ratio-portrait .content-blur-tint {
-    background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.17) 40%, rgba(0, 0, 0, 0.46) 100%);
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.17) 40%, rgba(0, 0, 0, 0.46) 100%);
-}
-
-.ratio-portrait .brand-area {
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -webkit-flex-direction: column;
-    flex-direction: column;
-    -webkit-box-align: stretch;
-    -webkit-align-items: stretch;
-    align-items: stretch;
-    gap: 0;
-    margin-bottom: 2vh;
-}
-
-.ratio-portrait .logo-wrap {
-    height: 5vh;
-    width: 100%;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    justify-content: center;
-    margin-bottom: 1.2vh;
-}
-
 .ratio-portrait .logo-img {
-    height: 100%;
-    max-width: 48vw;
-}
-
-.ratio-portrait .editoria-wrap {
-    height: 5vh;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    justify-content: center;
-    border-radius: 9999px;
+    height: 6vh;
 }
 
 .ratio-portrait .editoria-text {
-    font-size: 3vh;
+    font-size: 2vh;
+}
+
+.ratio-portrait .headline-text {
+    font-size: 3.8vh;
 }
 
 .ratio-portrait .headline-wrap {
     max-height: 28vh;
+    padding: 1.2vh 3vw;
 }
 
-.ratio-portrait .headline-text {
-    font-size: 5.2vh;
+.ratio-portrait .editoria-wrap {
+    padding: 0.5vh 3vw 0.5vh 1.5vw;
 }
 
 /* =====================================================
    RATIO: SQUARE (~1:1)
 ===================================================== */
 
-.ratio-square .content-block {
-    min-height: 44vh;
-}
-
 .ratio-square .logo-img {
-    max-width: 18vw;
+    height: 7vh;
 }
 
 .ratio-square .editoria-text {
+    font-size: 2.2vh;
+}
+
+.ratio-square .headline-text {
     font-size: 4.6vh;
 }
 
 .ratio-square .headline-wrap {
-    max-height: 24vh;
-}
-
-.ratio-square .headline-text {
-    font-size: 5.6vh;
+    max-height: 22vh;
 }
 
 /* =====================================================
-   RATIO: ULTRAWIDE (≥ 3:1)
+   RATIO: ULTRAWIDE / SUPERBANNER / FOOTER (≥ 3:1)
+   Mantém o lower-third mas adapta tamanhos
 ===================================================== */
 
-.ratio-ultrawide .content-block {
-    left: 33.333vw;
-    right: 33.333vw;
-    top: 0;
-    bottom: 0;
-    min-height: 0;
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    justify-content: flex-start;
-    padding: 0;
-    background: rgba(0, 0, 0, 0.18);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-}
-
-.ratio-ultrawide .brand-area {
-    height: 26%;
-    margin-bottom: 0;
-    gap: 0;
-    -webkit-box-align: stretch;
-    -webkit-align-items: stretch;
-    align-items: stretch;
-}
-
-.ratio-ultrawide .logo-wrap {
-    -webkit-box-flex: 0;
-    -webkit-flex: 0 0 28%;
-    flex: 0 0 28%;
-    height: 100%;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    justify-content: center;
-}
-
-.ratio-ultrawide .logo-img {
-    height: 76%;
-    max-width: 88%;
-}
-
-.ratio-ultrawide .editoria-wrap {
-    height: 100%;
-    border-radius: 9999px 0 0 9999px;
-    padding: 0 1.1vw;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    justify-content: center;
-}
-
-.ratio-ultrawide .editoria-text {
-    font-size: 2.2vw;
-    text-align: center;
-}
-
-.ratio-ultrawide .headline-wrap {
-    -webkit-box-flex: 1;
-    -webkit-flex: 1 1 auto;
-    flex: 1 1 auto;
-    max-height: none;
-    padding: 1.5vh 1.1vw;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    align-items: center;
-}
-
-.ratio-ultrawide .headline-text {
+.ratio-ultrawide .headline-text,
+.ratio-superbanner .headline-text {
     font-size: 2.4vw;
     line-height: 1.08;
 }
 
-/* =====================================================
-   RATIO: SUPERBANNER (5:1 a 15:1)
-===================================================== */
-
-.ratio-superbanner .content-block {
-    left: 33.333vw;
-    right: 33.333vw;
-    top: 0;
-    bottom: 0;
-    min-height: 0;
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    justify-content: flex-start;
-    padding: 0;
-    background: rgba(0, 0, 0, 0.18);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-}
-
-.ratio-superbanner .brand-area {
-    height: 15%;
-    margin-bottom: 0;
-    gap: 0;
-    -webkit-box-align: stretch;
-    -webkit-align-items: stretch;
-    align-items: stretch;
-}
-
-.ratio-superbanner .logo-wrap {
-    -webkit-box-flex: 0;
-    -webkit-flex: 0 0 28%;
-    flex: 0 0 28%;
-    height: 100%;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    justify-content: center;
-}
-
-.ratio-superbanner .logo-img {
-    height: 78%;
-    width: auto;
-    max-width: 88%;
-}
-
-.ratio-superbanner .editoria-wrap {
-    height: 100%;
-    border-radius: 9999px 0 0 9999px;
-    padding: 0 1.2vw;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    justify-content: center;
-}
-
+.ratio-ultrawide .editoria-text,
 .ratio-superbanner .editoria-text {
     font-size: 1.6vw;
-    text-align: center;
 }
 
+.ratio-ultrawide .headline-wrap,
 .ratio-superbanner .headline-wrap {
-    -webkit-box-flex: 1;
-    -webkit-flex: 1 1 auto;
-    flex: 1 1 auto;
     max-height: none;
-    padding: 2vh 3vw;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    align-items: center;
+    padding: 1.2vh 2vw;
 }
 
-.ratio-superbanner .headline-text {
-    font-size: 1.8vw;
-    line-height: 1.08;
-    text-align: left;
-}
-
-/* =====================================================
-   RATIO: FOOTER (≥ 15:1)
-===================================================== */
-
-.ratio-footer .content-block {
-    left: 33.333vw;
-    right: 33.333vw;
-    top: 0;
-    bottom: 0;
-    min-height: 0;
-    padding: 0;
-    -webkit-box-pack: start;
-    -webkit-justify-content: flex-start;
-    justify-content: flex-start;
-    background: rgba(0, 0, 0, 0.2);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-}
-
-.ratio-footer .brand-area {
-    height: 28%;
-    margin-bottom: 0;
-    gap: 0;
-    -webkit-box-align: stretch;
-    -webkit-align-items: stretch;
-    align-items: stretch;
-}
-
-.ratio-footer .logo-wrap {
-    -webkit-box-flex: 0;
-    -webkit-flex: 0 0 28%;
-    flex: 0 0 28%;
-    height: 100%;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    justify-content: center;
-}
-
-.ratio-footer .logo-img {
-    height: 74%;
-    max-width: 88%;
-}
-
-.ratio-footer .editoria-wrap {
-    height: 100%;
-    border-radius: 0;
-    padding: 0 1vw;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    justify-content: center;
-}
-
-.ratio-footer .editoria-text {
-    font-size: 2.2vw;
-}
-
-.ratio-footer .headline-wrap {
-    -webkit-box-flex: 1;
-    -webkit-flex: 1 1 auto;
-    flex: 1 1 auto;
-    max-height: none;
-    padding: 1vh 1vw;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    align-items: center;
+.ratio-ultrawide .editoria-wrap,
+.ratio-superbanner .editoria-wrap {
+    padding: 0.5vh 2vw;
 }
 
 .ratio-footer .headline-text {
-    font-size: 2.05vw;
+    font-size: 2vw;
     line-height: 1.06;
 }
+
+.ratio-footer .editoria-text {
+    font-size: 1.4vw;
+}
+
+.ratio-footer .headline-wrap {
+    max-height: none;
+    padding: 0.8vh 1.5vw;
+}
+
+.ratio-footer .editoria-wrap {
+    padding: 0.4vh 1.5vw;
+}
+
+/* Foto lateral para ultrawide */
 
 .ratio-ultrawide .photo-layer,
 .ratio-superbanner .photo-layer,
@@ -683,62 +456,49 @@ html, body {
 }
 
 /* =====================================================
-   RATIO: EMPENA (≤ 1:3)
+   RATIO: EMPENA (≤ 1:3) — logo acima, texto abaixo
 ===================================================== */
 
 .ratio-empena .content-block {
-    min-height: 58vh;
-    padding: 0 3.5vw 3.5vh;
-}
-
-.ratio-empena .brand-area {
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
     -webkit-flex-direction: column;
     flex-direction: column;
-    -webkit-box-align: stretch;
-    -webkit-align-items: stretch;
-    align-items: stretch;
-    gap: 1vh;
 }
 
 .ratio-empena .logo-wrap {
-    height: 8vh;
+    width: 100%;
+    height: 10vh;
+    padding: 1.2vh;
     -webkit-box-pack: center;
     -webkit-justify-content: center;
     justify-content: center;
+    min-width: 0;
 }
 
 .ratio-empena .logo-img {
-    max-width: 44vw;
+    height: 7vh;
 }
 
-.ratio-empena .editoria-wrap {
-    height: 8vh;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    justify-content: center;
+.ratio-empena .text-block {
+    width: 100%;
 }
 
 .ratio-empena .editoria-text {
-    font-size: 3.6vh;
-}
-
-.ratio-empena .headline-wrap {
-    max-height: 36vh;
+    font-size: 2.2vh;
 }
 
 .ratio-empena .headline-text {
     font-size: 3.8vh;
 }
 
+.ratio-empena .headline-wrap {
+    max-height: 34vh;
+}
+
 /* =====================================================
    LEGACY WEBKIT — Android 7 / engines sem CSS moderno
 ===================================================== */
-
-body.legacy-webkit {
-    color: #ffffff;
-}
 
 body.legacy-webkit .editoria-text,
 body.legacy-webkit .headline-text,
@@ -746,40 +506,23 @@ body.legacy-webkit .credit-text {
     color: #ffffff !important;
 }
 
-body.legacy-webkit .brand-area {
+body.legacy-webkit .text-block {
     display: -webkit-box;
-    -webkit-box-orient: horizontal;
-    -webkit-box-align: center;
+    -webkit-box-orient: vertical;
+    -webkit-box-align: start;
+    -webkit-box-pack: end;
 }
 
-body.legacy-webkit .logo-wrap {
-    margin-right: 2vw;
-    -webkit-box-flex: 0;
+
+/* =====================================================
+   BASE
+===================================================== */
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
 }
 
-body.legacy-webkit .editoria-wrap {
-    -webkit-box-flex: 1;
-    padding-left: 3.2vw;
-    padding-right: 3.2vw;
-}
-
-body.legacy-webkit .headline-text {
-    line-height: 1.08;
-}
-
-body.legacy-webkit.ratio-ultrawide .brand-area,
-body.legacy-webkit.ratio-superbanner .brand-area,
-body.legacy-webkit.ratio-footer .brand-area {
-    display: -webkit-box;
-    -webkit-box-orient: horizontal;
-    -webkit-box-align: stretch;
-}
-
-body.legacy-webkit .content-blur-img {
-    -webkit-filter: blur(14px);
-    filter: blur(14px);
-}
-
-body.legacy-webkit .content-block {
-    background: -webkit-gradient(linear, left bottom, left top, color-stop(0%, rgba(0, 0, 0, 0.92)), color-stop(55%, rgba(0, 0, 0, 0.55)), color-stop(100%, rgba(0, 0, 0, 0)));
-}

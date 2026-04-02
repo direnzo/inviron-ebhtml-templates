@@ -199,11 +199,22 @@ window.onload = function () {
 
         aplicarClasseAspectRatio();
 
-        if (headline && headlineWrap) {
-            fitDescriptionFont(headline, headlineWrap, 8);
-        }
+        // Aguarda fontes carregarem antes de medir/ajustar o texto.
+        // document.fonts.ready nao existe em legacy WebKit — usa setTimeout como fallback.
+        var aplicarFit = function() {
+            if (headline && headlineWrap) {
+                fitTo2Lines(headline, headlineWrap, 14, 56);
+            }
+            body.classList.add('is-ready');
+        };
 
-        body.classList.add('is-ready');
+        if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+            document.fonts.ready.then(function() {
+                setTimeout(aplicarFit, 100);
+            });
+        } else {
+            setTimeout(aplicarFit, 400);
+        }
     }
 
     function carregarImagem(imageUrl, loader) {
@@ -338,19 +349,21 @@ function mudaCor(nomeEditoria, wrapper) {
     el.style.backgroundColor = cor;
 }
 
-function fitDescriptionFont(textEl, wrapEl, minFontSize) {
-    minFontSize = minFontSize || 8;
+function fitTo2Lines(textEl, wrapEl, minFontSize, maxFontSize) {
+    minFontSize = minFontSize || 14;
     var maxH = wrapEl.offsetHeight;
-    var fontSize;
+    var fontSize = parseInt(window.getComputedStyle(textEl).fontSize, 10);
 
-    if (!maxH) {
-        return;
+    if (!maxH) { return; }
+
+    if (maxFontSize && fontSize > maxFontSize) {
+        fontSize = maxFontSize;
+        textEl.style.fontSize = fontSize + 'px';
     }
-
-    fontSize = parseInt(window.getComputedStyle(textEl).fontSize, 10);
 
     while (textEl.scrollHeight > maxH && fontSize > minFontSize) {
         fontSize -= 1;
         textEl.style.fontSize = fontSize + 'px';
     }
 }
+
