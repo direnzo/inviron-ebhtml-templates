@@ -1,0 +1,12 @@
+{
+  "name": "preco-prismaturismo",
+  "version": "1.0.0",
+  "description": "Template de preço de combustível para Digital Signage - Prismaturismo (320x320px)",
+  "scripts": {
+    "dev": "tailwindcss -i css/input.css -o css/master.css --watch",
+    "build": "tailwindcss -i css/input.css -o css/master.css --minify"
+  },
+  "keywords": ["digital-signage", "edgecontents", "tailwindcss", "combustivel"],
+  "author": "Eduardo Di Renzo - Inviron Technologies",
+  "license": "ISC"
+}
