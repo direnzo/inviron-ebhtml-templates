@@ -8,10 +8,6 @@ export default {
   theme: {
     extend: {
       keyframes: {
-        slideDown: {
-          '0%':   { transform: 'translateY(-100%)', opacity: '0' },
-          '100%': { transform: 'translateY(0)',      opacity: '1' },
-        },
         slideUp: {
           '0%':   { transform: 'translateY(100%)', opacity: '0' },
           '100%': { transform: 'translateY(0)',     opacity: '1' },
@@ -30,7 +26,6 @@ export default {
         },
       },
       animation: {
-        'slide-down': 'slideDown 0.55s cubic-bezier(0.22,1,0.36,1) forwards',
         'slide-up':   'slideUp  0.55s cubic-bezier(0.22,1,0.36,1) forwards',
         'punch-in':   'punchIn  0.65s cubic-bezier(0.22,1,0.36,1) forwards',
         'fade-left':  'fadeLeft 0.4s ease-out forwards',

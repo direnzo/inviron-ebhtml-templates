@@ -1,6 +1,9 @@
 /**
  * PRECO PRISMATURISMO - Template de preco de combustivel (320x320px)
- * Dados: D_COMBUSTIVEL (tipo, subtipo, preco) + D_LOCAL (logos)
+ * Dados:
+ *   D_COMBUSTIVEL - TITULO, PRECO (decimal), LOCAL
+ *   D_LOCAL       - ID do local fisico (tela)
+ *   D_LOGO        - FOTO1 (bandeira), FOTO2 (posto), LOCAL (fk para D_LOCAL.ID)
  *
  * ATENCAO: ES5 obrigatorio - sem const/let/arrow functions/template strings
  */
@@ -33,7 +36,26 @@ var CONFIG = {
 window.onload = function() {
     if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
         var mockLoader = {
-            data:     function(key) { return MOCK_DATA.datasets[key] || null; },
+            data: function(key) {
+                var ds = MOCK_DATA.datasets[key];
+                if (!ds) return null;
+                /* Array = datalist mock; retorna o primeiro como item unico */
+                if (Array.isArray(ds)) {
+                    return ds.length ? { value: function(c) { return ds[0][c] !== undefined ? { value: ds[0][c] } : null; } } : null;
+                }
+                return ds;
+            },
+            datalist: function(key) {
+                var ds = MOCK_DATA.datasets[key];
+                if (!ds) return null;
+                var arr = Array.isArray(ds) ? ds : [ds];
+                return {
+                    count: function() { return arr.length; },
+                    get: function(i) {
+                        return { value: function(c) { return arr[i] && arr[i][c] !== undefined ? { value: arr[i][c] } : null; } };
+                    }
+                };
+            },
             loaded:   function() { console.log('[PRECO] Mock loaded'); },
             finished: function() { console.log('[PRECO] Mock finished'); }
         };
@@ -42,6 +64,7 @@ window.onload = function() {
         ebhtml.create2({}, function(loader) {
             loader.addData('D_COMBUSTIVEL', false);
             loader.addData('D_LOCAL', false);
+            loader.addData('D_LOGO', false);
             loader.autoloaded = false;
             loader.nodataiserror = false;
 
@@ -58,9 +81,10 @@ window.onload = function() {
 
 function inicializarTemplate(loader) {
     var combustivel = loader.data('D_COMBUSTIVEL');
-    var local       = loader.data('D_LOCAL');
+    var localData   = loader.data('D_LOCAL');
+    var logoList    = loader.datalist('D_LOGO');
 
-    renderizarLogos(local);
+    renderizarLogos(localData, logoList);
 
     if (!combustivel) {
         console.error('[PRECO] Sem dados de D_COMBUSTIVEL');
@@ -84,22 +108,17 @@ function inicializarTemplate(loader) {
    ============================================================= */
 
 function ativarAnimacoes() {
-    var header     = document.getElementById('header');
     var precoRs    = document.getElementById('preco-rs');
     var precoValor = document.getElementById('preco-valor');
     var footer     = document.getElementById('footer');
 
-    /* 1. Header desce do topo */
-    header.classList.remove('opacity-0');
-    header.classList.add('animate-slide-down');
-
-    /* 2. R$ entra da esquerda */
+    /* 1. R$ entra da esquerda */
     setTimeout(function() {
         precoRs.classList.remove('opacity-0');
         precoRs.classList.add('animate-fade-left');
     }, 200);
 
-    /* 3. Numero punch-in; pulse inicia apos o punch terminar (650ms) */
+    /* 2. Numero punch-in; pulse inicia apos o punch terminar (650ms) */
     setTimeout(function() {
         precoValor.classList.remove('opacity-0');
         precoValor.classList.add('animate-punch-in');
@@ -109,7 +128,7 @@ function ativarAnimacoes() {
         }, 650);
     }, 350);
 
-    /* 4. Footer sobe de baixo */
+    /* 3. Footer sobe de baixo */
     setTimeout(function() {
         footer.classList.remove('opacity-0');
         footer.classList.add('animate-slide-up');
@@ -117,16 +136,31 @@ function ativarAnimacoes() {
 }
 
 /* =============================================================
-   LOGOS (D_LOCAL)
-   Se a URL vier vazia o img fica oculto; o header nao quebra.
+   LOGOS (D_LOGO filtrado por D_LOCAL.ID)
+   D_LOCAL fornece o ID do local; percorre D_LOGO para encontrar
+   o item cujo campo LOCAL bate com esse ID.
+   FOTO1 = bandeira da distribuidora, FOTO2 = logo do posto.
    ============================================================= */
 
-function renderizarLogos(local) {
+function renderizarLogos(localData, logoList) {
     var imgBandeira = document.getElementById('img-bandeira');
     var imgPosto    = document.getElementById('img-posto');
 
-    var urlBandeira = local ? obterCampo(local, 'LOGO_BANDEIRA', '') : '';
-    var urlPosto    = local ? obterCampo(local, 'LOGO_POSTO',    '') : '';
+    var localId  = localData ? obterCampo(localData, 'ID', '') : '';
+    var logoItem = null;
+
+    if (logoList && typeof logoList.count === 'function') {
+        for (var i = 0; i < logoList.count(); i++) {
+            var item = logoList.get(i);
+            if (obterCampo(item, 'LOCAL', '') == localId) {
+                logoItem = item;
+                break;
+            }
+        }
+    }
+
+    var urlBandeira = logoItem ? obterCampo(logoItem, 'FOTO1', '') : '';
+    var urlPosto    = logoItem ? obterCampo(logoItem, 'FOTO2', '') : '';
 
     if (urlBandeira) {
         imgBandeira.src = urlBandeira;
@@ -148,17 +182,24 @@ function renderizarLogos(local) {
    ============================================================= */
 
 function renderizarPreco(combustivel) {
-    var nome    = obterCampo(combustivel, 'COMBUSTIVEL', 'COMBUSTIVEL');
-    var subtipo = obterCampo(combustivel, 'SUBTIPO',     '');
-    var preco   = obterCampo(combustivel, 'PRECO',       '0,00');
+    /* TITULO ex: 'Etanol Comum', 'Gasolina', 'Diesel S10' */
+    var titulo  = obterCampo(combustivel, 'TITULO', 'Combustivel');
+    var partes  = titulo.split(' ');
+    var nome    = partes[0];
+    var subtipo = partes.length > 1 ? partes.slice(1).join(' ') : '';
+
+    /* Preco vem com ponto decimal (4.39) -> converte para virgula (4,39) */
+    var preco = obterCampo(combustivel, 'PRECO', '0,00').replace('.', ',');
 
     document.getElementById('preco-valor').innerText         = preco;
     document.getElementById('combustivel-nome').innerText    = nome.toUpperCase();
     document.getElementById('combustivel-subtipo').innerText = subtipo.toUpperCase();
 
-    /* Cor de fundo do rodape baseada no tipo de combustivel */
-    var chave = nome.toUpperCase();
-    var cor   = CORES_COMBUSTIVEL[chave] || CORES_COMBUSTIVEL['DEFAULT'];
+    /* Cor: tenta TITULO inteiro (ex: 'ETANOL COMUM'), fallback para 1a palavra */
+    var chave = titulo.toUpperCase();
+    var cor   = CORES_COMBUSTIVEL[chave]
+             || CORES_COMBUSTIVEL[nome.toUpperCase()]
+             || CORES_COMBUSTIVEL['DEFAULT'];
     document.getElementById('footer').style.backgroundColor = cor;
 }
 

@@ -2,12 +2,18 @@
  * Mock Data - PRECO PRISMATURISMO
  * Altere MOCK_DATA.enabled = false em producao.
  *
- * Para testar diferentes combustiveis, altere:
- *   COMBUSTIVEL : 'GASOLINA' | 'ETANOL' | 'DIESEL' | 'DIESEL S10' | 'GNV'
- *   SUBTIPO     : 'COMUM' | 'ADITIVADA' | 'S10' | '' (vazio)
- *   PRECO       : ex. '5,99' | '4,29' | '6,49'
+ * D_COMBUSTIVEL:
+ *   TITULO  : 'Etanol Comum' | 'Gasolina' | 'Gasolina Aditivada' | 'Diesel S10' | 'GNV'
+ *   PRECO   : usa ponto decimal, ex: '4.39' | '6.49'
+ *   LOCAL   : ID do local (deve bater com D_LOCAL.ID)
  *
- * Para testar sem logos, passe strings vazias em LOGO_BANDEIRA / LOGO_POSTO.
+ * D_LOCAL:
+ *   ID      : identificador do local (tela)
+ *
+ * D_LOGO (array - suporte a datalist):
+ *   LOCAL   : FK para D_LOCAL.ID
+ *   FOTO1   : URL da bandeira (distribuidora)
+ *   FOTO2   : URL do logo do posto
  */
 
 var MOCK_DATA = {
@@ -18,9 +24,10 @@ var MOCK_DATA = {
         'D_COMBUSTIVEL': {
             value: function(campo) {
                 var dados = {
-                    'COMBUSTIVEL': 'GASOLINA',
-                    'SUBTIPO':     'COMUM',
-                    'PRECO':       '5,99'
+                    'TITULO':    'Etanol Comum',
+                    'PRECO':     '4.39',
+                    'LOCAL':     '1',
+                    'DESCRICAO': 'EC'
                 };
                 return dados[campo] !== undefined ? { value: dados[campo] } : null;
             }
@@ -29,26 +36,29 @@ var MOCK_DATA = {
         'D_LOCAL': {
             value: function(campo) {
                 var dados = {
-                    /*
-                     * Troque os valores abaixo para testar combinacoes:
-                     *
-                     * LOGO_BANDEIRA:
-                     *   'img/bandeira-petrobras.png'
-                     *   'img/bandeira-ipiranga.png'
-                     *   'img/bandeira-SHELL.png'
-                     *   '' (vazio = sem bandeira)
-                     *
-                     * LOGO_POSTO:
-                     *   'img/logo-posto.png'
-                     *   'img/logo-ale.png'
-                     *   '' (vazio = sem logo de posto)
-                     */
-                    'LOGO_BANDEIRA': 'img/bandeira-petrobras.png',
-                    'LOGO_POSTO':    'img/logo-posto.png'
+                    'ID':        '1',
+                    'SCREEN_ID': '1',
+                    'SITE':      'Mock Posto'
                 };
                 return dados[campo] !== undefined ? { value: dados[campo] } : null;
             }
-        }
+        },
+
+        /*
+         * D_LOGO como array para suportar datalist no mock.
+         * Cada entrada representa um local diferente (LOCAL = D_LOCAL.ID).
+         * Troque FOTO1/FOTO2 para testar bandeiras:
+         *   bandeira-petrobras.png | bandeira-ipiranga.png | bandeira-SHELL.png
+         *   logo-posto.png | logo-ale.png | '' (vazio = oculto)
+         */
+        'D_LOGO': [
+            {
+                'LOCAL': '1',
+                'FOTO':  'img/bandeira-petrobras.png',
+                'FOTO1': 'img/bandeira-petrobras.png',
+                'FOTO2': 'img/logo-posto.png'
+            }
+        ]
 
     }
 };
