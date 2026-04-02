@@ -151,6 +151,9 @@ function traduzirFase(texto) {
     var mLeague = chave.match(/^league\s+stage\s*[-–]\s*(\d+)$/);
     if (mLeague) { return 'Fase de Liga — Rodada ' + mLeague[1]; }
 
+    var mRegSeason = chave.match(/^regular season\s*[-–\s]\s*(\d+)$/);
+    if (mRegSeason) { return 'Temporada Regular — Rodada ' + mRegSeason[1]; }
+
     var mLeg = chave.match(/^(\d+)(?:st|nd|rd|th)\s+leg$/);
     if (mLeg) { return mLeg[1] + 'ª Mão'; }
 
@@ -172,7 +175,7 @@ var SVG_ESCUDO = [
    ==================================================== */
 var CONFIG = {
     corDestaque: '#FBBF24',  // cor de destaque (hora, tempo, glow)
-    corEscura:   '#000000',  // cor de fundo (painéis, gradientes)
+    corEscura:   '#006400',  // cor de fundo (painéis, gradientes)
     corClara:    '#FFFFFF'   // cor de texto e bordas
 };
 /* segundos de exibição da imagem de abertura (vídeo usa duração natural do arquivo) */
@@ -543,11 +546,15 @@ function renderizarTemplate(dados, loader) {
     // --- Vídeo de fundo conforme estado ---
     var videoSrc;
     if (dados.estado === 'encerrado' || dados.estado === 'penalties') {
-        videoSrc = 'img/soccer-background-loop-2026-01-28-04-07-44-utc.mp4';
+        // videoSrc = 'img/soccer-background-loop-2026-01-28-04-07-44-utc.mp4';
+        videoSrc = 'img/soccer-background-loop-1-2026-01-28-03-22-41-utc.mp4';
+
     } else if (dados.estado === 'ao_vivo') {
         videoSrc = 'img/soccer-background-loop-1-2026-01-28-03-22-41-utc.mp4';
     } else {
-        videoSrc = 'img/soccer-background-loop-6-2026-01-28-03-43-08-utc.mp4';
+        // videoSrc = 'img/soccer-background-loop-6-2026-01-28-03-43-08-utc.mp4';
+        videoSrc = 'img/soccer-background-loop-1-2026-01-28-03-22-41-utc.mp4';
+
     }
     var bgVideo = document.querySelector('#bgVideo');
     if (bgVideo && bgVideo.src.indexOf(videoSrc) === -1) {
@@ -609,7 +616,7 @@ function renderizarTemplate(dados, loader) {
             if (bgVideoEl) { bgVideoEl.classList.remove('opacity-0'); bgVideoEl.classList.add('opacity-100'); }
 
             var gradEl = document.querySelector('#gradientOverlay');
-            if (gradEl) { gradEl.classList.remove('opacity-0'); gradEl.classList.add('opacity-100'); }
+            if (gradEl) { gradEl.classList.remove('opacity-0'); gradEl.classList.add('opacity-50'); }
 
             setTimeout(function() {
                 loader.finished();
