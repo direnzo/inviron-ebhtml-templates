@@ -31,64 +31,6 @@
     font-style: normal;
 }
 
-/* ========================================
-   ANIMACOES DE ENTRADA
-   ======================================== */
-
-@keyframes slideDown {
-    from { transform: translateY(-100%); opacity: 0; }
-    to   { transform: translateY(0);     opacity: 1; }
-}
-
-@keyframes slideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to   { transform: translateY(0);    opacity: 1; }
-}
-
-@keyframes punchIn {
-    from { transform: scale(1.3); opacity: 0; }
-    to   { transform: scale(1);   opacity: 1; }
-}
-
-@keyframes fadeLeft {
-    from { transform: translateX(-16px); opacity: 0; }
-    to   { transform: translateX(0);     opacity: 1; }
-}
-
-/* Estado inicial: todos ocultos ate o JS disparar */
-#header,
-#preco-rs,
-#preco-valor,
-#footer {
-    opacity: 0;
-}
-
-.anim-slide-down {
-    animation: slideDown 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.anim-slide-up {
-    animation: slideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.anim-punch-in {
-    animation: punchIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.anim-fade-left {
-    animation: fadeLeft 0.4s ease-out forwards;
-}
-
-@keyframes pricePulse {
-    0%   { transform: scale(1); }
-    50%  { transform: scale(1.06); }
-    100% { transform: scale(1); }
-}
-
-.anim-pulse {
-    animation: pricePulse 1.8s ease-in-out 3; /* 3 pulses depois do punch-in */
-}
-
 html, body {
     margin: 0;
     padding: 0;

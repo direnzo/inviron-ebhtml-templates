@@ -23,7 +23,7 @@ var CORES_COMBUSTIVEL = {
 };
 
 var CONFIG = {
-    duration: 15000  /* ms que o template fica visivel antes de chamar finished() */
+    duration: 10000  /* ms que o template fica visivel antes de chamar finished() */
 };
 
 /* =============================================================
@@ -90,25 +90,29 @@ function ativarAnimacoes() {
     var footer     = document.getElementById('footer');
 
     /* 1. Header desce do topo */
-    header.classList.add('anim-slide-down');
+    header.classList.remove('opacity-0');
+    header.classList.add('animate-slide-down');
 
     /* 2. R$ entra da esquerda */
     setTimeout(function() {
-        precoRs.classList.add('anim-fade-left');
+        precoRs.classList.remove('opacity-0');
+        precoRs.classList.add('animate-fade-left');
     }, 200);
 
     /* 3. Numero punch-in; pulse inicia apos o punch terminar (650ms) */
     setTimeout(function() {
-        precoValor.classList.add('anim-punch-in');
+        precoValor.classList.remove('opacity-0');
+        precoValor.classList.add('animate-punch-in');
         setTimeout(function() {
-            precoValor.classList.remove('anim-punch-in');
-            precoValor.classList.add('anim-pulse');
+            precoValor.classList.remove('animate-punch-in');
+            precoValor.classList.add('animate-price-pulse');
         }, 650);
     }, 350);
 
     /* 4. Footer sobe de baixo */
     setTimeout(function() {
-        footer.classList.add('anim-slide-up');
+        footer.classList.remove('opacity-0');
+        footer.classList.add('animate-slide-up');
     }, 500);
 }
 
