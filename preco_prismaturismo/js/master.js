@@ -69,12 +69,43 @@ function inicializarTemplate(loader) {
     }
 
     renderizarPreco(combustivel);
+    ativarAnimacoes();
 
     loader.loaded();
 
     setTimeout(function() {
         loader.finished();
     }, CONFIG.duration);
+}
+
+/* =============================================================
+   ANIMACOES DE ENTRADA
+   Dispara as classes CSS em sequencia escalonada
+   ============================================================= */
+
+function ativarAnimacoes() {
+    var header     = document.getElementById('header');
+    var precoRs    = document.getElementById('preco-rs');
+    var precoValor = document.getElementById('preco-valor');
+    var footer     = document.getElementById('footer');
+
+    /* 1. Header desce do topo */
+    header.classList.add('anim-slide-down');
+
+    /* 2. R$ entra da esquerda */
+    setTimeout(function() {
+        precoRs.classList.add('anim-fade-left');
+    }, 200);
+
+    /* 3. Numero punch-in */
+    setTimeout(function() {
+        precoValor.classList.add('anim-punch-in');
+    }, 350);
+
+    /* 4. Footer sobe de baixo */
+    setTimeout(function() {
+        footer.classList.add('anim-slide-up');
+    }, 500);
 }
 
 /* =============================================================
