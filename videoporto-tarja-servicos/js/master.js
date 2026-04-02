@@ -1,7 +1,7 @@
 /**
  * VIDEOPORTO - Tarja de Serviços (312x100px)
- * Slideshow com 6 slides: Hora → Clima → Ondas → UV → Cotações → Mensagem
- * 5 segundos por slide, rotação contínua
+ * Slideshow com 4 slides: Hora → Clima → Tábua de Marés → UV
+ * Todos os dados via D_CLIMA_CLIMATEMPO
  */
 
 /* ========================================
@@ -10,7 +10,7 @@
    ======================================== */
 var CONFIG = {
     LOCAL: 'DONA_LINDU',
-    SLIDE_DURATION: 15000 // ms por slide
+    SLIDE_DURATION: 5000 // ms por slide
 };
 
 var FUNDOS = {
@@ -70,8 +70,6 @@ window.onload = function() {
         console.log('[VIDEOPORTO] Modo EBHTML');
         ebhtml.create2({}, function(loader) {
             loader.addData('D_CLIMA_CLIMATEMPO', false);
-            loader.addData('D_CAMBIO', false);
-            loader.addData('D_COMUNICADO', false);
             loader.autoloaded = false;
             loader.nodataiserror = false;
             
@@ -93,10 +91,8 @@ function inicializarTemplate(loader) {
     
     // Extrair dados dos datasets
     var dadosClima = obterDadosClima(loader);
-    var dadosOndas = obterDadosOndas(loader);
+    var dadosMares = obterDadosMares(loader);
     var dadosUV = obterDadosUV(loader);
-    var dadosCambio = obterDadosCambio(loader);
-    var dadosComunicado = obterDadosComunicado(loader);
     
     // Renderizar slides disponíveis
     var slides = [];
@@ -111,28 +107,16 @@ function inicializarTemplate(loader) {
         slides.push(document.querySelector('[data-type="clima"]'));
     }
     
-    // 3. Ondas (se houver dados)
-    if (dadosOndas) {
-        renderizarSlideOndas(dadosOndas);
-        slides.push(document.querySelector('[data-type="ondas"]'));
+    // 3. Tábua de Marés (se houver dados)
+    if (dadosMares) {
+        renderizarSlideMares(dadosMares);
+        slides.push(document.querySelector('[data-type="mares"]'));
     }
     
     // 4. UV (se houver dados)
     if (dadosUV) {
         renderizarSlideUV(dadosUV);
         slides.push(document.querySelector('[data-type="uv"]'));
-    }
-    
-    // 5. Câmbio (se houver dados)
-    if (dadosCambio) {
-        renderizarSlideCambio(dadosCambio);
-        slides.push(document.querySelector('[data-type="cambio"]'));
-    }
-    
-    // 6. Comunicado (se houver dados)
-    if (dadosComunicado) {
-        renderizarSlideComunicado(dadosComunicado);
-        slides.push(document.querySelector('[data-type="comunicado"]'));
     }
     
     console.log('[VIDEOPORTO] Total de slides: ' + slides.length);
@@ -190,12 +174,12 @@ function obterDadosClima(loader) {
         if (!item) return null;
         
         return {
-            condicao: obterCampo(item, 'CONDICAO', 'Nublado'),
-            temperatura: obterCampo(item, 'TEMPERATURA', '30'),
-            minima: obterCampo(item, 'MINIMA', '28'),
-            maxima: obterCampo(item, 'MAXIMA', '34'),
-            umidade: obterCampo(item, 'UMIDADE', '78'),
-            vento: obterCampo(item, 'VENTO', '26'),
+            condicao:     obterCampo(item, 'CONDICAO',     'Nublado'),
+            temperatura:  obterCampo(item, 'TEMPERATURA',  '30'),
+            minima:       obterCampo(item, 'MINIMA',       '28'),
+            maxima:       obterCampo(item, 'MAXIMA',       '34'),
+            precipitacao: obterCampo(item, 'PRECIPITACAO', '0'),
+            vento:        obterCampo(item, 'VENTO',        '0'),
         };
     } catch (e) {
         console.error('[VIDEOPORTO] Erro ao extrair clima:', e);
@@ -209,46 +193,56 @@ function obterDadosClima(loader) {
 function renderizarSlideClima(dados) {
     document.getElementById('clima-condicao').innerText = dados.condicao;
     document.getElementById('clima-temp').innerText = dados.temperatura;
-    document.getElementById('clima-min').innerText = dados.minima;
-    document.getElementById('clima-max').innerText = dados.maxima;
-    document.getElementById('clima-umidade').innerText = dados.umidade;
-    document.getElementById('clima-vento').innerText = dados.vento;
+    document.getElementById('clima-min').innerText = dados.minima + '°C';
+    document.getElementById('clima-max').innerText = dados.maxima + '°C';
+    document.getElementById('clima-umidade').innerText = dados.precipitacao + '%';
+    document.getElementById('clima-vento').innerText = dados.vento + 'km/h';
     
     // Injetar ícone de clima
     injetarIcone('clima-icon', 'img/clouds-sun_7587425.png');
 }
 
 /**
- * Extrai dados de Ondas
+ * Extrai dados de Tábua de Marés do loader D_CLIMA_CLIMATEMPO
  */
-function obterDadosOndas(loader) {
+function obterDadosMares(loader) {
     try {
         var item = loader.data('D_CLIMA_CLIMATEMPO');
         if (!item) return null;
         
-        // Tenta carregar de um campo de ondas (se existir)
-        var altura = obterCampo(item, 'ONDAS_ALTURA', null);
-        if (!altura) return null;
+        var v1 = obterCampo(item, 'MARE_V1', null);
+        if (!v1) return null;
         
         return {
-            altura: altura,
-            horario: obterCampo(item, 'ONDAS_HORARIO', '04:02'),
+            entradas: [
+                { valor: v1,                              hora: obterCampo(item, 'MARE_H1', '--:--'), dir: obterCampo(item, 'MARE_D1', 'alta') },
+                { valor: obterCampo(item, 'MARE_V2', '--'), hora: obterCampo(item, 'MARE_H2', '--:--'), dir: obterCampo(item, 'MARE_D2', 'baixa') },
+                { valor: obterCampo(item, 'MARE_V3', '--'), hora: obterCampo(item, 'MARE_H3', '--:--'), dir: obterCampo(item, 'MARE_D3', 'alta') },
+                { valor: obterCampo(item, 'MARE_V4', '--'), hora: obterCampo(item, 'MARE_H4', '--:--'), dir: obterCampo(item, 'MARE_D4', 'baixa') }
+            ]
         };
     } catch (e) {
-        console.error('[VIDEOPORTO] Erro ao extrair ondas:', e);
+        console.error('[VIDEOPORTO] Erro ao extrair marés:', e);
         return null;
     }
 }
 
 /**
- * Renderiza slide de Ondas
+ * Renderiza slide de Tábua de Marés (4 horários)
  */
-function renderizarSlideOndas(dados) {
-    document.getElementById('ondas-altura').innerText = dados.altura;
-    document.getElementById('ondas-horario').innerText = dados.horario;
+function renderizarSlideMares(dados) {
+    var e = dados.entradas;
+    for (var i = 0; i < e.length; i++) {
+        var n = i + 1;
+        document.getElementById('mares-v' + n).innerText = e[i].valor;
+        document.getElementById('mares-h' + n).innerText = e[i].hora;
+        var seta = document.getElementById('mares-seta' + n);
+        if (seta) {
+            seta.src = (e[i].dir === 'alta') ? 'img/seta_verde.png' : 'img/seta_amarala.png';
+        }
+    }
     
-    // Injetar ícone de ondas
-    injetarIcone('ondas-icon', 'img/sea-level_4978353.png');
+    injetarIcone('mares-icon', 'img/sea-level_4978353.png');
 }
 
 /**
@@ -276,94 +270,11 @@ function obterDadosUV(loader) {
  * Renderiza slide de UV
  */
 function renderizarSlideUV(dados) {
-    var textoUv = 'O nível de UV agora pela manhã está altíssimo.';
-    if (dados.indice) {
-        textoUv = 'Índice UV ' + dados.indice + '. Proteja-se do sol.';
-    }
+    var textoUv = 'Protégete do sol! Índice UV ' + dados.indice + ' (' + dados.descricao + '). Use protetor solar.';
     document.getElementById('uv-msg').innerText = textoUv;
     
     // Injetar ícone de raios solares
     injetarIcone('uv-icon', 'img/sun_2354809.png');
-}
-
-/**
- * Extrai dados de Câmbio do loader D_CAMBIO
- */
-function obterDadosCambio(loader) {
-    try {
-        var item = loader.data('D_CAMBIO');
-        if (!item) return null;
-        
-        var lista = [];
-        var v1 = obterCampo(item, 'V1', null);
-        if (v1) {
-            lista.push({ valor: v1, hora: obterCampo(item, 'H1', '--:--') });
-            lista.push({ valor: obterCampo(item, 'V2', '--'), hora: obterCampo(item, 'H2', '--:--') });
-            lista.push({ valor: obterCampo(item, 'V3', '--'), hora: obterCampo(item, 'H3', '--:--') });
-            lista.push({ valor: obterCampo(item, 'V4', '--'), hora: obterCampo(item, 'H4', '--:--') });
-        }
-
-        return {
-            moeda: obterCampo(item, 'MOEDA', 'USD'),
-            cotacao: obterCampo(item, 'COTACAO', '5.45'),
-            lista: lista
-        };
-    } catch (e) {
-        console.error('[VIDEOPORTO] Erro ao extrair câmbio:', e);
-        return null;
-    }
-}
-
-/**
- * Renderiza slide de Câmbio
- */
-function renderizarSlideCambio(dados) {
-    var valores = dados.lista;
-    if (!valores || valores.length < 4) {
-        valores = [
-            { valor: '2.46m', hora: '04:02' },
-            { valor: '0.11m', hora: '10:08' },
-            { valor: '2.10m', hora: '16:17' },
-            { valor: '0.32m', hora: '22:14' }
-        ];
-    }
-
-    document.getElementById('cambio-v1').innerText = extrairNumeroValor(valores[0].valor);
-    document.getElementById('cambio-h1').innerText = valores[0].hora;
-    document.getElementById('cambio-v2').innerText = extrairNumeroValor(valores[1].valor);
-    document.getElementById('cambio-h2').innerText = valores[1].hora;
-    document.getElementById('cambio-v3').innerText = extrairNumeroValor(valores[2].valor);
-    document.getElementById('cambio-h3').innerText = valores[2].hora;
-    document.getElementById('cambio-v4').innerText = extrairNumeroValor(valores[3].valor);
-    document.getElementById('cambio-h4').innerText = valores[3].hora;
-    
-    // Injetar ícone de câmbio
-    injetarIcone('cambio-icon', 'img/drink_10885667.png');
-}
-
-/**
- * Extrai dados de Comunicado do loader D_COMUNICADO
- */
-function obterDadosComunicado(loader) {
-    try {
-        var item = loader.data('D_COMUNICADO');
-        if (!item) return null;
-        
-        return {
-            mensagem: obterCampo(item, 'MENSAGEM', 'Mensagem padrão'),
-        };
-    } catch (e) {
-        console.error('[VIDEOPORTO] Erro ao extrair comunicado:', e);
-        return null;
-    }
-}
-
-/**
- * Renderiza slide de Comunicado
- */
-function renderizarSlideComunicado(dados) {
-    document.getElementById('comunicado-msg').innerText = dados.mensagem;
-    injetarIcone('comunicado-icon', 'img/sun_2354809.png');
 }
 
 /**
