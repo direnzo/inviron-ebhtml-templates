@@ -1,0 +1,59 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPA Online - Notícias</title>
+    <link rel="stylesheet" href="css/master.css">
+    <script src="js/ebhtml.js"></script>
+    <!-- <script src="js/mock-data.js"></script> -->
+    <script src="js/master.js"></script>
+</head>
+
+<body class="news-body">
+
+    <!-- 1. Foto de fundo (fullscreen) -->
+    <div class="photo-layer">
+        <img id="photo" class="photo-img" src="" alt="">
+    </div>
+
+    <!-- Foto duplicada para formatos 3:1+ (pontas esquerda/direita) -->
+    <div id="photo-left" class="photo-side-layer">
+        <img id="photo-left-img" class="photo-side-img" src="" alt="">
+    </div>
+    <div id="photo-right" class="photo-side-layer">
+        <img id="photo-right-img" class="photo-side-img" src="" alt="">
+    </div>
+
+    <!-- 2. Bloco de conteúdo (posição controlada por classe ratio-X no body) -->
+    <div id="content-block" class="content-block">
+
+        <!-- Terceira foto (blur) por trás do texto para formatos 3:1+ -->
+        <div class="content-blur-layer">
+            <img id="photo-center-img" class="content-blur-img" src="" alt="">
+            <div class="content-blur-tint"></div>
+        </div>
+
+        <!-- Faixa de marca: Logo + Editoria -->
+        <div id="brand-area" class="brand-area">
+            <div class="logo-wrap">
+                <img id="logo" class="logo-img" src="img/logo.png" alt="logo">
+            </div>
+            <div id="editoria-wrap" class="editoria-wrap">
+                <span id="editoria" class="editoria-text"></span>
+            </div>
+        </div>
+
+        <!-- Manchete da notícia -->
+        <div class="headline-wrap">
+            <p id="headline" class="headline-text"></p>
+        </div>
+
+    </div>
+
+    <!-- 3. Crédito da foto -->
+    <p id="credit" class="credit-text"></p>
+
+</body>
+
+</html>
