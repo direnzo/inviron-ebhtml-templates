@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/master.css">
     <script src="js/config.js"></script>
     <script src="js/ebhtml.js"></script>
-    <script src="js/mock-data.js"></script>
+    <!-- <script src="js/mock-data.js"></script> -->
     <script src="js/layout-engine.js"></script>
     <script src="js/price-engine.js"></script>
     <script src="js/runtime-engine.js"></script>
@@ -164,17 +164,19 @@
         </div>
     </template>
 
-    <!-- COMPRE E GANHE: fundo violeta, badge brinde destacado, preço em amarelo -->
+    <!-- COMPRE E GANHE: TEXTO8 = qtd a comprar, TEXTO9 = produto brinde -->
     <template id="template_compre_e_ganhe">
-        <div class="price-root gap-[0.32em] bg-gradient-to-r from-violet-600 to-violet-700" data-price-layout="compre_e_ganhe" data-theme="compre_e_ganhe">
-            <div class="flex flex-col gap-[0.15em] items-center">
-                <div class="text-white font-gotham-ultra text-[48%] tracking-wider uppercase">COMPRE</div>
-                <div data-price-label class="text-white font-gotham-ultra text-[48%] tracking-wider uppercase">A PARTIR DE</div>
-            </div>
+        <div class="price-root gap-[0.28em] bg-gradient-to-r from-violet-600 to-violet-700" data-price-layout="compre_e_ganhe" data-theme="compre_e_ganhe">
+
             <div class="price-row text-amber-300" data-price-hero data-unit-class="text-white"></div>
             <div class="w-[95%] mx-auto h-px bg-white opacity-30"></div>
-            <div class="bg-amber-400 text-violet-900 font-gotham-ultra px-4 py-2 rounded-lg text-[52%] tracking-wide uppercase text-center">
-                🎁 GANHE BRINDE!
+            <div class="flex flex-row gap-[0.3em] items-center justify-center">
+                <span class="text-white font-gotham-ultra text-[52%] tracking-wider uppercase">COMPRE</span>
+                <span data-price-part="qty" class="text-amber-300 font-gotham-ultra text-[80%] leading-none"></span>
+                <span class="text-white font-gotham-ultra text-[52%] tracking-wider uppercase">E GANHE</span>
+            </div>
+            <div class="flex flex-col items-center gap-[0.15em] w-[90%]">
+                <div data-price-part="qty2" class="text-white font-gotham-bold text-[58%] text-center leading-tight uppercase"></div>
             </div>
         </div>
     </template>

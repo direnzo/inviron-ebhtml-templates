@@ -94,6 +94,10 @@ module.exports = {
           '42%': { transform: 'scale(1.15)' },
           '70%': { transform: 'scale(1)' },
         },
+        softFloat: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-5px)' },
+        },
       },
       animation: {
         pulseScaleWithDelay: 'pulseScaleWithDelay 5s ease-in-out infinite',
@@ -105,6 +109,7 @@ module.exports = {
         popIn: 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
         fadeIn: 'fadeIn 0.6s ease-out forwards',
         heartbeat: 'heartbeat 1.5s ease-in-out infinite',
+        softFloat: 'softFloat 3.5s ease-in-out infinite',
       },
       // Define cores explicitamente em hexadecimal para maior compatibilidade
       colors: {

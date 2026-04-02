@@ -118,8 +118,8 @@ var TEMPLATE_CONFIG = {
         texto3: ['TEXTO3'],
         texto4: ['TEXTO4'],
         texto5: ['TEXTO5'],
-        texto8: ['TEXTO8'],  // qtd itens (ATACAREJO) / nº parcelas (PARC-SEM-J) / leve (LEVE-X-PAGUE-Y)
-        texto9: ['TEXTO9']   // pague (LEVE-X-PAGUE-Y)
+        texto8: ['TEXTO8'],  // qtd itens (ATACAREJO) / nº parcelas (PARC-SEM-J) / leve (LEVE-X-PAGUE-Y) / qtd a comprar (COMPRE-GANHE)
+        texto9: ['TEXTO9']   // pague (LEVE-X-PAGUE-Y) / produto brinde (COMPRE-GANHE)
     },
 
     // ─── Símbolo de Moeda ─────────────────────────────────────────────────────
@@ -143,8 +143,8 @@ var TEMPLATE_CONFIG = {
         'CLUBE':         'animate-popIn',
         'FIDELIDADE':    'animate-popIn',
         'OFERTA':        'animate-heartbeat',
-        'COMPRE-GANHE':  'animate-bounce',
-        'COMPRE_E_GANHE':'animate-bounce',
+        'COMPRE-GANHE':  'animate-softFloat',
+        'COMPRE_E_GANHE':'animate-softFloat',
         'ATACAREJO':     'animate-pulseScaleWithDelay',
         'PARC-SEM-J':    'animate-pulseScaleWithDelay',
         '_default':      'animate-pulseScaleWithDelay'
