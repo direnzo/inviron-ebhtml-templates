@@ -3,6 +3,34 @@
 @tailwind utilities;
 
 /* ========================================
+   FONTES CUSTOMIZADAS
+   ======================================== */
+
+@font-face {
+    font-family: 'Gothic47';
+    src: url('fonts/Gothic_No.47_XXBold_Cond.otf') format('opentype');
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Gothic45';
+    src: url('fonts/Gothic_No.45_Bold_Cond.otf') format('opentype');
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Poppins-Bold';
+    src: url('fonts/Poppins-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Poppins-Regular';
+    src: url('fonts/Poppins-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* ========================================
    RESET E CONTAINER FIXO 320x320px
    ======================================== */
 
@@ -96,7 +124,7 @@ html, body {
 }
 
 #preco-rs {
-    font-family: 'Impact', 'Arial Black', 'Arial', sans-serif;
+    font-family: 'Gothic47', 'Impact', 'Arial Black', sans-serif;
     font-size: 32px;
     font-weight: 900;
     color: #ffffff;
@@ -105,7 +133,7 @@ html, body {
 }
 
 #preco-valor {
-    font-family: 'Impact', 'Arial Black', 'Arial', sans-serif;
+    font-family: 'Gothic47', 'Impact', 'Arial Black', sans-serif;
     font-size: 118px;
     font-weight: 900;
     color: #ffffff;
@@ -130,25 +158,30 @@ html, body {
 }
 
 #combustivel-nome {
-    font-family: 'Impact', 'Arial Black', 'Arial', sans-serif;
-    font-size: 40px;
-    font-weight: 900;
+    font-family: 'Poppins-Bold', 'Arial Black', sans-serif;
+    font-size: 30px;
+    font-weight: 700;
     color: #ffffff;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     line-height: 1;
     white-space: nowrap;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #combustivel-subtipo {
-    font-family: 'Impact', 'Arial Black', 'Arial', sans-serif;
-    font-size: 22px;
+    font-family: 'Poppins-Regular', 'Arial', sans-serif;
+    font-size: 15px;
     font-weight: 400;
     color: rgba(255, 255, 255, 0.85);
     text-transform: uppercase;
     letter-spacing: 1px;
     line-height: 1;
     white-space: nowrap;
+    flex: 0 0 auto;
     align-self: flex-end;
     padding-bottom: 10px;
 }

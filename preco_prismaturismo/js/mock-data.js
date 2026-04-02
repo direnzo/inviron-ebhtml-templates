@@ -30,17 +30,21 @@ var MOCK_DATA = {
             value: function(campo) {
                 var dados = {
                     /*
-                     * Substitua pelos caminhos reais das imagens.
-                     * Deixe a string vazia '' para testar sem logo
-                     * (o bloco no header ficara em branco sem erro).
+                     * Troque os valores abaixo para testar combinacoes:
                      *
-                     * Exemplos:
-                     *   'LOGO_BANDEIRA': 'img/br_petrobras.png'
-                     *   'LOGO_BANDEIRA': 'img/ipiranga.png'
-                     *   'LOGO_POSTO':    'img/logo_paz.png'
+                     * LOGO_BANDEIRA:
+                     *   'img/bandeira-petrobras.png'
+                     *   'img/bandeira-ipiranga.png'
+                     *   'img/bandeira-SHELL.png'
+                     *   '' (vazio = sem bandeira)
+                     *
+                     * LOGO_POSTO:
+                     *   'img/logo-posto.png'
+                     *   'img/logo-ale.png'
+                     *   '' (vazio = sem logo de posto)
                      */
-                    'LOGO_BANDEIRA': 'img/logo_bandeira.png',
-                    'LOGO_POSTO':    'img/logo_posto.png'
+                    'LOGO_BANDEIRA': 'img/bandeira-petrobras.png',
+                    'LOGO_POSTO':    'img/logo-posto.png'
                 };
                 return dados[campo] !== undefined ? { value: dados[campo] } : null;
             }
