@@ -88,10 +88,10 @@ window.onload = function() {
 
                     setTimeout(function() {
                         if (loader) loader.finished();
-                    }, 700);
+                    }, config.fadeOut);
                 }, config.slideTime);
 
-            }, 500); // aguarda fade out do slide temp
+            }, config.slideGap); // aguarda fade out do slide temp
 
         }, config.slideTime);
     }
@@ -156,7 +156,9 @@ window.onload = function() {
 
         var mockConfig = {
             duration:  MOCK_DATA.config.duration  || 12000,
-            slideTime: MOCK_DATA.config.slideTime || 5000
+            slideTime: MOCK_DATA.config.slideTime || 15000,
+            slideGap:  MOCK_DATA.config.slideGap  || 500,
+            fadeOut:   MOCK_DATA.config.fadeOut   || 700
         };
 
         iniciarTemplate(MOCK_DATA.weather, mockConfig, mockLoader);
@@ -167,7 +169,7 @@ window.onload = function() {
             loader.nodataiserror = false;
 
             loader.load(function() {
-                var prodConfig = { duration: 12000, slideTime: 5000 };
+                var prodConfig = { duration: 12000, slideTime: 5000, slideGap: 500, fadeOut: 700 };
 
                 buscarWeather(function(err, dados) {
                     if (err || !dados) {

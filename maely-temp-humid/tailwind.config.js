@@ -11,6 +11,8 @@ export default {
         'roboto-regular': ['Roboto Regular', 'sans-serif'],
         'roboto-bold': ['Roboto Bold', 'sans-serif'],
         'roboto-black': ['Roboto Black', 'sans-serif'],
+        'helvetica-black': ['Helvetica Neue Black', 'sans-serif'],
+        'helvetica-heavy': ['Helvetica Neue Heavy', 'sans-serif'],
       },
       screens: {
         'portrait':     { 'raw': '(max-aspect-ratio: 3/4)' },
