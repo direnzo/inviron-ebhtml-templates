@@ -2,30 +2,42 @@ function iniciarFundo() {
     var fundo = document.getElementById('fundo-img');
 
     function aplicarPan() {
-        // Calcula a largura renderizada a partir das dimensoes naturais da imagem.
-        // A imagem usa h-full (height = window.innerHeight), entao a largura renderizada
-        // segue a proporcao natural — independente do estado do layout DOM.
-        var renderedWidth = (fundo.naturalWidth / fundo.naturalHeight) * window.innerHeight;
-        var excess = renderedWidth - window.innerWidth;
+        var screenW = window.innerWidth;
+        var screenH = window.innerHeight;
+        var natW = fundo.naturalWidth;
+        var natH = fundo.naturalHeight;
 
-        console.log('[fundo] natural=' + fundo.naturalWidth + 'x' + fundo.naturalHeight +
-                    ' | renderedW=' + Math.round(renderedWidth) +
-                    ' | screenW=' + window.innerWidth +
-                    ' | excesso=' + Math.round(excess) + 'px');
+        // Escala "cover": usa a maior das duas escalas para garantir que
+        // a imagem cubra 100% da tela sem barra preta, em qualquer proporcao.
+        var scaleH = screenH / natH;
+        var scaleW = screenW / natW;
+        var scale = Math.max(scaleH, scaleW);
 
-        if (excess <= 0) {
-            console.warn('[fundo] Imagem nao e mais larga que a tela. Pan ignorado.');
-            return;
+        var renderW = Math.ceil(natW * scale);
+        var renderH = Math.ceil(natH * scale);
+        var offsetTop = Math.round((screenH - renderH) / 2);
+        var excess = renderW - screenW;
+
+        console.log('[fundo] natural=' + natW + 'x' + natH +
+                    ' | scale=' + scale.toFixed(3) +
+                    ' | rendered=' + renderW + 'x' + renderH +
+                    ' | screen=' + screenW + 'x' + screenH +
+                    ' | excesso=' + excess + 'px');
+
+        // Define dimensoes explicitamente — sem depender de CSS h-full
+        fundo.style.width  = renderW + 'px';
+        fundo.style.height = renderH + 'px';
+        fundo.style.top    = offsetTop + 'px';
+        fundo.style.left   = '0px';
+
+        if (excess > 0) {
+            fundo.style.webkitTransition = 'transform 25s linear';
+            fundo.style.transition       = 'transform 25s linear';
+            setTimeout(function () {
+                fundo.style.webkitTransform = 'translateX(-' + excess + 'px)';
+                fundo.style.transform       = 'translateX(-' + excess + 'px)';
+            }, 50);
         }
-
-        fundo.style.webkitTransition = 'transform 25s linear';
-        fundo.style.transition = 'transform 25s linear';
-
-        // Pequeno delay para garantir que o estado inicial seja pintado antes do pan
-        setTimeout(function () {
-            fundo.style.webkitTransform = 'translateX(-' + Math.round(excess) + 'px)';
-            fundo.style.transform = 'translateX(-' + Math.round(excess) + 'px)';
-        }, 50);
     }
 
     if (fundo.complete && fundo.naturalWidth > 0) {
