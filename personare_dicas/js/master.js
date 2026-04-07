@@ -37,7 +37,7 @@ function iniciarTemplate(config, imageEl, loader) {
         var textEl       = document.querySelector('#texto p');
         var textContainer  = document.querySelector('#texto');
 
-        fitDescriptionFont(titleEl, titleContainer, 14);
+        fitDescriptionFont(titleEl, titleContainer, 8);
         fitDescriptionFont(textEl, textContainer, 8);
 
         loader.loaded();
