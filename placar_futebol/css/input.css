@@ -33,8 +33,8 @@
 :root {
     --cor-destaque:       #FBBF24;
     --cor-destaque-glow:  rgba(251, 191, 36, 0.7);
-    --cor-fundo-painel:   rgba(0, 0, 0, 0.60);
-    --cor-fundo-area:     rgba(0, 0, 0, 0.40);
+    --cor-fundo-painel:   rgba(0, 148, 79, 0.6);
+    --cor-fundo-area:     rgba(7, 65, 192, 0.664);
     --cor-borda:          rgba(255, 255, 255, 0.10);
     --cor-texto:          #FFFFFF;
     --cor-texto-sec:      rgba(255, 255, 255, 0.50);

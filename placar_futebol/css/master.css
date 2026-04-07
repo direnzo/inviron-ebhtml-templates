@@ -649,8 +649,8 @@ video {
   height: 100%;
 }
 
-.h-\[26vh\] {
-  height: 26vh;
+.h-\[46vh\] {
+  height: 46vh;
 }
 
 .h-\[8vh\] {
@@ -887,6 +887,11 @@ video {
   background-color: rgb(0 0 0 / var(--tw-bg-opacity, 1));
 }
 
+.bg-green-950 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(5 46 22 / var(--tw-bg-opacity, 1));
+}
+
 .bg-white {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
@@ -1099,6 +1104,10 @@ video {
   opacity: 1;
 }
 
+.opacity-50 {
+  opacity: 0.5;
+}
+
 .outline {
   outline-style: solid;
 }
@@ -1124,6 +1133,11 @@ video {
 
 .backdrop-blur-lg {
   --tw-backdrop-blur: blur(16px);
+  backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+}
+
+.backdrop-blur-sm {
+  --tw-backdrop-blur: blur(4px);
   backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
 }
 
@@ -1190,8 +1204,8 @@ video {
 :root {
   --cor-destaque:       #FBBF24;
   --cor-destaque-glow:  rgba(251, 191, 36, 0.7);
-  --cor-fundo-painel:   rgba(0, 0, 0, 0.60);
-  --cor-fundo-area:     rgba(0, 0, 0, 0.40);
+  --cor-fundo-painel:   rgba(0, 148, 79, 0.6);
+  --cor-fundo-area:     rgba(7, 65, 192, 0.664);
   --cor-borda:          rgba(255, 255, 255, 0.10);
   --cor-texto:          #FFFFFF;
   --cor-texto-sec:      rgba(255, 255, 255, 0.50);
@@ -1280,8 +1294,50 @@ footer                 {
 }
 
 @media (min-aspect-ratio: 3/1) {
+  .ultrawide\:mb-\[1\.5vh\] {
+    margin-bottom: 1.5vh;
+  }
+
+  .ultrawide\:gap-\[1\.5vh\] {
+    gap: 1.5vh;
+  }
+
+  .ultrawide\:py-\[1\.5vh\] {
+    padding-top: 1.5vh;
+    padding-bottom: 1.5vh;
+  }
+
+  .ultrawide\:py-\[1vh\] {
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+  }
+
   .ultrawide\:text-\[1\.2vw\] {
     font-size: 1.2vw;
+  }
+}
+
+@media (min-aspect-ratio: 5/1) and (max-aspect-ratio: 15/1) {
+  .superbanner\:mb-\[1vh\] {
+    margin-bottom: 1vh;
+  }
+
+  .superbanner\:gap-\[1vh\] {
+    gap: 1vh;
+  }
+
+  .superbanner\:py-\[0\.8vh\] {
+    padding-top: 0.8vh;
+    padding-bottom: 0.8vh;
+  }
+
+  .superbanner\:py-\[1vh\] {
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+  }
+
+  .superbanner\:text-\[0\.75vw\] {
+    font-size: 0.75vw;
   }
 }
 

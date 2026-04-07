@@ -13,17 +13,20 @@
 
 <!--
   BREAKPOINTS (tailwind.config.js):
-    portrait    max-aspect-ratio: 3/4   (9:16, 1:2 — vertical)
-    landscape   4/3 a 2/1               (16:9 — padrão)
-    ultrawide   min-aspect-ratio: 3/1
-    empena      max-aspect-ratio: 1/3
+    portrait    max-aspect-ratio: 3/4          (9:16, 1:2 — vertical)
+    landscape   4/3 a 2/1                      (16:9 — padrão)
+    ultrawide   min-aspect-ratio: 3/1          (3:1+, ex: 4:1 = 1536x384)
+    superbanner 5/1 a 15/1                     (5:1+, ex: 6.67:1 = 3840x576)
+    footer      min-aspect-ratio: 15/1         (>15:1)
+    empena      max-aspect-ratio: 1/3          (<1:3 — muito estreito)
 -->
 
 <body class="relative w-full h-screen overflow-hidden
-             bg-zinc-950
+             bg-green-950
              text-[1.8vw]
              portrait:text-[2.8vh]
              ultrawide:text-[1.2vw]
+             superbanner:text-[0.75vw]
              empena:text-[2.2vh]">
 
     <!-- Vídeo de fundo em loop (src trocado por JS conforme o estado do jogo) -->
@@ -41,6 +44,8 @@
              ════════════════════════════════════ -->
         <header class="flex-none flex items-center justify-center gap-[1.5%]
                         py-[1.5%] px-[5%]
+                        ultrawide:py-[1vh]
+                        superbanner:py-[0.8vh]
                         border-b">
             <span id="torneio" class="font-roboto-bold text-[1.3em] uppercase tracking-widest
                          portrait:text-[1.1em]"></span>
@@ -54,20 +59,24 @@
              ════════════════════════════════════ -->
         <div id="gameArea" class="flex-1 min-h-0 flex items-stretch overflow-hidden
                         py-[2%] px-[5%]
-                        portrait:py-[3%] portrait:px-[4%]">
+                        portrait:py-[3%] portrait:px-[4%]
+                        ultrawide:py-[1.5vh]
+                        superbanner:py-[1vh]">
             <div id="gameAreaInner" class="flex-1 min-h-0 flex flex-row items-stretch
-                    portrait:flex-col backdrop-blur-lg rounded-3xl overflow-hidden">
+                    portrait:flex-col backdrop-blur-sm rounded-3xl overflow-hidden">
 
                 <!-- ── TIME 1 (esquerda) ── -->
                 <div id="team1" class="flex-1 flex flex-col items-center justify-center
                          gap-[4%] py-[4%] px-[2%]
-                         portrait:flex-row portrait:justify-center portrait:gap-[4%] portrait:py-[3%]">
+                         portrait:flex-row portrait:justify-center portrait:gap-[4%] portrait:py-[3%]
+                         ultrawide:py-[1.5vh] ultrawide:gap-[1.5vh]
+                         superbanner:py-[1vh] superbanner:gap-[1vh]">
 
                     <span id="time1Nome" class="font-roboto-bold text-[1.3em] uppercase tracking-wider
                              text-center leading-tight
                              portrait:text-left portrait:w-[30%]"></span>
 
-                    <div id="logo1Container" class="relative flex-shrink-0 h-[26vh]">
+                    <div id="logo1Container" class="relative flex-shrink-0 h-[46vh]">
                         <div id="logo1Clip" class=" w-full h-full">
                             <img id="logo1" src="" alt="" class="size-full">
                         </div>
@@ -80,13 +89,17 @@
                 <!-- ── CENTRO: Hora / Data / Placar ── -->
                 <div id="centerContent" class="flex-none flex flex-col items-center justify-center min-w-[26%]
                         py-[4%] px-[4%]
-                        portrait:py-[2%] portrait:px-[8%] portrait:flex-row portrait:flex-wrap portrait:justify-center portrait:gap-x-[5%]">
+                        portrait:py-[2%] portrait:px-[8%] portrait:flex-row portrait:flex-wrap portrait:justify-center portrait:gap-x-[5%]
+                        ultrawide:py-[1.5vh]
+                        superbanner:py-[1vh]">
 
                     <!-- Estádio — sempre visível -->
-                    <div id="estadioCentro" class="font-roboto-medium text-[1.05em] uppercase tracking-widest text-center mb-[4%]"></div>
+                    <div id="estadioCentro" class="font-roboto-medium text-[1.05em] uppercase tracking-widest text-center mb-[4%]
+                         ultrawide:mb-[1.5vh] superbanner:mb-[1vh]"></div>
 
                     <!-- Pré-jogo: hora e data em destaque -->
-                    <div id="preGameInfo" class="flex flex-col items-center gap-[6%]">
+                    <div id="preGameInfo" class="flex flex-col items-center gap-[6%]
+                         ultrawide:gap-[1.5vh] superbanner:gap-[1vh]">
                         <div id="hora" class="font-roboto-black text-[5.2em] leading-none tracking-widest drop-shadow-lg"></div>
                         <div id="data" class="font-roboto-bold text-[1.6em] tracking-widest"></div>
                     </div>
@@ -115,13 +128,15 @@
                 <!-- ── TIME 2 (direita) ── -->
                 <div id="team2" class="flex-1 flex flex-col items-center justify-center
                          gap-[4%] py-[4%] px-[2%]
-                         portrait:flex-row portrait:flex-row-reverse portrait:justify-center portrait:gap-[4%] portrait:py-[3%]">
+                         portrait:flex-row portrait:flex-row-reverse portrait:justify-center portrait:gap-[4%] portrait:py-[3%]
+                         ultrawide:py-[1.5vh] ultrawide:gap-[1.5vh]
+                         superbanner:py-[1vh] superbanner:gap-[1vh]">
 
                     <span id="time2Nome" class="font-roboto-bold text-[1.3em] uppercase tracking-wider
                              text-center leading-tight
                              portrait:text-right portrait:w-[30%]"></span>
 
-                    <div id="logo2Container" class="relative flex-shrink-0 h-[26vh] ">
+                    <div id="logo2Container" class="relative flex-shrink-0 h-[46vh] ">
                         <div id="logo2Clip" class=" w-full h-full">
                             <img id="logo2" src="" alt="" class="size-full">
                         </div>
@@ -141,6 +156,8 @@
         <footer id="sponsorFooter"
                 class="hidden flex-none flex items-center justify-center gap-[2%]
                         py-[3.5%] px-[6%]
+                        ultrawide:py-[1.5vh]
+                        superbanner:py-[1vh]
                         border-t">
             <span id="sponsorFrase" class="font-roboto-regular text-[1.1em] tracking-wide text-center"></span>
             <img id="sponsorLogo" src="" alt="" class="h-[8vh] w-auto object-contain flex-shrink-0">
