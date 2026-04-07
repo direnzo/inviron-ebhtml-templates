@@ -23,3 +23,12 @@
 .fundo-dicas {
     background-image: url('../img/fundo.png');
 }
+
+/* =========================================
+   FALLBACKS HEX — Android 7 / Chrome < 65
+   Tailwind gera rgb(r g b / alpha) — não
+   suportado em Chrome < 65. Override com
+   hex direto (fora de @layer = prioridade).
+   ========================================= */
+.text-white          { color: #ffffff }
+.bg-\[\#343a67\]     { background-color: #343a67 }

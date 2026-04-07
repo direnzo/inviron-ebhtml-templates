@@ -158,6 +158,38 @@ Editar `css/input.css` → gera `css/master.css`
 
 ---
 
+### 4. CSS Compatível com Android 7 (Chrome 51–64)
+
+Dois problemas reais com Tailwind v3 + browsers antigos:
+
+#### ❌ `clamp()` requer Chrome 79+ — NUNCA usar
+```html
+❌ text-[clamp(14px,3.8vmin,4vh)]  → font-size ignorado no Android 7
+✅ text-[3.8vmin]                   → vmin funciona desde Chrome 26
+```
+
+#### ❌ Tailwind gera `rgb(r g b / alpha)` — não funciona em Chrome < 65
+Todo utilitário de cor do Tailwind v3 (`text-white`, `bg-black`, `text-[#hex]`, etc.) compila para:
+```css
+color: rgb(255 255 255 / var(--tw-text-opacity)); /* Chrome 65+ apenas */
+```
+**Solução:** adicionar fallbacks hex no `input.css` de cada template, **fora de `@layer`** (para ter prioridade sobre os utilitários do Tailwind):
+```css
+/* Após @tailwind utilities — fora de @layer — Android 7 / Chrome < 65 */
+.text-white          { color: #ffffff }
+.text-black          { color: #000000 }
+.bg-white            { background-color: #ffffff }
+.bg-black            { background-color: #000000 }
+/* Para cores arbitrárias: */
+.text-\[\#abc123\]   { color: #abc123 }
+.bg-\[\#abc123\]     { background-color: #abc123 }
+```
+
+#### ✅ Prefixos `-webkit-` NÃO são necessários para Android 7
+Chrome 51+ suporta nativamente (sem prefixo): flexbox, transitions, animations, object-fit, CSS vars, vmin/vw/vh.
+
+---
+
 ## 📁 Estrutura de Template
 
 ```
@@ -406,8 +438,13 @@ if (isWebkit() || isAndroid()) {
 }
 
 .titulo-principal {
-    font-size: clamp(2rem, 5vw, 8rem);
+    font-size: 3.8vmin; /* ✅ Use vmin/vw/vh simples — clamp() requer Chrome 79+ */
 }
+
+/* Fallbacks hex (após @tailwind utilities, fora de @layer) */
+.text-white { color: #ffffff }
+.bg-black   { background-color: #000000 }
+/* ... adicionar para cada cor usada no template */
 ```
 
 ### Ajuste Dinâmico de Fontes (Responsive Typography)
@@ -482,8 +519,8 @@ Padrão para melhorar legibilidade de texto sobre imagens:
 | Playlist trava | Faltou `loaded()`/`finished()` | Adicionar ambos |
 | `[ebloaded]` com erro | Chamou `loaded()` em erro | Remove `loaded()` |
 | CSS não carrega | TailwindCSS não compilou | `npm run dev` |
-| Arrow function error | ES6 em Android 7 | Use `function() {}` |
-
+| Arrow function error | ES6 em Android 7 | Use `function() {}` || `clamp()` não funciona | Requer Chrome 79+ | Use `vmin/vw/vh` simples |
+| Cores invisíveis | Tailwind gera `rgb(r g b / alpha)` (Chrome 65+) | Fallbacks hex em `input.css` |
 ---
 
 ## 📋 Checklist Código
@@ -494,6 +531,8 @@ Padrão para melhorar legibilidade de texto sobre imagens:
 - [ ] `MOCK_DATA.enabled = false` em produção
 - [ ] `npm run build` executado
 - [ ] Classes Tailwind válidas
+- [ ] Sem `clamp()` em CSS (não suportado Chrome < 79)
+- [ ] Fallbacks hex em `input.css` para todas as cores usadas (`text-white`, `bg-black`, `text-[#hex]`, etc.)
 
 ---
 
