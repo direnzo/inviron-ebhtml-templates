@@ -24,6 +24,16 @@
     background-image: url('../img/fundo.jpg');
 }
 
+/* =========================================
+   FALLBACKS HEX — Android 7 / Chrome < 65
+   Tailwind gera rgb(r g b / alpha) — não
+   suportado em Chrome < 65. Override com
+   hex direto (fora de @layer = prioridade).
+   ========================================= */
+.bg-black            { background-color: #000000 }
+.text-black          { color: #000000 }
+.text-\[\#759cc0\]   { color: #759cc0 }
+
 /* ========================================
    ESTILOS BASE DO TEMPLATE
    ======================================== */
