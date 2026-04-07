@@ -16,11 +16,16 @@ module.exports = {
           '0%': { opacity: '1' },
           '100%': { opacity: '0' },
         },
+        'pan-fundo': {
+          '0%':   { 'background-position': '0% 50%' },
+          '100%': { 'background-position': '100% 50%' },
+        },
       },
       animation: {
         'fade-in': 'fade-in 1s 1s forwards',
         'fade-in-delayed': 'fade-in 1s 7.5s forwards',
         'fade-out-delayed': 'fade-out 1s 7.5s forwards',
+        'pan-fundo': 'pan-fundo 25s linear forwards',
       },
     },
     screens: {

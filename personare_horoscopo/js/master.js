@@ -1,55 +1,3 @@
-function iniciarFundo() {
-    var fundo = document.getElementById('fundo-img');
-
-    function aplicarPan() {
-        var screenW = window.innerWidth;
-        var screenH = window.innerHeight;
-        var natW = fundo.naturalWidth;
-        var natH = fundo.naturalHeight;
-
-        // Escala "cover": usa a maior das duas escalas para garantir que
-        // a imagem cubra 100% da tela sem barra preta, em qualquer proporcao.
-        var scaleH = screenH / natH;
-        var scaleW = screenW / natW;
-        var scale = Math.max(scaleH, scaleW);
-
-        var renderW = Math.ceil(natW * scale);
-        var renderH = Math.ceil(natH * scale);
-        var offsetTop = Math.round((screenH - renderH) / 2);
-        var excess = renderW - screenW;
-
-        console.log('[fundo] natural=' + natW + 'x' + natH +
-                    ' | scale=' + scale.toFixed(3) +
-                    ' | rendered=' + renderW + 'x' + renderH +
-                    ' | screen=' + screenW + 'x' + screenH +
-                    ' | excesso=' + excess + 'px');
-
-        // Define dimensoes explicitamente — sem depender de CSS h-full
-        fundo.style.width  = renderW + 'px';
-        fundo.style.height = renderH + 'px';
-        fundo.style.top    = offsetTop + 'px';
-        fundo.style.left   = '0px';
-
-        if (excess > 0) {
-            fundo.style.webkitTransition = 'transform 25s linear';
-            fundo.style.transition       = 'transform 25s linear';
-            setTimeout(function () {
-                fundo.style.webkitTransform = 'translateX(-' + excess + 'px)';
-                fundo.style.transform       = 'translateX(-' + excess + 'px)';
-            }, 50);
-        }
-    }
-
-    if (fundo.complete && fundo.naturalWidth > 0) {
-        aplicarPan();
-    } else {
-        fundo.onload = aplicarPan;
-        fundo.onerror = function () {
-            console.warn('[fundo] Imagem nao carregada.');
-        };
-    }
-}
-
 function fitDescriptionFont(descriptionEl, containerEl, minFontSize) {
     minFontSize = minFontSize || 12;
     var fontSize = parseInt(window.getComputedStyle(descriptionEl).fontSize);
@@ -100,8 +48,6 @@ function iniciarTemplate(config, loader) {
 }
 
 window.onload = function () {
-    iniciarFundo();
-
     var icone1 = document.getElementById('icone');
     var title1 = document.querySelector('#titulo p');
     var text1 = document.querySelector('#texto p');
