@@ -2,8 +2,10 @@
  * Mock Data - PRECO PRISMATURISMO
  * Altere MOCK_DATA.enabled = false em producao.
  *
- * D_COMBUSTIVEL:
- *   TITULO  : 'Etanol Comum' | 'Gasolina' | 'Gasolina Aditivada' | 'Diesel S10' | 'GNV'
+ * D_COMBUSTIVEL (array):
+ *   O PRIMEIRO item do array e o combustivel ativo no mock.
+ *   Reordene para testar variantes diferentes.
+ *   TITULO  : tipo do combustivel (deve bater com CORES_COMBUSTIVEL em master.js)
  *   PRECO   : usa ponto decimal, ex: '4.39' | '6.49'
  *   LOCAL   : ID do local (deve bater com D_LOCAL.ID)
  *
@@ -21,17 +23,21 @@ var MOCK_DATA = {
 
     datasets: {
 
-        'D_COMBUSTIVEL': {
-            value: function(campo) {
-                var dados = {
-                    'TITULO':    'Etanol Comum',
-                    'PRECO':     '4.39',
-                    'LOCAL':     '1',
-                    'DESCRICAO': 'EC'
-                };
-                return dados[campo] !== undefined ? { value: dados[campo] } : null;
-            }
-        },
+        /*
+         * D_COMBUSTIVEL: reordene para ativar a variante desejada.
+         * O primeiro item do array e o que sera exibido no template.
+         */
+        'D_COMBUSTIVEL': [
+            /* --- ATIVO (mova para ca o que quiser testar) --- */
+            { 'TITULO': 'Etanol Comum',       'PRECO': '4.39', 'LOCAL': '1', 'DESCRICAO': 'EC'  },
+            /* --- outras variantes --- */
+            { 'TITULO': 'Gasolina',            'PRECO': '6.29', 'LOCAL': '1', 'DESCRICAO': 'G'   },
+            { 'TITULO': 'Gasolina Aditivada',  'PRECO': '6.69', 'LOCAL': '1', 'DESCRICAO': 'GA'  },
+            { 'TITULO': 'Gasolina Premium',    'PRECO': '7.19', 'LOCAL': '1', 'DESCRICAO': 'GP'  },
+            { 'TITULO': 'Diesel S10',          'PRECO': '5.89', 'LOCAL': '1', 'DESCRICAO': 'DS'  },
+            { 'TITULO': 'Diesel Aditivado',    'PRECO': '6.19', 'LOCAL': '1', 'DESCRICAO': 'DA'  },
+            { 'TITULO': 'GNV',                 'PRECO': '3.79', 'LOCAL': '1', 'DESCRICAO': 'GNV' }
+        ],
 
         'D_LOCAL': {
             value: function(campo) {
@@ -62,3 +68,17 @@ var MOCK_DATA = {
 
     }
 };
+
+/* Indice sequencial: le do localStorage e avanca a cada finished() */
+(function() {
+    var KEY = 'mock_preco_idx';
+    var idx = parseInt(localStorage.getItem(KEY) || '0', 10);
+    if (isNaN(idx) || idx < 0) idx = 0;
+    MOCK_DATA.currentIndex = idx;
+    MOCK_DATA.advanceIndex = function(arrayLength) {
+        var next = (MOCK_DATA.currentIndex + 1) % arrayLength;
+        MOCK_DATA.currentIndex = next;
+        localStorage.setItem(KEY, next);
+        console.log('[MOCK] proximo combustivel idx=' + next);
+    };
+})();
