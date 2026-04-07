@@ -16,16 +16,11 @@ module.exports = {
           '0%': { opacity: '1' },
           '100%': { opacity: '0' },
         },
-        'move-fundo': {
-          '0%': { transform: 'translateX(0) scale(1)' },
-          '100%': { transform: 'translateX(-25%) scale(1)' },
-        },
       },
       animation: {
         'fade-in': 'fade-in 1s 1s forwards',
         'fade-in-delayed': 'fade-in 1s 7.5s forwards',
         'fade-out-delayed': 'fade-out 1s 7.5s forwards',
-        'move-fundo': 'move-fundo 25s forwards',
       },
     },
     screens: {

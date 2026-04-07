@@ -1,3 +1,32 @@
+function iniciarFundo() {
+    var fundo = document.getElementById('fundo-img');
+
+    function aplicarPan() {
+        var excess = fundo.offsetWidth - window.innerWidth;
+        if (excess <= 0) {
+            console.warn('[fundo] Imagem nao e mais larga que a tela. Pan ignorado.');
+            return;
+        }
+        console.log('[fundo] Pan: ' + fundo.offsetWidth + 'px img -> excesso ' + excess + 'px');
+        fundo.style.webkitTransition = 'transform 25s linear';
+        fundo.style.transition = 'transform 25s linear';
+        // Pequeno delay para garantir que o estado inicial seja pintado antes de iniciar o pan
+        setTimeout(function () {
+            fundo.style.webkitTransform = 'translateX(-' + excess + 'px)';
+            fundo.style.transform = 'translateX(-' + excess + 'px)';
+        }, 50);
+    }
+
+    if (fundo.complete && fundo.naturalWidth > 0) {
+        aplicarPan();
+    } else {
+        fundo.onload = aplicarPan;
+        fundo.onerror = function () {
+            console.warn('[fundo] Imagem nao carregada.');
+        };
+    }
+}
+
 function fitDescriptionFont(descriptionEl, containerEl, minFontSize) {
     minFontSize = minFontSize || 12;
     var fontSize = parseInt(window.getComputedStyle(descriptionEl).fontSize);
@@ -48,6 +77,8 @@ function iniciarTemplate(config, loader) {
 }
 
 window.onload = function () {
+    iniciarFundo();
+
     var icone1 = document.getElementById('icone');
     var title1 = document.querySelector('#titulo p');
     var text1 = document.querySelector('#texto p');
