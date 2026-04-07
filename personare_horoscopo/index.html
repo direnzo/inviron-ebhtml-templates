@@ -26,20 +26,20 @@
 
         <!-- ZONA DO ÍCONE -->
         <div class="w-[22%] shrink-0 flex items-center justify-center pl-[2%]
-                    portrait:w-full portrait:h-[32%] portrait:pl-0 portrait:pt-[5%]">
+                    portrait:w-full portrait:h-[15%] portrait:pl-0 portrait:pt-[5%]">
             <img id="icone"
                  class="w-[80%] max-h-full object-contain
                         portrait:w-auto portrait:h-full" />
         </div>
 
         <!-- ZONA DE CONTEÚDO: cabeçalho + título + texto -->
-        <div class="flex-1 flex flex-col justify-center py-[5%] pr-[4%] pl-[1%]
-                    portrait:w-full portrait:flex-1 portrait:px-[8%] portrait:pt-[5%] portrait:pb-[4%] portrait:justify-start">
+        <div class="flex-1 flex flex-col justify-center pt-[2%] pb-[6%] pr-[4%] pl-[1%]
+                    portrait:w-full portrait:flex-1 portrait:px-[8%] portrait:pt-[5%] portrait:pb-[4%] portrait:justify-start portrait:gap-[3%]">
 
             <!-- Cabeçalho: label HORÓSCOPO DO DIA + logo -->
-            <div class="flex items-center justify-between mb-[3%]
-                        portrait:w-full portrait:mb-[5%]">
-                <span class="font-open-sans-regular text-black
+            <div id="cabecalho" class="flex items-center justify-between mb-[3%]
+                        portrait:w-full portrait:mb-[5%] portrait:flex-col">
+                <span id="label-horoscopo" class="font-open-sans-regular text-black text-nowrap
                              text-[3vw] ultrawide:text-[2vw]
                              portrait:text-[3.5vh]">
                     HORÓSCOPO DO DIA
@@ -58,10 +58,10 @@
 
             <!-- Texto do horóscopo -->
             <div id="texto" class="w-full max-h-[45%] overflow-hidden
-                                   portrait:text-center portrait:max-h-[40%]">
+                                   portrait:text-center portrait:max-h-[60%]">
                 <p class="font-open-sans-regular text-black leading-snug
-                           text-[2.2vw] ultrawide:text-[1.8vw]
-                           portrait:text-[2.8vh]"></p>
+                           text-[4.2vw] ultrawide:text-[1.8vw]
+                           portrait:text-[4vh]"></p>
             </div>
 
         </div>

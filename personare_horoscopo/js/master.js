@@ -1,5 +1,5 @@
 function fitDescriptionFont(descriptionEl, containerEl, minFontSize) {
-    minFontSize = minFontSize || 12;
+    minFontSize = minFontSize || 8;
     var fontSize = parseInt(window.getComputedStyle(descriptionEl).fontSize);
     var containerMaxHeight = containerEl.offsetHeight;
 
@@ -34,7 +34,14 @@ function iniciarTemplate(config, loader) {
 
     var textEl = document.querySelector('#texto p');
     var textContainer = document.querySelector('#texto');
-    fitDescriptionFont(textEl, textContainer, 10);
+    var titleEl = document.querySelector('#titulo p');
+    var titleContainer = document.querySelector('#titulo');
+    var labelEl = document.getElementById('label-horoscopo');
+    var labelContainer = document.getElementById('cabecalho');
+    fitDescriptionFont(labelEl, labelContainer, 10);
+    fitDescriptionFont(titleEl, titleContainer, 16);
+    fitDescriptionFont(textEl, textContainer, 6);
+
 
     loader.loaded();
 
