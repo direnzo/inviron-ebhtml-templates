@@ -15,3 +15,11 @@
     font-family: 'Montserrat Regular';
     src: url('fonts/Montserrat-Regular.ttf');
 }
+
+/* ========================================
+   FUNDO
+   ======================================== */
+
+.fundo-dicas {
+    background-image: url('../img/fundo.png');
+}

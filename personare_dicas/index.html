@@ -17,14 +17,12 @@
     Portrait / empena:     flex-col — imagem no topo (~40%), conteúdo abaixo (~60%)
 -->
 <body class="opacity-0 transition-opacity duration-1000
-             w-full h-full overflow-hidden bg-white
+             w-full h-full overflow-hidden
              flex flex-row items-stretch
              portrait:flex-col">
 
-    <!-- Fundo decorativo (camada base, cobre toda a tela) -->
-    <div class="absolute inset-0 pointer-events-none">
-        <img src="img/fundo.png" class="w-full h-full object-cover" />
-    </div>
+    <!-- Fundo decorativo — painel roxo (esquerda/texto) + branco (direita/imagem) -->
+    <div class="fundo-dicas absolute inset-0 bg-cover bg-no-repeat bg-center pointer-events-none"></div>
 
     <!-- ZONA DE CONTEÚDO (esquerda em landscape, baixo em portrait) -->
     <div class="relative w-[38%] shrink-0 flex flex-col justify-center
