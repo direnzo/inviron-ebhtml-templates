@@ -2,18 +2,29 @@ function iniciarFundo() {
     var fundo = document.getElementById('fundo-img');
 
     function aplicarPan() {
-        var excess = fundo.offsetWidth - window.innerWidth;
+        // Calcula a largura renderizada a partir das dimensoes naturais da imagem.
+        // A imagem usa h-full (height = window.innerHeight), entao a largura renderizada
+        // segue a proporcao natural — independente do estado do layout DOM.
+        var renderedWidth = (fundo.naturalWidth / fundo.naturalHeight) * window.innerHeight;
+        var excess = renderedWidth - window.innerWidth;
+
+        console.log('[fundo] natural=' + fundo.naturalWidth + 'x' + fundo.naturalHeight +
+                    ' | renderedW=' + Math.round(renderedWidth) +
+                    ' | screenW=' + window.innerWidth +
+                    ' | excesso=' + Math.round(excess) + 'px');
+
         if (excess <= 0) {
             console.warn('[fundo] Imagem nao e mais larga que a tela. Pan ignorado.');
             return;
         }
-        console.log('[fundo] Pan: ' + fundo.offsetWidth + 'px img -> excesso ' + excess + 'px');
+
         fundo.style.webkitTransition = 'transform 25s linear';
         fundo.style.transition = 'transform 25s linear';
-        // Pequeno delay para garantir que o estado inicial seja pintado antes de iniciar o pan
+
+        // Pequeno delay para garantir que o estado inicial seja pintado antes do pan
         setTimeout(function () {
-            fundo.style.webkitTransform = 'translateX(-' + excess + 'px)';
-            fundo.style.transform = 'translateX(-' + excess + 'px)';
+            fundo.style.webkitTransform = 'translateX(-' + Math.round(excess) + 'px)';
+            fundo.style.transform = 'translateX(-' + Math.round(excess) + 'px)';
         }, 50);
     }
 
