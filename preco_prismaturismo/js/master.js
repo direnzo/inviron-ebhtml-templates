@@ -39,9 +39,11 @@ window.onload = function() {
             data: function(key) {
                 var ds = MOCK_DATA.datasets[key];
                 if (!ds) return null;
-                /* Array = datalist mock; retorna o primeiro como item unico */
+                /* Array = datalist mock; usa indice sequencial para D_COMBUSTIVEL */
                 if (Array.isArray(ds)) {
-                    return ds.length ? { value: function(c) { return ds[0][c] !== undefined ? { value: ds[0][c] } : null; } } : null;
+                    var idx = (typeof MOCK_DATA.currentIndex !== 'undefined') ? MOCK_DATA.currentIndex % ds.length : 0;
+                    var item = ds[idx];
+                    return ds.length ? { value: function(c) { return item[c] !== undefined ? { value: item[c] } : null; } } : null;
                 }
                 return ds;
             },
@@ -57,7 +59,11 @@ window.onload = function() {
                 };
             },
             loaded:   function() { console.log('[PRECO] Mock loaded'); },
-            finished: function() { console.log('[PRECO] Mock finished'); }
+            finished: function() {
+                var combustiveis = MOCK_DATA.datasets['D_COMBUSTIVEL'];
+                if (Array.isArray(combustiveis)) { MOCK_DATA.advanceIndex(combustiveis.length); }
+                console.log('[PRECO] Mock finished');
+            }
         };
         inicializarTemplate(mockLoader);
     } else {
