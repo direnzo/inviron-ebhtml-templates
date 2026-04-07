@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="w-full h-full overflow-hidden">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horóscopo Personare</title>
+    <link rel="stylesheet" href="css/master.css">
+    <!-- <script src="js/mock-data.js"></script> -->
+    <script src="js/ebhtml.js"></script>
+    <script src="js/master.js"></script>
+</head>
+
+<body class="opacity-0 transition-opacity duration-1000 relative w-full h-full overflow-hidden bg-black">
+
+    <!-- Fundo com animação de movimento -->
+    <div class="absolute inset-0 overflow-hidden">
+        <img src="img/fundo.jpg" class="absolute h-full left-0 animate-move-fundo" />
+    </div>
+
+    <!-- Conteúdo principal (fade-in no load) -->
+    <div class="absolute inset-0 w-full h-full">
+
+        <!-- Cabeçalho: título da seção + logo -->
+        <div class="absolute top-[5%] left-[25%] right-[3%] flex items-center justify-between">
+            <span class="font-open-sans-regular text-black
+                         text-[4vw] portrait:text-[5vw] ultrawide:text-[3vw]">
+                HORÓSCOPO DO DIA
+            </span>
+            <img src="img/logo.png" class="w-[18%] portrait:w-[22%] ultrawide:w-[12%]" />
+        </div>
+
+        <!-- Signo 1 (aparece de início, some em 7.5s) -->
+        <div id="signo1" class="absolute inset-0 w-full h-full animate-fade-out-delayed">
+            <img id="icone" class="absolute top-[20%] left-[5%] w-[18%] portrait:w-[22%] ultrawide:w-[15%]" />
+            <div id="titulo" class="absolute top-[20%] left-[25%] right-[5%]">
+                <p class="font-bold text-[#759cc0] tracking-widest
+                           text-[6vw] portrait:text-[8vw] ultrawide:text-[4vw]"></p>
+            </div>
+            <div id="texto" class="absolute top-[45%] left-[25%] right-[5%] max-h-[45%] overflow-hidden">
+                <p class="font-open-sans-regular text-black leading-snug
+                           text-[2.5vw] portrait:text-[3.5vw] ultrawide:text-[2vw]"></p>
+            </div>
+        </div>
+
+        <!-- Signo 2 (invisível até 7.5s, então aparece) -->
+        <div id="signo2" class="absolute inset-0 w-full h-full animate-fade-in-delayed">
+            <img id="icone2" class="absolute top-[20%] left-[5%] w-[18%] portrait:w-[22%] ultrawide:w-[15%]" />
+            <div id="titulo2" class="absolute top-[20%] left-[25%] right-[5%]">
+                <p class="font-bold text-[#759cc0] tracking-widest
+                           text-[6vw] portrait:text-[8vw] ultrawide:text-[4vw]"></p>
+            </div>
+            <div id="texto2" class="absolute top-[45%] left-[25%] right-[5%] max-h-[45%] overflow-hidden">
+                <p class="font-open-sans-regular text-black leading-snug
+                           text-[2.5vw] portrait:text-[3.5vw] ultrawide:text-[2vw]"></p>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
