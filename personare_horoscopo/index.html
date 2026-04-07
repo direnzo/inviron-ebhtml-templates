@@ -16,29 +16,54 @@
     <!-- Fundo com pan automático via background-position -->
     <div class="fundo-bg absolute inset-0 bg-cover bg-no-repeat animate-pan-fundo"></div>
 
-    <!-- Conteúdo principal (fade-in no load) -->
-    <div class="absolute inset-0 w-full h-full">
+    <!--
+        Layout principal:
+        Default (landscape / ultrawide / square): flex-row — ícone à esquerda, conteúdo à direita
+        Portrait: flex-col — ícone em cima, conteúdo embaixo
+    -->
+    <div class="absolute inset-0 flex flex-row items-stretch
+                portrait:flex-col portrait:items-center">
 
-        <!-- Cabeçalho: título da seção + logo -->
-        <div class="absolute top-[5%] left-[25%] right-[3%] flex items-center justify-between">
-            <span class="font-open-sans-regular text-black
-                         text-[4vw] portrait:text-[5vw] ultrawide:text-[3vw]">
-                HORÓSCOPO DO DIA
-            </span>
-            <img src="img/logo.png" class="w-[18%] portrait:w-[22%] ultrawide:w-[12%]" />
+        <!-- ZONA DO ÍCONE -->
+        <div class="w-[22%] shrink-0 flex items-center justify-center pl-[2%]
+                    portrait:w-full portrait:h-[32%] portrait:pl-0 portrait:pt-[5%]">
+            <img id="icone"
+                 class="w-[80%] max-h-full object-contain
+                        portrait:w-auto portrait:h-full" />
         </div>
 
-        <!-- Signo (um por exibição — rotacionado pelo EBHTML a cada reload) -->
-        <div class="absolute inset-0 w-full h-full">
-            <img id="icone" class="absolute top-[20%] left-[5%] w-[18%] portrait:w-[22%] ultrawide:w-[15%]" />
-            <div id="titulo" class="absolute top-[20%] left-[25%] right-[5%]">
-                <p class="font-bold text-[#759cc0] tracking-widest
-                           text-[6vw] portrait:text-[8vw] ultrawide:text-[4vw]"></p>
+        <!-- ZONA DE CONTEÚDO: cabeçalho + título + texto -->
+        <div class="flex-1 flex flex-col justify-center py-[5%] pr-[4%] pl-[1%]
+                    portrait:w-full portrait:flex-1 portrait:px-[8%] portrait:pt-[5%] portrait:pb-[4%] portrait:justify-start">
+
+            <!-- Cabeçalho: label HORÓSCOPO DO DIA + logo -->
+            <div class="flex items-center justify-between mb-[3%]
+                        portrait:w-full portrait:mb-[5%]">
+                <span class="font-open-sans-regular text-black
+                             text-[3vw] ultrawide:text-[2vw]
+                             portrait:text-[3.5vh]">
+                    HORÓSCOPO DO DIA
+                </span>
+                <img src="img/logo.png"
+                     class="w-[22%] ultrawide:w-[15%]
+                            portrait:w-auto portrait:h-[5.5vh]" />
             </div>
-            <div id="texto" class="absolute top-[45%] left-[25%] right-[5%] max-h-[45%] overflow-hidden">
+
+            <!-- Título do signo -->
+            <div id="titulo" class="w-full mb-[3%] portrait:mb-[4%] portrait:text-center">
+                <p class="font-bold text-[#759cc0] tracking-widest leading-tight
+                           text-[5.5vw] ultrawide:text-[4vw]
+                           portrait:text-[6vh]"></p>
+            </div>
+
+            <!-- Texto do horóscopo -->
+            <div id="texto" class="w-full max-h-[45%] overflow-hidden
+                                   portrait:text-center portrait:max-h-[40%]">
                 <p class="font-open-sans-regular text-black leading-snug
-                           text-[2.5vw] portrait:text-[3.5vw] ultrawide:text-[2vw]"></p>
+                           text-[2.2vw] ultrawide:text-[1.8vw]
+                           portrait:text-[2.8vh]"></p>
             </div>
+
         </div>
 
     </div>
