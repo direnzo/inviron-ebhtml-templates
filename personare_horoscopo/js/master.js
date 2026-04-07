@@ -32,13 +32,9 @@ function iniciarTemplate(config, loader) {
     body.classList.remove('opacity-0');
     body.classList.add('opacity-100');
 
-    var text1 = document.querySelector('#texto p');
-    var text2 = document.querySelector('#texto2 p');
-    var textContainer1 = document.querySelector('#texto');
-    var textContainer2 = document.querySelector('#texto2');
-
-    fitDescriptionFont(text1, textContainer1, 10);
-    fitDescriptionFont(text2, textContainer2, 10);
+    var textEl = document.querySelector('#texto p');
+    var textContainer = document.querySelector('#texto');
+    fitDescriptionFont(textEl, textContainer, 10);
 
     loader.loaded();
 
@@ -48,41 +44,35 @@ function iniciarTemplate(config, loader) {
 }
 
 window.onload = function () {
-    var icone1 = document.getElementById('icone');
-    var title1 = document.querySelector('#titulo p');
-    var text1 = document.querySelector('#texto p');
-    var icone2 = document.getElementById('icone2');
-    var title2 = document.querySelector('#titulo2 p');
-    var text2 = document.querySelector('#texto2 p');
+    var icone = document.getElementById('icone');
+    var title = document.querySelector('#titulo p');
+    var text  = document.querySelector('#texto p');
 
     if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
         var mockLoader = {
-            loaded: function () { console.log('[Mock] loaded()'); },
+            loaded:   function () { console.log('[Mock] loaded()'); },
             finished: function () { console.log('[Mock] finished()'); }
         };
-        renderSignoMock(icone1, title1, text1, MOCK_DATA.dados[0]);
-        renderSignoMock(icone2, title2, text2, MOCK_DATA.dados[1]);
+        renderSignoMock(icone, title, text, MOCK_DATA.dados[0]);
         iniciarTemplate(MOCK_DATA.config, mockLoader);
         return;
     }
 
     ebhtml.create2({}, function (loader) {
-        loader.addData('D_HOROSCOPO_PERSONARE_CURTO', true, 'amount=2&order=ID&orderkind=a');
+        loader.addData('D_HOROSCOPO_PERSONARE_CURTO', true, 'amount=1');
         loader.autoloaded = false;
         loader.nodataiserror = false;
 
         loader.load(function () {
             var lista = loader.datalist('D_HOROSCOPO_PERSONARE_CURTO');
 
-            if (lista == undefined || lista.count() < 2) {
-                console.error('[horoscopo] Dados insuficientes: esperado 2 signos, recebido ' + (lista ? lista.count() : 0));
+            if (lista == undefined || lista.count() < 1) {
+                console.error('[horoscopo] Sem dados.');
                 loader.finished();
                 return;
             }
 
-            renderSigno(icone1, title1, text1, lista.get(0));
-            renderSigno(icone2, title2, text2, lista.get(1));
-
+            renderSigno(icone, title, text, lista.get(0));
             iniciarTemplate({ duration: 15000 }, loader);
         });
     });

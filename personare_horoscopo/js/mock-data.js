@@ -21,14 +21,9 @@ var MOCK_DATA = {
 
     dados: [
         {
-            SIGN:  'br:aquario',
-            TITLE: 'Aquário',
-            TEXT:  'Para Aquário, o céu aponta para uma conexão criativa e inspiradora com amigos. No amor, autoconfiança e paciência são essenciais para cultivar relacionamentos saudáveis.'
-        },
-        {
-            SIGN:  'br:gemeos',
-            TITLE: 'Gêmeos',
-            TEXT:  'Gêmeos, o céu indica um dia favorável para diálogos e conexões genuínas. Sua vida amorosa pede atenção e prudência ao tomar decisões importantes.'
+            SIGN:  'br:escorpiao',
+            TITLE: 'Escorpião',
+            TEXT:  'Escorpião, a harmonia entre Sol e Lua favorece a gestão prática do cotidiano. Cautela com finanças é essencial para manter o equilíbrio neste período.'
         }
     ]
 };

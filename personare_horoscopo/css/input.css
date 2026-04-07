@@ -27,13 +27,3 @@
 /* ========================================
    ESTILOS BASE DO TEMPLATE
    ======================================== */
-
-/* Garante que elementos com animate-* iniciem invisíveis */
-.animate-fade-in,
-.animate-fade-in-delayed {
-    opacity: 0;
-}
-
-.animate-fade-out-delayed {
-    opacity: 1;
-}
