@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="w-full h-full overflow-hidden">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personare Dicas</title>
+    <link rel="stylesheet" href="css/master.css">
+    <!-- <script src="js/mock-data.js"></script> -->
+    <script src="js/ebhtml.js"></script>
+    <script src="js/master.js"></script>
+</head>
+
+<!--
+    Layout:
+    Landscape / ultrawide: flex-row — conteúdo à esquerda (~38%), imagem à direita (~62%)
+    Portrait / empena:     flex-col — imagem no topo (~40%), conteúdo abaixo (~60%)
+-->
+<body class="opacity-0 transition-opacity duration-1000
+             w-full h-full overflow-hidden
+             flex flex-row items-stretch
+             portrait:flex-col">
+
+    <!-- Fundo decorativo — painel roxo (esquerda/texto) + branco (direita/imagem) -->
+    <div class="fundo-dicas absolute inset-0 bg-[#343a67] bg-cover bg-no-repeat bg-left-bottom pointer-events-none"></div>
+
+    <!-- ZONA DE CONTEÚDO (esquerda em landscape, baixo em portrait) -->
+    <div class="relative w-[38%] shrink-0 flex flex-col justify-start
+                px-[4%] py-[5%] gap-[5%]
+                portrait:w-full portrait:h-[55%] portrait:order-2
+                portrait:px-[6%] portrait:py-[4%] portrait:gap-[4%]
+                ultrawide:w-[32%]">
+
+        <div id="titulo" class="w-full shrink-0 max-h-[30%] overflow-hidden">
+            <p class="font-montserrat-extrabold text-white tracking-wide leading-tight
+                       text-[clamp(14px,3.8vmin,4vh)]"></p>
+        </div>
+
+        <div id="texto" class="w-full flex-1 min-h-0 overflow-hidden">
+            <p class="font-montserrat-regular text-white leading-snug
+                       text-[clamp(10px,4.6vmin,6vh)]"></p>
+        </div>
+
+    </div>
+
+    <!-- ZONA DA IMAGEM (direita em landscape, topo em portrait) -->
+    <div class="relative flex-1 overflow-hidden
+                portrait:w-full portrait:h-[45%] portrait:order-1 portrait:flex-none">
+        <img id="imagem"
+             class="w-full h-full object-cover animate-expande origin-center" />
+    </div>
+
+</body>
+</html>
