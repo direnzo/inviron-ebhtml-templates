@@ -21,27 +21,32 @@
              flex flex-row items-stretch
              portrait:flex-col">
 
+    <!-- Fundo decorativo (camada base, cobre toda a tela) -->
+    <div class="absolute inset-0 pointer-events-none">
+        <img src="img/fundo.png" class="w-full h-full object-cover" />
+    </div>
+
     <!-- ZONA DE CONTEÚDO (esquerda em landscape, baixo em portrait) -->
-    <div class="w-[38%] shrink-0 flex flex-col justify-center
-                px-[4%] py-[5%] gap-[5%] bg-white
+    <div class="relative w-[38%] shrink-0 flex flex-col justify-center
+                px-[4%] py-[5%] gap-[5%]
                 portrait:w-full portrait:h-[55%] portrait:order-2
                 portrait:px-[6%] portrait:py-[4%] portrait:gap-[4%]
                 ultrawide:w-[32%]">
 
         <div id="titulo" class="w-full overflow-hidden">
-            <p class="font-montserrat-extrabold text-black tracking-wide leading-tight
+            <p class="font-montserrat-extrabold text-white tracking-wide leading-tight
                        text-[3.2vw] portrait:text-[4.5vh] ultrawide:text-[2.5vw]"></p>
         </div>
 
         <div id="texto" class="w-full overflow-hidden flex-1">
-            <p class="font-montserrat-regular text-black leading-snug
+            <p class="font-montserrat-regular text-white leading-snug
                        text-[2vw] portrait:text-[3vh] ultrawide:text-[1.6vw]"></p>
         </div>
 
     </div>
 
     <!-- ZONA DA IMAGEM (direita em landscape, topo em portrait) -->
-    <div class="flex-1 overflow-hidden
+    <div class="relative flex-1 overflow-hidden
                 portrait:w-full portrait:h-[45%] portrait:order-1 portrait:flex-none">
         <img id="imagem"
              class="w-full h-full object-cover animate-expande origin-center" />
