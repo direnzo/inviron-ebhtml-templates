@@ -22,7 +22,7 @@
              portrait:flex-col">
 
     <!-- Fundo decorativo — painel roxo (esquerda/texto) + branco (direita/imagem) -->
-    <div class="fundo-dicas absolute inset-0 bg-cover bg-no-repeat bg-left-top pointer-events-none"></div>
+    <div class="fundo-dicas absolute inset-0 bg-[#343a67] bg-cover bg-no-repeat bg-left-bottom pointer-events-none"></div>
 
     <!-- ZONA DE CONTEÚDO (esquerda em landscape, baixo em portrait) -->
     <div class="relative w-[38%] shrink-0 flex flex-col justify-start
@@ -31,15 +31,14 @@
                 portrait:px-[6%] portrait:py-[4%] portrait:gap-[4%]
                 ultrawide:w-[32%]">
 
-        <div id="titulo" class="w-full shrink-0 max-h-[30%] overflow-hidden
-                        portrait:max-h-[25%]">
+        <div id="titulo" class="w-full shrink-0 max-h-[30%] overflow-hidden">
             <p class="font-montserrat-extrabold text-white tracking-wide leading-tight
-                       text-[3.2vw] portrait:text-[4.5vh] ultrawide:text-[2.5vw]"></p>
+                       text-[clamp(14px,3.8vmin,4vh)]"></p>
         </div>
 
         <div id="texto" class="w-full flex-1 min-h-0 overflow-hidden">
             <p class="font-montserrat-regular text-white leading-snug
-                       text-[2vw] portrait:text-[3vh] ultrawide:text-[1.6vw]"></p>
+                       text-[clamp(10px,4.6vmin,6vh)]"></p>
         </div>
 
     </div>

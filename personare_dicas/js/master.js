@@ -1,38 +1,3 @@
-/**
- * fitText — ajusta a fonte do elemento filho para caber no container wrapper.
- *
- * Problema do Chrome: com overflow:hidden no container, scrollWidth é
- * reportado como offsetWidth (clampado), tornando o overflow horizontal
- * invisível. A solução é desbloquear o overflow do container durante a
- * medição, capturar o scrollWidth real, e restaurar depois.
- *
- * Sem break-words: palavras longas não quebram no meio — a fonte reduz
- * até a palavra caber inteira na largura disponível.
- */
-function fitText(el, container, minFontSize) {
-    minFontSize = minFontSize || 8;
-
-    var maxW = container.offsetWidth;
-    var maxH = container.offsetHeight;
-
-    if (!maxW || !maxH) { return; }
-
-    // Desbloqueia overflow para que scrollWidth/scrollHeight
-    // reportem o tamanho REAL do conteúdo (sem clipping do Chrome)
-    container.style.overflow = 'visible';
-
-    var size = parseInt(window.getComputedStyle(el).fontSize);
-
-    while (size > minFontSize) {
-        if (el.scrollHeight <= maxH && el.scrollWidth <= maxW) { break; }
-        size -= 1;
-        el.style.fontSize = size + 'px';
-    }
-
-    // Restaura overflow-hidden (remove inline style → Tailwind volta a valer)
-    container.style.overflow = '';
-}
-
 function renderDica(titleEl, textEl, imageEl, item) {
     titleEl.textContent = item.value('TITULO').value.toUpperCase();
     textEl.textContent  = item.value('TEXTO').value;
@@ -51,14 +16,6 @@ function iniciarTemplate(config, imageEl, loader) {
     imageEl.onload = function () {
         body.classList.remove('opacity-0');
         body.classList.add('opacity-100');
-
-        var titleEl      = document.querySelector('#titulo p');
-        var titleContainer = document.querySelector('#titulo');
-        var textEl       = document.querySelector('#texto p');
-        var textContainer  = document.querySelector('#texto');
-
-        fitText(titleEl, titleContainer, 12);
-        fitText(textEl, textContainer, 8);
 
         loader.loaded();
 
