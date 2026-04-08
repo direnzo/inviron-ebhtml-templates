@@ -12,7 +12,7 @@ window.onload = function () {
         loader.load(function () {
             var climaDataRaw = loader.data('D_CLIMA');
 
-            if (!climaDataRaw || climaDataRaw.value == '') {
+            if (!climaDataRaw || !climaDataRaw.value || climaDataRaw.value == '') {
                 loader.mediaLog('ERRO: Sem dados D_CLIMA');
                 loader.finished();
                 return;
@@ -86,6 +86,9 @@ window.onload = function () {
                 loader.mediaLog('ERRO: Falha ao processar dados - ' + e.message);
                 loader.finished();
             }
+        }, function (erro) {
+            loader.mediaLog('ERRO: Falha ao carregar D_CLIMA - ' + (erro || 'desconhecido'));
+            loader.finished();
         });
     });
 };
