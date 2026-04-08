@@ -1,0 +1,568 @@
+body,
+html {
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+@font-face {
+    font-family: "Montserrat";
+    src: url('fonts/Montserrat-VariableFont_wght.ttf');
+}
+
+
+body {
+    background-color: #0D2245;
+    color: #FFFFFF;
+    position: relative;
+    font-family: "Montserrat";
+    font-weight: 700;
+}
+
+#fundo img {
+    position: absolute;
+    height: 100%;
+    width: 300%;
+    right: 0;
+    animation: fundo 30s forwards;
+    -webkit-animation: fundo 30s forwards;
+}
+@keyframes fundo {
+    100% {
+        right: -200%;
+    }
+}
+@-webkit-keyframes fundo {
+    100% {
+        right: -200%;
+    }
+}
+
+#head {
+    height: 12%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#cidade {
+    margin-top: 1%;
+    color: white;
+    font-size: 5vw;
+    opacity: 0;
+    animation: fade_info 2s 1s forwards;
+    -webkit-animation: fade_info 2s 1s forwards;
+}
+
+#content {
+    height: 78%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    animation: fade_info 1.5s 1s forwards;
+    -webkit-animation: fade_info 1.5s 1s forwards;
+}
+
+.fade {
+    animation: fade_info 1.5s 1s forwards;
+    -webkit-animation: fade_info 1.5s 1s forwards;
+}
+@keyframes fade_info {
+    to {
+        opacity: 1;
+    }
+}
+@-webkit-keyframes fade_info {
+    to {
+        opacity: 1;
+    }
+}
+
+#footer {
+    height: 8%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 2%;
+    padding-bottom: 2%;
+}
+
+.logo {
+    object-fit: contain;
+    max-width: 18vw;
+    height: 100%;
+    width: auto;
+    opacity: 0;
+    animation: fade_info 0.5s 2s forwards;
+    -webkit-animation: fade_info 0.5s 2s forwards;
+}
+
+.box {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+.previsao {
+    width: 27%;
+    background-color: rgba(0, 0, 0, 0.884);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1%;
+    margin: 1%;
+    opacity: 0;
+    transform: translateX(-300%);
+    animation: slide-in 1.5s forwards;
+    row-gap: 1.5vh;
+}
+
+.previsao:nth-of-type(1) {
+    animation-delay: 1s;
+}
+
+.previsao:nth-of-type(2) {
+    animation-delay: 2s;
+}
+
+.previsao:nth-of-type(3) {
+    animation-delay: 3s;
+}
+
+@keyframes slide-in {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.dia {
+
+font-size: 4vw;
+
+text-align: center;
+}
+
+.icone {
+    width: 40%;
+    height: auto;
+    object-fit: contain;
+
+}
+
+.dia_mes {
+
+    font-size: 3.5vw;
+    text-align: center;
+
+}
+
+.graus {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+
+}
+
+.max,
+.min {
+    width: 10%;
+    height: auto;
+}
+
+.grau_max,
+.grau_min {
+    font-size: 5.5vw;
+    margin: 0 1%;
+}
+
+.condicoes {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    margin-top: 1%;
+}
+
+.gotas {
+    width: 10%;
+    height: auto;
+}
+
+.chuva {
+    display: flex;
+    /* text-align: center; */
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.chuva p {
+    font-weight: 400;
+    font-size: 1.8vw;
+    margin: 0;
+}
+
+.spacer {
+    width: 7%;
+}
+
+@media (orientation: portrait) {
+
+    body,
+    html {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #head {
+        height: 15%;
+    }
+
+    #content {
+        /* height: 70%; */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #footer {
+        height: 8%;
+        padding-top: 2%;
+    }
+        .logo{
+            max-width: 28vw;
+        
+    }
+
+    .box {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .icone {
+        position: absolute;
+        left: 5%;
+        top: 10%;
+        height: 80%;
+    }
+
+    .previsao {
+        width: 50%;
+        height: auto;
+        margin: 1% 0;
+        animation: slide-in-vertical 1.5s forwards;
+        padding-left: 41%;
+    }
+
+    #cidade {
+        font-size: 4.5vh;
+    }
+
+  
+    .chuva p {
+        font-size: 1.2vh;
+    }
+
+    .grau_max,
+    .grau_min {
+        font-size: 4.5vh;
+    }
+
+    .dia {
+
+margin-left: -10%;
+
+font-size: 3.7vh;
+
+}
+
+    .dia_mes {
+
+        font-size: 3.5vh;
+    }
+
+    .previsao:nth-of-type(1) {
+        animation-delay: 1s;
+    }
+
+    .previsao:nth-of-type(2) {
+        animation-delay: 2s;
+    }
+
+    .previsao:nth-of-type(3) {
+        animation-delay: 3s;
+    }
+
+    @keyframes slide-in-vertical {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+@media (max-width: 300px) {
+    .condicoes{
+        display: none;
+    }
+    .previsao{
+        border-radius: 10px;
+        min-height: 15vh;
+    }
+}
+
+/* Regra específica para 864x288 pixels */
+@media (min-width: 800px) and (max-width: 900px) and (min-height: 250px) and (max-height: 320px) {
+    
+    #head {
+        height: 10%;
+    }
+
+    #cidade {
+        font-size: 3.5vw;
+        margin-top: 0.5%;
+    }
+
+    #content {
+        height: 80%;
+    }
+
+    #footer {
+        height: 8%;
+        padding-right: 1.5%;
+        padding-bottom: 1%;
+    }
+
+    .logo {
+        max-width: 8vw;
+    }
+
+    .box {
+        column-gap: 0.5%;
+    }
+
+    .previsao {
+        width: 30%;
+        border-radius: 15px;
+        padding: 0.8%;
+        margin: 0.5%;
+        row-gap: 0.8vh;
+    }
+
+    .dia {
+        font-size: 2.2vw;
+    }
+
+    .icone {
+        width: 25%;
+    }
+
+    .dia_mes {
+        font-size: 2.8vw;
+    }
+
+    .grau_max,
+    .grau_min {
+        font-size: 4.5vw;
+    }
+
+    .max,
+    .min {
+        width: 12%;
+    }
+
+    .gotas {
+        width: 7%;
+    }
+
+    .chuva p {
+        font-size: 1.5vw;
+    }
+
+    .condicoes {
+        margin-top: 0.5%;
+    }
+}
+
+/* Regra específica para 520x208 pixels ou menores */
+@media (max-width: 520px) and (max-height: 208px) {
+    
+    #head {
+        height: 10%;
+    }
+
+    #cidade {
+        font-size: 3vw;
+        margin-top: 0.5%;
+    }
+
+    #content {
+        height: 80%;
+    }
+
+    #footer {
+        height: 8%;
+        padding-right: 1.5%;
+        padding-bottom: 1%;
+    }
+
+    .logo {
+        max-width: 12vw;
+    }
+
+    .box {
+        column-gap: 0.5%;
+    }
+
+    .previsao {
+        width: 30%;
+        border-radius: 10px;
+        padding: 0.5%;
+        /* margin: 0.3%; */
+        row-gap: 0.5vh;
+    }
+
+    .dia {
+        font-size: 2vw;
+    }
+
+    .icone {
+        width: 35%;
+    }
+
+    .dia_mes {
+        font-size: 3.2vw;
+    }
+
+    .grau_max,
+    .grau_min {
+        font-size: 5vw;
+    }
+
+    .max,
+    .min {
+        width: 12%;
+    }
+
+    .gotas {
+        width: 8%;
+    }
+
+    .chuva p {
+        font-size: 1.9vw;
+    }
+
+    .condicoes {
+        margin-top: 0.3%;
+    }
+}
+
+/* Ultrawide >= 3:1 (ex: 1920x540, monitores panorâmicos) */
+@media (min-aspect-ratio: 3/1) {
+    #cidade {
+        font-size: 4vh;
+    }
+    .dia {
+        font-size: 5vh;
+    }
+    .dia_mes {
+        font-size: 4vh;
+    }
+    .grau_max,
+    .grau_min {
+        font-size: 7vh;
+    }
+    .chuva p {
+        font-size: 2.5vh;
+    }
+    .logo {
+        max-width: 8vw;
+    }
+    .previsao {
+        width: 28%;
+    }
+    .icone {
+        width: 45%;
+    }
+}
+
+/* Superbanner >= 5:1 (banners muito largos) */
+@media (min-aspect-ratio: 5/1) {
+    #head {
+        height: 10%;
+    }
+    #content {
+        height: 82%;
+    }
+    #footer {
+        height: 8%;
+    }
+    .previsao {
+        row-gap: 0.3vh;
+        padding: 0.5%;
+        border-radius: 10px;
+    }
+    .dia {
+        font-size: 3.5vh;
+    }
+    .dia_mes {
+        font-size: 3vh;
+    }
+    .grau_max,
+    .grau_min {
+        font-size: 5.5vh;
+    }
+    .icone {
+        width: 30%;
+    }
+    .condicoes {
+        display: none;
+    }
+    #cidade {
+        font-size: 3.5vh;
+    }
+    .logo {
+        max-width: 6vw;
+    }
+}
+
+/* Empena <= 1:3 (displays muito estreitos e altos) */
+@media (max-aspect-ratio: 1/3) {
+    .previsao {
+        padding-left: 2%;
+    }
+    .icone {
+        position: static;
+        width: 30%;
+        height: auto;
+    }
+    .dia {
+        font-size: 4vw;
+    }
+    .dia_mes {
+        font-size: 3.5vw;
+    }
+    .grau_max,
+    .grau_min {
+        font-size: 7vw;
+    }
+    #cidade {
+        font-size: 3.5vw;
+    }
+    .logo {
+        max-width: 40vw;
+    }
+    .condicoes {
+        display: none;
+    }
+}
