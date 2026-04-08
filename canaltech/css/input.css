@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Registrar as fontes personalizadas */
+@font-face {
+    font-family: 'Poppins Medium';
+    src: url('fonts/Poppins-Medium.ttf');
+}
+
+@font-face {
+    font-family: 'Poppins Bold';
+    src: url('fonts/Poppins-ExtraBold.ttf');
+}
+@font-face {
+    font-family: 'Poppins Regular';
+    src: url('fonts/Poppins-Regular.ttf');
+}
+
+@font-face {
+	font-family: 'Open Sans Bold';
+	src: url('fonts/OpenSans-Bold.ttf');
+}
+
+@font-face {
+	font-family: 'Open Sans Regular';
+	src: url('fonts/OpenSans-Regular.ttf');
+}
+
+/* =========================================
+   FALLBACKS HEX — Android 7 / Chrome < 65
+   Tailwind gera rgb(r g b / alpha) — não
+   suportado em Chrome < 65. Override com
+   hex direto (fora de @layer = prioridade).
+   ========================================= */
+.text-white    { color: #ffffff }
+.bg-black      { background-color: #000000 }
+.bg-sky-500    { background-color: #0ea5e9 }
