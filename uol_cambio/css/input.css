@@ -29,3 +29,23 @@
 .border-white\/20    { border-color: rgba(255,255,255,0.20) }
 .border-white\/15    { border-color: rgba(255,255,255,0.15) }
 .border-white\/10    { border-color: rgba(255,255,255,0.10) }
+
+.icon-indicador {
+    height: 1em;
+    width: auto;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+/* =========================================
+   BACKGROUND FINANCEIRO — grid duplo estilo terminal
+   ========================================= */
+.bg-financeiro {
+    background-color: #000000;
+    background-image:
+        linear-gradient(rgba(120,200,255,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120,200,255,.045) 1px, transparent 1px),
+        linear-gradient(rgba(120,200,255,.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120,200,255,.018) 1px, transparent 1px);
+    background-size: 60px 60px, 60px 60px, 15px 15px, 15px 15px;
+}
