@@ -63,14 +63,15 @@ window.onload = function () {
     function renderizarTemplate(dados) {
         if (title)       { title.textContent = dados.CATEGORIA ? dados.CATEGORIA.toUpperCase() : ''; }
         if (description) { description.textContent = dados.TITULO; }
-        mudaCor(dados.CATEGORIA);
+        // mudaCor(dados.CATEGORIA);
         if (description && descContainer) {
             fitDescriptionFont(description, descContainer, 8);
         }
     }
 
     // ── Carregamento de imagem ────────────────────────────────────────────────
-    function carregarImagem(url, loader) {
+    function carregarImagem(url, loader, duracao) {
+        duracao = duracao || 15000;
         if (!url) {
             loader.finished();
             return;
@@ -92,7 +93,7 @@ window.onload = function () {
             loader.loaded();
             setTimeout(function () {
                 loader.finished();
-            }, 15000);
+            }, duracao);
         };
 
         image.onerror = function () {
@@ -103,12 +104,30 @@ window.onload = function () {
 
     // ── MOCK ──────────────────────────────────────────────────────────────────
     if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
-        var mockLoader = {
-            loaded:   function () { console.log('[Mock] loaded'); },
-            finished: function () { console.log('[Mock] finished'); }
-        };
-        renderizarTemplate(MOCK_DATA.dados);
-        carregarImagem(MOCK_DATA.dados.FOTO, mockLoader);
+        var mockIndex = 0;
+        var mockDuracao = (MOCK_DATA.config && MOCK_DATA.config.duration) ? MOCK_DATA.config.duration : 15000;
+
+        function exibirMockItem() {
+            var idx = mockIndex % MOCK_DATA.dados.length;
+            var dados = MOCK_DATA.dados[idx];
+
+            // Reseta classes de imagem acumuladas entre itens
+            image.classList.remove('scale-110', 'object-right');
+
+            var mockLoader = {
+                loaded:   function () { console.log('[Mock] loaded #' + idx); },
+                finished: function () {
+                    mockIndex++;
+                    body.classList.remove('opacity-100');
+                    body.classList.add('opacity-0');
+                    setTimeout(exibirMockItem, 1000);
+                }
+            };
+            renderizarTemplate(dados);
+            carregarImagem(dados.FOTO, mockLoader, mockDuracao);
+        }
+
+        exibirMockItem();
         return;
     }
 
