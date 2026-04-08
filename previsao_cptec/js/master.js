@@ -10,63 +10,82 @@ window.onload = function () {
         loader.nodataiserror = false;
 
         loader.load(function () {
-            if (loader.data('D_CLIMA').value == '') {
+            var climaDataRaw = loader.data('D_CLIMA');
+
+            if (!climaDataRaw || climaDataRaw.value == '') {
+                loader.mediaLog('ERRO: Sem dados D_CLIMA');
                 loader.finished();
                 return;
             }
 
-            var climaData = loader.data('D_CLIMA');
+            try {
+                var climaData = climaDataRaw;
 
-            function getValue(data, key) {
-                return data.value(key).value || '';
-            }
+                function getValue(data, key) {
+                    try {
+                        return data.value(key).value || '';
+                    } catch (e) {
+                        return '';
+                    }
+                }
 
-            var weatherData = [];
-            for (var day = 1; day <= 3; day++) {
-                weatherData.push({
-                    cidade: getValue(climaData, 'C1_D' + day + '_CIDADE'),
-                    cidade_sys: getValue(climaData, 'C1_D' + day + '_CIDADE_SYS'),
-                    humidityMax: getValue(climaData, 'C1_D' + day + '_HUMIDITYMAX'),
-                    humidityMin: getValue(climaData, 'C1_D' + day + '_HUMIDITYMIN'),
-                    ico: getValue(climaData, 'C1_D' + day + '_ICO'),
-                    max: getValue(climaData, 'C1_D' + day + '_MAX'),
-                    min: getValue(climaData, 'C1_D' + day + '_MIN'),
-                    sunrise: getValue(climaData, 'C1_D' + day + '_SUNRISE'),
-                    sunset: getValue(climaData, 'C1_D' + day + '_SUNSET'),
-                    windAvgVelocity: getValue(climaData, 'C1_D' + day + '_WINDAVGVELOCITY'),
-                    windDirection: getValue(climaData, 'C1_D' + day + '_WINDDIRECTION'),
-                    windMaxVelocity: getValue(climaData, 'C1_D' + day + '_WINDMAXVELOCITY'),
-                    windMinVelocity: getValue(climaData, 'C1_D' + day + '_WINDMINVELOCITY')
-                });
-            }
+                var weatherData = [];
+                for (var day = 1; day <= 3; day++) {
+                    weatherData.push({
+                        cidade: getValue(climaData, 'C1_D' + day + '_CIDADE'),
+                        cidade_sys: getValue(climaData, 'C1_D' + day + '_CIDADE_SYS'),
+                        humidityMax: getValue(climaData, 'C1_D' + day + '_HUMIDITYMAX'),
+                        humidityMin: getValue(climaData, 'C1_D' + day + '_HUMIDITYMIN'),
+                        ico: getValue(climaData, 'C1_D' + day + '_ICO'),
+                        max: getValue(climaData, 'C1_D' + day + '_MAX'),
+                        min: getValue(climaData, 'C1_D' + day + '_MIN'),
+                        sunrise: getValue(climaData, 'C1_D' + day + '_SUNRISE'),
+                        sunset: getValue(climaData, 'C1_D' + day + '_SUNSET'),
+                        windAvgVelocity: getValue(climaData, 'C1_D' + day + '_WINDAVGVELOCITY'),
+                        windDirection: getValue(climaData, 'C1_D' + day + '_WINDDIRECTION'),
+                        windMaxVelocity: getValue(climaData, 'C1_D' + day + '_WINDMAXVELOCITY'),
+                        windMinVelocity: getValue(climaData, 'C1_D' + day + '_WINDMINVELOCITY')
+                    });
+                }
 
-            var dadosFormatados = [];
-            for (var i = 0; i < weatherData.length; i++) {
-                dadosFormatados.push({
-                    nr_max_wea: weatherData[i].max,
-                    nr_min_wea: weatherData[i].min,
-                    nr_icon_wea: weatherData[i].ico,
-                    cidade: weatherData[i].cidade
-                });
-            }
+                var dadosFormatados = [];
+                for (var i = 0; i < weatherData.length; i++) {
+                    dadosFormatados.push({
+                        nr_max_wea: weatherData[i].max,
+                        nr_min_wea: weatherData[i].min,
+                        nr_icon_wea: weatherData[i].ico,
+                        cidade: weatherData[i].cidade
+                    });
+                }
 
-            var dataAtual = new Date();
-            var data0 = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), dataAtual.getDate());
-            var data1 = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), dataAtual.getDate() + 1);
-            var data2 = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), dataAtual.getDate() + 2);
+                if (dadosFormatados.length < 3) {
+                    loader.mediaLog('ERRO: Dados insuficientes (' + dadosFormatados.length + ' dias)');
+                    loader.finished();
+                    return;
+                }
 
-            document.querySelector('#cidade').innerText = dadosFormatados[0].cidade;
+                var dataAtual = new Date();
+                var data0 = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), dataAtual.getDate());
+                var data1 = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), dataAtual.getDate() + 1);
+                var data2 = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), dataAtual.getDate() + 2);
 
-            preencheInfo(0, data0, dadosFormatados, function () {
-                preencheInfo(1, data1, dadosFormatados, function () {
-                    preencheInfo(2, data2, dadosFormatados, function () {
-                        loader.loaded();
-                        setTimeout(function () {
-                            loader.finished();
-                        }, 10000);
+                document.querySelector('#cidade').innerText = dadosFormatados[0].cidade;
+
+                preencheInfo(0, data0, dadosFormatados, function () {
+                    preencheInfo(1, data1, dadosFormatados, function () {
+                        preencheInfo(2, data2, dadosFormatados, function () {
+                            loader.loaded();
+                            setTimeout(function () {
+                                loader.finished();
+                            }, 10000);
+                        });
                     });
                 });
-            });
+
+            } catch (e) {
+                loader.mediaLog('ERRO: Falha ao processar dados - ' + e.message);
+                loader.finished();
+            }
         });
     });
 };
