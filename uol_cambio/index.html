@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="bg-black h-full w-full overflow-hidden">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Índice Financeiro</title>
+    <link rel="stylesheet" href="css/master.css">
+    <!-- <script src="js/mock-data.js"></script> -->
+    <script src="js/ebhtml.js"></script>
+    <script src="js/master.js"></script>
+</head>
+
+<body class="relative flex flex-col h-full w-full overflow-hidden opacity-0 transition-opacity duration-1000
+    text-white font-montserrat-medium
+    text-[2.5vmin]
+    portrait:text-[2.5vh]
+    ultrawide:text-[1.8vmin]
+    empena:text-[1.8vh]">
+
+    <!-- Background -->
+    <div class="absolute inset-0 z-0">
+        <img src="img/fundo.jpg" alt="" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-black/65"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="relative z-10 flex items-center justify-between px-[3vw] py-[1.5vh]
+        border-b border-white/20 shrink-0">
+        <h1 class="font-montserrat-bold uppercase tracking-[0.15em] text-[1em]">
+            Índice Financeiro
+        </h1>
+        <div id="data-hora" class="text-[0.8em] text-white/60"></div>
+    </header>
+
+    <!-- Main: Bolsas | Moedas -->
+    <main class="relative z-10 flex-1 flex overflow-hidden
+        portrait:flex-col">
+
+        <!-- BOLSAS -->
+        <section class="flex-1 flex flex-col justify-center px-[4vw] py-[2vh]
+            border-r border-white/15
+            portrait:border-r-0 portrait:border-b portrait:border-white/15">
+
+            <h2 class="font-montserrat-bold text-[0.8em] uppercase tracking-[0.2em] text-white/45 mb-[1.5vh]">
+                Bolsas
+            </h2>
+
+            <!-- Bovespa -->
+            <div class="flex items-center justify-between py-[0.9vh] border-b border-white/10">
+                <span class="text-white/75 w-[50%]">Bovespa</span>
+                <span id="seta-bovespa" class="font-montserrat-bold w-[10%] text-center"></span>
+                <span id="perc-bovespa" class="font-montserrat-bold w-[35%] text-right"></span>
+            </div>
+            <!-- NASDAQ -->
+            <div class="flex items-center justify-between py-[0.9vh] border-b border-white/10">
+                <span class="text-white/75 w-[50%]">NASDAQ</span>
+                <span id="seta-nasdaq" class="font-montserrat-bold w-[10%] text-center"></span>
+                <span id="perc-nasdaq" class="font-montserrat-bold w-[35%] text-right"></span>
+            </div>
+            <!-- Londres -->
+            <div class="flex items-center justify-between py-[0.9vh] border-b border-white/10">
+                <span class="text-white/75 w-[50%]">Londres</span>
+                <span id="seta-londres" class="font-montserrat-bold w-[10%] text-center"></span>
+                <span id="perc-londres" class="font-montserrat-bold w-[35%] text-right"></span>
+            </div>
+            <!-- Japão -->
+            <div class="flex items-center justify-between py-[0.9vh]">
+                <span class="text-white/75 w-[50%]">Japão</span>
+                <span id="seta-japao" class="font-montserrat-bold w-[10%] text-center"></span>
+                <span id="perc-japao" class="font-montserrat-bold w-[35%] text-right"></span>
+            </div>
+        </section>
+
+        <!-- MOEDAS -->
+        <section class="flex-1 flex flex-col justify-center px-[4vw] py-[2vh]">
+
+            <h2 class="font-montserrat-bold text-[0.8em] uppercase tracking-[0.2em] text-white/45 mb-[1.5vh]">
+                Moedas
+            </h2>
+
+            <!-- Dólar Comercial -->
+            <div class="flex items-center justify-between py-[0.9vh] border-b border-white/10">
+                <span class="text-white/75 w-[38%]">Dólar Comercial</span>
+                <span id="seta-dolar-com" class="font-montserrat-bold w-[8%] text-center"></span>
+                <span id="val-dolar-com" class="font-montserrat-bold w-[27%] text-center"></span>
+                <span id="perc-dolar-com" class="font-montserrat-bold w-[22%] text-right"></span>
+            </div>
+            <!-- Dólar Turismo -->
+            <div class="flex items-center justify-between py-[0.9vh] border-b border-white/10">
+                <span class="text-white/75 w-[38%]">Dólar Turismo</span>
+                <span id="seta-dolar-tur" class="font-montserrat-bold w-[8%] text-center"></span>
+                <span id="val-dolar-tur" class="font-montserrat-bold w-[27%] text-center"></span>
+                <span id="perc-dolar-tur" class="font-montserrat-bold w-[22%] text-right"></span>
+            </div>
+            <!-- Euro -->
+            <div class="flex items-center justify-between py-[0.9vh]">
+                <span class="text-white/75 w-[38%]">Euro</span>
+                <span id="seta-euro" class="font-montserrat-bold w-[8%] text-center"></span>
+                <span id="val-euro" class="font-montserrat-bold w-[27%] text-center"></span>
+                <span id="perc-euro" class="font-montserrat-bold w-[22%] text-right"></span>
+            </div>
+        </section>
+    </main>
+
+</body>
+
+</html>
