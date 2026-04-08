@@ -467,6 +467,36 @@ font-size: 3.7vh;
     }
 }
 
+/* Wide landscape 2:1 a 3:1 (ex: 2040x720, 2560x720) */
+@media (min-aspect-ratio: 2/1) and (max-aspect-ratio: 3/1) {
+    #cidade {
+        font-size: 4vh;
+    }
+    .dia {
+        font-size: 4.5vh;
+    }
+    .dia_mes {
+        font-size: 3.5vh;
+    }
+    .grau_max,
+    .grau_min {
+        font-size: 6.5vh;
+    }
+    .chuva p {
+        font-size: 2.5vh;
+    }
+    .logo {
+        max-width: 10vw;
+    }
+    .previsao {
+        width: 28%;
+        row-gap: 1vh;
+    }
+    .icone {
+        width: 42%;
+    }
+}
+
 /* Ultrawide >= 3:1 (ex: 1920x540, monitores panorâmicos) */
 @media (min-aspect-ratio: 3/1) {
     #cidade {
