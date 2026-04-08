@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="bg-black h-full w-full overflow-hidden">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercado Financeiro</title>
+    <link rel="stylesheet" href="css/master.css">
+    <!-- <script src="js/mock-data.js"></script> -->
+    <script src="js/ebhtml.js"></script>
+    <script src="js/master.js"></script>
+</head>
+
+<body class="relative flex flex-col h-full w-full overflow-hidden opacity-0 transition-opacity duration-1000
+    text-white font-montserrat-medium
+    text-[3.8vmin]
+    portrait:text-[3.5vh]
+    ultrawide:text-[2.8vmin]
+    empena:text-[2.5vh]">
+
+    <!-- Background -->
+    <div class="absolute inset-0 z-0 bg-financeiro"></div>
+
+    <!-- Header -->
+    <header class="relative z-10 flex items-center justify-center px-[3vw] py-[1.5vh]
+        border-b-4 border-dotted border-white/20 shrink-0">
+        <h1 class="font-montserrat-bold uppercase tracking-[0.15em] text-[1em]">
+            Mercado Financeiro
+        </h1>
+        <div id="data-hora" class="hidden [0.4em] text-white/60"></div>
+    </header>
+
+    <!-- Main: Bolsas | Moedas -->
+    <main class="relative z-10 flex-1 flex overflow-hidden
+        portrait:flex-col">
+
+        <!-- BOLSAS -->
+        <section class="flex-1 flex flex-col justify-center px-[4vw] py-[2vh]
+            border-r-4 border-dotted border-white/15
+            portrait:border-r-0 portrait:border-b-4 portrait:border-dotted portrait:border-white/15">
+
+            <h2 class="font-montserrat-bold text-[0.4em] uppercase tracking-[0.2em] text-white/45 mb-[1.5vh]">
+                Bolsas
+            </h2>
+            <div id="container-bolsas"></div>
+        </section>
+
+        <!-- MOEDAS -->
+        <section class="flex-1 flex flex-col justify-center px-[4vw] py-[2vh]">
+
+            <h2 class="font-montserrat-bold text-[0.4em] uppercase tracking-[0.2em] text-white/45 mb-[1.5vh]">
+                Moedas
+            </h2>
+            <div id="container-moedas"></div>
+        </section>
+    </main>
+
+    <!-- Footer: logo UOL centralizado -->
+    <footer class="relative z-10 flex items-center justify-center px-[3vw] py-[2vh] shrink-0
+        border-t-4 border-dotted border-white/20">
+        <img src="img/logo.png" alt="UOL" class="max-h-[6vh] max-w-[15vw] object-contain
+            portrait:max-h-[3vh] portrait:max-w-[25vw]
+            ultrawide:max-h-[3.5vh] ultrawide:max-w-[8vw]">
+    </footer>
+
+</body>
+
+</html>
