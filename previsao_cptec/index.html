@@ -1,91 +1,58 @@
-<html>
+<!DOCTYPE html>
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clima</title>
+    <title>Previsão do Tempo - CPTEC</title>
     <link rel="stylesheet" href="css/master.css">
     <script src="js/ebhtml.js"></script>
+    <!-- <script src="js/mock-data.js"></script> -->
     <script src="js/master.js"></script>
 </head>
 
-<body>
-    <div id="fundo">
-        <img src="img/fundo.jpg">
-    </div>
-    <div id="head">
-        <div id="cidade"></div>
-    </div>
-    <div id="content" class="fade">
-        <div class="box">
+<!--
+  Breakpoints (tailwind.config.js):
+    portrait    max-aspect-ratio: 3/4  → cards em coluna, card vira flex-row
+    superbanner min-aspect-ratio: 5/1  → body vira grid 5 colunas (1 linha)
+  Tipografia: vmin em tudo — escala automática, sem breakpoints de fonte.
+-->
 
-            <div class="previsao">
-                <div class="dia"></div>
-                <img class="icone" src="">
-                <div class="dia_mes"></div>
-                <div class="graus">
-                    <img class="max" src="img/setamax.png">
-                    <div class="grau_max"></div>
-                    <div class="spacer"></div>
-                    <img class="min" src="img/setamin.png">
-                    <div class="grau_min"></div>
-                </div>
-                <div class="condicoes">
-                    <img class="gotas" src="img/gotas.png">
-                    <div class="spacer"></div>
-                    <div class="chuva">
-                        <p class="quant_chuva"></p>
-                        <p class="prob_chuva"></p>
-                    </div>
-                </div>
-            </div>
-            <div class="previsao">
-                <div class="dia"></div>
-                <img class="icone" src="">
-                <div class="dia_mes"></div>
-                <div class="graus">
-                    <img class="max" src="img/setamax.png">
-                    <div class="grau_max"></div>
-                    <div class="spacer"></div>
-                    <img class="min" src="img/setamin.png">
-                    <div class="grau_min"></div>
-                </div>
-                <div class="condicoes">
-                    <img class="gotas" src="img/gotas.png">
-                    <div class="spacer"></div>
-                    <div class="chuva">
-                        <p class="quant_chuva"></p>
-                        <p class="prob_chuva"></p>
-                    </div>
-                </div>
-            </div>
-            <div class="previsao">
-                <div class="dia"></div>
-                <img class="icone" src="">
-                <div class="dia_mes"></div>
-                <div class="graus">
-                    <img class="max" src="img/setamax.png">
-                    <div class="grau_max"></div>
-                    <div class="spacer"></div>
-                    <img class="min" src="img/setamin.png">
-                    <div class="grau_min"></div>
-                </div>
-                <div class="condicoes">
-                    <img class="gotas" src="img/gotas.png">
-                    <div class="spacer"></div>
-                    <div class="chuva">
-                        <p class="quant_chuva"></p>
-                        <p class="prob_chuva"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
+<body class="bg-[#0D2245] text-white font-montserrat font-bold w-full h-full overflow-hidden
+             flex flex-col superbanner:grid superbanner:grid-cols-[auto_1fr_1fr_1fr_auto]
+             opacity-0 transition-opacity duration-[1000ms]">
+
+    <!-- Fundo -->
+    <div class="absolute inset-0 overflow-hidden -z-0">
+        <img src="img/fundo.jpg" alt="" class="w-full h-full object-cover">
     </div>
-    <div id="footer">
-        <img class="logo" src="img/logo_CPTEC.png">
-    </div>
+
+    <!-- HEADER — cidade -->
+    <header class="relative z-10 h-[12%] superbanner:h-full
+                   flex items-center justify-center
+                   opacity-0 animate-fade-in" style="animation-delay:0.5s">
+        <p id="cidade" class="text-[5vmin] text-center leading-none tracking-wide"></p>
+    </header>
+
+    <!-- MAIN — 3 cards -->
+    <!-- items-stretch (padrão flex) faz os cards ocuparem 100% da altura do main -->
+    <main class="relative z-10 flex-1 superbanner:contents
+                 flex flex-row portrait:flex-col
+                 portrait:items-center justify-center
+                 gap-[2%] p-[2%]">
+        <!-- Cards gerados pelo JS -->
+        <div id="cards-container" class="contents"></div>
+    </main>
+
+    <!-- FOOTER — logo -->
+    <footer class="relative z-10 h-[10%] superbanner:h-full
+                   flex items-center justify-end
+                   pr-[2%] pb-[1%] superbanner:pb-0
+                   opacity-0 animate-fade-in" style="animation-delay:1s">
+        <img src="img/logo_CPTEC.png" alt="CPTEC"
+             class="h-[70%] superbanner:h-[60%] w-auto object-contain max-w-[20vmin]">
+    </footer>
+
 </body>
-
-
 
 </html>
