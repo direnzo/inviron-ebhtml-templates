@@ -22,9 +22,9 @@ module.exports = {
       },
     },
     screens: {
-      /* Apenas 2 breakpoints de LAYOUT — tipografia usa vmin (sem breakpoints) */
+      /* 2 breakpoints de LAYOUT — tipografia usa vmin (sem breakpoints de fonte) */
       'portrait':    { 'raw': '(max-aspect-ratio: 3/4)' },   // cards em coluna
-      'superbanner': { 'raw': '(min-aspect-ratio: 5/1)' },   // colapsa em 1 linha
+      'superbanner': { 'raw': '(min-aspect-ratio: 5/1)' },   // cards flex-row (horóscopo side)
     },
   },
 }

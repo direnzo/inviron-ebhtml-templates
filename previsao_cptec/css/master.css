@@ -586,10 +586,6 @@ video {
   display: flex;
 }
 
-.grid {
-  display: grid;
-}
-
 .contents {
   display: contents;
 }
@@ -606,20 +602,16 @@ video {
   height: 12%;
 }
 
+.h-\[5vmin\] {
+  height: 5vmin;
+}
+
 .h-\[70\%\] {
   height: 70%;
 }
 
-.h-auto {
-  height: auto;
-}
-
 .h-full {
   height: 100%;
-}
-
-.h-\[5vmin\] {
-  height: 5vmin;
 }
 
 .max-h-full {
@@ -630,16 +622,12 @@ video {
   min-height: 0px;
 }
 
-.w-\[12\%\] {
-  width: 12%;
+.w-\[28\%\] {
+  width: 28%;
 }
 
-.w-\[30\%\] {
-  width: 30%;
-}
-
-.w-\[70\%\] {
-  width: 70%;
+.w-\[35\%\] {
+  width: 35%;
 }
 
 .w-auto {
@@ -648,18 +636,6 @@ video {
 
 .w-full {
   width: 100%;
-}
-
-.w-\[50\%\] {
-  width: 50%;
-}
-
-.w-\[28\%\] {
-  width: 28%;
-}
-
-.w-\[35\%\] {
-  width: 35%;
 }
 
 .max-w-\[20vmin\] {
@@ -724,10 +700,6 @@ video {
   align-items: center;
 }
 
-.items-stretch {
-  align-items: stretch;
-}
-
 .justify-end {
   justify-content: flex-end;
 }
@@ -740,28 +712,8 @@ video {
   justify-content: space-around;
 }
 
-.justify-evenly {
-  justify-content: space-evenly;
-}
-
 .gap-\[2\%\] {
   gap: 2%;
-}
-
-.gap-\[3\%\] {
-  gap: 3%;
-}
-
-.gap-\[6\%\] {
-  gap: 6%;
-}
-
-.gap-\[8\%\] {
-  gap: 8%;
-}
-
-.gap-\[10\%\] {
-  gap: 10%;
 }
 
 .gap-\[5\%\] {
@@ -809,21 +761,12 @@ video {
      object-fit: cover;
 }
 
-.p-\[4\%\] {
-  padding: 4%;
-}
-
-.p-\[2\%\] {
-  padding: 2%;
+.p-\[1\%\] {
+  padding: 1%;
 }
 
 .p-\[8\%\] {
   padding: 8%;
-}
-
-.px-\[2\%\] {
-  padding-left: 2%;
-  padding-right: 2%;
 }
 
 .px-\[6\%\] {
@@ -835,12 +778,12 @@ video {
   padding-bottom: 1%;
 }
 
-.pr-\[2\%\] {
-  padding-right: 2%;
-}
-
 .pb-\[8\%\] {
   padding-bottom: 8%;
+}
+
+.pr-\[2\%\] {
+  padding-right: 2%;
 }
 
 .pt-0 {
@@ -855,32 +798,16 @@ video {
   font-family: Montserrat, sans-serif;
 }
 
-.text-\[3\.5vmin\] {
-  font-size: 3.5vmin;
-}
-
-.text-\[4vmin\] {
-  font-size: 4vmin;
+.text-\[4\.5vmin\] {
+  font-size: 4.5vmin;
 }
 
 .text-\[5vmin\] {
   font-size: 5vmin;
 }
 
-.text-\[6vmin\] {
-  font-size: 6vmin;
-}
-
-.text-\[10vmin\] {
-  font-size: 10vmin;
-}
-
-.text-\[8vmin\] {
-  font-size: 8vmin;
-}
-
-.text-\[4\.5vmin\] {
-  font-size: 4.5vmin;
+.text-\[7vmin\] {
+  font-size: 7vmin;
 }
 
 .font-bold {
@@ -903,10 +830,6 @@ video {
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
-}
-
-.text-white\/50 {
-  color: rgb(255 255 255 / 0.5);
 }
 
 .opacity-0 {
@@ -995,71 +918,256 @@ html, body {
   color: rgba(255, 255, 255, 0.50)
 }
 
+/* =====================================================
+   CARD HEIGHT — limita altura para não empurrar o footer
+===================================================== */
+
+.previsao-card {
+  height: 65vh;
+}
+
+@media (max-aspect-ratio: 3/4) {
+  .previsao-card {
+    height: 22vh;
+  }
+}
+
+/* =====================================================
+   SUPERBANNER (≥ 5:1) — vh para escalar com a altura curta
+   vmin num display 5:1 (ex: 1920×384) = 3.84px → fontes ficam
+   minúsculas. Override com vh para proporcionar ao card height.
+===================================================== */
+
 @media (min-aspect-ratio: 5/1) {
-  .superbanner\:grid {
-    display: grid;
+  #cidade                          {
+    font-size: 5vh;
   }
 
-  .superbanner\:contents {
-    display: contents;
+  .previsao-card .dia              {
+    font-size: 10vh;
+    white-space: nowrap;
   }
 
-  .superbanner\:h-\[60\%\] {
-    height: 60%;
+  .previsao-card .dia-mes          {
+    font-size: 7vh;
   }
 
-  .superbanner\:h-full {
-    height: 100%;
+  .previsao-card .grau-max,
+    .previsao-card .grau-min         {
+    font-size: 13vh;
   }
 
-  .superbanner\:w-\[22\%\] {
-    width: 22%;
+  .previsao-card .graus img        {
+    height: 10vh !important;
+  }
+}
+
+/* =====================================================
+   SLIDESHOW MODE — detectado por JS (AR entre 3:4 e 8:5)
+   Para formatos quadrados, 4:3 e similares onde 3 cards
+   não cabem bem lado a lado nem empilhados.
+   JS adiciona a classe 'slideshow-mode' ao body.
+===================================================== */
+
+/* Slide entra pela direita */
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(110%);
   }
 
-  .superbanner\:w-full {
-    width: 100%;
+  to   {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide sai pela esquerda */
+
+@keyframes slideOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
   }
 
-  .superbanner\:grid-cols-\[auto_1fr_1fr_1fr_auto\] {
-    grid-template-columns: auto 1fr 1fr 1fr auto;
+  to   {
+    opacity: 0;
+    transform: translateX(-110%);
+  }
+}
+
+/* Container precisa de overflow:hidden para cortar cards fora da tela */
+
+body.slideshow-mode #cards-container {
+  position: relative;
+  overflow: hidden;
+  width: 80%;
+  height: 65vh;
+}
+
+body.slideshow-mode .previsao-card {
+  position: absolute !important;
+  top: 4%;
+  left: 4%;
+  width: 92% !important;
+  height: 92% !important;
+  opacity: 0;
+  transform: translateX(110%);
+  animation: none !important;
+  flex-direction: row !important;
+  display: flex !important;
+  pointer-events: none;
+}
+
+body.slideshow-mode .previsao-card.card-ativo {
+  animation: slideInRight 0.6s ease forwards !important;
+  pointer-events: auto;
+}
+
+body.slideshow-mode .previsao-card.card-saindo {
+  animation: slideOutLeft 0.6s ease forwards !important;
+}
+
+body.slideshow-mode .box-icone {
+  flex: none !important;
+  width: 35% !important;
+  min-height: 0 !important;
+  padding: 5% !important;
+}
+
+body.slideshow-mode .box-dados {
+  align-items: flex-start !important;
+  padding: 6% 8% 6% 6% !important;
+}
+
+body.slideshow-mode .graus {
+  justify-content: flex-start !important;
+}
+
+/* =====================================================
+   SLIDESHOW — fontes em vh para proporcionar ao card (65vh)
+   vmin num display quadrado/4:3 = muito pequeno para o espaço disponível.
+===================================================== */
+
+body.slideshow-mode #cidade               {
+  font-size: 6vh;
+}
+
+body.slideshow-mode .previsao-card .dia   {
+  font-size: 8vh;
+  white-space: nowrap;
+}
+
+body.slideshow-mode .previsao-card .dia-mes {
+  font-size: 8vh;
+}
+
+body.slideshow-mode .previsao-card .grau-max,
+body.slideshow-mode .previsao-card .grau-min {
+  font-size: 8vh;
+}
+
+body.slideshow-mode .previsao-card .graus img {
+  height: 11vh !important;
+}
+
+/* =====================================================
+   TELAS MUITO BAIXAS (altura < 300px) — reduz fontes em todos os modos
+   Cobre displays superbanner curtos, banners e qualquer formato < 300px de altura.
+===================================================== */
+
+@media (max-height: 300px) {
+  #cidade                          {
+    font-size: 3vh !important;
+  }
+
+  .previsao-card .dia              {
+    font-size: 6vh !important;
+    white-space: nowrap;
+  }
+
+  .previsao-card .dia-mes          {
+    font-size: 4.5vh !important;
+  }
+
+  .previsao-card .grau-max,
+    .previsao-card .grau-min         {
+    font-size: 8vh !important;
+  }
+
+  .previsao-card .graus img        {
+    height: 6vh !important;
+  }
+
+  body.slideshow-mode #cidade               {
+    font-size: 4vh !important;
+  }
+
+  body.slideshow-mode .previsao-card .dia   {
+    font-size: 8vh !important;
+  }
+
+  body.slideshow-mode .previsao-card .dia-mes {
+    font-size: 5vh !important;
+  }
+
+  body.slideshow-mode .previsao-card .grau-max,
+    body.slideshow-mode .previsao-card .grau-min {
+    font-size: 10vh !important;
+  }
+
+  body.slideshow-mode .previsao-card .graus img {
+    height: 8vh !important;
+  }
+}
+
+@media (min-aspect-ratio: 5/1) {
+  .superbanner\:w-\[28\%\] {
+    width: 28%;
+  }
+
+  .superbanner\:w-\[35\%\] {
+    width: 35%;
+  }
+
+  .superbanner\:flex-none {
+    flex: none;
   }
 
   .superbanner\:flex-row {
     flex-direction: row;
   }
 
-  .superbanner\:gap-\[3\%\] {
-    gap: 3%;
+  .superbanner\:items-start {
+    align-items: flex-start;
   }
 
-  .superbanner\:p-\[2\%\] {
-    padding: 2%;
+  .superbanner\:justify-start {
+    justify-content: flex-start;
   }
 
-  .superbanner\:pb-0 {
-    padding-bottom: 0px;
+  .superbanner\:p-\[5\%\] {
+    padding: 5%;
+  }
+
+  .superbanner\:py-\[6\%\] {
+    padding-top: 6%;
+    padding-bottom: 6%;
+  }
+
+  .superbanner\:pr-\[8\%\] {
+    padding-right: 8%;
   }
 }
 
 @media (orientation: portrait) {
-  .portrait\:w-\[28\%\] {
-    width: 28%;
-  }
-
-  .portrait\:w-\[88\%\] {
-    width: 88%;
-  }
-
   .portrait\:w-\[35\%\] {
     width: 35%;
   }
 
   .portrait\:w-\[90\%\] {
     width: 90%;
-  }
-
-  .portrait\:flex-1 {
-    flex: 1 1 0%;
   }
 
   .portrait\:flex-none {
@@ -1078,20 +1186,8 @@ html, body {
     align-items: flex-start;
   }
 
-  .portrait\:items-center {
-    align-items: center;
-  }
-
   .portrait\:justify-start {
     justify-content: flex-start;
-  }
-
-  .portrait\:gap-\[4\%\] {
-    gap: 4%;
-  }
-
-  .portrait\:gap-\[6\%\] {
-    gap: 6%;
   }
 
   .portrait\:p-\[5\%\] {

@@ -14,12 +14,12 @@
 <!--
   Breakpoints (tailwind.config.js):
     portrait    max-aspect-ratio: 3/4  → cards em coluna, card vira flex-row
-    superbanner min-aspect-ratio: 5/1  → body vira grid 5 colunas (1 linha)
+    superbanner min-aspect-ratio: 5/1  → cards em linha com layout flex-row (horóscopo side)
   Tipografia: vmin em tudo — escala automática, sem breakpoints de fonte.
 -->
 
 <body class="bg-[#0D2245] text-white font-montserrat font-bold w-full h-full overflow-hidden
-             flex flex-col superbanner:grid superbanner:grid-cols-[auto_1fr_1fr_1fr_auto]
+             flex flex-col
              opacity-0 transition-opacity duration-[1000ms]">
 
     <!-- Fundo -->
@@ -28,29 +28,28 @@
     </div>
 
     <!-- HEADER — cidade -->
-    <header class="relative z-10 h-[12%] superbanner:h-full
+    <header class="relative z-10 h-[12%]
                    flex items-center justify-center
                    opacity-0 animate-fade-in" style="animation-delay:0.5s">
         <p id="cidade" class="text-[5vmin] text-center leading-none tracking-wide"></p>
     </header>
 
     <!-- MAIN — 3 cards -->
-    <!-- items-stretch (padrão flex) faz os cards ocuparem 100% da altura do main -->
-    <main class="relative z-10 flex-1 superbanner:contents
+    <main class="relative z-10 flex-1
                  flex flex-row portrait:flex-col
-                 portrait:items-center justify-center
-                 gap-[2%] p-[2%]">
+                 items-center justify-center
+                 gap-[2%] p-[1%]">
         <!-- Cards gerados pelo JS -->
         <div id="cards-container" class="contents"></div>
     </main>
 
     <!-- FOOTER — logo -->
-    <footer class="relative z-10 h-[10%] superbanner:h-full
+    <footer class="relative z-10 h-[10%]
                    flex items-center justify-end
-                   pr-[2%] pb-[1%] superbanner:pb-0
+                   pr-[2%] pb-[1%]
                    opacity-0 animate-fade-in" style="animation-delay:1s">
         <img src="img/logo_CPTEC.png" alt="CPTEC"
-             class="h-[70%] superbanner:h-[60%] w-auto object-contain max-w-[20vmin]">
+             class="h-[70%] w-auto object-contain max-w-[20vmin]">
     </footer>
 
 </body>
