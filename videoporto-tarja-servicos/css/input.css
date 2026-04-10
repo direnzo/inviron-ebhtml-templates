@@ -21,6 +21,8 @@ html, body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    width: 100%;
+    height: 100%;
 }
 
 *, *::before, *::after {
@@ -40,10 +42,10 @@ body {
 
 #container {
     position: relative;
-    width: 312px;
-    height: 100px;
-    max-width: 312px;
-    max-height: 100px;
+    width: 100%;
+    height: 100%;
+    /* max-width: 312px; */
+    /* max-height: 100px; */
     overflow: hidden;
     background-size: cover;
     background-position: center;
@@ -66,7 +68,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 10px;
+    padding: 8px 3%;
     font-family: 'Carbona-MonoBoldSlanted', monospace;
 }
 
@@ -82,14 +84,14 @@ body {
 .slide-row {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 2%;
     width: 100%;
     height: 100%;
 }
 
 .slide-icon {
-    width: 34px;
-    height: 34px;
+    width: 50px;
+    height: 50px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -100,8 +102,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    /* Ícones verdes para fundo genérico (#134123) */
-    filter: invert(18%) sepia(49%) saturate(659%) hue-rotate(101deg) brightness(89%) contrast(96%);
+    /* Filtro aplicado via JS (injetarIcone) para suporte a SVG inline */
 }
 
 .hora-main {
@@ -109,27 +110,27 @@ body {
 }
 
 .hora-value {
-    font-size: 35px;
+    font-size: 11.2vw;
     line-height: 0.85;
     letter-spacing: -1px;
 }
 
 .hora-side {
-    width: 108px;
+    width: 35%;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: flex-end;
+    align-items: flex-start;
     gap: 1px;
 }
 
 .hora-weekday {
-    font-size: 14px;
+    font-size: 4.5vw;
     line-height: 1;
 }
 
 .hora-date {
-    font-size: 9px;
+    font-size: 2.9vw;
     line-height: 1;
 }
 
@@ -142,7 +143,7 @@ body {
 }
 
 .clima-label {
-    font-size: 12px;
+    font-size: 3.8vw;
     line-height: 1;
 }
 
@@ -152,33 +153,48 @@ body {
 }
 
 .clima-temp {
-    font-size: 45px;
+    font-size: 14.4vw;
     line-height: 0.8;
     letter-spacing: -2px;
 }
 
 .clima-unit {
-    font-size: 20px;
+    font-size: 6.4vw;
     line-height: 1;
     margin-left: 3px;
     margin-bottom: 7px;
 }
 
 .clima-metrics {
-    width: 122px;
+    width: 39%;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 3px 7px;
-    font-size: 8px;
+    gap: 10%;
+    font-size: 2.6vw;
     line-height: 1;
 }
 
 .metric-line span {
-    font-size: 16px;
+    font-size: 5.1vw;
     line-height: 0.9;
     margin-left: 0;
     white-space: nowrap;
     overflow: hidden;
+}
+
+.metric-icon {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    display: inline-block;
+    vertical-align: middle;
+    /* Filtro aplicado dinamicamente via JS (aplicarTema) */
+}
+
+.metric-value-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
 }
 
 .mares-content {
@@ -189,14 +205,14 @@ body {
 }
 
 .mares-label {
-    font-size: 10px;
+    font-size: 3.2vw;
     line-height: 1;
 }
 
 .mares-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px;
+    gap: 2%;
 }
 
 .uv-main {
@@ -207,12 +223,12 @@ body {
 }
 
 .uv-title {
-    font-size: 15px;
+    font-size: 4.8vw;
     line-height: 1;
 }
 
 .uv-msg {
-    font-size: 11px;
+    font-size: 3.5vw;
     line-height: 1.1;
 }
 
@@ -220,7 +236,7 @@ body {
     flex: 1 1 auto;
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px;
+    gap: 2%;
 }
 
 .quote-item {
@@ -245,17 +261,17 @@ body {
 }
 
 .quote-value {
-    font-size: 13px;
+    font-size: 4.2vw;
     line-height: 1;
 }
 
 .quote-unit {
-    font-size: 9px;
+    font-size: 2.9vw;
     line-height: 1;
 }
 
 .quote-time {
-    font-size: 9px;
+    font-size: 2.9vw;
     line-height: 1;
     margin-top: 2px;
 }
@@ -265,7 +281,7 @@ body {
 }
 
 .comunicado-msg {
-    font-size: 18px;
+    font-size: 5.8vw;
     line-height: 1.05;
     white-space: normal;
 }
@@ -295,6 +311,16 @@ body {
 }
 
 /* Ícones brancos para fundos de parques */
-.tema-branco .slide-icon img {
+.tema-branco .slide-icon img,
+.tema-branco .slide-icon svg {
+    filter: brightness(0) invert(1) !important;
+}
+
+/* Container do ícone inline também precisa ser sobrescrito */
+.tema-branco .slide-icon {
+    filter: brightness(0) invert(1) !important;
+}
+
+.tema-branco .metric-icon {
     filter: brightness(0) invert(1);
 }
