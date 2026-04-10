@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/master.css">
     
     <!-- Mock data para desenvolvimento (comentar em produção) -->
-    <script src="js/mock-data.js"></script>
+    <!-- <script src="js/mock-data.js"></script> -->
     
     <script src="js/ebhtml.js"></script>
     <script src="js/master.js"></script>
@@ -18,19 +18,19 @@
 
 <body class="m-0 p-0 w-full h-full overflow-hidden bg-black">
     <!-- Container fixo 312x100px -->
-    <div id="container" class="w-312 h-100 text-[#134123]">
+    <div id="container" class="text-[#134123]">
         <!-- Slide 1: Data e Hora -->
         <div class="slide slide-hora" data-type="hora">
             <div class="slide-row">
-                <div class="slide-icon" id="hora-icon">
+                <div class="slide-icon p-2" id="hora-icon">
                     <!-- Ícone será injetado por JS -->
                 </div>
                 <div class="hora-main">
-                    <div class="hora-value" id="hora-value">13:45</div>
+                    <div class="hora-value" id="hora-value"></div>
                 </div>
                 <div class="hora-side">
-                    <div class="hora-weekday" id="hora-weekday">Quarta-feira</div>
-                    <div class="hora-date" id="hora-date">13 de março de 2026</div>
+                    <div class="hora-weekday" id="hora-weekday"></div>
+                    <div class="hora-date" id="hora-date"></div>
                 </div>
             </div>
         </div>
@@ -42,17 +42,17 @@
                     <!-- Ícone será injetado por JS -->
                 </div>
                 <div class="clima-main">
-                    <div class="clima-label" id="clima-condicao">Nublado</div>
+                    <div class="clima-label" id="clima-condicao"></div>
                     <div class="clima-temp-line">
-                        <div class="clima-temp" id="clima-temp">30</div>
+                        <div class="clima-temp" id="clima-temp"></div>
                         <div class="clima-unit">°C</div>
                     </div>
                 </div>
                 <div class="clima-metrics">
-                    <div class="metric-line flex-col">Máx <span id="clima-max" class="flex">34 °C</span></div>
-                    <div class="metric-line flex-col">Precipitação <span id="clima-umidade" class="flex">78 %</span></div>
-                    <div class="metric-line flex-col">Mín <span id="clima-min" class="flex">28 °C</span></div>
-                    <div class="metric-line flex-col">Vento <span id="clima-vento" class="flex">26 km/h</span></div>
+                    <div class="metric-line flex-col">Máx <span id="clima-max" class="flex"></span></div>
+                    <div class="metric-line flex-col"><p>Umidade</p> <span class="metric-value-row"><span id="clima-umidade"></span></span></div>
+                    <div class="metric-line flex-col">Mín <span id="clima-min" class="flex"></span></div>
+                    <div class="metric-line flex-col"><p>Vento</p> <span class="metric-value-row"><span id="clima-vento"></span></span></div>
                 </div>
             </div>
         </div>
@@ -68,23 +68,23 @@
                     <div class="mares-grid">
                         <div class="quote-item">
                             <img class="quote-arrow" id="mares-seta1" src="img/seta_verde.png" alt="seta">
-                            <div class="quote-value-line"><span class="quote-value" id="mares-v1">2.46</span><span class="quote-unit">m</span></div>
-                            <div class="quote-time" id="mares-h1">04:02</div>
+                            <div class="quote-value-line"><span class="quote-value" id="mares-v1"></span><span class="quote-unit">m</span></div>
+                            <div class="quote-time" id="mares-h1"></div>
                         </div>
                         <div class="quote-item">
                             <img class="quote-arrow" id="mares-seta2" src="img/seta_amarala.png" alt="seta">
-                            <div class="quote-value-line"><span class="quote-value" id="mares-v2">0.11</span><span class="quote-unit">m</span></div>
-                            <div class="quote-time" id="mares-h2">10:08</div>
+                            <div class="quote-value-line"><span class="quote-value" id="mares-v2"></span><span class="quote-unit">m</span></div>
+                            <div class="quote-time" id="mares-h2"></div>
                         </div>
                         <div class="quote-item">
                             <img class="quote-arrow" id="mares-seta3" src="img/seta_verde.png" alt="seta">
-                            <div class="quote-value-line"><span class="quote-value" id="mares-v3">2.10</span><span class="quote-unit">m</span></div>
-                            <div class="quote-time" id="mares-h3">16:17</div>
+                            <div class="quote-value-line"><span class="quote-value" id="mares-v3"></span><span class="quote-unit">m</span></div>
+                            <div class="quote-time" id="mares-h3"></div>
                         </div>
                         <div class="quote-item">
                             <img class="quote-arrow" id="mares-seta4" src="img/seta_amarala.png" alt="seta">
-                            <div class="quote-value-line"><span class="quote-value" id="mares-v4">0.32</span><span class="quote-unit">m</span></div>
-                            <div class="quote-time" id="mares-h4">22:14</div>
+                            <div class="quote-value-line"><span class="quote-value" id="mares-v4"></span><span class="quote-unit">m</span></div>
+                            <div class="quote-time" id="mares-h4"></div>
                         </div>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                 </div>
                 <div class="uv-main">
                     <div class="uv-title">Proteja sua pele!</div>
-                    <div class="uv-msg" id="uv-msg">O nível de UV agora pela manhã está altíssimo.</div>
+                    <div class="uv-msg" id="uv-msg"></div>
                 </div>
             </div>
         </div>
