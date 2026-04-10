@@ -7,13 +7,8 @@
  *   Reordene para testar variantes diferentes.
  *   TITULO  : tipo do combustivel (deve bater com CORES_COMBUSTIVEL em master.js)
  *   PRECO   : usa ponto decimal, ex: '4.39' | '6.49'
- *   LOCAL   : ID do local (deve bater com D_LOCAL.ID)
- *
- * D_LOCAL:
- *   ID      : identificador do local (tela)
  *
  * D_LOGO (array - suporte a datalist):
- *   LOCAL   : FK para D_LOCAL.ID
  *   FOTO1   : URL da bandeira (distribuidora)
  *   FOTO2   : URL do logo do posto
  */
@@ -28,39 +23,24 @@ var MOCK_DATA = {
          * O primeiro item do array e o que sera exibido no template.
          */
         'D_COMBUSTIVEL': [
-            /* --- ATIVO (mova para ca o que quiser testar) --- */
-            { 'TITULO': 'Etanol Comum',       'PRECO': '4.39', 'LOCAL': '1', 'DESCRICAO': 'EC'  },
+            { 'TITULO': 'Etanol Comum',       'PRECO': '4.39', 'DESCRICAO': 'EC'  },
             /* --- outras variantes --- */
-            { 'TITULO': 'Gasolina',            'PRECO': '6.29', 'LOCAL': '1', 'DESCRICAO': 'G'   },
-            { 'TITULO': 'Gasolina Aditivada',  'PRECO': '6.69', 'LOCAL': '1', 'DESCRICAO': 'GA'  },
-            { 'TITULO': 'Gasolina Premium',    'PRECO': '7.19', 'LOCAL': '1', 'DESCRICAO': 'GP'  },
-            { 'TITULO': 'Diesel S10',          'PRECO': '5.89', 'LOCAL': '1', 'DESCRICAO': 'DS'  },
-            { 'TITULO': 'Diesel Aditivado',    'PRECO': '6.19', 'LOCAL': '1', 'DESCRICAO': 'DA'  },
-            { 'TITULO': 'GNV',                 'PRECO': '3.79', 'LOCAL': '1', 'DESCRICAO': 'GNV' }
+            { 'TITULO': 'Gasolina',            'PRECO': '6.29', 'DESCRICAO': 'G'   },
+            { 'TITULO': 'Gasolina Aditivada',  'PRECO': '6.69', 'DESCRICAO': 'GA'  },
+            { 'TITULO': 'Gasolina Premium',    'PRECO': '7.19', 'DESCRICAO': 'GP'  },
+            { 'TITULO': 'Diesel S10',          'PRECO': '5.89', 'DESCRICAO': 'DS'  },
+            { 'TITULO': 'Diesel Aditivado',    'PRECO': '6.19', 'DESCRICAO': 'DA'  },
+            { 'TITULO': 'GNV',                 'PRECO': '3.79', 'DESCRICAO': 'GNV' }
         ],
-
-        'D_LOCAL': {
-            value: function(campo) {
-                var dados = {
-                    'ID':        '1',
-                    'SCREEN_ID': '1',
-                    'SITE':      'Mock Posto'
-                };
-                return dados[campo] !== undefined ? { value: dados[campo] } : null;
-            }
-        },
 
         /*
          * D_LOGO como array para suportar datalist no mock.
-         * Cada entrada representa um local diferente (LOCAL = D_LOCAL.ID).
          * Troque FOTO1/FOTO2 para testar bandeiras:
          *   bandeira-petrobras.png | bandeira-ipiranga.png | bandeira-SHELL.png
          *   logo-posto.png | logo-ale.png | '' (vazio = oculto)
          */
         'D_LOGO': [
             {
-                'LOCAL': '1',
-                'FOTO':  'img/bandeira-petrobras.png',
                 'FOTO1': 'img/bandeira-petrobras.png',
                 'FOTO2': 'img/logo-posto.png'
             }

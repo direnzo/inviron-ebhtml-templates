@@ -1,9 +1,8 @@
 /**
  * PRECO PRISMATURISMO - Template de preco de combustivel (320x320px)
  * Dados:
- *   D_COMBUSTIVEL - TITULO, PRECO (decimal), LOCAL
- *   D_LOCAL       - ID do local fisico (tela)
- *   D_LOGO        - FOTO1 (bandeira), FOTO2 (posto), LOCAL (fk para D_LOCAL.ID)
+ *   D_COMBUSTIVEL - TITULO, PRECO (decimal)
+ *   D_LOGO        - FOTO1 (bandeira), FOTO2 (posto)
  *
  * ATENCAO: ES5 obrigatorio - sem const/let/arrow functions/template strings
  */
@@ -69,7 +68,6 @@ window.onload = function() {
     } else {
         ebhtml.create2({}, function(loader) {
             loader.addData('D_COMBUSTIVEL', false);
-            loader.addData('D_LOCAL', false);
             loader.addData('D_LOGO', false);
             loader.autoloaded = false;
             loader.nodataiserror = false;
@@ -87,10 +85,9 @@ window.onload = function() {
 
 function inicializarTemplate(loader) {
     var combustivel = loader.data('D_COMBUSTIVEL');
-    var localData   = loader.data('D_LOCAL');
     var logoList    = loader.datalist('D_LOGO');
 
-    renderizarLogos(localData, logoList);
+    renderizarLogos(logoList);
 
     if (!combustivel) {
         console.error('[PRECO] Sem dados de D_COMBUSTIVEL');
@@ -142,28 +139,18 @@ function ativarAnimacoes() {
 }
 
 /* =============================================================
-   LOGOS (D_LOGO filtrado por D_LOCAL.ID)
-   D_LOCAL fornece o ID do local; percorre D_LOGO para encontrar
-   o item cujo campo LOCAL bate com esse ID.
+   LOGOS (D_LOGO)
+   Usa o primeiro item de D_LOGO diretamente.
    FOTO1 = bandeira da distribuidora, FOTO2 = logo do posto.
    ============================================================= */
 
-function renderizarLogos(localData, logoList) {
+function renderizarLogos(logoList) {
     var imgBandeira = document.getElementById('img-bandeira');
     var imgPosto    = document.getElementById('img-posto');
 
-    var localId  = localData ? obterCampo(localData, 'ID', '') : '';
-    var logoItem = null;
-
-    if (logoList && typeof logoList.count === 'function') {
-        for (var i = 0; i < logoList.count(); i++) {
-            var item = logoList.get(i);
-            if (obterCampo(item, 'LOCAL', '') == localId) {
-                logoItem = item;
-                break;
-            }
-        }
-    }
+    var logoItem = (logoList && typeof logoList.count === 'function' && logoList.count() > 0)
+        ? logoList.get(0)
+        : null;
 
     var urlBandeira = logoItem ? obterCampo(logoItem, 'FOTO1', '') : '';
     var urlPosto    = logoItem ? obterCampo(logoItem, 'FOTO2', '') : '';
