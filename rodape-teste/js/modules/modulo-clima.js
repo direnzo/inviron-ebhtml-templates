@@ -1,13 +1,26 @@
 /**
  * MÓDULO CLIMA — Rodapé Digital Signage
- * Dataset: D_CLIMA_CLIMATEMPO
  * ES5 puro — Android 7+
+ *
+ * Datasets suportados:
+ *   D_CLIMA_CLIMATEMPO  — dataset principal (JSON arrays).
+ *                         Fornece: temperatura atual, ícone, descrição,
+ *                         cidade/UF, e min/max do dia via nr_min_wea / nr_max_wea.
+ *
+ *   D_CLIMA             — dataset simplificado (campos flat).
+ *                         Fornece SOMENTE: C1_D1_MIN, C1_D1_MAX, C1_D1_ICO,
+ *                         C1_D1_CIDADE, C1_D1_TEXTPT.
+ *                         Usado como:
+ *                           a) complemento ao D_CLIMA_CLIMATEMPO (fallback min/max)
+ *                           b) fonte standalone quando D_CLIMA_CLIMATEMPO não está ativo
  *
  * Interface:
  *   ModuloClima.tipo        = 'clima'
  *   ModuloClima.label       = 'Clima'
  *   ModuloClima.render(inner, dados, config, onDone) → cancelFn
- *   ModuloClima.parseEbhtml(rawData) → dados
+ *   ModuloClima.parseEbhtml(rawDataClimatempo, rawDataClima) → dados
+ *     rawDataClimatempo: item EBHTML de D_CLIMA_CLIMATEMPO (pode ser null)
+ *     rawDataClima:      item EBHTML de D_CLIMA (pode ser null)
  */
 
 var ModuloClima = (function () {
@@ -42,47 +55,107 @@ var ModuloClima = (function () {
         return (typeof valor.length !== 'undefined') ? valor : [];
     }
 
-    /* --- Extrai dados de clima a partir do item EBHTML --- */
-    function parseEbhtml(rawData) {
-        if (!rawData) return null;
-
-        function ler(campo) {
-            if (typeof rawData.value === 'function') {
-                var v = rawData.value(campo);
-                return (v && typeof v.value !== 'undefined') ? v.value : '';
-            }
-            return '';
+    /* --- Lê campo flat de um item EBHTML --- */
+    function lerCampo(rawData, campo) {
+        if (!rawData) return '';
+        if (typeof rawData.value === 'function') {
+            var v = rawData.value(campo);
+            return (v && typeof v.value !== 'undefined') ? (v.value || '') : '';
         }
+        return '';
+    }
 
-        var arr = parseJsonArray(ler('C1_D1_DATAARRAY'));
-        if (arr.length === 0) arr = parseJsonArray(ler('C1_D2_DATAARRAY'));
-        if (arr.length === 0) arr = parseJsonArray(ler('C1_D3_DATAARRAY'));
+    /* -------------------------------------------------------------------
+       parseEbhtml(rawDataClimatempo, rawDataClima)
 
-        // Prefere o registro do período atual (period_wea: 1=manhã, 2=tarde, 3=noite)
-        // Usa o primeiro disponível se não houver correspondência
-        var reg = null;
-        var agora = new Date();
-        var hora = agora.getHours();
-        var periodoAlvo = hora < 12 ? '1' : (hora < 18 ? '2' : '3');
+       Estratégia:
+         1. Tenta D_CLIMA_CLIMATEMPO (arrays JSON horários):
+            - temperatura atual (nr_value_wea)
+            - ícone (nr_icon_wea)
+            - descrição (mm_textpt_wea)
+            - cidade/UF (city.ds_name_cit / ds_state_cit)
+            - min/max do dia (nr_min_wea / nr_max_wea) — dentro do array
 
-        for (var i = 0; i < arr.length; i++) {
-            if (String(arr[i].nr_period_wea) === periodoAlvo) {
-                reg = arr[i];
-                break;
-            }
-        }
-        if (!reg && arr.length > 0) reg = arr[0];
-        if (!reg) return null;
-
-        return {
-            cidade:    (reg.city && reg.city.ds_name_cit) ? reg.city.ds_name_cit : '',
-            estado:    (reg.city && reg.city.ds_state_cit) ? reg.city.ds_state_cit : '',
-            temp:      reg.nr_value_wea || '',
-            tempMin:   reg.nr_min_wea   || '',
-            tempMax:   reg.nr_max_wea   || '',
-            descricao: reg.mm_textpt_wea || '',
-            iconeCodigo: String(reg.nr_icon_wea || '3')
+         2. Se min/max vier vazio dos arrays (ou D_CLIMA_CLIMATEMPO não disponível),
+            usa D_CLIMA como fallback:
+            - C1_D1_MIN → tempMin
+            - C1_D1_MAX → tempMax
+            - C1_D1_ICO → iconeCodigo (se campos principais estiver vazio)
+            - C1_D1_CIDADE → cidade (se campos principais estiver vazio)
+            - C1_D1_TEXTPT → descrição (se vazia)
+    ------------------------------------------------------------------- */
+    function parseEbhtml(rawDataClimatempo, rawDataClima) {
+        var resultado = {
+            cidade:      '',
+            estado:      '',
+            temp:        '',
+            tempMin:     '',
+            tempMax:     '',
+            descricao:   '',
+            iconeCodigo: '3'
         };
+
+        /* ---- FONTE PRIMÁRIA: D_CLIMA_CLIMATEMPO ---- */
+        if (rawDataClimatempo) {
+            var arr = parseJsonArray(lerCampo(rawDataClimatempo, 'C1_D1_DATAARRAY'));
+            if (arr.length === 0) arr = parseJsonArray(lerCampo(rawDataClimatempo, 'C1_D2_DATAARRAY'));
+            if (arr.length === 0) arr = parseJsonArray(lerCampo(rawDataClimatempo, 'C1_D3_DATAARRAY'));
+
+            if (arr.length > 0) {
+                // Pega o registro do período atual (1=manhã, 2=tarde, 3=noite)
+                var agora = new Date();
+                var hora = agora.getHours();
+                var periodoAlvo = hora < 12 ? '1' : (hora < 18 ? '2' : '3');
+                var reg = null;
+
+                for (var i = 0; i < arr.length; i++) {
+                    if (String(arr[i].nr_period_wea) === periodoAlvo) {
+                        reg = arr[i];
+                        break;
+                    }
+                }
+                if (!reg) reg = arr[0];
+
+                if (reg) {
+                    resultado.temp        = reg.nr_value_wea  || '';
+                    resultado.tempMin     = reg.nr_min_wea    || '';
+                    resultado.tempMax     = reg.nr_max_wea    || '';
+                    resultado.descricao   = reg.mm_textpt_wea || '';
+                    resultado.iconeCodigo = String(reg.nr_icon_wea || '3');
+
+                    if (reg.city) {
+                        resultado.cidade = reg.city.ds_name_cit  || '';
+                        resultado.estado = reg.city.ds_state_cit || '';
+                    }
+                }
+            }
+        }
+
+        /* ---- FONTE SECUNDÁRIA: D_CLIMA (campos flat) ---- */
+        if (rawDataClima) {
+            // Min/Max: usa D_CLIMA se vieram vazios do D_CLIMA_CLIMATEMPO
+            if (resultado.tempMin === '') {
+                resultado.tempMin = lerCampo(rawDataClima, 'C1_D1_MIN');
+            }
+            if (resultado.tempMax === '') {
+                resultado.tempMax = lerCampo(rawDataClima, 'C1_D1_MAX');
+            }
+            // Ícone, cidade e descrição: só usa D_CLIMA se D_CLIMA_CLIMATEMPO não deu nada
+            if (resultado.iconeCodigo === '3' && lerCampo(rawDataClima, 'C1_D1_ICO')) {
+                resultado.iconeCodigo = lerCampo(rawDataClima, 'C1_D1_ICO') || '3';
+            }
+            if (resultado.cidade === '') {
+                resultado.cidade = (lerCampo(rawDataClima, 'C1_D1_CIDADE') || '').trim();
+            }
+            if (resultado.descricao === '') {
+                resultado.descricao = lerCampo(rawDataClima, 'C1_D1_TEXTPT') || '';
+            }
+        }
+
+        // Retorna null se não tiver nada útil
+        var temDados = resultado.temp !== '' || resultado.tempMin !== '' ||
+                       resultado.tempMax !== '' || resultado.cidade !== '';
+        return temDados ? resultado : null;
     }
 
     /* --- Render --- */

@@ -265,6 +265,9 @@ window.onload = function () {
             var canal = CONFIG.canais[i];
             if (canal.ativo) {
                 loader.addData(canal.dataset, false);
+                if (canal.datasetSecundario) {
+                    loader.addData(canal.datasetSecundario, false);
+                }
             }
         }
 
@@ -280,12 +283,17 @@ window.onload = function () {
                 if (!canal.ativo) continue;
 
                 var rawData = loader.data(canal.dataset);
-                if (!rawData) continue;
+                var rawDataSecundario = canal.datasetSecundario
+                    ? loader.data(canal.datasetSecundario)
+                    : null;
+
+                // Aceita canal mesmo sem dataset primário, se tiver secundário
+                if (!rawData && !rawDataSecundario) continue;
 
                 var modulo = encontrarModulo(canal.tipo);
                 if (!modulo || !modulo.parseEbhtml) continue;
 
-                var parsed = modulo.parseEbhtml(rawData);
+                var parsed = modulo.parseEbhtml(rawData, rawDataSecundario);
                 if (parsed) {
                     dadosCarregados[canal.tipo] = parsed;
                 }

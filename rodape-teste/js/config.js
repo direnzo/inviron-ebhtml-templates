@@ -64,7 +64,11 @@ var CONFIG = {
         {
             tipo: 'clima',
             ativo: true,
-            dataset: 'D_CLIMA_CLIMATEMPO'
+            dataset: 'D_CLIMA_CLIMATEMPO',
+            // D_CLIMA é opcional: fornece min/max do dia como campos flat.
+            // Usado como fallback quando D_CLIMA_CLIMATEMPO não estiver disponível
+            // ou para complementar min/max ausentes nos arrays horários.
+            datasetSecundario: 'D_CLIMA'
         },
         {
             tipo: 'financeiro',
