@@ -25,9 +25,10 @@
 
 /* ========================================
    ESTRUTURA BASE DO RODAPÉ
-   Unidades: vh / vmin exclusivamente.
+   Unidades: vh exclusivamente.
    Sem clamp() — requer Chrome 79+
-   Formatado para barra horizontal (ex: 1080x60).
+   Calibrado para barra 1080x60px: 1vh = 0.6px.
+   Escala base: 28vh ≈ 17px, 37vh ≈ 22px.
    ======================================== */
 
 html, body {
@@ -43,7 +44,7 @@ html, body {
     height: 100vh;
     overflow: hidden;
     font-family: 'Roboto Regular', sans-serif;
-    font-size: 6vh;
+    font-size: 28vh;
 }
 
 /* Barra principal — flex horizontal */
@@ -55,7 +56,7 @@ html, body {
     height: 100vh;
     overflow: hidden;
     box-sizing: border-box;
-    padding: 0 1.5vh;
+    padding: 0 7vh;
     gap: 0;
 }
 
@@ -71,21 +72,21 @@ html, body {
     height: 100%;
     flex-shrink: 0;
     overflow: hidden;
-    padding: 0 1.5vh;
+    padding: 0 7vh;
     box-sizing: border-box;
 }
 
 /* Coluna logo: largura automática baseada no conteúdo */
 .rodape-col-logo {
-    min-width: 12vh;
-    max-width: 25vh;
+    min-width: 80vh;
+    max-width: 130vh;
 }
 
 /* Coluna relógio: largura fixa */
 .rodape-col-clock {
-    min-width: 12vh;
-    max-width: 18vh;
-    gap: 0.2vh;
+    min-width: 100vh;
+    max-width: 140vh;
+    gap: 2vh;
 }
 
 /* Coluna conteúdo: ocupa espaço restante */
@@ -95,16 +96,15 @@ html, body {
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    gap: 1vh;
+    gap: 5vh;
     overflow: hidden;
-    padding: 0 1vh;
+    padding: 0 5vh;
 }
 
 /* Divisor vertical */
 .rodape-divider {
-    width: 0.15vh;
+    width: 1px;
     height: 65%;
-    min-width: 1px;
     flex-shrink: 0;
     opacity: 0.5;
     background-color: rgba(255,255,255,0.2);
@@ -116,7 +116,7 @@ html, body {
 
 .rodape-logo {
     height: 75%;
-    max-height: 7.5vh;
+    max-height: 80vh;
     width: auto;
     object-fit: contain;
     display: block;
@@ -128,14 +128,14 @@ html, body {
 
 .rodape-clock-time {
     font-family: 'Roboto Medium', sans-serif;
-    font-size: 4.8vh;
+    font-size: 38vh;
     line-height: 1;
     white-space: nowrap;
     text-align: center;
 }
 
 .rodape-clock-date {
-    font-size: 2.4vh;
+    font-size: 20vh;
     line-height: 1;
     white-space: nowrap;
     text-align: center;
@@ -148,7 +148,7 @@ html, body {
 
 .rodape-channel-label {
     font-family: 'Roboto Bold', sans-serif;
-    font-size: 2.4vh;
+    font-size: 18vh;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     white-space: nowrap;
@@ -176,9 +176,9 @@ html, body {
    ======================================== */
 
 .modulo-sep {
-    font-size: 3vh;
+    font-size: 23vh;
     opacity: 0.5;
-    margin: 0 0.8vh;
+    margin: 0 5vh;
     flex-shrink: 0;
 }
 
@@ -190,7 +190,7 @@ html, body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 0.8vh;
+    gap: 5vh;
     overflow: hidden;
     width: 100%;
 }
@@ -206,21 +206,21 @@ html, body {
 
 .modulo-clima-temp {
     font-family: 'Roboto Bold', sans-serif;
-    font-size: 4.5vh;
+    font-size: 37vh;
     line-height: 1;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .modulo-clima-minmax {
-    font-size: 2.8vh;
+    font-size: 22vh;
     opacity: 0.8;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .modulo-clima-desc {
-    font-size: 3vh;
+    font-size: 22vh;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -229,7 +229,7 @@ html, body {
 }
 
 .modulo-clima-cidade {
-    font-size: 3vh;
+    font-size: 22vh;
     opacity: 0.85;
     white-space: nowrap;
     flex-shrink: 0;
@@ -243,18 +243,18 @@ html, body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 1vh;
+    gap: 5vh;
     overflow: hidden;
     width: 100%;
 }
 
 .modulo-fin-icone {
-    font-size: 3.5vh;
+    font-size: 28vh;
     flex-shrink: 0;
 }
 
 .modulo-fin-nome {
-    font-size: 3vh;
+    font-size: 22vh;
     opacity: 0.85;
     white-space: nowrap;
     flex-shrink: 0;
@@ -262,13 +262,13 @@ html, body {
 
 .modulo-fin-valor {
     font-family: 'Roboto Bold', sans-serif;
-    font-size: 4vh;
+    font-size: 32vh;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .modulo-fin-var {
-    font-size: 3vh;
+    font-size: 22vh;
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -289,16 +289,16 @@ html, body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 1vh;
+    gap: 5vh;
     overflow: hidden;
     width: 100%;
 }
 
 .modulo-noticias-categoria {
     font-family: 'Roboto Bold', sans-serif;
-    font-size: 2.2vh;
-    padding: 0.3vh 0.9vh;
-    border-radius: 0.4vh;
+    font-size: 17vh;
+    padding: 2vh 5vh;
+    border-radius: 3vh;
     white-space: nowrap;
     flex-shrink: 0;
     text-transform: uppercase;
@@ -306,7 +306,7 @@ html, body {
 }
 
 .modulo-noticias-titulo {
-    font-size: 3.2vh;
+    font-size: 25vh;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -315,7 +315,7 @@ html, body {
 }
 
 .modulo-noticias-fonte {
-    font-size: 2.4vh;
+    font-size: 20vh;
     opacity: 0.6;
     white-space: nowrap;
     flex-shrink: 0;
@@ -329,30 +329,30 @@ html, body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 1vh;
+    gap: 5vh;
     overflow: hidden;
     width: 100%;
-    padding: 0.5vh 1.5vh;
-    border-radius: 0.5vh;
+    padding: 3vh 7vh;
+    border-radius: 4vh;
     box-sizing: border-box;
 }
 
 .modulo-msg-icone {
     font-family: 'Roboto Bold', sans-serif;
-    font-size: 4vh;
+    font-size: 32vh;
     flex-shrink: 0;
     line-height: 1;
 }
 
 .modulo-msg-titulo {
     font-family: 'Roboto Bold', sans-serif;
-    font-size: 3.2vh;
+    font-size: 25vh;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .modulo-msg-texto {
-    font-size: 3vh;
+    font-size: 22vh;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -368,13 +368,13 @@ html, body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 1.2vh;
+    gap: 6vh;
     overflow: hidden;
     width: 100%;
 }
 
 .modulo-placar-time {
-    font-size: 3.2vh;
+    font-size: 25vh;
     white-space: nowrap;
     flex-shrink: 1;
     min-width: 0;
@@ -384,13 +384,13 @@ html, body {
 
 .modulo-placar-score {
     font-family: 'Roboto Bold', sans-serif;
-    font-size: 4.5vh;
+    font-size: 37vh;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .modulo-placar-status {
-    font-size: 2.4vh;
+    font-size: 20vh;
     opacity: 0.7;
     white-space: nowrap;
     flex-shrink: 0;
@@ -405,25 +405,25 @@ html, body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 1vh;
+    gap: 5vh;
     overflow: hidden;
     width: 100%;
 }
 
 .modulo-horo-icone {
-    font-size: 4vh;
+    font-size: 32vh;
     flex-shrink: 0;
 }
 
 .modulo-horo-signo {
     font-family: 'Roboto Bold', sans-serif;
-    font-size: 3.2vh;
+    font-size: 25vh;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .modulo-horo-texto {
-    font-size: 3vh;
+    font-size: 22vh;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
