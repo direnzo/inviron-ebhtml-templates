@@ -65,18 +65,17 @@ var ModuloMensageria = (function () {
         var wrap = document.createElement('div');
         wrap.className = 'modulo-msg-wrap';
 
-        // Cor de fundo personalizada
-        var corFundo = item.cor || (config && config.corDestaque) || '#f0c040';
-        wrap.style.backgroundColor = corFundo;
+        // Cor de fundo somente se vier explícita no dado (campo COR)
+        if (item.cor) {
+            wrap.style.backgroundColor = item.cor;
+            wrap.style.color = corTextoContraste(item.cor);
 
-        // Determina cor do texto (branco ou preto) baseado no brilho do fundo
-        wrap.style.color = corTextoContraste(corFundo);
-
-        // Ícone de aviso
-        var iconeEl = document.createElement('span');
-        iconeEl.className = 'modulo-msg-icone';
-        iconeEl.textContent = '!';
-        wrap.appendChild(iconeEl);
+            // Ícone de aviso (só com destaque)
+            var iconeEl = document.createElement('span');
+            iconeEl.className = 'modulo-msg-icone';
+            iconeEl.textContent = '!';
+            wrap.appendChild(iconeEl);
+        }
 
         // Título (se existir)
         if (item.titulo) {

@@ -20,12 +20,12 @@ var MOCK_DATA = {
            CLIMA
            ============================================================ */
         clima: {
-            cidade:      'São Paulo',
-            estado:      'SP',
             temp:        '25',
             tempMin:     '19',
             tempMax:     '30',
             descricao:   'Parcialmente nublado com chuva à tarde',
+            umidade:     '72',
+            vento:       '14',
             iconeCodigo: '3',
             isNoite:     false   // true → usa variante {codigo}n.svg
         },
@@ -87,12 +87,12 @@ var MOCK_DATA = {
             {
                 titulo: 'ATENÇÃO',
                 texto:  'Reunião de equipe hoje às 15h00 na sala de conferências',
-                cor:    '#c0392b'
+                cor:    '#c0392b'   // com cor = destaque visual ativo
             },
             {
                 titulo: 'LEMBRETE',
-                texto:  'Prazo de entrega de relatórios: amanhã até as 18h',
-                cor:    '#e67e22'
+                texto:  'Prazo de entrega de relatórios: amanhã até as 18h'
+                // sem cor = exibe sem fundo colorido
             }
         ],
 

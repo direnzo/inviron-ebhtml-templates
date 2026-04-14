@@ -146,16 +146,6 @@ html, body {
    CANAL — label + conteúdo
    ======================================== */
 
-.rodape-channel-label {
-    font-family: 'Roboto Bold', sans-serif;
-    font-size: 18vh;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    white-space: nowrap;
-    flex-shrink: 0;
-    line-height: 1;
-}
-
 .rodape-channel-content {
     flex: 1;
     overflow: hidden;
@@ -228,7 +218,8 @@ html, body {
     min-width: 0;
 }
 
-.modulo-clima-cidade {
+.modulo-clima-umidade,
+.modulo-clima-vento {
     font-size: 22vh;
     opacity: 0.85;
     white-space: nowrap;

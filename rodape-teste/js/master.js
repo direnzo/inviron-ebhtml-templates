@@ -181,15 +181,9 @@ window.onload = function () {
             }
 
             var inner = document.getElementById('channel-inner');
-            var label = document.getElementById('channel-label');
             if (!inner) {
                 rodarCanal(idx + 1);
                 return;
-            }
-
-            if (label) {
-                label.textContent = modulo.label || '';
-                label.style.color = CONFIG.corDestaque;
             }
 
             cancelaAtual = modulo.render(inner, dadosCanal, CONFIG, function () {

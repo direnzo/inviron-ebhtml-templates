@@ -85,12 +85,12 @@ var ModuloClima = (function () {
     ------------------------------------------------------------------- */
     function parseEbhtml(rawDataClimatempo, rawDataClima) {
         var resultado = {
-            cidade:      '',
-            estado:      '',
             temp:        '',
             tempMin:     '',
             tempMax:     '',
             descricao:   '',
+            umidade:     '',
+            vento:       '',
             iconeCodigo: '3'
         };
 
@@ -116,36 +116,28 @@ var ModuloClima = (function () {
                 if (!reg) reg = arr[0];
 
                 if (reg) {
-                    resultado.temp        = reg.nr_value_wea  || '';
-                    resultado.tempMin     = reg.nr_min_wea    || '';
-                    resultado.tempMax     = reg.nr_max_wea    || '';
-                    resultado.descricao   = reg.mm_textpt_wea || '';
+                    resultado.temp        = reg.nr_value_wea      || '';
+                    resultado.tempMin     = reg.nr_min_wea        || '';
+                    resultado.tempMax     = reg.nr_max_wea        || '';
+                    resultado.descricao   = reg.mm_textpt_wea     || '';
+                    resultado.umidade     = reg.nr_humidity_wea   || '';
+                    resultado.vento       = reg.nr_wind_vel_wea   || '';
                     resultado.iconeCodigo = String(reg.nr_icon_wea || '3');
                     resultado.isNoite     = (String(reg.nr_period_wea) === '3');
-
-                    if (reg.city) {
-                        resultado.cidade = reg.city.ds_name_cit  || '';
-                        resultado.estado = reg.city.ds_state_cit || '';
-                    }
                 }
             }
         }
 
         /* ---- FONTE SECUNDÁRIA: D_CLIMA (campos flat) ---- */
         if (rawDataClima) {
-            // Min/Max: usa D_CLIMA se vieram vazios do D_CLIMA_CLIMATEMPO
             if (resultado.tempMin === '') {
                 resultado.tempMin = lerCampo(rawDataClima, 'C1_D1_MIN');
             }
             if (resultado.tempMax === '') {
                 resultado.tempMax = lerCampo(rawDataClima, 'C1_D1_MAX');
             }
-            // Ícone, cidade e descrição: só usa D_CLIMA se D_CLIMA_CLIMATEMPO não deu nada
             if (resultado.iconeCodigo === '3' && lerCampo(rawDataClima, 'C1_D1_ICO')) {
                 resultado.iconeCodigo = lerCampo(rawDataClima, 'C1_D1_ICO') || '3';
-            }
-            if (resultado.cidade === '') {
-                resultado.cidade = (lerCampo(rawDataClima, 'C1_D1_CIDADE') || '').trim();
             }
             if (resultado.descricao === '') {
                 resultado.descricao = lerCampo(rawDataClima, 'C1_D1_TEXTPT') || '';
@@ -153,8 +145,7 @@ var ModuloClima = (function () {
         }
 
         // Retorna null se não tiver nada útil
-        var temDados = resultado.temp !== '' || resultado.tempMin !== '' ||
-                       resultado.tempMax !== '' || resultado.cidade !== '';
+        var temDados = resultado.temp !== '' || resultado.tempMin !== '' || resultado.tempMax !== '';
         return temDados ? resultado : null;
     }
 
@@ -234,17 +225,30 @@ var ModuloClima = (function () {
             wrap.appendChild(descEl);
         }
 
-        // Cidade / Estado
-        if (dados.cidade) {
+        // Umidade
+        if (dados.umidade) {
             var sep2 = document.createElement('span');
             sep2.className = 'modulo-sep';
             sep2.textContent = '•';
             wrap.appendChild(sep2);
 
-            var cidEl = document.createElement('span');
-            cidEl.className = 'modulo-clima-cidade';
-            cidEl.textContent = dados.cidade + (dados.estado ? ' - ' + dados.estado : '');
-            wrap.appendChild(cidEl);
+            var umidEl = document.createElement('span');
+            umidEl.className = 'modulo-clima-umidade';
+            umidEl.textContent = dados.umidade + '% UR';
+            wrap.appendChild(umidEl);
+        }
+
+        // Vento
+        if (dados.vento) {
+            var sep3 = document.createElement('span');
+            sep3.className = 'modulo-sep';
+            sep3.textContent = '•';
+            wrap.appendChild(sep3);
+
+            var ventoEl = document.createElement('span');
+            ventoEl.className = 'modulo-clima-vento';
+            ventoEl.textContent = dados.vento + ' km/h';
+            wrap.appendChild(ventoEl);
         }
 
         inner.appendChild(wrap);

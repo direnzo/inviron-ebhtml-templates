@@ -112,8 +112,8 @@ var ModuloNoticias = (function () {
         tituloEl.textContent = item.titulo;
         wrap.appendChild(tituloEl);
 
-        // Fonte (opcional)
-        if (item.fonte) {
+        // Fonte removida — não exibida no rodapé
+        if (false && item.fonte) {
             var fonteEl = document.createElement('span');
             fonteEl.className = 'modulo-noticias-fonte';
             fonteEl.textContent = item.fonte;
