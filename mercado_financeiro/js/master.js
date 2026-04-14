@@ -3,12 +3,9 @@ window.onload = function () {
     var body     = document.querySelector('body');
     var dataHora = document.getElementById('data-hora');
 
-    // ── Formata número: 4 casas para valores < 0.1 (Yen, Peso), 2 para demais ──
+    // ── Formata número com 4 casas decimais ──────────────────────────────────
     function toNumberAuto(value) {
-        var n = Number(value);
-        return n < 0.1
-            ? n.toFixed(4).replace('.', ',')
-            : n.toFixed(2).replace('.', ',');
+        return Number(value).toFixed(4).replace('.', ',');
     }
 
     // ── Cor por direção de variação ───────────────────────────────────────────
@@ -103,15 +100,15 @@ window.onload = function () {
 
         var spanNome = document.createElement('span');
         spanNome.className = 'flex items-center gap-[0.4em] text-white/75 w-[35%]';
-        spanNome.innerHTML = (ICONES[id] || '') + nome;
+        spanNome.innerHTML = (ICONES[id] ? '<span class="empena:hidden flex-shrink-0">' + ICONES[id] + '</span>' : '') + nome;
 
         var spanSeta = document.createElement('span');
         spanSeta.id = 'seta-' + id;
-        spanSeta.className = 'font-montserrat-bold w-[8%] text-center text-[1.4em]';
+        spanSeta.className = 'font-montserrat-bold w-[3%] text-center text-[1.4em] empena:hidden';
 
         var spanValCompra = document.createElement('span');
         spanValCompra.id = 'valcompra-' + id;
-        spanValCompra.className = 'text-white/50 w-[22%] text-center text-nowrap text-[0.85em]';
+        spanValCompra.className = 'text-white/50 w-[22%] text-center text-nowrap text-[0.85em] portrait:hidden';
 
         var spanVal = document.createElement('span');
         spanVal.id = 'val-' + id;
@@ -122,10 +119,10 @@ window.onload = function () {
         spanPerc.className = 'font-montserrat-bold w-[18%] text-right';
 
         row.appendChild(spanNome);
-        row.appendChild(spanSeta);
         row.appendChild(spanValCompra);
         row.appendChild(spanVal);
         row.appendChild(spanPerc);
+        row.appendChild(spanSeta);
         return row;
     }
 
