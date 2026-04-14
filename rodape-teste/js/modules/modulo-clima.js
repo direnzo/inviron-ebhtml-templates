@@ -25,24 +25,23 @@
 
 var ModuloClima = (function () {
 
-    /* --- Mapa de ícones: nr_icon_wea → arquivo PNG em img/clima/ --- */
-    var ICONE_MAP = {
-        '1':  'icon-1.png',   // Céu limpo (dia)
-        '2':  'icon-2.png',   // Poucas nuvens
-        '3':  'icon-3.png',   // Parcialmente nublado
-        '4':  'icon-4.png',   // Nublado
-        '5':  'icon-5.png',   // Nublado com chuva leve
-        '6':  'icon-6.png',   // Chuva
-        '7':  'icon-7.png',   // Chuva forte
-        '8':  'icon-8.png',   // Chuva com raios
-        '9':  'icon-9.png',   // Neve
-        '10': 'icon-10.png',  // Neblina
-        '11': 'icon-11.png',  // Céu limpo (noite)
-        '12': 'icon-12.png',  // Nuvens (noite)
-        '13': 'icon-13.png',  // Nublado (noite)
-        '14': 'icon-14.png',  // Chuva leve (noite)
-        '15': 'icon-15.png'   // Chuva (noite)
+    /* -------------------------------------------------------------------
+       Códigos com variante noturna disponível ({codigo}n.svg)
+       Demais códigos (ex: 11) usam somente a versão diurna.
+    ------------------------------------------------------------------- */
+    var COM_VARIANTE_NOITE = {
+        '1': true, '2': true, '3': true, '4': true, '5': true,
+        '6': true, '7': true, '8': true, '9': true
     };
+
+    function iconeArquivo(codigo, isNoite) {
+        if (!codigo) codigo = '3';
+        codigo = String(codigo);
+        if (isNoite && COM_VARIANTE_NOITE[codigo]) {
+            return codigo + 'n.svg';
+        }
+        return codigo + '.svg';
+    }
 
     function parseJsonArray(valor) {
         if (!valor) return [];
@@ -122,6 +121,7 @@ var ModuloClima = (function () {
                     resultado.tempMax     = reg.nr_max_wea    || '';
                     resultado.descricao   = reg.mm_textpt_wea || '';
                     resultado.iconeCodigo = String(reg.nr_icon_wea || '3');
+                    resultado.isNoite     = (String(reg.nr_period_wea) === '3');
 
                     if (reg.city) {
                         resultado.cidade = reg.city.ds_name_cit  || '';
@@ -169,11 +169,10 @@ var ModuloClima = (function () {
         var wrap = document.createElement('div');
         wrap.className = 'modulo-clima-wrap';
 
-        // Ícone
-        var iconeFile = ICONE_MAP[dados.iconeCodigo] || ICONE_MAP['3'];
+        // Ícone SVG animado (day/night auto-detectado)
         var iconeEl = document.createElement('img');
         iconeEl.className = 'modulo-clima-icone';
-        iconeEl.src = 'img/clima/' + iconeFile;
+        iconeEl.src = 'img/clima/' + iconeArquivo(dados.iconeCodigo, dados.isNoite);
         iconeEl.alt = dados.descricao || 'clima';
         wrap.appendChild(iconeEl);
 

@@ -26,7 +26,8 @@ var MOCK_DATA = {
             tempMin:     '19',
             tempMax:     '30',
             descricao:   'Parcialmente nublado com chuva à tarde',
-            iconeCodigo: '3'
+            iconeCodigo: '3',
+            isNoite:     false   // true → usa variante {codigo}n.svg
         },
 
         /* ============================================================
