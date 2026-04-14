@@ -196,10 +196,12 @@ html, body {
 }
 
 .modulo-clima-icone {
-    height: 5vh;
-    width: auto;
-    object-fit: contain;
+    height: 80vh;
+    width: 80vh;
     flex-shrink: 0;
+    display: block;
+    pointer-events: none;
+    overflow: hidden;
 }
 
 .modulo-clima-temp {

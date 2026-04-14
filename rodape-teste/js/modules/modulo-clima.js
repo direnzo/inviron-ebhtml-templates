@@ -158,9 +158,35 @@ var ModuloClima = (function () {
         return temDados ? resultado : null;
     }
 
+    /* --- Carrega SVG via XHR e injeta inline (único modo confiável para SVG animado) --- */
+    function carregarSvgInline(containerEl, src, className) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', src, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState !== 4) return;
+            if (xhr.status === 200 || xhr.status === 0) {
+                // status 0 = file:// protocol (ok)
+                var wrapper = document.createElement('span');
+                wrapper.className = className;
+                wrapper.innerHTML = xhr.responseText;
+                // Garante que o SVG interno não ultrapasse o container
+                var svgEl = wrapper.querySelector('svg');
+                if (svgEl) {
+                    svgEl.style.width  = '100%';
+                    svgEl.style.height = '100%';
+                    svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                }
+                containerEl.insertBefore(wrapper, containerEl.firstChild);
+            }
+        };
+        xhr.send();
+        return xhr;
+    }
+
     /* --- Render --- */
     function render(inner, dados, config, onDone) {
         var timer = null;
+        var xhr = null;
 
         // Limpa inner e insere conteúdo
         inner.innerHTML = '';
@@ -169,12 +195,14 @@ var ModuloClima = (function () {
         var wrap = document.createElement('div');
         wrap.className = 'modulo-clima-wrap';
 
-        // Ícone SVG animado (day/night auto-detectado)
-        var iconeEl = document.createElement('img');
-        iconeEl.className = 'modulo-clima-icone';
-        iconeEl.src = 'img/clima/' + iconeArquivo(dados.iconeCodigo, dados.isNoite);
-        iconeEl.alt = dados.descricao || 'clima';
-        wrap.appendChild(iconeEl);
+        // Container do ícone — SVG será injetado inline via XHR
+        var iconeContainer = document.createElement('span');
+        iconeContainer.className = 'modulo-clima-icone';
+        wrap.appendChild(iconeContainer);
+
+        if (dados.iconeCodigo) {
+            xhr = carregarSvgInline(iconeContainer, 'img/clima/' + iconeArquivo(dados.iconeCodigo, dados.isNoite), '');
+        }
 
         // Temperatura atual
         if (dados.temp !== '') {
@@ -237,6 +265,7 @@ var ModuloClima = (function () {
 
         return function cancel() {
             if (timer) { clearTimeout(timer); timer = null; }
+            if (xhr)   { xhr.abort();           xhr = null;   }
         };
     }
 
