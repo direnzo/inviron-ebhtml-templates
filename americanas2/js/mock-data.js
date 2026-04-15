@@ -1,38 +1,211 @@
-// Mock para desenvolvimento local
+// Mock para desenvolvimento local — formato novo da API pricing-query
 // Descomente o script no HTML para ativar: <script src="js/mock-data.js"></script>
+// Hierarquia de preços: TakeWin > Promotional > Regular
 
 var MOCK_DATA = {
     enabled: true,
     produto: (function() {
         var produtos = [
-            // --- COM IMAGEM ---
-            { descricao: 'Smart TV LED 32" Philco PTV32G7 Roku TV Dolby Audio 2 HDMI 1 USB - Prata', preco: '2.599.00', preco_promoc: '799.00', image: 'img/tv.webp' },
-            { descricao: 'Agua Sao Lourenco Natural 510ml', preco: '3.55', preco_promoc: '2.99', image: 'img/aguasaolourenco.webp' },
-            { descricao: 'Refrigerante Guarana Antarctica 260ml', preco: '3.49', preco_promoc: '2.79', image: 'img/natu.webp' },
-            { descricao: 'Refrigerante Coca-Cola Lata 350ml', preco: '4.19', preco_promoc: '3.49', image: 'img/coca.webp' },
-            { descricao: 'Salgadinho de Batata Pringles Tubo 100g', preco: '16.49', preco_promoc: '14.99', image: 'img/prigles.webp' },
-            { descricao: 'Leite Condensado Integral Moca Lata 395g', preco: '8.19', preco_promoc: '7.49', image: 'img/leitemoca.webp' },
-            { descricao: 'Amido de Milho Maizena 500g', preco: '18.29', preco_promoc: '16.99', image: 'img/maizena.webp' },
-            { descricao: 'Chocolate em Po NESTLE Dois Frades 200g', preco: '28.99', preco_promoc: '25.99', image: 'img/chocolate.webp' },
-            { descricao: 'Filtro de Papel Original Melitta 103 Caixa 30un', preco: '5.19', preco_promoc: '4.49', image: 'img/filtro.webp' },
-            { descricao: 'Cereal Sucrilhos Original Kelloggs 690g', preco: '30.99', preco_promoc: '27.99', image: 'img/sucrilhos.webp' },
-            { descricao: 'Cha MATTE LEAO Natural a Granel 250g', preco: '14.49', preco_promoc: '12.99', image: 'img/cha.webp' },
-            { descricao: 'Shampoo Seda Hidratacao Creme 325ml', preco: '12.99', preco_promoc: '9.99', image: 'img/seda.webp' },
-            { descricao: 'Detergente Ype Neutro 500ml', preco: '3.99', preco_promoc: '2.89', image: 'img/ype.webp' },
-            { descricao: 'Apple iPhone 16 128GB Preto', preco: '4.999.00', preco_promoc: '4.499.00', image: 'img/iphone.webp' },
-            { descricao: 'Microondas Electrolux 31L Inox 1400W', preco: '899.00', preco_promoc: '749.90', image: 'img/microondas.webp' },
-            // --- SEM IMAGEM ---
-            { descricao: 'Nescafe Tradicional Instantaneo 100g', preco: '14.99', preco_promoc: '' },
-            { descricao: 'Arroz Branco Tio Joao 1kg', preco: '8.49', preco_promoc: '6.99' },
-            { descricao: 'Feijao Carioca Kicaldo 500g', preco: '7.29', preco_promoc: '5.99' },
-            { descricao: 'Acucar Cristal Uniao 1kg', preco: '5.49', preco_promoc: '' },
-            { descricao: 'Oleo de Soja Liza 900ml', preco: '9.99', preco_promoc: '7.99' },
-            { descricao: 'Macarrao Instantaneo Nissin Miojo Frango 85g', preco: '2.29', preco_promoc: '1.89' },
-            { descricao: 'Sal Refinado Cisne 1kg', preco: '2.99', preco_promoc: '' },
-            { descricao: 'Extrato de Tomate Elefante 130g', preco: '3.49', preco_promoc: '2.79' },
-            { descricao: 'Geladeira Brastemp Frost Free 375L Inox', preco: '3.499.00', preco_promoc: '2.999.00' },
-            { descricao: 'Notebook Dell Inspiron 15 Intel Core i5 8GB 512GB SSD', preco: '3.199.00', preco_promoc: '2.799.00' },
-            { descricao: 'Ar Condicionado Split Inverter Philco 12000 BTUs Frio', preco: '1.899.00', preco_promoc: '1.599.00' }
+            // --- PRODUTO COM IMAGEM: TV ---
+            {
+                blockPaper: false,
+                blockTag: false,
+                image: 'img/tv.webp',
+                measureValue: 2599.00,
+                product: {
+                    commercialUnit: 'PCE',
+                    department: '10',
+                    description: 'Smart TV LED 32" Philco PTV32G7 Roku TV Dolby Audio 2 HDMI 1 USB - Prata',
+                    ean: '7891234567890',
+                    sapId: '1111111'
+                },
+                promotional: {
+                    blockPaper: false,
+                    discountPercent: 69.25,
+                    endDate: '2026-05-01T23:59:59-03:00',
+                    price: 799.00,
+                    startDate: '2026-04-10T00:00:00-03:00'
+                },
+                regularPrice: 2599.00,
+                regularStartAt: '2026-01-01T00:00:00-03:00',
+                installment: {
+                    endDate: '2026-06-30T23:59:59-03:00',
+                    quantity: 10,
+                    startDate: '2026-04-10T00:00:00-03:00',
+                    value: 79.90
+                }
+            },
+
+            // --- PRODUTO COM IMAGEM: Água ---
+            {
+                blockPaper: false,
+                blockTag: false,
+                image: 'img/aguasaolourenco.webp',
+                measureValue: 3.55,
+                product: {
+                    commercialUnit: 'UN',
+                    department: '20',
+                    description: 'Água São Lourenço Natural 510ml',
+                    ean: '7899876543210',
+                    sapId: '2222222'
+                },
+                promotional: {
+                    blockPaper: false,
+                    discountPercent: 15.77,
+                    endDate: '2026-05-10T23:59:59-03:00',
+                    price: 2.99,
+                    startDate: '2026-04-15T00:00:00-03:00'
+                },
+                regularPrice: 3.55,
+                regularStartAt: '2026-01-01T00:00:00-03:00'
+            },
+
+            // --- CENÁRIO REAL: Dados reais da API (2026-04-15) ---
+            {
+                blockPaper: false,
+                blockTag: false,
+                image: '',
+                measureValue: 18.99,
+                product: {
+                    commercialUnit: 'PCE',
+                    department: '31',
+                    description: 'SHAMPOO PANTENE LISO EXTREMO 350ML',
+                    ean: '7896004000855',
+                    sapId: '5589127'
+                },
+                promotional: {
+                    blockPaper: false,
+                    discountPercent: 15.56,
+                    endDate: '2026-04-21T23:59:59-03:00',
+                    price: 18.9,
+                    startDate: '2026-04-07T00:00:00-03:00'
+                },
+                regularPrice: 22.49,
+                regularStartAt: '2025-11-14T00:00:00-03:00'
+            },
+
+            // --- CENÁRIO 1: TakeWin + Promotional + Installment (maior prioridade) ---
+            {
+                blockPaper: false,
+                blockTag: false,
+                product: {
+                    commercialUnit: 'PCE',
+                    department: '31',
+                    description: 'CR TRAT DOVE RECONST AMINOACIDO 320G',
+                    ean: '7891150105652',
+                    sapId: '4330632'
+                },
+                regularPrice: 19.99,
+                regularStartAt: '2025-11-14T00:00:00-03:00',
+                promotional: {
+                    blockPaper: false,
+                    discountPercent: 15.01,
+                    endDate: '2026-04-21T23:59:59-03:00',
+                    price: 16.99,
+                    startDate: '2026-04-07T00:00:00-03:00'
+                },
+                takeWin: {
+                    blockPaper: false,
+                    discountValue: 5,
+                    endDate: '2026-04-21T23:59:59-03:00',
+                    quantity: 2,
+                    startDate: '2026-04-07T00:00:00-03:00',
+                    totalPriceWithDiscount: 33.98,
+                    type: 'BUY_N_GET_DISCOUNT',
+                    unitPriceWithDiscount: 16.99
+                },
+                installment: {
+                    endDate: '2026-06-07T23:59:59-03:00',
+                    quantity: 3,
+                    startDate: '2026-04-07T00:00:00-03:00',
+                    value: 5.66
+                },
+                measureValue: 16.99
+            },
+
+            // --- CENÁRIO 2: Promotional sem TakeWin ---
+            {
+                blockPaper: false,
+                blockTag: false,
+                product: {
+                    commercialUnit: 'UN',
+                    department: '31',
+                    description: 'SHAMPOO SEDA HIDRATACAO CREME 325ML',
+                    ean: '7891037563234',
+                    sapId: '1234567'
+                },
+                regularPrice: 12.99,
+                regularStartAt: '2026-01-01T00:00:00-03:00',
+                promotional: {
+                    blockPaper: false,
+                    discountPercent: 23.02,
+                    endDate: '2026-04-30T23:59:59-03:00',
+                    price: 9.99,
+                    startDate: '2026-04-07T00:00:00-03:00'
+                }
+            },
+
+            // --- CENÁRIO 3: Apenas preço Regular (sem promoção) ---
+            {
+                blockPaper: false,
+                blockTag: false,
+                product: {
+                    commercialUnit: 'UN',
+                    department: '10',
+                    description: 'ARROZ BRANCO TIO JOAO 1KG',
+                    ean: '7896009301043',
+                    sapId: '7654321'
+                },
+                regularPrice: 8.49,
+                regularStartAt: '2026-03-15T00:00:00-03:00'
+            },
+
+            // --- CENÁRIO 4: Regular + Installment (sem promo, mas com parcelamento) ---
+            {
+                blockPaper: false,
+                blockTag: false,
+                product: {
+                    commercialUnit: 'UN',
+                    department: '20',
+                    description: 'GELADEIRA BRASTEMP FROST FREE 375L INOX',
+                    ean: '7891129190261',
+                    sapId: '9871234'
+                },
+                regularPrice: 799.00,
+                regularStartAt: '2026-01-10T00:00:00-03:00',
+                installment: {
+                    endDate: '2026-06-30T23:59:59-03:00',
+                    quantity: 6,
+                    startDate: '2026-04-01T00:00:00-03:00',
+                    value: 133.17
+                }
+            },
+
+            // --- CENÁRIO 5: TakeWin sem Promotional ---
+            {
+                blockPaper: false,
+                blockTag: false,
+                product: {
+                    commercialUnit: 'UN',
+                    department: '31',
+                    description: 'DESODORANTE REXONA COTTON DRY 150ML',
+                    ean: '7891150028956',
+                    sapId: '5556677'
+                },
+                regularPrice: 14.49,
+                regularStartAt: '2026-02-01T00:00:00-03:00',
+                takeWin: {
+                    blockPaper: false,
+                    discountValue: 4.5,
+                    endDate: '2026-04-30T23:59:59-03:00',
+                    quantity: 3,
+                    startDate: '2026-04-07T00:00:00-03:00',
+                    totalPriceWithDiscount: 38.97,
+                    type: 'BUY_N_GET_DISCOUNT',
+                    unitPriceWithDiscount: 12.99
+                }
+            }
+
         ];
         return produtos[Math.floor(Math.random() * produtos.length)];
     }())
