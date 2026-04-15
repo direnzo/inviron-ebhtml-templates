@@ -34,28 +34,29 @@ var ModuloPlacar = (function () {
         if (typeof rawData.count === 'function' && typeof rawData.get === 'function') {
             for (var i = 0; i < rawData.count(); i++) {
                 var item = rawData.get(i);
-                var timeCasa = ler(item, 'TIME_CASA');
+                // TIME_CASA (dataset genérico) ou TITULO (D_FOOTBALL)
+                var timeCasa = ler(item, 'TIME_CASA') || ler(item, 'TITULO');
                 if (!timeCasa) continue;
 
                 lista.push({
-                    timeCasa:       timeCasa,
-                    placarCasa:     ler(item, 'PLACAR_CASA') || '0',
-                    placarVisit:    ler(item, 'PLACAR_VISITANTE') || '0',
-                    timeVisit:      ler(item, 'TIME_VISITANTE') || '',
-                    status:         ler(item, 'STATUS') || '',
-                    campeonato:     ler(item, 'CAMPEONATO') || ''
+                    timeCasa:    timeCasa,
+                    placarCasa:  ler(item, 'PLACAR_CASA') || '',
+                    placarVisit: ler(item, 'PLACAR_VISITANTE') || '',
+                    timeVisit:   ler(item, 'TIME_VISITANTE') || ler(item, 'TITULO2') || '',
+                    status:      ler(item, 'STATUS') || ler(item, 'SUBTITULO3') || '',
+                    campeonato:  ler(item, 'CAMPEONATO') || ler(item, 'SUBTITULO2') || ler(item, 'CATEGORY') || ''
                 });
             }
         } else {
-            var timeCasa = ler(rawData, 'TIME_CASA');
+            var timeCasa = ler(rawData, 'TIME_CASA') || ler(rawData, 'TITULO');
             if (timeCasa) {
                 lista.push({
-                    timeCasa:       timeCasa,
-                    placarCasa:     ler(rawData, 'PLACAR_CASA') || '0',
-                    placarVisit:    ler(rawData, 'PLACAR_VISITANTE') || '0',
-                    timeVisit:      ler(rawData, 'TIME_VISITANTE') || '',
-                    status:         ler(rawData, 'STATUS') || '',
-                    campeonato:     ler(rawData, 'CAMPEONATO') || ''
+                    timeCasa:    timeCasa,
+                    placarCasa:  ler(rawData, 'PLACAR_CASA') || '',
+                    placarVisit: ler(rawData, 'PLACAR_VISITANTE') || '',
+                    timeVisit:   ler(rawData, 'TIME_VISITANTE') || ler(rawData, 'TITULO2') || '',
+                    status:      ler(rawData, 'STATUS') || ler(rawData, 'SUBTITULO3') || '',
+                    campeonato:  ler(rawData, 'CAMPEONATO') || ler(rawData, 'SUBTITULO2') || ler(rawData, 'CATEGORY') || ''
                 });
             }
         }
@@ -82,7 +83,9 @@ var ModuloPlacar = (function () {
         // Placar
         var placarEl = document.createElement('span');
         placarEl.className = 'modulo-placar-score';
-        placarEl.textContent = item.placarCasa + ' x ' + item.placarVisit;
+        var pc = item.placarCasa  !== '' ? item.placarCasa  : '-';
+        var pv = item.placarVisit !== '' ? item.placarVisit : '-';
+        placarEl.textContent = pc + ' x ' + pv;
         if (config && config.corDestaque) {
             placarEl.style.color = config.corDestaque;
         }

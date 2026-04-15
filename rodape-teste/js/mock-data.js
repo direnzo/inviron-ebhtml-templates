@@ -8,7 +8,11 @@
  * Para produção: comentar o script no HTML (não é necessário mudar enabled).
  *
  * Estrutura: MOCK_DATA.canais é um objeto onde a chave é o CONFIG.canais[].tipo
- * e o valor é o dado já parseado (mesma estrutura que os módulos esperam).
+ * e o valor é o dado já parseado (mesma estrutura que os módulos esperam após parseEbhtml).
+ *
+ * Valores baseados nos XMLs reais de exemplo (examples/):
+ *   D_CLIMA_CLIMATEMPO_MOMENTO + D_CLIMA, D_CAMBIO, D_UOL,
+ *   D_FOOTBALL, D_HOROSCOPO_PERSONARE_CURTO
  */
 
 var MOCK_DATA = {
@@ -18,127 +22,116 @@ var MOCK_DATA = {
 
         /* ============================================================
            CLIMA
+           Fonte: D_CLIMA_CLIMATEMPO_MOMENTO → temp/icone/desc/umid/vento
+                + D_CLIMA (secundário)        → tempMin/tempMax do dia
            ============================================================ */
         clima: {
             temp:        '25',
             tempMin:     '19',
-            tempMax:     '30',
-            descricao:   'Parcialmente nublado com chuva à tarde',
-            umidade:     '72',
-            vento:       '14',
-            iconeCodigo: '3',
-            isNoite:     false   // true → usa variante {codigo}n.svg
+            tempMax:     '27',
+            descricao:   'Sol com muitas nuvens',
+            umidade:     '53',
+            vento:       '5',
+            iconeCodigo: '4',
+            isNoite:     false
         },
 
         /* ============================================================
-           MERCADO FINANCEIRO — array de indicadores
+           MERCADO FINANCEIRO
+           Fonte: D_CAMBIO — M1—M4 bolsas (apenas var), M5—M7 moedas
+           Troca por dataset: 'D_AWESOMEAPI' para só moedas (6 itens)
+           Valores numéricos brutos — renderItem formata + seta ▲▼
            ============================================================ */
         financeiro: [
             {
-                nome:     'Dólar',
-                valor:    'R$ 5,82',
-                variacao: '0,35',
-                icone:    '$'
+                nome:      'Bovespa',
+                tipo:      'quote',
+                valor:     '',
+                variacao:  '0.32',
+                iconeSvg:  '',
+                iconeText: 'IBV'
             },
             {
-                nome:     'Euro',
-                valor:    'R$ 6,34',
-                variacao: '-0,12',
-                icone:    '€'
+                nome:      'Dólar Comercial',
+                tipo:      'currency',
+                valor:     '4,99',
+                variacao:  '-0.16',
+                iconeSvg:  'img/dolar.svg',
+                iconeText: ''
             },
             {
-                nome:     'Bitcoin',
-                valor:    'R$ 487.200',
-                variacao: '2,15',
-                icone:    '₿'
+                nome:      'Dólar Turismo',
+                tipo:      'currency',
+                valor:     '5,18',
+                variacao:  '-0.32',
+                iconeSvg:  'img/dolar.svg',
+                iconeText: ''
+            },
+            {
+                nome:      'Euro',
+                tipo:      'currency',
+                valor:     '5,88',
+                variacao:  '0.12',
+                iconeSvg:  'img/euro.svg',
+                iconeText: ''
             }
         ],
 
         /* ============================================================
-           NOTÍCIAS — array de itens
+           NOTÍCIAS
+           Fonte: D_UOL — TEXTO = manchete, TITULO = editoria/seção
            ============================================================ */
         noticias: [
             {
-                titulo:    'Ibovespa fecha em alta de 1,2% após dados positivos da inflação',
-                categoria: 'ECONOMIA',
-                fonte:     'Valor Econômico'
-            },
-            {
-                titulo:    'Seleção Brasileira vence amistoso por 3 a 1 contra Argentina',
-                categoria: 'FUTEBOL',
-                fonte:     'Globo Esporte'
-            },
-            {
-                titulo:    'Governo anuncia investimento de R$ 10 bilhões em infraestrutura',
-                categoria: 'POLÍTICA',
-                fonte:     'Folha de SP'
-            },
-            {
-                titulo:    'Apple lança novo iPhone com chip de inteligência artificial',
-                categoria: 'TECNOLOGIA',
-                fonte:     'Canaltech'
+                titulo:    'Datafolha aponta que 46% dos brasileiros dizem que o Brasil não passará das quartas de final na Copa',
+                categoria: 'Futebol',
+                descricao: '',
+                fonte:     ''
             }
         ],
 
         /* ============================================================
-           MENSAGERIA — array de mensagens
+           MENSAGERIA — sem XML real de exemplo; valores livres
            ============================================================ */
         mensageria: [
             {
                 titulo: 'ATENÇÃO',
                 texto:  'Reunião de equipe hoje às 15h00 na sala de conferências',
-                cor:    '#c0392b'   // com cor = destaque visual ativo
+                cor:    '#c0392b'
             },
             {
                 titulo: 'LEMBRETE',
                 texto:  'Prazo de entrega de relatórios: amanhã até as 18h'
-                // sem cor = exibe sem fundo colorido
             }
         ],
 
         /* ============================================================
-           PLACAR FUTEBOL — array de jogos (inativo por padrão no config)
+           PLACAR FUTEBOL
+           Fonte: D_FOOTBALL — TITULO/TITULO2 = times, SUBTITULO2 = camp.,
+                               SUBTITULO3 = status (ex: FT, HT, "2T 34'")
+           Obs: D_FOOTBALL não fornece placar numérico; campos ficam vazios → exibe '-'
            ============================================================ */
         placar: [
             {
-                timeCasa:    'Flamengo',
-                placarCasa:  '2',
-                placarVisit: '1',
-                timeVisit:   'Palmeiras',
-                status:      'Ao Vivo',
-                campeonato:  'Brasileirão'
-            },
-            {
-                timeCasa:    'São Paulo',
-                placarCasa:  '0',
-                placarVisit: '0',
-                timeVisit:   'Corinthians',
-                status:      '2T 34\'',
-                campeonato:  'Brasileirão'
+                timeCasa:    'Morocco',
+                placarCasa:  '',
+                placarVisit: '',
+                timeVisit:   'Ecuador',
+                status:      'FT',
+                campeonato:  'Friendly International'
             }
         ],
 
         /* ============================================================
-           HORÓSCOPO — array de signos (inativo por padrão no config)
+           HORÓSCOPO
+           Fonte: D_HOROSCOPO_PERSONARE_CURTO — TITLE = signo, TEXT = previsão
            ============================================================ */
         horoscopo: [
             {
-                signo:   'Áries',
-                icone:   '♈',
-                texto:   'Dia favorável para decisões corajosas. Confie no seu instinto.',
-                periodo: 'Hoje'
-            },
-            {
-                signo:   'Touro',
-                icone:   '♉',
-                texto:   'Momento de estabilidade financeira. Boas notícias chegam.',
-                periodo: 'Hoje'
-            },
-            {
-                signo:   'Gêmeos',
-                icone:   '♊',
-                texto:   'Comunicação em alta. Parcerias trazem resultados positivos.',
-                periodo: 'Hoje'
+                signo:   'Sagitário',
+                icone:   '♐',
+                texto:   'Para Sagitário, o céu indica uma chance de enriquecimento por meio de interações intelectuais. Na área amorosa, reveja planos para melhor lidar com distâncias emocionais',
+                periodo: ''
             }
         ]
     }

@@ -125,6 +125,19 @@ var ModuloClima = (function () {
                     resultado.iconeCodigo = String(reg.nr_icon_wea || '3');
                     resultado.isNoite     = (String(reg.nr_period_wea) === '3');
                 }
+            } else {
+                // Fallback: D_CLIMA_CLIMATEMPO_MOMENTO (campos flat — sem arrays JSON)
+                // min/max do dia virão do dataset secundário D_CLIMA (C1_D1_MIN / C1_D1_MAX)
+                var tempFlat = lerCampo(rawDataClimatempo, 'C1_MIN');
+                if (tempFlat) {
+                    var horaAtual = new Date().getHours();
+                    resultado.temp        = tempFlat;
+                    resultado.iconeCodigo = lerCampo(rawDataClimatempo, 'C1_ICO')             || '3';
+                    resultado.descricao   = lerCampo(rawDataClimatempo, 'C1_TEXTMIN')         || '';
+                    resultado.umidade     = lerCampo(rawDataClimatempo, 'C1_HUMIDITYMIN')     || '';
+                    resultado.vento       = lerCampo(rawDataClimatempo, 'C1_WINDAVGVELOCITY') || '';
+                    resultado.isNoite     = horaAtual >= 18 || horaAtual < 6;
+                }
             }
         }
 

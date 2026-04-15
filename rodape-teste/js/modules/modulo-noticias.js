@@ -61,23 +61,28 @@ var ModuloNoticias = (function () {
         if (typeof rawData.count === 'function' && typeof rawData.get === 'function') {
             for (var i = 0; i < rawData.count(); i++) {
                 var item = rawData.get(i);
-                var titulo = ler(item, 'TITULO') || ler(item, 'HEADLINE') || ler(item, 'MANCHETE');
-                if (!titulo) continue;
+                // TEXTO = manchete real (D_UOL); TITULO = editoria/seção ou headline para outros datasets
+                var tituloItem = ler(item, 'TEXTO') || ler(item, 'TITULO') || ler(item, 'HEADLINE') || ler(item, 'MANCHETE');
+                if (!tituloItem) continue;
+                var categoriaItem = ler(item, 'TITULO') || ler(item, 'CATEGORY') || ler(item, 'CATEGORIA') || ler(item, 'EDITORIA') || '';
+                if (categoriaItem === tituloItem) { categoriaItem = ''; }
                 lista.push({
-                    titulo:    titulo,
+                    titulo:    tituloItem,
                     descricao: ler(item, 'DESCRICAO') || ler(item, 'CHAMADA') || '',
-                    categoria: ler(item, 'CATEGORIA') || ler(item, 'EDITORIA') || '',
+                    categoria: categoriaItem,
                     fonte:     ler(item, 'FONTE') || ''
                 });
             }
         } else {
-            // Item único
-            var titulo = ler(rawData, 'TITULO') || ler(rawData, 'HEADLINE');
+            // Item único — TEXTO = manchete (D_UOL), TITULO = editoria/seção
+            var titulo = ler(rawData, 'TEXTO') || ler(rawData, 'TITULO') || ler(rawData, 'HEADLINE');
             if (titulo) {
+                var categoria = ler(rawData, 'TITULO') || ler(rawData, 'CATEGORY') || ler(rawData, 'CATEGORIA') || '';
+                if (categoria === titulo) { categoria = ''; }
                 lista.push({
                     titulo:    titulo,
                     descricao: ler(rawData, 'DESCRICAO') || '',
-                    categoria: ler(rawData, 'CATEGORIA') || '',
+                    categoria: categoria,
                     fonte:     ler(rawData, 'FONTE') || ''
                 });
             }

@@ -64,36 +64,37 @@ var CONFIG = {
         {
             tipo: 'clima',
             ativo: true,
-            dataset: 'D_CLIMA_CLIMATEMPO',
+            dataset: 'D_CLIMA_CLIMATEMPO_MOMENTO',
             // D_CLIMA é opcional: fornece min/max do dia como campos flat.
-            // Usado como fallback quando D_CLIMA_CLIMATEMPO não estiver disponível
+            // Usado como fallback quando D_CLIMA_CLIMATEMPO_MOMENTO não estiver disponível
             // ou para complementar min/max ausentes nos arrays horários.
             datasetSecundario: 'D_CLIMA'
         },
         {
             tipo: 'financeiro',
             ativo: true,
-            dataset: 'D_MERCADO_FINANCEIRO'
+            dataset: 'D_CAMBIO'
+            // Alternativa com só moedas (sem bolsas): dataset: 'D_AWESOMEAPI'
         },
         {
             tipo: 'noticias',
             ativo: true,
-            dataset: 'D_NOTICIAS'
+            dataset: 'D_UOL'
         },
-        {
-            tipo: 'mensageria',
-            ativo: true,
-            dataset: 'D_MENSAGERIA'
-        },
+        // {
+        //     tipo: 'mensageria',
+        //     ativo: true,
+        //     dataset: 'D_MENSAGERIA'
+        // },
         {
             tipo: 'placar',
             ativo: false,
-            dataset: 'D_PLACAR_FUTEBOL'
+            dataset: 'D_FOOTBALL'
         },
         {
             tipo: 'horoscopo',
             ativo: false,
-            dataset: 'D_HOROSCOPO'
+            dataset: 'D_HOROSCOPO_PERSONARE_CURTO'
         }
     ]
 };

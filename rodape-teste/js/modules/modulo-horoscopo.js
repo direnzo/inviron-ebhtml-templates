@@ -55,23 +55,24 @@ var ModuloHoroscopo = (function () {
         if (typeof rawData.count === 'function' && typeof rawData.get === 'function') {
             for (var i = 0; i < rawData.count(); i++) {
                 var item = rawData.get(i);
-                var signo = ler(item, 'SIGNO');
+                // SIGNO (genérico) ou TITLE (D_HOROSCOPO_PERSONARE_CURTO)
+                var signo = ler(item, 'SIGNO') || ler(item, 'TITLE');
                 if (!signo) continue;
 
                 lista.push({
                     signo:   signo,
                     icone:   ler(item, 'SIGNO_ICONE') || emojiSigno(signo),
-                    texto:   ler(item, 'TEXTO') || ler(item, 'PREVISAO') || '',
+                    texto:   ler(item, 'TEXTO') || ler(item, 'TEXT') || ler(item, 'PREVISAO') || '',
                     periodo: ler(item, 'PERIODO') || ''
                 });
             }
         } else {
-            var signo = ler(rawData, 'SIGNO');
+            var signo = ler(rawData, 'SIGNO') || ler(rawData, 'TITLE');
             if (signo) {
                 lista.push({
                     signo:   signo,
                     icone:   ler(rawData, 'SIGNO_ICONE') || emojiSigno(signo),
-                    texto:   ler(rawData, 'TEXTO') || ler(rawData, 'PREVISAO') || '',
+                    texto:   ler(rawData, 'TEXTO') || ler(rawData, 'TEXT') || ler(rawData, 'PREVISAO') || '',
                     periodo: ler(rawData, 'PERIODO') || ''
                 });
             }

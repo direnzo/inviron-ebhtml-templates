@@ -242,25 +242,6 @@ html, body {
 .modulo-fin-icone {
     font-size: 28vh;
     flex-shrink: 0;
-    line-height: 1;
-}
-
-/* Ícone SVG (dolar.svg, euro.svg) — tamanho alinhado com a fonte */
-.modulo-fin-icone-svg {
-    width: 36vh;
-    height: 36vh;
-    object-fit: contain;
-    display: block;
-    flex-shrink: 0;
-}
-
-/* Seta de variação (seta_amarala.png / seta_verde.png) */
-.modulo-fin-seta {
-    height: 24vh;
-    width: auto;
-    object-fit: contain;
-    display: block;
-    flex-shrink: 0;
 }
 
 .modulo-fin-nome {
@@ -281,7 +262,6 @@ html, body {
     font-size: 22vh;
     white-space: nowrap;
     flex-shrink: 0;
-    letter-spacing: 0.02em;
 }
 
 .modulo-fin-var-positivo {
@@ -291,10 +271,6 @@ html, body {
 .modulo-fin-var-negativo {
     color: #f87171;
 }
-
-/* Fallbacks hex para Android 7 (Chrome < 65) */
-.modulo-fin-var-positivo { color: #4ade80; }
-.modulo-fin-var-negativo { color: #f87171; }
 
 /* ========================================
    MÓDULO NOTÍCIAS
