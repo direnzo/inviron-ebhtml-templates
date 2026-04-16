@@ -67,7 +67,8 @@ window.onload = function() {
         inicializarTemplate(mockLoader);
     } else {
         ebhtml.create2({}, function(loader) {
-            loader.addData('D_COMBUSTIVEL', false);
+            // Adiciona parametros de ordenacao na url do D_COMBUSTIVEL
+            loader.addData('D_COMBUSTIVEL', false, '?order=id&orderkind=A');
             loader.addData('D_LOGO', false);
             loader.autoloaded = false;
             loader.nodataiserror = false;
@@ -181,10 +182,10 @@ function renderizarPreco(combustivel) {
     var nome    = partes[0];
     var subtipo = partes.length > 1 ? partes.slice(1).join(' ') : '';
 
-    /* Preco vem com ponto decimal (4.39) -> converte para virgula (4,39) */
-    var preco = obterCampo(combustivel, 'PRECO', '0,00').replace('.', ',');
+    // Formata o preço sempre com 2 casas decimais e vírgula
+    var precoBr = formatarPrecoDecimal(obterCampo(combustivel, 'PRECO', '0'));
 
-    document.getElementById('preco-valor').innerText         = preco;
+    document.getElementById('preco-valor').innerText         = precoBr;
     document.getElementById('combustivel-nome').innerText    = nome.toUpperCase();
     document.getElementById('combustivel-subtipo').innerText = subtipo.toUpperCase();
 
@@ -194,6 +195,14 @@ function renderizarPreco(combustivel) {
              || CORES_COMBUSTIVEL[nome.toUpperCase()]
              || CORES_COMBUSTIVEL['DEFAULT'];
     document.getElementById('footer').style.backgroundColor = cor;
+}
+
+// Formata número para sempre ter 2 casas decimais e vírgula
+function formatarPrecoDecimal(valor) {
+    var n = parseFloat(valor);
+    if (isNaN(n)) return '0,00';
+    var s = n.toFixed(2).replace('.', ',');
+    return s;
 }
 
 /* =============================================================
