@@ -112,55 +112,53 @@ function renderizar(produto, loader) {
     // Hierarquia de preços: TakeWin > Promotional > Regular
     var hasTakeWin = produto.takeWin != null && produto.takeWin.unitPriceWithDiscount != null;
     var hasPromotional = produto.promotional != null && produto.promotional.price != null;
-    var temPromoc = hasTakeWin || hasPromotional;
 
-    var precoFinal;
-    if (hasTakeWin) {
-        precoFinal = produto.takeWin.unitPriceWithDiscount;
-        console.log('[AMERICANAS2] Exibindo preço: TAKEWIN (unitPriceWithDiscount)');
-    } else if (hasPromotional) {
-        precoFinal = produto.promotional.price;
-        console.log('[AMERICANAS2] Exibindo preço: PROMOTIONAL (promotional.price)');
-    } else {
-        precoFinal = produto.regularPrice;
-        console.log('[AMERICANAS2] Exibindo preço: REGULAR (regularPrice)');
-    }
-    var precoFormatado = formatarPreco(precoFinal);
-
-    document.getElementById('titulo').innerText = (produto.product && produto.product.description) ? produto.product.description : '';
-    document.getElementById('preco').innerText = precoFormatado;
-
-    // Bloco DE: visível somente com promoção
+    var precoFinal, precoFormatado;
     var precoDeBloco = document.getElementById('preco-de');
     var porLabel = document.getElementById('preco-por-label');
-    if (temPromoc) {
-        document.getElementById('preco-de-valor').innerText = 'R$ ' + formatarPreco(produto.regularPrice);
-        precoDeBloco.style.display = 'flex';
-        porLabel.style.display = 'block'; // "POR:" preto aparece
-    } else {
-        precoDeBloco.style.display = 'none';
-        porLabel.style.display = 'none';
-    }
-    // "R$" sempre vermelho — não altera cor
-
-    // Parcelamento (installment)
-    var parcBloco = document.getElementById('parcelamento');
-    var parcText = document.getElementById('parcelamento-text');
-    if (produto.installment && produto.installment.quantity && produto.installment.value) {
-        parcText.innerHTML = 'ou ' + produto.installment.quantity + 'X de <span class="font-[800] text-[#ed0030] text-[4vw]">R$ ' + formatarPreco(produto.installment.value) + '</span>';
-        parcBloco.style.display = 'flex';
-    } else {
-        parcBloco.style.display = 'none';
-    }
-
-    // TakeWin (leve X por Y)
     var takewinBloco = document.getElementById('takewin');
     var takewinText = document.getElementById('takewin-text');
+    var takewinBadge = document.getElementById('takewin-badge');
+    // Parcelamento removido do HTML e do JS
+
+    document.getElementById('titulo').innerText = (produto.product && produto.product.description) ? produto.product.description : '';
+
     if (hasTakeWin && produto.takeWin.quantity && produto.takeWin.totalPriceWithDiscount) {
-        takewinText.innerHTML = 'Leve ' + produto.takeWin.quantity + ' por <span class="font-[800] text-[#ed0030] text-[4vw]">R$ ' + formatarPreco(produto.takeWin.totalPriceWithDiscount) + '</span>';
+        // Exibe preço regular como principal
+        precoFinal = produto.regularPrice;
+        precoFormatado = formatarPreco(precoFinal);
+        document.getElementById('preco').innerText = precoFormatado;
+        precoDeBloco.style.display = 'none';
+        porLabel.style.display = 'none';
+        // Remove animação do preço
+        var precoBloco = document.getElementById('preco-bloco');
+        if (precoBloco) precoBloco.classList.remove('animate-pulseScaleWithDelay');
+        // Badge e texto
+        takewinText.innerHTML = 'Leve <span style="font-weight:900; font-size:7vw; color:#ed0030">' + produto.takeWin.quantity + ' </span> por <span style="font-weight:900; font-size:7vw; color:#ed0030">R$ ' + formatarPreco(produto.takeWin.totalPriceWithDiscount) + '</span>';
+        if (takewinBadge) takewinBadge.style.display = 'inline-block';
         takewinBloco.style.display = 'flex';
-    } else {
+        console.log('[AMERICANAS2] Exibindo preço: TAKEWIN (regularPrice principal, destaque total)');
+    } else if (hasPromotional) {
+        // Promoção comum
+        precoFinal = produto.promotional.price;
+        precoFormatado = formatarPreco(precoFinal);
+        document.getElementById('preco').innerText = precoFormatado;
+        document.getElementById('preco-de-valor').innerText = 'R$ ' + formatarPreco(produto.regularPrice);
+        precoDeBloco.style.display = 'flex';
+        porLabel.style.display = 'block';
+        if (takewinBadge) takewinBadge.style.display = 'none';
         takewinBloco.style.display = 'none';
+        console.log('[AMERICANAS2] Exibindo preço: PROMOTIONAL (promotional.price)');
+    } else {
+        // Preço regular
+        precoFinal = produto.regularPrice;
+        precoFormatado = formatarPreco(precoFinal);
+        document.getElementById('preco').innerText = precoFormatado;
+        precoDeBloco.style.display = 'none';
+        porLabel.style.display = 'none';
+        if (takewinBadge) takewinBadge.style.display = 'none';
+        takewinBloco.style.display = 'none';
+        console.log('[AMERICANAS2] Exibindo preço: REGULAR (regularPrice)');
     }
 
     ajustarFontePreco(precoFormatado);
