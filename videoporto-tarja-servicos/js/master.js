@@ -9,7 +9,7 @@
    Altere LOCAL para: SANTANA | DONA_LINDU | JAQUEIRA | APIPUCOS | GENERICO
    ======================================== */
 var CONFIG = {
-    LOCAL: 'GENERICO',
+    LOCAL: 'DONA_LINDU',
     SLIDE_DURATION: 5000 // ms por slide
 };
 
@@ -358,7 +358,7 @@ function renderizarSlideClima(dados) {
     if (elVento) {
         var metricLineVento = obterMetricLine(elVento);
         if (dados.vento && ('' + dados.vento).trim() !== '') {
-            var ventoStr = ('' + dados.vento).trim() + ' km/h';
+            var ventoStr = ('' + dados.vento).trim() + 'km/h';
             // if (dados.ventoDirecao && ('' + dados.ventoDirecao).trim() !== '') {
             //     ventoStr += '' + ('' + dados.ventoDirecao).trim();
             // }

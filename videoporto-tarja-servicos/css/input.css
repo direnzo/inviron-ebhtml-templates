@@ -116,7 +116,7 @@ body {
 }
 
 .hora-side {
-    width: 35%;
+    width: 40%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -159,23 +159,23 @@ body {
 }
 
 .clima-unit {
-    font-size: 6.4vw;
-    line-height: 1;
-    margin-left: 3px;
-    margin-bottom: 7px;
+    font-size: 14.4vw;
+    line-height: 0.8;
+    letter-spacing: -2px;
+
 }
 
 .clima-metrics {
-    width: 39%;
+    width: 40%;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10%;
-    font-size: 2.6vw;
+    gap: 5%;
+    font-size: 2.4vw;
     line-height: 1;
 }
 
 .metric-line span {
-    font-size: 5.1vw;
+    font-size: 4.2vw;
     line-height: 0.9;
     margin-left: 0;
     white-space: nowrap;
