@@ -274,18 +274,18 @@ window.onload = function () {
     }
 
     ebhtml.create2({}, function (loader) {
-        loader.addData('D_IPA');
+        loader.addData('D_JORNAL_IPANEMA');
         loader.nodataiserror = false;
         loader.autoloaded = false;
 
         loader.load(function () {
-            if (loader.data('D_IPA') == undefined) {
-                console.error('D_IPA: sem dados');
+            if (loader.data('D_JORNAL_IPANEMA') == undefined) {
+                console.error('D_JORNAL_IPANEMA: sem dados');
                 loader.finished();
                 return;
             }
 
-            var item = loader.data('D_IPA');
+            var item = loader.data('D_JORNAL_IPANEMA');
             var textos = resolverTextos(item);
             var dados = {
                 TITULO: textos.TITULO,
