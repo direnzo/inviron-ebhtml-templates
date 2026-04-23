@@ -26,7 +26,7 @@
     </div>
 
     <!-- 2. Bloco de conteúdo (posição controlada por classe ratio-X no body) -->
-    <div id="content-block" class="content-block">
+    <div id="content-block" class="content-block pb-[2.5vh] px-[2.5vw]">
 
         <!-- Terceira foto (blur) por trás do texto para formatos 3:1+ -->
         <div class="content-blur-layer">
@@ -35,21 +35,23 @@
         </div>
 
         <!-- Linha da editoria (espaçador + caixa pequena) -->
-        <div class="editoria-row">
+        <div id="editoria-row" class="editoria-row translate-y-full opacity-0 transition-all duration-500 ease-in-out">
             <div class="logo-spacer"></div>
-            <div id="editoria-wrap" class="editoria-wrap">
+            <div id="editoria-wrap" class="editoria-wrap scale-x-75">
                 <span id="editoria" class="editoria-text"></span>
             </div>
         </div>
 
         <!-- Linha inferior: logo e manchete com mesma altura -->
-        <div class="bottom-row">
-            <div class="logo-wrap">
-                <img id="logo" class="logo-img" src="img/logo_ipa.png" alt="IPA Online">
+        <div class="bottom-row  w-full h-min-[12vh] relative">
+            <div id="bg-blue" class="absolute bg-[#045bb8] size-full scale-x-0 origin-left transition-transform duration-500 ease-in-out delay-300"></div>
+            <div id="logo-block" class="relative w-[20vw] h-[45vh] ms-4 -mt-[54px] translate-y-full opacity-0 transition-all duration-500 ease-in-out">
+                <img id="logo" class="w-auto h-full object-contain block max-w-full mt-3" src="img/logo_ipa.png" alt="IPA Online">
             </div>
-            <div class="headline-wrap">
-                <p id="headline" class="headline-text"></p>
+            <div class="headline-wrap scale-x-95">
+                <p id="headline" class="headline-text translate-x-[-40px] opacity-0 transition-all duration-500 ease-in-out delay-500"></p>
             </div>
+            <div id="saiba-mais" class="absolute bottom-2 right-4 p-2 text-[70%] text-white scale-x-75"></div>
         </div>
 
     </div>

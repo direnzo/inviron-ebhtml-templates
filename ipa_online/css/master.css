@@ -1,3 +1,13 @@
+/* Fallbacks hex para Android 7 / Chrome < 65 */
+
+.bg-[#0068b4], .headline-wrap, .editoria-wrap {
+  background-color: #0068b4 !important;
+}
+
+.text-white {
+  color: #ffffff !important;
+}
+
 *, ::before, ::after {
   --tw-border-spacing-x: 0;
   --tw-border-spacing-y: 0;
@@ -160,9 +170,7 @@
   --tw-contain-style:  ;
 }
 
-/*
-! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com
-*/
+/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */
 
 /*
 1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)
@@ -627,6 +635,51 @@ video {
   position: relative;
 }
 
+.bottom-0 {
+  bottom: 0px;
+}
+
+.right-0 {
+  right: 0px;
+}
+
+.right-10 {
+  right: 2.5rem;
+}
+
+.bottom-3 {
+  bottom: 0.75rem;
+}
+
+.bottom-2 {
+  bottom: 0.5rem;
+}
+
+.right-8 {
+  right: 2rem;
+}
+
+.right-6 {
+  right: 1.5rem;
+}
+
+.right-4 {
+  right: 1rem;
+}
+
+.-mt-\[54px\] {
+  margin-top: -54px;
+}
+
+.ms-4 {
+  -webkit-margin-start: 1rem;
+          margin-inline-start: 1rem;
+}
+
+.mt-3 {
+  margin-top: 0.75rem;
+}
+
 .block {
   display: block;
 }
@@ -639,12 +692,158 @@ video {
   display: none;
 }
 
+.size-full {
+  width: 100%;
+  height: 100%;
+}
+
+.h-\[45vh\] {
+  height: 45vh;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.w-\[20vw\] {
+  width: 20vw;
+}
+
+.w-auto {
+  width: auto;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.max-w-full {
+  max-width: 100%;
+}
+
+.origin-left {
+  transform-origin: left;
+}
+
+.translate-x-\[0\.8\] {
+  --tw-translate-x: 0.8;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.translate-x-\[0\.8rem\] {
+  --tw-translate-x: 0.8rem;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.-translate-y-full {
+  --tw-translate-y: -100%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.translate-y-full {
+  --tw-translate-y: 100%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.translate-y-0 {
+  --tw-translate-y: 0px;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.translate-x-\[-40px\] {
+  --tw-translate-x: -40px;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.translate-x-0 {
+  --tw-translate-x: 0px;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.scale-x-75 {
+  --tw-scale-x: .75;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.scale-x-95 {
+  --tw-scale-x: .95;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.scale-x-90 {
+  --tw-scale-x: .9;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.scale-x-0 {
+  --tw-scale-x: 0;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.scale-x-100 {
+  --tw-scale-x: 1;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
 .transform {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
 .resize {
   resize: both;
+}
+
+.bg-\[\#0068b4\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(0 104 180 / var(--tw-bg-opacity, 1));
+}
+
+.bg-\[\#0068b4f2\] {
+  background-color: #0068b4f2;
+}
+
+.bg-\[\#045bb8\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(4 91 184 / var(--tw-bg-opacity, 1));
+}
+
+.object-contain {
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+
+.p-2 {
+  padding: 0.5rem;
+}
+
+.px-\[2\.5vw\] {
+  padding-left: 2.5vw;
+  padding-right: 2.5vw;
+}
+
+.pb-\[2\.5vh\] {
+  padding-bottom: 2.5vh;
+}
+
+.text-\[50\%\] {
+  font-size: 50%;
+}
+
+.text-\[70\%\] {
+  font-size: 70%;
+}
+
+.text-white {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity, 1));
+}
+
+.opacity-0 {
+  opacity: 0;
+}
+
+.opacity-100 {
+  opacity: 1;
 }
 
 .blur {
@@ -664,22 +863,32 @@ video {
   transition-duration: 150ms;
 }
 
-@font-face {
-  font-family: 'Poppins Medium';
-
-  src: url('fonts/Poppins-Medium.ttf');
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
 }
 
-@font-face {
-  font-family: 'Poppins Bold';
-
-  src: url('fonts/Poppins-ExtraBold.ttf');
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
 }
 
-@font-face {
-  font-family: 'Poppins Regular';
+.delay-300 {
+  transition-delay: 300ms;
+}
 
-  src: url('fonts/Poppins-Regular.ttf');
+.delay-500 {
+  transition-delay: 500ms;
+}
+
+.duration-500 {
+  transition-duration: 500ms;
+}
+
+.ease-in-out {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* =====================================================
@@ -698,7 +907,7 @@ html, body {
   position: relative;
   background: #000;
   color: #fff;
-  font-family: 'Poppins Medium', sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   opacity: 0;
   transition: opacity 0.9s ease;
 }
@@ -758,7 +967,7 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 0 0 2.5vh 2.5vh;
+  /* padding: 0 0 2.5vh 2.5vh; */
   overflow: visible;
   background: none;
 }
@@ -791,7 +1000,7 @@ html, body {
 ===================================================== */
 
 .logo-spacer {
-  flex: 0 0 20vh;
+  flex: 0 0 58vh;
   width: 20vh;
   margin-right: 1.2vh;
 }
@@ -799,7 +1008,7 @@ html, body {
 .logo-wrap {
   flex: 0 0 20vh;
   width: 20vh;
-  background: #000;
+  /* background: #000; removido para tirar fundo preto */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -833,7 +1042,6 @@ html, body {
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  width: 100%;
 }
 
 /* =====================================================
@@ -849,7 +1057,8 @@ html, body {
 }
 
 .editoria-text {
-  font-family: 'Poppins Bold', sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
   font-size: 5.4vh;
   color: #fff;
   white-space: nowrap;
@@ -862,9 +1071,11 @@ html, body {
 ===================================================== */
 
 .headline-wrap {
-  width: 100%;
-  background: rgba(0, 104, 180, 0.95);
-  padding: 3.4vh 2.2vw;
+  width: 95%;
+  /* efeito flutuante, não 100% */
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2.2vh 2vw;
   overflow: hidden;
   max-height: 12vw;
   box-sizing: border-box;
@@ -873,13 +1084,14 @@ html, body {
 }
 
 .headline-text {
-  font-family: 'Poppins Medium', sans-serif;
-  font-size: 4vw;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8vmin;
   line-height: 1.15;
   color: #fff;
   margin: 0;
   padding: 0;
-  width: 100%;
+  width: 80%;
+  font-weight: bold;
 }
 
 /* =====================================================
@@ -893,7 +1105,7 @@ html, body {
   top: 50%;
   transform: translateY(-50%) rotate(-90deg);
   transform-origin: left center;
-  font-family: 'Poppins Regular', sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   font-size: 1.8vh;
   color: rgba(255, 255, 255, 0.85);
   white-space: nowrap;
@@ -990,7 +1202,7 @@ html, body {
   bottom: 0;
   top: auto;
   min-height: 0;
-  padding: 0 0 2.5vh 2.5vh;
+  /* padding: 0 0 2.5vh 2.5vh; */
   background: none;
   z-index: 20;
 }

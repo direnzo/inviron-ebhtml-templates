@@ -1,19 +1,11 @@
+/* Fallbacks hex para Android 7 / Chrome < 65 */
+.bg-[#0068b4], .headline-wrap, .editoria-wrap { background-color: #0068b4 !important; }
+.text-white { color: #ffffff !important; }
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-    font-family: 'Poppins Medium';
-    src: url('fonts/Poppins-Medium.ttf');
-}
-@font-face {
-    font-family: 'Poppins Bold';
-    src: url('fonts/Poppins-ExtraBold.ttf');
-}
-@font-face {
-    font-family: 'Poppins Regular';
-    src: url('fonts/Poppins-Regular.ttf');
-}
+
 
 /* =====================================================
    BASE
@@ -31,7 +23,7 @@ html, body {
     position: relative;
     background: #000;
     color: #fff;
-    font-family: 'Poppins Medium', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     opacity: 0;
     -webkit-transition: opacity 0.9s ease;
     transition: opacity 0.9s ease;
@@ -99,7 +91,7 @@ html, body {
     -webkit-box-align: start;
     -webkit-align-items: flex-start;
     align-items: flex-start;
-    padding: 0 0 2.5vh 2.5vh;
+    /* padding: 0 0 2.5vh 2.5vh; */
     overflow: visible;
     background: none;
 }
@@ -134,8 +126,8 @@ html, body {
 
 .logo-spacer {
     -webkit-box-flex: 0;
-    -webkit-flex: 0 0 20vh;
-    flex: 0 0 20vh;
+    -webkit-flex: 0 0 58vh;
+    flex: 0 0 58vh;
     width: 20vh;
     margin-right: 1.2vh;
 }
@@ -145,7 +137,7 @@ html, body {
     -webkit-flex: 0 0 20vh;
     flex: 0 0 20vh;
     width: 20vh;
-    background: #000;
+    /* background: #000; removido para tirar fundo preto */
     display: -webkit-box;
     display: -webkit-flex;
     display: flex;
@@ -199,7 +191,7 @@ html, body {
     -webkit-box-align: stretch;
     -webkit-align-items: stretch;
     align-items: stretch;
-    width: 100%;
+
 }
 
 /* =====================================================
@@ -220,7 +212,8 @@ html, body {
 }
 
 .editoria-text {
-    font-family: 'Poppins Bold', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
     font-size: 5.4vh;
     color: #fff;
     white-space: nowrap;
@@ -233,9 +226,10 @@ html, body {
 ===================================================== */
 
 .headline-wrap {
-    width: 100%;
-    background: rgba(0, 104, 180, 0.95);
-    padding: 3.4vh 2.2vw;
+    width: 95%; /* efeito flutuante, não 100% */
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2.2vh 2vw;
     overflow: hidden;
     max-height: 12vw;
     -webkit-box-sizing: border-box;
@@ -249,13 +243,14 @@ html, body {
 }
 
 .headline-text {
-    font-family: 'Poppins Medium', sans-serif;
-    font-size: 4vw;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8vmin;
     line-height: 1.15;
     color: #fff;
     margin: 0;
     padding: 0;
-    width: 100%;
+    width: 80%;
+    font-weight: bold;
 }
 
 /* =====================================================
@@ -271,7 +266,7 @@ html, body {
     transform: translateY(-50%) rotate(-90deg);
     -webkit-transform-origin: left center;
     transform-origin: left center;
-    font-family: 'Poppins Regular', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 1.8vh;
     color: rgba(255, 255, 255, 0.85);
     white-space: nowrap;
@@ -368,7 +363,7 @@ html, body {
     bottom: 0;
     top: auto;
     min-height: 0;
-    padding: 0 0 2.5vh 2.5vh;
+    /* padding: 0 0 2.5vh 2.5vh; */
     background: none;
     z-index: 20;
 }

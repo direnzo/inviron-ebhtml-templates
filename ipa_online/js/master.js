@@ -1,3 +1,4 @@
+// ES5 compatível!
 window.onload = function () {
 
     var photo = document.querySelector('#photo');
@@ -187,6 +188,36 @@ window.onload = function () {
     }
 
     function renderizarTemplate(dados) {
+                                // Animação de máquina de escrever simples para o bloco "saiba mais"
+                                if (window.saibaMaisAnimado !== true) {
+                                    var saibaMais = document.getElementById('saiba-mais');
+                                    var textoSaiba = 'SAIBA MAIS EM IPAONLINE.COM.BR';
+                                    if (saibaMais) {
+                                        saibaMais.innerHTML = '';
+                                        var i = 1;
+                                        var digitar = function() {
+                                            if (i <= textoSaiba.length) {
+                                                saibaMais.innerHTML = textoSaiba.substring(0, i);
+                                                i++;
+                                                setTimeout(digitar, 45);
+                                            } else {
+                                                window.saibaMaisAnimado = true;
+                                            }
+                                        };
+                                        setTimeout(digitar, 700); // delay para sincronizar com outras animações
+                                    }
+                                }
+                    // Animação de entrada do fundo azul (escala X)
+                    if (window.bgBlueAnimado !== true) {
+                        var bgBlue = document.getElementById('bg-blue');
+                        if (bgBlue) {
+                            setTimeout(function() {
+                                bgBlue.className = bgBlue.className
+                                    .replace('scale-x-0', 'scale-x-100');
+                                window.bgBlueAnimado = true;
+                            }, 120);
+                        }
+                    }
         editoria.innerHTML = dados.EDITORIA ? dados.EDITORIA.toUpperCase() : '';
         headline.innerHTML = dados.TITULO;
         credit.innerHTML = dados.IMAGECREDIT;
@@ -206,6 +237,42 @@ window.onload = function () {
                 fitTo2Lines(headline, headlineWrap, 14, 56);
             }
             body.classList.add('is-ready');
+            // Animação de entrada do bloco de editoria
+            if (window.editoriaAnimada !== true) {
+                var editoriaRow = document.getElementById('editoria-row');
+                if (editoriaRow) {
+                    setTimeout(function() {
+                        editoriaRow.className = editoriaRow.className
+                            .replace('translate-y-full', 'translate-y-0')
+                            .replace('opacity-0', 'opacity-100');
+                        window.editoriaAnimada = true;
+                    }, 100);
+                }
+            }
+            // Animação de entrada do bloco do logo
+            if (window.logoAnimado !== true) {
+                var logoBlock = document.getElementById('logo-block');
+                if (logoBlock) {
+                    setTimeout(function() {
+                        logoBlock.className = logoBlock.className
+                            .replace('translate-y-full', 'translate-y-0')
+                            .replace('opacity-0', 'opacity-100');
+                        window.logoAnimado = true;
+                    }, 200);
+                }
+            }
+            // Animação de entrada do headline (da esquerda para a direita)
+            if (window.headlineAnimado !== true) {
+                var headlineEl = document.getElementById('headline');
+                if (headlineEl) {
+                    setTimeout(function() {
+                        headlineEl.className = headlineEl.className
+                            .replace('translate-x-[-40px]', 'translate-x-0')
+                            .replace('opacity-0', 'opacity-100');
+                        window.headlineAnimado = true;
+                    }, 350);
+                }
+            }
         };
 
         if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
@@ -366,4 +433,6 @@ function fitTo2Lines(textEl, wrapEl, minFontSize, maxFontSize) {
         textEl.style.fontSize = fontSize + 'px';
     }
 }
+
+
 
