@@ -199,7 +199,7 @@ window.onload = function () {
                                             if (i <= textoSaiba.length) {
                                                 saibaMais.innerHTML = textoSaiba.substring(0, i);
                                                 i++;
-                                                setTimeout(digitar, 45);
+                                                setTimeout(digitar, 90);
                                             } else {
                                                 window.saibaMaisAnimado = true;
                                             }
@@ -302,7 +302,10 @@ window.onload = function () {
         }
 
         photo.onload = function () {
-            photo.classList.add('zoom');
+            // Efeito de escala animada usando Tailwind utilitário
+            photo.classList.remove('scale-150');
+            photo.classList.add('scale-100');
+            
             loader.loaded();
             setTimeout(function () {
                 loader.finished();
