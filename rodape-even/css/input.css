@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   FONTES CUSTOMIZADAS
+   ======================================== */
+
+@font-face {
+    font-family: 'Roboto Regular';
+    src: url('./fonts/Roboto-Regular.ttf');
+}
+@font-face {
+    font-family: 'Roboto Medium';
+    src: url('./fonts/Roboto-Medium.ttf');
+}
+@font-face {
+    font-family: 'Roboto Bold';
+    src: url('./fonts/Roboto-Bold.ttf');
+}
+@font-face {
+    font-family: 'Roboto Light';
+    src: url('./fonts/Roboto-Light.ttf');
+}
+
+@font-face {
+    font-family: 'Poppins-Regular';
+    src: url('./fonts/Poppins-Regular.ttf');
+}
+@font-face {
+    font-family: 'Poppins-Medium';
+    src: url('./fonts/Poppins-Medium.ttf');
+}
+@font-face {
+    font-family: 'Poppins-Extra-Bold';
+    src: url('./fonts/Poppins-ExtraBold.ttf');
+}
+
+/* Fallbacks hex obrigatórios para Android 7 (Chrome < 65) */
+.text-white   { color: #ffffff }
+.text-black   { color: #000000 }
+.text-gray-300 { color: #d1d5db }
+.text-gray-400 { color: #9ca3af }
+.text-gray-900 { color: #111827 }
+.bg-white     { background-color: #ffffff }
+.bg-black     { background-color: #000000 }
+.bg-gray-900  { background-color: #111827 }
+.text-green-400 { color: #4ade80 }
+.text-red-400   { color: #f87171 }
+
+/* Exemplo: aplica cor principal nos ícones */
+#rodape-bar svg {
+    color: var(--clima-principal, #000);
+}
+/* Se precisar de cor secundária em partes do SVG, use fill="var(--clima-secundaria, #888)" no SVG */
