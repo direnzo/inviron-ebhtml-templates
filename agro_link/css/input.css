@@ -1,0 +1,46 @@
+/* Background principal do template */
+#bg-main {
+    position: absolute;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    background: #000;
+    overflow: hidden;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: 'MMC-Regular';
+    src: url('fonts/MMC Regular.ttf');
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'MMC-Medium';
+    src: url('fonts/MMC Medium.ttf');
+    font-weight: 500;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'MMC-Bold';
+    src: url('fonts/MMC-Bold.ttf');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* Fallbacks hex para Android 7+ */
+.text-white { color: #ffffff }
+.text-black { color: #000000 }
+.bg-white { background-color: #ffffff }
+.bg-black { background-color: #000000 }
+
+.shadow-img {
+   -webkit-filter: drop-shadow(1vmin 2vmin 3vmin #111111);
+    filter: drop-shadow(1vmin 2vmin 3vmin #111111);
+}
+
+
