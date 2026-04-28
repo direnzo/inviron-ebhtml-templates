@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="h-full w-full overflow-hidden">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/master.css">
+
+    <!-- 1. Configuração global (editar para customizar) -->
+    <script src="js/config.js"></script>
+
+    <!-- 2. Módulos de canais (independentes) -->
+    <script src="js/modules/modulo-clima.js"></script>
+    <script src="js/modules/modulo-financeiro.js"></script>
+    <script src="js/modules/modulo-noticias.js"></script>
+    <script src="js/modules/modulo-mensageria.js"></script>
+    <script src="js/modules/modulo-placar.js"></script>
+    <script src="js/modules/modulo-horoscopo.js"></script>
+
+    <!-- 3. Mock data para desenvolvimento (comentar em produção) -->
+    <!-- <script src="js/mock-data.js"></script> -->
+
+    <!-- 4. Engine EBHTML + orquestrador -->
+    <script src="js/ebhtml.js"></script>
+    <script src="js/master.js"></script>
+
+    <title>Rodape</title>
+</head>
+
+<body class="rodape-body">
+
+    <!-- Barra principal — 3 colunas configuráveis -->
+    <div id="rodape-bar" class="rodape-bar">
+
+        <!-- Coluna Logo -->
+        <div id="col-logo" class="rodape-col rodape-col-logo">
+            <img id="logo-img" class="rodape-logo" src="" alt="">
+        </div>
+
+        <!-- Divisor 1 -->
+        <div id="divider-1" class="rodape-divider"></div>
+
+        <!-- Coluna Conteúdo (canais / slideshow) -->
+        <div id="col-content" class="rodape-col rodape-col-content">
+            <!-- Área de conteúdo do canal -->
+            <div id="channel-content" class="rodape-channel-content">
+                <div id="channel-inner" class="rodape-channel-inner"></div>
+            </div>
+        </div>
+
+        <!-- Divisor 2 -->
+        <div id="divider-2" class="rodape-divider"></div>
+
+        <!-- Coluna Relógio -->
+        <div id="col-clock" class="rodape-col rodape-col-clock">
+            <div id="clock-time" class="rodape-clock-time"></div>
+            <div id="clock-date" class="rodape-clock-date"></div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

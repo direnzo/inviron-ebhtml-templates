@@ -1,0 +1,148 @@
+<EBDATA AMOUNT="1" QI_ORDER="RANDOM">
+<ITEM>
+<DESTINATION>
+<![CDATA[ ]]>
+</DESTINATION>
+<DT_BEGIN>
+<![CDATA[ ]]>
+</DT_BEGIN>
+<DT_CREATE>
+<![CDATA[ 2026-04-14 13:54:59 ]]>
+</DT_CREATE>
+<DT_END>
+<![CDATA[ ]]>
+</DT_END>
+<DT_UPDATE>
+<![CDATA[ 2026-04-14 13:54:59 ]]>
+</DT_UPDATE>
+<ID>
+<![CDATA[ 100 ]]>
+</ID>
+<M1_ATUALIZA>
+<![CDATA[ 2026-04-14 13:09:00 ]]>
+</M1_ATUALIZA>
+<M1_NOME>
+<![CDATA[ Bovespa ]]>
+</M1_NOME>
+<M1_QUOTE>
+<![CDATA[ quote:br:bovespa ]]>
+</M1_QUOTE>
+<M1_VALOR>
+<![CDATA[ ]]>
+</M1_VALOR>
+<M1_VALOR_COMPRA>
+<![CDATA[ ]]>
+</M1_VALOR_COMPRA>
+<M1_VAR>
+<![CDATA[ 0.32 ]]>
+</M1_VAR>
+<M2_ATUALIZA>
+<![CDATA[ 2025-06-30 17:00:00 ]]>
+</M2_ATUALIZA>
+<M2_NOME>
+<![CDATA[ NASDAQ ]]>
+</M2_NOME>
+<M2_QUOTE>
+<![CDATA[ quote:br:nasdaq ]]>
+</M2_QUOTE>
+<M2_VALOR>
+<![CDATA[ ]]>
+</M2_VALOR>
+<M2_VALOR_COMPRA>
+<![CDATA[ ]]>
+</M2_VALOR_COMPRA>
+<M2_VAR>
+<![CDATA[ 0 ]]>
+</M2_VAR>
+<M3_ATUALIZA>
+<![CDATA[ 2025-06-30 17:00:00 ]]>
+</M3_ATUALIZA>
+<M3_NOME>
+<![CDATA[ Londres ]]>
+</M3_NOME>
+<M3_QUOTE>
+<![CDATA[ quote:br:london ]]>
+</M3_QUOTE>
+<M3_VALOR>
+<![CDATA[ ]]>
+</M3_VALOR>
+<M3_VALOR_COMPRA>
+<![CDATA[ ]]>
+</M3_VALOR_COMPRA>
+<M3_VAR>
+<![CDATA[ 0 ]]>
+</M3_VAR>
+<M4_ATUALIZA>
+<![CDATA[ 2025-06-30 17:00:00 ]]>
+</M4_ATUALIZA>
+<M4_NOME>
+<![CDATA[ Japão ]]>
+</M4_NOME>
+<M4_QUOTE>
+<![CDATA[ quote:br:japan ]]>
+</M4_QUOTE>
+<M4_VALOR>
+<![CDATA[ ]]>
+</M4_VALOR>
+<M4_VALOR_COMPRA>
+<![CDATA[ ]]>
+</M4_VALOR_COMPRA>
+<M4_VAR>
+<![CDATA[ 0 ]]>
+</M4_VAR>
+<M5_ATUALIZA>
+<![CDATA[ 2026-04-14 13:24:00 ]]>
+</M5_ATUALIZA>
+<M5_NOME>
+<![CDATA[ Dólar Comercial ]]>
+</M5_NOME>
+<M5_QUOTE>
+<![CDATA[ currency:br:dolar-comercial ]]>
+</M5_QUOTE>
+<M5_VALOR>
+<![CDATA[ 4.989 ]]>
+</M5_VALOR>
+<M5_VALOR_COMPRA>
+<![CDATA[ 4.989 ]]>
+</M5_VALOR_COMPRA>
+<M5_VAR>
+<![CDATA[ -0.16 ]]>
+</M5_VAR>
+<M6_ATUALIZA>
+<![CDATA[ 2026-04-14 13:24:00 ]]>
+</M6_ATUALIZA>
+<M6_NOME>
+<![CDATA[ Dólar Turismo ]]>
+</M6_NOME>
+<M6_QUOTE>
+<![CDATA[ currency:br:dolar-turismo ]]>
+</M6_QUOTE>
+<M6_VALOR>
+<![CDATA[ 5.175 ]]>
+</M6_VALOR>
+<M6_VALOR_COMPRA>
+<![CDATA[ 4.995 ]]>
+</M6_VALOR_COMPRA>
+<M6_VAR>
+<![CDATA[ -0.32 ]]>
+</M6_VAR>
+<M7_ATUALIZA>
+<![CDATA[ 2026-04-14 13:24:00 ]]>
+</M7_ATUALIZA>
+<M7_NOME>
+<![CDATA[ Euro ]]>
+</M7_NOME>
+<M7_QUOTE>
+<![CDATA[ currency:br:euro ]]>
+</M7_QUOTE>
+<M7_VALOR>
+<![CDATA[ 5.884 ]]>
+</M7_VALOR>
+<M7_VALOR_COMPRA>
+<![CDATA[ 5.883 ]]>
+</M7_VALOR_COMPRA>
+<M7_VAR>
+<![CDATA[ 0.12 ]]>
+</M7_VAR>
+</ITEM>
+</EBDATA>
