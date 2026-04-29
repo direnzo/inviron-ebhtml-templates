@@ -218,9 +218,17 @@ window.onload = function () {
 	/* =====================================================
 	   INICIAR TEMPLATE
 	   ===================================================== */
+
 	function iniciarTemplate(dados, loader) {
 		aplicarConfig();
 		iniciarRelogio();
+
+		// Exibe col-content só após dados populados
+		var colContent = document.getElementById('col-content');
+		if (colContent) {
+			colContent.classList.remove('opacity-0');
+			colContent.classList.remove('hidden');
+		}
 
 		var canaisAtivos = [];
 		for (var i = 0; i < CONFIG.canais.length; i++) {

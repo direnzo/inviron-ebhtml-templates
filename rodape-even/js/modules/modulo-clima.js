@@ -397,17 +397,22 @@ var ModuloClima = (function () {
 		function showSlide(idx) {
 			for (var i = 0; i < slides.length; i++) {
 				if (!slides[i]) continue;
+				slides[i].classList.add('transition-opacity');
+				slides[i].classList.add('transition-transform');
+				slides[i].classList.add('duration-500');
+				slides[i].classList.remove('translate-y-0');
+				slides[i].classList.remove('translate-y-8');
 				if (i === idx) {
 					slides[i].classList.remove('hidden');
-					slides[i].classList.add('transition-opacity');
-					slides[i].classList.add('duration-500');
 					slides[i].classList.remove('opacity-0');
 					slides[i].classList.add('opacity-100');
+					slides[i].classList.remove('translate-y-8');
+					slides[i].classList.add('translate-y-0');
 				} else {
-					slides[i].classList.add('transition-opacity');
-					slides[i].classList.add('duration-500');
 					slides[i].classList.remove('opacity-100');
 					slides[i].classList.add('opacity-0');
+					slides[i].classList.remove('translate-y-0');
+					slides[i].classList.add('translate-y-8');
 					setTimeout((function(slide){
 						return function(){ slide.classList.add('hidden'); };
 					})(slides[i]), 500);

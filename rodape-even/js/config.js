@@ -8,7 +8,7 @@ var CONFIG = {
     relogioPosicao: 'direita',
     conteudoVisivel: true,
     itemDuracao: 10000,
-    fadeDuracao: 400,
+    fadeDuracao: 1000,
     canais: [
         { tipo: 'clima', ativo: true, dataset: 'D_CLIMA_CLIMATEMPO' },
         { tipo: 'financeiro', ativo: true, dataset: 'D_AWESOMEAPI' }
