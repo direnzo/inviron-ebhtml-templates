@@ -24,64 +24,29 @@
         <!-- Conteúdo dinâmico -->
     </div>
 
+
     <template id="noticia-template">
         <div id="main-card" class="flex flex-col portrait:flex-col landscape:flex-row w-full h-full bg-black/80 rounded-[3vmin] overflow-hidden">
             <!-- Bloco de conteúdo -->
             <div class="bloco-conteudo flex-1 flex flex-col justify-between p-[4vmin] bg-black/85">
-                <div id="badge" class="inline-block px-[3.5vmin] pt-[2vmin] pb-[2.5vmin] rounded-[2vmin] landscape:rounded-full w-fit bg-white text-black mb-[10vmin] text-[60%] leading-none ">CIDADE, UF</div>
+                <div id="badge" class="inline-block px-[3.5vmin] pt-[2vmin] pb-[2.5vmin] rounded-[2vmin] landscape:rounded-full w-fit bg-white text-black mb-[6vmin] text-[60%] leading-none ">CIDADE, UF</div>
 
                 <!-- NOTÍCIAS -->
                 <div id="bloco-noticia" class="categoria-bloco flex h-full items-center justify-center h-full border-b-[1px] border-t-[1px] border-white hidden">
                     <div id="titulo" class="titulo-principal  leading-tight my-auto ">TÍTULO DA NOTÍCIA</div>
                 </div>
 
-                <!-- DÓLAR -->
-                <div id="bloco-dolar" class="categoria-bloco flex h-full items-center justify-center h-full border-b-[1px] border-t-[1px] border-white hidden">
-                    <div class="flex flex-col gap-[2vmin] items-center justify-center h-full">
-                        <div id="titulo-dolar" class="titulo-principal  leading-tight">TÍTULO DÓLAR</div>
-                        <div class="flex gap-[3vmin] items-end justify-center">
-                            <span id="valor-dolar" class="text-[7vmin] font-bold ">R$ 0,00</span>
-                            <span id="variacao-dolar" class="text-[4vmin] font-bold text-green-400 mb-[1vmin]">+0,00%</span>
-                        </div>
-                    </div>
+
+                <div id="bloco-unificado" class="categoria-bloco py-[5vmin] flex gap-y-[3vmin] flex-col h-full w-full text-[75%] uppercase items-center justify-start h-full border-b-[1px] border-t-[1px] border-white hidden">
+                    <div id="cotacao" class="w-full leading-tight my-auto ">COTAÇÃO | VACA GORODA <br> 15KG | R$ 307,00/KG</div>
+                    <div id="dolar" class="w-full leading-tight my-auto ">DOLAR R$ 5,019</div>
+                    <div id="tempo" class="w-full leading-tight my-auto ">CLIMA GOIÂNIA | 18 A 31C | CHUVA 0%</div>
+
                 </div>
 
-                <!-- TEMPO -->
-                <div id="bloco-tempo" class="categoria-bloco flex h-full items-center border-b-[1px] border-t-[1px] border-white hidden">
-                    <div class="flex flex-col gap-[2vmin] items-center justify-center h-full">
-                        <div id="titulo-tempo" class="leading-tight text-[80%]">TÍTULO TEMPO</div>
-                        <div class="flex gap-[3vmin] items-start justify-center">
-                            <span class="flex items-center gap-[1vmin]">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-[6vmin] h-[6vmin] text-blue-300"><path d="M12 16.5c-.28 0-.53-.11-.71-.29l-5-5a1.003 1.003 0 011.42-1.42L12 13.59l4.29-4.3a1.003 1.003 0 011.42 1.42l-5 5c-.18.18-.43.29-.71.29z"/></svg>
-                                <span id="temp-min" class=" font-bold">17°C</span>
-                            </span>
-                            <span class="flex items-center gap-[1vmin]">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-[6vmin] h-[6vmin] text-red-300 rotate-180"><path d="M12 16.5c-.28 0-.53-.11-.71-.29l-5-5a1.003 1.003 0 011.42-1.42L12 13.59l4.29-4.3a1.003 1.003 0 011.42 1.42l-5 5c-.18.18-.43.29-.71.29z"/></svg>
-                                <span id="temp-max" class=" font-bold">31°C</span>
-                            </span>
-                        </div>
-                        <div class="flex gap-[3vmin] items-center justify-center text-[30%]">
-                            <span id="probchuva" class="">Probabilidade de Chuva: 0</span>
-                            <span id="qtdchuva" class="">Qtd de Chuva: 0</span>
-                            <span id="umidade" class="">Umidade: 31%</span>
-                            <span id="vento" class="">Vento: 4 km/h Leste</span>
-                        </div>
+                
 
-                    </div>
-                </div>
-
-
-                <!-- COTAÇÕES -->
-                <div id="bloco-cotacoes" class="categoria-bloco flex h-full items-center border-b-[1px] border-t-[1px] border-white hidden">
-                    <div class="flex flex-col gap-[1vmin] items-start justify-center h-full w-full">
-                        <div id="titulo-cotacoes" class="leading-none text-[110%]">TÍTULO COTAÇÃO</div>
-                        <div id="classificacao-cotacoes" class=" text-[70%] font-mmc-regular">DESCRiÇÃO</div>
-                        <div id="valor-cotacoes" class="leading-none text-[110%]">VALOR COTAÇÃO</div>
-                        <div id="obs-cotacoes" class="text-[40%] font-mmc-regular">Obs</div>
-                    </div>
-                </div>
-
-                <div class="w-full flex items-center justify-between mt-[6vmin]  mb-[3vmin] text-[50%]">
+                <div class="w-full flex items-center justify-between mt-[4vmin]  mb-[3vmin] text-[50%]">
                     <span id="assinatura">
                         <span class="text-[#FF2323] ">TRITONEWS</span> <span class="">BY AGROLINK</span>
                     </span>
@@ -89,7 +54,7 @@
             </div>
             <!-- Bloco da foto -->
             <div class="bloco-foto flex-1 flex items-end justify-center relative overflow-hidden">
-                <video id="video-foto" class="object-cover w-full h-full" autoplay loop muted playsinline>
+                <video id="video-foto" class="object-cover w-full h-full" autoplay muted playsinline>
                     <source src="img/triton.mp4" type="video/mp4" />
                 </video>
                 <!-- Vinheta gradiente -->
