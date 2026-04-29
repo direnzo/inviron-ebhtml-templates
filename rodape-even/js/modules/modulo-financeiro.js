@@ -150,7 +150,7 @@ var ModuloFinanceiro = (function () {
 		var xhr   = null;
 
 		inner.innerHTML = '';
-		inner.style.opacity = '0';
+		inner.classList.add('opacity-0');
 
 
 		   var tpl = document.getElementById('tpl-financeiro');
@@ -189,11 +189,11 @@ var ModuloFinanceiro = (function () {
 				   setaImg.src = varNum > 0 ? 'img/seta_amarala.png' : 'img/seta_verde.png';
 				   setaImg.alt = varNum > 0 ? '+' : '-';
 				   varEl.textContent = (varNum > 0 ? '+' : '') + varNum.toFixed(2).replace('.', ',') + '%';
-				   varEl.className = varNum > 0 ? 'text-green-400 text-[8vmin]' : 'text-red-400 text-[8vmin]';
+				   varEl.className = varNum > 0 ? 'text-green-400 ' : 'text-red-400 ';
 			   } else {
 				   setaImg.style.display = 'none';
 				   varEl.textContent = '';
-				   varEl.className = 'text-[8vmin]';
+				   varEl.className = '';
 			   }
 		   }
 
@@ -201,8 +201,10 @@ var ModuloFinanceiro = (function () {
 
 		var fadeDuracao = (config && config.fadeDuracao) || 400;
 		setTimeout(function () {
-			inner.style.transition = 'opacity ' + fadeDuracao + 'ms';
-			inner.style.opacity = '1';
+			inner.classList.add('transition-opacity');
+			inner.classList.add('duration-500');
+			inner.classList.remove('opacity-0');
+			inner.classList.add('opacity-100');
 		}, 20);
 
 		var duracao = (config && config.itemDuracao) || 6000;
@@ -273,7 +275,7 @@ var ModuloFinanceiro = (function () {
 				if (nomeEl) nomeEl.textContent = item.nome || '';
 				// Valor
 				var valorEl = itemRoot.querySelector('[data-fin-valor]');
-				if (valorEl) valorEl.textContent = item.valor || '';
+				if (valorEl) valorEl.textContent = 'R$ ' + (item.valor || '');
 				// Variação
 				var varNum = parseFloat(String(item.variacao).replace(',', '.'));
 				var setaImg = itemRoot.querySelector('[data-fin-seta]');
@@ -281,14 +283,20 @@ var ModuloFinanceiro = (function () {
 				if (setaImg && varEl) {
 					if (!isNaN(varNum) && varNum !== 0) {
 						setaImg.style.display = '';
-						setaImg.src = varNum > 0 ? 'img/seta_amarala.png' : 'img/seta_verde.png';
+						setaImg.src = varNum > 0 ? 'img/seta_verde.png' : 'img/seta_amarala.png';
 						setaImg.alt = varNum > 0 ? '+' : '-';
-						varEl.textContent = (varNum > 0 ? '+' : '') + varNum.toFixed(2).replace('.', ',') + '%';
-						varEl.className = varNum > 0 ? 'text-green-400 text-[8vmin]' : 'text-red-400 text-[8vmin]';
+						varEl.textContent = Math.abs(varNum).toFixed(2).replace('.', ',') + '%';
+						// Preserva classes originais e só adiciona cor
+						varEl.classList.remove('text-green-800', 'text-red-800');
+						if (varNum > 0) {
+							varEl.classList.add('text-green-800');
+						} else {
+							varEl.classList.add('text-red-800');
+						}
 					} else {
 						setaImg.style.display = 'none';
 						varEl.textContent = '';
-						varEl.className = 'text-[8vmin]';
+						varEl.classList.remove('text-green-800', 'text-red-800');
 					}
 				}
 				cont.appendChild(itemRoot);
@@ -327,15 +335,14 @@ var ModuloFinanceiro = (function () {
 		for (var j = 0; j < slides.length; j++) {
 			if (!slides[j]) continue;
 			slides[j].classList.remove('hidden');
+			slides[j].classList.add('transition-opacity');
+			slides[j].classList.add('duration-500');
 			slides[j].classList.remove('opacity-0');
 			slides[j].classList.remove('opacity-100');
-			slides[j].style.opacity = '';
 		}
 		slides[0].classList.remove('hidden');
 		slides[0].classList.remove('opacity-0');
 		slides[0].classList.add('opacity-100');
-		slides[0].style.transition = 'opacity 0.5s';
-		slides[0].style.opacity = '1';
 
 		var current = 0;
 		var slideTimeout = null;
@@ -346,9 +353,10 @@ var ModuloFinanceiro = (function () {
 			for (var j = 0; j < slides.length; j++) {
 				if (!slides[j]) continue;
 				slides[j].classList.remove('hidden');
+				slides[j].classList.add('transition-opacity');
+				slides[j].classList.add('duration-500');
 				slides[j].classList.remove('opacity-0');
 				slides[j].classList.remove('opacity-100');
-				slides[j].style.opacity = '';
 			}
 			for (var i = 0; i < slides.length; i++) {
 				if (!slides[i]) continue;
@@ -356,15 +364,10 @@ var ModuloFinanceiro = (function () {
 					slides[i].classList.remove('hidden');
 					slides[i].classList.remove('opacity-0');
 					slides[i].classList.add('opacity-100');
-					slides[i].offsetHeight;
-					slides[i].style.transition = 'opacity 0.5s';
-					slides[i].style.opacity = '1';
 					console.log('[DEBUG][FINANCEIRO] Ativando slide', i, slides[i]);
 				} else {
 					slides[i].classList.remove('opacity-100');
 					slides[i].classList.add('opacity-0');
-					slides[i].style.transition = 'opacity 0.5s';
-					slides[i].style.opacity = '0';
 					setTimeout((function(slide, idxi){
 						return function(){
 							slide.classList.add('hidden');
@@ -386,24 +389,13 @@ var ModuloFinanceiro = (function () {
 				}, 0);
 			}
 		}
-
-		// Inicia na primeira página após fade-in
-		setTimeout(function() {
-			showSlide(0);
-			slideTimeout = setTimeout(nextSlide, slideDuration);
-		}, ((config && config.fadeDuracao) || 400) + 30);
-
-		// Cancela timeout se for interrompido
-		return function cancel() {
-			if (slideTimeout) { clearTimeout(slideTimeout); slideTimeout = null; }
-		};
 	}
 
-	return {
-		tipo:        'financeiro',
-		label:       'Mercado',
-		parseEbhtml:  parseEbhtml,
-		render:       render
-	};
+		return {
+			tipo:        'financeiro',
+			label:       'Mercado',
+			parseEbhtml:  parseEbhtml,
+			render:       render
+		};
 
-}());
+	}());

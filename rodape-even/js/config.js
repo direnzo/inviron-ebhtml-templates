@@ -7,7 +7,7 @@ var CONFIG = {
     logoPosicao: 'esquerda',
     relogioPosicao: 'direita',
     conteudoVisivel: true,
-    itemDuracao: 5000,
+    itemDuracao: 10000,
     fadeDuracao: 400,
     canais: [
         { tipo: 'clima', ativo: true, dataset: 'D_CLIMA_CLIMATEMPO' },

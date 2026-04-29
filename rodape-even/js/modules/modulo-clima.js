@@ -188,7 +188,7 @@ var ModuloClima = (function () {
 
 		// Usa o template HTML
 		inner.innerHTML = '';
-		inner.style.opacity = '0';
+		inner.classList.add('opacity-0');
 		var tpl = document.getElementById('tpl-clima');
 		if (!tpl) return;
 		var node = tpl.content ? tpl.content.cloneNode(true) : tpl.cloneNode(true);
@@ -214,17 +214,46 @@ var ModuloClima = (function () {
 		}
 
 
-		// Máxima com SVG
+		// Máxima com SVG compass (seta para cima)
 		var maxEl = root.querySelector('[data-clima-max]');
 		var maxIco = root.querySelector('[data-clima-max-ico]');
 		if (maxEl) maxEl.textContent = (dados.tempMax !== '' ? dados.tempMax + '°' : '');
-		if (maxIco) carregarSvgInline(maxIco, 'img/clima/meteocons--pressure-high-fill.svg');
+		if (maxIco) {
+			carregarSvgInline(maxIco, 'img/clima/compass.svg');
+			// Polling para garantir que o SVG e path estejam presentes
+			(function tentaColorirMax(tries) {
+				if (tries > 20) return; // timeout de ~600ms
+				var svg = maxIco.querySelector('svg');
+				if (svg) {
+					var path = svg.querySelector('path');
+					if (path) {
+						path.setAttribute('fill', '#ff0000'); // vermelho para máxima
+						return;
+					}
+				}
+				setTimeout(function() { tentaColorirMax(tries + 1); }, 30);
+			})(0);
+		}
 
-		// Mínima com SVG
+		// Mínima com SVG compass (seta para baixo)
 		var minEl = root.querySelector('[data-clima-min]');
 		var minIco = root.querySelector('[data-clima-min-ico]');
 		if (minEl) minEl.textContent = (dados.tempMin !== '' ? dados.tempMin + '°' : '');
-		if (minIco) carregarSvgInline(minIco, 'img/clima/meteocons--pressure-low-fill.svg');
+		if (minIco) {
+			carregarSvgInline(minIco, 'img/clima/compass.svg');
+			(function tentaColorirMin(tries) {
+				if (tries > 20) return;
+				var svg = minIco.querySelector('svg');
+				if (svg) {
+					var path = svg.querySelector('path');
+					if (path) {
+						path.setAttribute('fill', '#3b82f6'); // azul para mínima
+						return;
+					}
+				}
+				setTimeout(function() { tentaColorirMin(tries + 1); }, 30);
+			})(0);
+		}
 
 		// Descrição
 		var descEl = root.querySelector('[data-clima-desc]');
@@ -349,8 +378,10 @@ var ModuloClima = (function () {
 		// Fade in antes de iniciar slides
 		var fadeDuracao = (config && config.fadeDuracao) || 400;
 		setTimeout(function () {
-			inner.style.transition = 'opacity ' + fadeDuracao + 'ms';
-			inner.style.opacity = '1';
+			inner.classList.add('transition-opacity');
+			inner.classList.add('duration-500');
+			inner.classList.remove('opacity-0');
+			inner.classList.add('opacity-100');
 		}, 20);
 
 		// --- Subpaginação dos dados de clima ---
@@ -368,13 +399,15 @@ var ModuloClima = (function () {
 				if (!slides[i]) continue;
 				if (i === idx) {
 					slides[i].classList.remove('hidden');
-					// Força reflow para garantir transição
-					slides[i].offsetHeight;
-					slides[i].style.transition = 'opacity 0.5s';
-					slides[i].style.opacity = '1';
+					slides[i].classList.add('transition-opacity');
+					slides[i].classList.add('duration-500');
+					slides[i].classList.remove('opacity-0');
+					slides[i].classList.add('opacity-100');
 				} else {
-					slides[i].style.transition = 'opacity 0.5s';
-					slides[i].style.opacity = '0';
+					slides[i].classList.add('transition-opacity');
+					slides[i].classList.add('duration-500');
+					slides[i].classList.remove('opacity-100');
+					slides[i].classList.add('opacity-0');
 					setTimeout((function(slide){
 						return function(){ slide.classList.add('hidden'); };
 					})(slides[i]), 500);
