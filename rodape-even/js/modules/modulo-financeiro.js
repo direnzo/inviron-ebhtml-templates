@@ -150,7 +150,7 @@ var ModuloFinanceiro = (function () {
 		var xhr   = null;
 
 		inner.innerHTML = '';
-		inner.style.opacity = '0';
+		inner.classList.add('opacity-0');
 
 
 		   var tpl = document.getElementById('tpl-financeiro');
@@ -189,11 +189,11 @@ var ModuloFinanceiro = (function () {
 				   setaImg.src = varNum > 0 ? 'img/seta_amarala.png' : 'img/seta_verde.png';
 				   setaImg.alt = varNum > 0 ? '+' : '-';
 				   varEl.textContent = (varNum > 0 ? '+' : '') + varNum.toFixed(2).replace('.', ',') + '%';
-				   varEl.className = varNum > 0 ? 'text-green-400 text-[8vmin]' : 'text-red-400 text-[8vmin]';
+				   varEl.className = varNum > 0 ? 'text-green-400 ' : 'text-red-400 ';
 			   } else {
 				   setaImg.style.display = 'none';
 				   varEl.textContent = '';
-				   varEl.className = 'text-[8vmin]';
+				   varEl.className = '';
 			   }
 		   }
 
@@ -201,8 +201,10 @@ var ModuloFinanceiro = (function () {
 
 		var fadeDuracao = (config && config.fadeDuracao) || 400;
 		setTimeout(function () {
-			inner.style.transition = 'opacity ' + fadeDuracao + 'ms';
-			inner.style.opacity = '1';
+			inner.classList.add('transition-opacity');
+			inner.classList.add('duration-500');
+			inner.classList.remove('opacity-0');
+			inner.classList.add('opacity-100');
 		}, 20);
 
 		var duracao = (config && config.itemDuracao) || 6000;
@@ -227,36 +229,25 @@ var ModuloFinanceiro = (function () {
 			else bolsas.push(dados[i]);
 		}
 
-		// Limpa e prepara slides
-		inner.innerHTML = '';
-		var tpl = document.getElementById('tpl-financeiro');
-		if (!tpl) return;
-		var node = tpl.content ? tpl.content.cloneNode(true) : tpl.cloneNode(true);
-		var root = node.querySelector ? node.querySelector('div') : node.children[0];
-		if (!root) return;
+		// Não remove/recria slides, apenas preenche slots
+		var root = inner.querySelector('.flex.flex-row');
+		if (!root) {
+			// Primeira renderização: injeta o template
+			inner.innerHTML = document.getElementById('tpl-financeiro').innerHTML;
+			root = inner.querySelector('.flex.flex-row');
+		}
+		var slideMoedas = root.querySelector('.financeiro-slide-moedas');
+		var slideBolsas = root.querySelector('.financeiro-slide-bolsas');
 
-		// Helper para preencher um slide
 		function preencherSlide(slideEl, lista, prefixo) {
-			console.log('[DEBUG][FINANCEIRO] preencherSlide', {slideEl: slideEl, lista: lista, prefixo: prefixo});
 			var tplItem = document.getElementById('tpl-financeiro-item');
-			if (!tplItem) {
-				console.warn('[DEBUG][FINANCEIRO] tpl-financeiro-item não encontrado');
-				return;
-			}
 			for (var k = 0; k < 3; k++) {
 				var item = lista[k];
 				var cont = slideEl.querySelector('[data-fin-' + prefixo + '-' + (k + 1) + ']');
-				console.log('[DEBUG][FINANCEIRO] slot', k+1, {cont: cont, item: item});
-				if (!cont) continue;
 				cont.innerHTML = '';
 				if (!item) continue;
-				// Clona template de item (do document, não do root)
 				var itemNode = tplItem.content ? tplItem.content.cloneNode(true) : tplItem.cloneNode(true);
 				var itemRoot = itemNode.querySelector ? itemNode.querySelector('div') : itemNode.children[0];
-				if (!itemRoot) {
-					console.warn('[DEBUG][FINANCEIRO] itemRoot não encontrado para slot', k+1);
-					continue;
-				}
 				// Ícone
 				var iconeEl = itemRoot.querySelector('[data-fin-ico]');
 				if (iconeEl) {
@@ -273,7 +264,7 @@ var ModuloFinanceiro = (function () {
 				if (nomeEl) nomeEl.textContent = item.nome || '';
 				// Valor
 				var valorEl = itemRoot.querySelector('[data-fin-valor]');
-				if (valorEl) valorEl.textContent = item.valor || '';
+				if (valorEl) valorEl.textContent = 'R$ ' + (item.valor || '');
 				// Variação
 				var varNum = parseFloat(String(item.variacao).replace(',', '.'));
 				var setaImg = itemRoot.querySelector('[data-fin-seta]');
@@ -281,103 +272,104 @@ var ModuloFinanceiro = (function () {
 				if (setaImg && varEl) {
 					if (!isNaN(varNum) && varNum !== 0) {
 						setaImg.style.display = '';
-						setaImg.src = varNum > 0 ? 'img/seta_amarala.png' : 'img/seta_verde.png';
+						setaImg.src = varNum > 0 ? 'img/seta_verde.png' : 'img/seta_amarala.png';
 						setaImg.alt = varNum > 0 ? '+' : '-';
-						varEl.textContent = (varNum > 0 ? '+' : '') + varNum.toFixed(2).replace('.', ',') + '%';
-						varEl.className = varNum > 0 ? 'text-green-400 text-[8vmin]' : 'text-red-400 text-[8vmin]';
+						varEl.textContent = Math.abs(varNum).toFixed(2).replace('.', ',') + '%';
+						varEl.classList.remove('text-green-800', 'text-red-800');
+						if (varNum > 0) {
+							varEl.classList.add('text-green-800');
+						} else {
+							varEl.classList.add('text-red-800');
+						}
 					} else {
 						setaImg.style.display = 'none';
 						varEl.textContent = '';
-						varEl.className = 'text-[8vmin]';
+						varEl.classList.remove('text-green-800', 'text-red-800');
 					}
 				}
 				cont.appendChild(itemRoot);
-				console.log('[DEBUG][FINANCEIRO] itemRoot inserido', itemRoot);
 			}
 		}
 
-		// Preenche slides
-		var slideMoedas = root.querySelector('.financeiro-slide-moedas');
-		var slideBolsas = root.querySelector('.financeiro-slide-bolsas');
-
 		preencherSlide(slideMoedas, moedas, 'moeda');
-		// Log DOM após preencher moedas
-		if (slideMoedas) {
-			console.log('[DEBUG][FINANCEIRO] slideMoedas innerHTML:', slideMoedas.innerHTML);
-		}
 		preencherSlide(slideBolsas, bolsas, 'bolsa');
-		if (slideBolsas) {
-			console.log('[DEBUG][FINANCEIRO] slideBolsas innerHTML:', slideBolsas.innerHTML);
-		}
 
+		// Slides sempre presentes
+		var slides = [slideMoedas, slideBolsas];
 		// Só mostra slide se houver pelo menos um item
-		var slides = [];
-		if (moedas.length > 0) slides.push(slideMoedas);
-		if (bolsas.length > 0) slides.push(slideBolsas);
-
-
-		inner.appendChild(root);
-
-		if (slides.length === 0) {
-			if (onDone) onDone();
-			return function(){};
-		}
+		var slidesAtivos = [];
+		if (moedas.length > 0) slidesAtivos.push(slideMoedas);
+		if (bolsas.length > 0) slidesAtivos.push(slideBolsas);
 
 		// Garante que o primeiro slide já aparece imediatamente
 		for (var j = 0; j < slides.length; j++) {
 			if (!slides[j]) continue;
-			slides[j].classList.remove('hidden');
-			slides[j].classList.remove('opacity-0');
-			slides[j].classList.remove('opacity-100');
-			slides[j].style.opacity = '';
+			slides[j].classList.add('transition-opacity');
+			slides[j].classList.add('transition-transform');
+			slides[j].classList.add('duration-500');
+			slides[j].classList.add('absolute');
+			slides[j].classList.add('left-0');
+			slides[j].classList.add('top-0');
+			slides[j].classList.add('w-full');
+			slides[j].classList.add('h-full');
+			slides[j].classList.add('ps-[20vmin]');
+			slides[j].classList.add('gap-[50vmin]');
+			slides[j].classList.add('ms-[6vmin]');
+			slides[j].classList.remove('translate-y-0');
+			slides[j].classList.remove('translate-y-8');
+			if (slidesAtivos.indexOf(slides[j]) === 0) {
+				slides[j].classList.remove('hidden');
+				slides[j].classList.remove('opacity-0');
+				slides[j].classList.add('opacity-100');
+				slides[j].classList.remove('translate-y-8');
+				slides[j].classList.add('translate-y-0');
+			} else {
+				slides[j].classList.remove('opacity-100');
+				slides[j].classList.add('opacity-0');
+				slides[j].classList.remove('translate-y-0');
+				slides[j].classList.add('translate-y-8');
+				slides[j].classList.add('hidden');
+			}
 		}
-		slides[0].classList.remove('hidden');
-		slides[0].classList.remove('opacity-0');
-		slides[0].classList.add('opacity-100');
-		slides[0].style.transition = 'opacity 0.5s';
-		slides[0].style.opacity = '1';
+
+		if (slidesAtivos.length === 0) {
+			if (onDone) onDone();
+			return function(){};
+		}
 
 		var current = 0;
 		var slideTimeout = null;
-		var slideDuration = Math.floor(((config && config.itemDuracao) || 6000) / slides.length);
+		var slideDuration = Math.floor(((config && config.itemDuracao) || 6000) / slidesAtivos.length);
 
 		function showSlide(idx) {
-			// Garante que todos os slides começam visíveis e sem opacity-0
-			for (var j = 0; j < slides.length; j++) {
-				if (!slides[j]) continue;
-				slides[j].classList.remove('hidden');
-				slides[j].classList.remove('opacity-0');
-				slides[j].classList.remove('opacity-100');
-				slides[j].style.opacity = '';
-			}
-			for (var i = 0; i < slides.length; i++) {
-				if (!slides[i]) continue;
+			for (var i = 0; i < slidesAtivos.length; i++) {
+				if (!slidesAtivos[i]) continue;
+				slidesAtivos[i].classList.add('transition-opacity');
+				slidesAtivos[i].classList.add('transition-transform');
+				slidesAtivos[i].classList.add('duration-500');
+				slidesAtivos[i].classList.remove('translate-y-0');
+				slidesAtivos[i].classList.remove('translate-y-8');
 				if (i === idx) {
-					slides[i].classList.remove('hidden');
-					slides[i].classList.remove('opacity-0');
-					slides[i].classList.add('opacity-100');
-					slides[i].offsetHeight;
-					slides[i].style.transition = 'opacity 0.5s';
-					slides[i].style.opacity = '1';
-					console.log('[DEBUG][FINANCEIRO] Ativando slide', i, slides[i]);
+					slidesAtivos[i].classList.remove('hidden');
+					slidesAtivos[i].classList.remove('opacity-0');
+					slidesAtivos[i].classList.add('opacity-100');
+					slidesAtivos[i].classList.remove('translate-y-8');
+					slidesAtivos[i].classList.add('translate-y-0');
 				} else {
-					slides[i].classList.remove('opacity-100');
-					slides[i].classList.add('opacity-0');
-					slides[i].style.transition = 'opacity 0.5s';
-					slides[i].style.opacity = '0';
-					setTimeout((function(slide, idxi){
-						return function(){
-							slide.classList.add('hidden');
-							console.log('[DEBUG][FINANCEIRO] Escondendo slide', idxi, slide);
-						};
-					})(slides[i], i), 500);
+					slidesAtivos[i].classList.remove('opacity-100');
+					slidesAtivos[i].classList.add('opacity-0');
+					slidesAtivos[i].classList.remove('translate-y-0');
+					slidesAtivos[i].classList.add('translate-y-8');
+					(function(slide){
+						setTimeout(function(){ slide.classList.add('hidden'); }, 500);
+					})(slidesAtivos[i]);
 				}
 			}
 		}
 
 		function nextSlide() {
 			current++;
-			if (current < slides.length) {
+			if (current < slidesAtivos.length) {
 				showSlide(current);
 				slideTimeout = setTimeout(nextSlide, slideDuration);
 			} else {
@@ -387,23 +379,20 @@ var ModuloFinanceiro = (function () {
 			}
 		}
 
-		// Inicia na primeira página após fade-in
 		setTimeout(function() {
 			showSlide(0);
 			slideTimeout = setTimeout(nextSlide, slideDuration);
-		}, ((config && config.fadeDuracao) || 400) + 30);
+		}, 30);
 
-		// Cancela timeout se for interrompido
 		return function cancel() {
 			if (slideTimeout) { clearTimeout(slideTimeout); slideTimeout = null; }
 		};
 	}
+		return {
+			tipo:        'financeiro',
+			label:       'Mercado',
+			parseEbhtml:  parseEbhtml,
+			render:       render
+		};
 
-	return {
-		tipo:        'financeiro',
-		label:       'Mercado',
-		parseEbhtml:  parseEbhtml,
-		render:       render
-	};
-
-}());
+	}());
