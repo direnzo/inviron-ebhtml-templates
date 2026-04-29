@@ -1,60 +1,224 @@
-// ─── CONFIGURACAO GLOBAL ──────────────────────────────────────────────────────
 
-var CONFIG = {
-    filterCidade:    'Rio Verde' // Para filtro de dados (TEXTO2) 'Goiania','Rio Verde', 'Anapolis'
-};
+
+// Variáveis globais para alternância de modo e cidade
+var MODO_NOTICIAS = true; // false = unificado (cotação/dólar/tempo), true = só notícias
+var CIDADE = 'Goiania'; // Troque para a cidade desejada
+
+function cidadeComAcento(nome) {
+    var mapa = {
+        'Goiania': 'Goiânia',
+        'Anapolis': 'Anápolis',
+        'Ribeirao Preto': 'Ribeirão Preto',
+        'Sao Paulo': 'São Paulo',
+        'Belo Horizonte': 'Belo Horizonte'
+        // Adicione mais cidades conforme necessário
+    };
+    return mapa[nome] || nome;
+}
 
 window.onload = function() {
-    if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
-        var mockLoader = {
-            loaded: function() { console.log('[Mock] Carregado'); },
-            finished: function() { console.log('[Mock] Finalizado'); },
-            data: function() { return getRandomMock(); }
-        };
-        var mockItem = getRandomMock();
-        iniciarTemplate(mockItem, {}, mockLoader);
-    } else {
-        ebhtml.create2({}, function(loader) {
-            var filtro = '';
-            if (CONFIG.filterCidade) {
-                var cidadeUrl = encodeURIComponent(CONFIG.filterCidade);
-                filtro = 'order=id&orderkind=A&amount=1' +'&f_TEXTO2=' + cidadeUrl ;
-            } else {
-                filtro = 'order=id&orderkind=A';
+    ebhtml.create2({}, function(loader) {
+        var filtro = '';
+        var urlCidade = encodeURIComponent(CIDADE);
+        if (MODO_NOTICIAS) {
+            // Apenas notícias
+            filtro = 'amount=1&f_texto2=' + urlCidade + '&f_category=noticias';
+        } else {
+            // Unificado: cotação, dólar, tempo
+            filtro = 'amount=0&f_texto2=' + urlCidade;
+        }
+        console.log('[agro_link] Carregando dados com filtro:', filtro);
+        loader.addData('D_AGROLINK', false, filtro);
+        loader.autoloaded = false;
+        loader.nodataiserror = false;
+        loader.load(function() {
+            var d = loader.data('D_AGROLINK');
+            if (!d) {
+                console.error('[agro_link] Sem dados no canal D_AGROLINK');
+                loader.finished();
+                return;
             }
-            console.log('[agro_link] Carregando dados com filtro:', filtro);
-            loader.addData('D_AGROLINK', false, filtro);
-            loader.autoloaded = false;
-            loader.nodataiserror = false;
-            loader.load(function() {
-                var d = loader.data('D_AGROLINK');
-                if (!d) {
-                    console.error('[agro_link] Sem dados no canal D_AGROLINK');
-                    loader.finished();
-                    return;
-                }
+            // Se for modo notícias, espera lista
+            if (MODO_NOTICIAS) {
                 var dados = {
                     CATEGORY: d.value('CATEGORY') ? d.value('CATEGORY').value : '',
                     TITULO:   d.value('TITULO') ? d.value('TITULO').value : '',
-                    TEXTO:    d.value('TEXTO') ? d.value('TEXTO').value : '',
                     TEXTO2:   d.value('TEXTO2') ? d.value('TEXTO2').value : '',
-                    TEXTO3:   d.value('TEXTO3') ? d.value('TEXTO3').value : '',
-                    TEXTO4:   d.value('TEXTO4') ? d.value('TEXTO4').value : '',
-                    TEXTO5:   d.value('TEXTO5') ? d.value('TEXTO5').value : '',
-                    TEXTO6:   d.value('TEXTO6') ? d.value('TEXTO6').value : '',
-                    TEXTO7:   d.value('TEXTO7') ? d.value('TEXTO7').value : '',
-                    TEXTO8:   d.value('TEXTO8') ? d.value('TEXTO8').value : '',
-                    PRICE:    d.value('PRICE') ? d.value('PRICE').value : '',
-                    PRICE2:   d.value('PRICE2') ? d.value('PRICE2').value : '',
-                    FOTO:     d.value('FOTO') ? d.value('FOTO').value : '',
-                    FOTO2:    d.value('FOTO2') ? d.value('FOTO2').value : '',
-                    FOTO3:    d.value('FOTO3') ? d.value('FOTO3').value : ''
+                    TEXTO3:   d.value('TEXTO3') ? d.value('TEXTO3').value : ''
                 };
-                iniciarTemplate(dados, CONFIG, loader);
-            });
+                renderNoticias(dados, loader);
+            } else {
+                // Unificado: buscar todos os blocos
+                var cotacao = null, dolar = null, tempo = null;
+                var lista = loader.datalist('D_AGROLINK');
+                for (var i = 0; i < lista.count(); i++) {
+                    var item = lista.get(i);
+                    var cat = item.value('CATEGORY') ? item.value('CATEGORY').value.toLowerCase() : '';
+                    if (cat === 'cotacoes' && !cotacao) cotacao = item;
+                    if (cat === 'dolar' && !dolar) dolar = item;
+                    if (cat === 'tempo' && !tempo) tempo = item;
+                }
+                renderUnificado(cotacao, dolar, tempo, loader);
+            }
         });
-    }
+    });
 };
+
+function renderNoticias(dados, loader) {
+    var content = document.getElementById('content');
+    content.innerHTML = '';
+    var tpl = document.querySelector('#noticia-template');
+    var node = document.importNode(tpl.content, true);
+
+    // Badge cidade/UF
+    var badge = node.getElementById('badge');
+    var cidade = (dados.TEXTO2 || (dados.value && dados.value('TEXTO2') && dados.value('TEXTO2').value) || '');
+    cidade = cidadeComAcento(cidade);
+    var uf = (dados.TEXTO3 || (dados.value && dados.value('TEXTO3') && dados.value('TEXTO3').value) || '');
+    badge.innerHTML = cidade + (cidade && uf ? ', ' : '') + uf;
+
+    // Exibe bloco-noticia, esconde bloco-unificado
+    var blocoNoticia = node.getElementById('bloco-noticia');
+    var blocoUnificado = node.getElementById('bloco-unificado');
+    if (blocoNoticia) {
+        blocoNoticia.classList.remove('hidden');
+        var titulo = node.getElementById('titulo');
+        if (titulo) titulo.innerHTML = dados.TITULO || '';
+    }
+    if (blocoUnificado) blocoUnificado.classList.add('hidden');
+
+    content.appendChild(node);
+    document.body.classList.remove('opacity-0');
+    document.body.classList.add('opacity-100');
+    loader.loaded();
+
+    // Chama loader.finished ao término do vídeo ou, se não houver vídeo, após fallback
+    var video = node.querySelector('#video-foto');
+    var finishedCalled = false;
+    function finishOnce() {
+        if (!finishedCalled) {
+            finishedCalled = true;
+            loader.finished();
+        }
+    }
+    if (video) {
+        video.addEventListener('ended', finishOnce);
+        video.addEventListener('error', finishOnce);
+        setTimeout(finishOnce, 15000);
+    } else {
+        setTimeout(finishOnce, 10000);
+    }
+}
+
+function renderUnificado(_cotacao, _dolar, _tempo, loader) {
+    var content = document.getElementById('content');
+    content.innerHTML = '';
+    var lista = loader.datalist('D_AGROLINK');
+    var cotacoes = [], tempos = [], dolar = null;
+    for (var i = 0; i < lista.count(); i++) {
+        var item = lista.get(i);
+        var cat = item.value('CATEGORY') ? item.value('CATEGORY').value.toLowerCase() : '';
+        if (cat === 'cotacoes') cotacoes.push(item);
+        if (cat === 'tempo') tempos.push(item);
+        if (cat === 'dolar' && !dolar) dolar = item;
+    }
+
+    // Controle de índice para ciclo
+    if (typeof window._cotacaoIdx === 'undefined') window._cotacaoIdx = 0;
+    if (typeof window._tempoIdx === 'undefined') window._tempoIdx = 0;
+    if (window._cotacaoIdx >= cotacoes.length) window._cotacaoIdx = 0;
+    if (window._tempoIdx >= tempos.length) window._tempoIdx = 0;
+
+    // Seleciona 1 de cada
+    var c = cotacoes.length > 0 ? cotacoes[window._cotacaoIdx] : null;
+    var t = tempos.length > 0 ? tempos[window._tempoIdx] : null;
+    var d = dolar;
+
+    // Usa o template HTML
+    var tpl = document.querySelector('#noticia-template');
+    var node = document.importNode(tpl.content, true);
+
+    // Badge cidade/UF
+    var badge = node.getElementById('badge');
+    cidadeBadge = '';
+    if (c && c.value('TEXTO2')) cidadeBadge = cidadeComAcento(c.value('TEXTO2').value);
+    else if (t && t.value('TEXTO2')) cidadeBadge = cidadeComAcento(t.value('TEXTO2').value);
+    var ufBadge = '';
+    if (c && c.value('TEXTO3')) ufBadge = c.value('TEXTO3').value;
+    else if (t && t.value('TEXTO3')) ufBadge = t.value('TEXTO3').value;
+    badge.innerHTML = cidadeBadge + (cidadeBadge && ufBadge ? ', ' : '') + ufBadge;
+
+    // Bloco Unificado
+    var blocoUnificado = node.getElementById('bloco-unificado');
+    if (blocoUnificado) {
+        blocoUnificado.classList.remove('hidden');
+        // Cotação: COTAÇÃO | <TITULO> <br> <TEXTO4> <TEXTO5> | R$ <PRICE>/<TEXTO9>
+        var cotacaoStr = '';
+        if (c) {
+            var titulo = c.value('TITULO') ? c.value('TITULO').value : '';
+            var texto4 = c.value('TEXTO4') ? c.value('TEXTO4').value : '';
+            var texto5 = c.value('TEXTO5') ? c.value('TEXTO5').value : '';
+            var price = c.value('PRICE') ? c.value('PRICE').value : '';
+            var texto9 = c.value('TEXTO9') ? c.value('TEXTO9').value : '';
+            cotacaoStr = 'COTAÇÃO' + (titulo ? ' | ' + titulo : '') + ((texto4 || texto5) ? ' <br> ' : '') + (texto4 ? texto4 : '') + (texto5 ? (texto4 ? '' : '') + texto5 : '') + (price ? ' | R$ ' + formatarBRL(price) : '') + (texto9 ? '/' + texto9 : '');
+        }
+        node.getElementById('cotacao').innerHTML = cotacaoStr;
+
+        // Dólar: DOLAR R$ <TEXTO> (ou vazio)
+        var dolarStr = '';
+        if (d) {
+            var textoD = d.value('TEXTO') ? d.value('TEXTO').value : '';
+            dolarStr = 'DOLAR' + (textoD ? ' R$ ' + formatarBRL(textoD) : '');
+        }
+        node.getElementById('dolar').innerHTML = dolarStr;
+
+        // Tempo: CLIMA <CIDADE> | <TEXTO4> A <TEXTO5>C | CHUVA <TEXTO7>%
+        var tempoStr = '';
+        if (t) {
+            var cidadeT = t && t.value('TEXTO2') ? cidadeComAcento(t.value('TEXTO2').value) : '';  
+            var texto4T = t.value('TEXTO4') ? t.value('TEXTO4').value : '';
+            var texto5T = t.value('TEXTO5') ? t.value('TEXTO5').value : '';
+            var texto7T = t.value('TEXTO7') ? t.value('TEXTO7').value : '';
+            tempoStr = 'CLIMA' + (cidadeT ? ' ' + cidadeT : '') + (texto4T || texto5T ? ' | ' : '') + (texto4T ? texto4T : '') + (texto5T ? (texto4T ? ' A ' : '') + texto5T + 'C' : '') + (texto7T ? ' |<br>CHUVA ' + texto7T + '%' : '');
+        }
+        node.getElementById('tempo').innerHTML = tempoStr;
+    }
+
+    content.appendChild(node);
+    document.body.classList.remove('opacity-0');
+    document.body.classList.add('opacity-100');
+    loader.loaded();
+
+    // Chama loader.finished ao término do vídeo ou, se não houver vídeo, após fallback
+    var video = node.querySelector('#video-foto');
+    var finishedCalled = false;
+    function finishOnce() {
+        if (!finishedCalled) {
+            finishedCalled = true;
+            loader.finished();
+        }
+    }
+    if (video) {
+        video.addEventListener('ended', finishOnce);
+        video.addEventListener('error', finishOnce);
+        setTimeout(finishOnce, 10000);
+    } else {
+        setTimeout(finishOnce, 10000);
+    }
+
+    // Avança índices para próxima exibição
+    window._cotacaoIdx = (window._cotacaoIdx + 1) % (cotacoes.length > 0 ? cotacoes.length : 1);
+    window._tempoIdx = (window._tempoIdx + 1) % (tempos.length > 0 ? tempos.length : 1);
+    // Não faz loop automático
+}
+
+// Formata valor para R$ pt-BR
+function formatarBRL(valor) {
+    if (!valor) return '';
+    var n = parseFloat(valor.toString().replace(',', '.'));
+    if (isNaN(n)) return valor;
+    return n.toLocaleString('pt-BR', { style: 'decimal', minimumFractionDigits: 2, maximumFractionDigits: 4 });
+}
 
 function iniciarTemplate(dados, config, loader) {
     var content = document.getElementById('content');
