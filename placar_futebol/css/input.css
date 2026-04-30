@@ -33,19 +33,19 @@
 :root {
     --cor-destaque:       #FBBF24;
     --cor-destaque-glow:  rgba(251, 191, 36, 0.7);
-    --cor-fundo-painel:   rgba(0, 148, 79, 0.6);
+    --cor-fundo-painel:   rgb(0, 40, 0);
     --cor-fundo-area:     rgba(7, 65, 192, 0.664);
-    --cor-borda:          rgba(255, 255, 255, 0.10);
+    --cor-borda:          #FFFFFF;
     --cor-texto:          #FFFFFF;
-    --cor-texto-sec:      rgba(255, 255, 255, 0.50);
-    --cor-texto-ter:      rgba(255, 255, 255, 0.38);
+    --cor-texto-sec:      #FFFFFF;
+    --cor-texto-ter:      #FFFFFF;
     --cor-grad-from:      rgba(0, 0, 0, 0.70);
     --cor-grad-mid:       rgba(0, 0, 0, 0.60);
     --cor-grad-to:        rgba(0, 0, 0, 0.80);
 }
 
 header                 { background-color: var(--cor-fundo-painel); border-bottom-color: var(--cor-borda); }
-footer                 { background-color: var(--cor-fundo-painel); border-top-color:    var(--cor-borda); }
+footer                 { background-color: rgba(0, 51, 3, 0.8); border-top-color:    var(--cor-borda); }
 #gameAreaInner         { background-color: var(--cor-fundo-area); }
 #gradientOverlay       { background: linear-gradient(to bottom, var(--cor-grad-from), var(--cor-grad-mid), var(--cor-grad-to)); }
 #torneio               { color: var(--cor-texto); }
