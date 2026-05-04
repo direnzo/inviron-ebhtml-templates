@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html class="bg-black h-full w-full overflow-hidden">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela Copa 2026</title>
+    <link rel="stylesheet" href="css/master.css">
+    <script src="js/mock-data.js"></script>
+    <script src="js/ebhtml.js"></script>
+    <script src="js/master.js"></script>
+</head>
+
+<body class="relative w-full h-screen overflow-hidden bg-[#0a0a1a] text-[4vmin] portrait:text-[3vmin] text-white font-roboto-regular">
+
+    <!-- Video de fundo em loop -->
+    <video id="bgVideo" autoplay loop muted playsinline
+           src="img/soccer-background-loop-6-2026-01-28-03-43-08-utc.mp4"
+           class="absolute inset-0 z-0 w-full h-full object-cover">
+    </video>
+
+    <!-- Gradiente: refor&ccedil;ado no topo e base para legibilidade do header/footer -->
+    <div class="absolute inset-0 z-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.85)_0%,rgba(0,0,0,0.5)_20%,rgba(0,0,0,0.5)_80%,rgba(0,0,0,0.85)_100%)]">
+    </div>
+
+    <!-- Layout principal -->
+    <main id="mainContent" class="relative z-10 w-full h-full flex flex-col opacity-0 transition-opacity duration-700">
+
+        <!-- HEADER: info do evento + patrocinador -->
+        <div id="headerBar" class="flex items-center justify-between shrink-0 h-[13vmin] px-[3vmin] bg-black/[0.72] border-b-[0.4vmin] border-yellow-500">
+
+            <!-- Lado esquerdo: logo do evento + titulo -->
+            <div class="flex items-center gap-[2vmin]">
+                <img id="logoEvento" src="img/logo-copa.png"
+                     class="h-[8vmin] w-auto hidden"
+                     onerror="this.classList.add('opacity-0')">
+                <div>
+                    <div class="text-white font-bold uppercase tracking-[0.08em] portrait:text-[60%]">
+                        Copa do Mundo 2026
+                    </div>
+                    <div class="text-[40%] text-white/50 tracking-[0.2em] mt-[0.4vmin]">
+                        FASE DE GRUPOS
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="grupoNome" class="text-white font-bold uppercase text-center text-[85%] portrait:text-[60%] tracking-[0.2em] mb-[2vmin] [text-shadow:0_2px_16px_rgba(0,0,0,0.9)]">
+            </div>
+
+            <!-- Lado direito: patrocinador -->
+            <div id="headerSponsor" class="flex items-center gap-[2vmin]">
+                <div class="text-right">
+                    <div class="text-[30%] text-white/40 tracking-[0.15em] uppercase mb-[0.4vmin]">
+                        Apoio
+                    </div>
+                    <div id="headerFrase" class="text-white font-bold text-[60%] tracking-[0.04em]"></div>
+                </div>
+                <img id="headerLogo" src=""
+                     class="h-[7vmin] w-auto max-w-[18vmin] object-contain"
+                     onerror="this.classList.add('opacity-0')">
+            </div>
+
+        </div>
+
+        <!-- CONTEUDO CENTRAL -->
+        <div class="flex-1 flex flex-col items-center justify-center overflow-hidden py-[1.5vmin] px-[3vmin]">
+
+            
+
+            <!-- Wrapper: padrao = lado a lado | portrait = empilhado -->
+            <div class="flex flex-row portrait:flex-col items-stretch justify-center gap-[2vmin] w-full flex-1 overflow-hidden">
+
+                <!-- CARD 1: Tabela de classificacao -->
+                <div id="tabelaClassificacao" class="flex-1 portrait:w-full flex flex-col overflow-hidden backdrop-blur-xl p-[3vmin] rounded-2xl bg-[#0a0a1a]/[0.72] border-[0.4vmin] border-green-500">
+
+                    <!-- Header da tabela (estatico) -->
+                    <div class="tabela-grid text-[55%] uppercase tracking-[0.1em] text-white/50 border-b border-white/20 py-[0.5em] mb-[0.5em] shrink-0">
+                        <span class="text-center">#</span>
+                        <span class="pl-[1vmin]">País</span>
+                        <span class="text-center">PTS</span>
+                        <span class="text-center">PJ</span>
+                        <span class="text-center">V</span>
+                        <span class="text-center">E</span>
+                        <span class="text-center">D</span>
+                        <span class="text-center">GM</span>
+                        <span class="text-center">GC</span>
+                        <span class="text-center">SG</span>
+                    </div>
+
+                    <!-- Linhas de dados (JS popula) -->
+                    <div id="tabelaLinhas" class="flex-1 overflow-hidden flex flex-col space-y-4"></div>
+
+                </div>
+
+                <!-- CARD 2: Jogos do grupo -->
+                <div id="jogosCard" class="w-[36vw] portrait:w-full flex flex-col overflow-hidden backdrop-blur-xl p-[3vmin] rounded-2xl bg-[#0a0a1a]/[0.72] border-[0.4vmin] border-blue-600 shrink-0">
+
+                    <div class="text-[55%] text-center uppercase tracking-[0.15em] text-white/50 border-b border-white/20 pb-[0.5em] mb-[0.8em] shrink-0">
+                        Jogos do Grupo
+                    </div>
+
+                    <!-- Linhas de jogos (JS popula) -->
+                    <div id="jogosLinhas" class="flex-1 overflow-hidden flex flex-col justify-between"></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- FOOTER: patrocinador -->
+        <div id="footerBar" class="flex items-center justify-between shrink-0 h-[10vmin] px-[3vmin] bg-black/[0.72] border-t-[0.4vmin] border-yellow-500">
+
+            <img id="footerLogo" src=""
+                 class="h-[6vmin] w-auto max-w-[20vmin] object-contain"
+                 onerror="this.classList.add('opacity-0')">
+
+            <div id="footerFrase" class="text-white font-bold uppercase text-center text-[60%] tracking-[0.12em]"></div>
+
+            <!-- Espacador espelho para centralizar a frase -->
+            <div class="w-[20vmin]"></div>
+
+        </div>
+
+    </main>
+
+    <!-- Template: linha de dados da tabela -->
+    <template id="tmplLinha">
+        <div class="tabela-grid tabela-linha animate-fade-slide-in flex-1 rounded-[1vmin]">
+            <span class="text-center text-[55%] text-white/55" data-campo="posicao"></span>
+            <span class="flex items-center gap-[0.8vmin] pl-[1vmin] overflow-hidden">
+                <span data-campo="bandeira" class="inline-flex w-auto h-[4.7vmin] shrink-0 overflow-hidden rounded-[0.5vmin]"></span>
+                <span data-campo="nome" class="text-[80%] font-bold whitespace-nowrap overflow-hidden text-ellipsis"></span>
+            </span>
+            <span class="text-center text-[120%] font-bold" data-campo="pts"></span>
+            <span class="text-center text-[78%]" data-campo="pj"></span>
+            <span class="text-center text-[78%]" data-campo="vit"></span>
+            <span class="text-center text-[78%]" data-campo="emp"></span>
+            <span class="text-center text-[78%]" data-campo="der"></span>
+            <span class="text-center text-[78%]" data-campo="gm"></span>
+            <span class="text-center text-[78%]" data-campo="gc"></span>
+            <span class="text-center text-[78%]" data-campo="sg"></span>
+        </div>
+    </template>
+
+    <!-- Template: card de jogo -->
+    <template id="tmplJogo">
+        <div class="jogo-linha animate-fade-slide-in border-b border-white/10  last:border-0">
+
+            <!-- Times + placar -->
+            <div class="flex items-center justify-between gap-[1vmin]">
+
+                <!-- Time 1 -->
+                <div class="flex items-center gap-[0.8vmin] flex-1 justify-end overflow-hidden">
+                    <span data-campo="time1" class="hidden text-[65%] font-bold whitespace-nowrap overflow-hidden text-ellipsis text-right"></span>
+                    <span data-campo="bandeira1" class="inline-flex w-auto h-[2.7vmin] shrink-0 overflow-hidden rounded-[0.5vmin]"></span>
+                </div>
+
+                <!-- Placar / horario -->
+                <div class="shrink-0 text-center min-w-[8vmin]">
+                    <div data-campo="placar" class="text-[90%] font-bold tracking-widest"></div>
+                </div>
+                
+                <!-- Time 2 -->
+                <div class="flex items-center gap-[0.8vmin] flex-1 justify-start overflow-hidden">
+                    <span data-campo="bandeira2" class="inline-flex w-auto h-[2.7vmin] shrink-0 overflow-hidden rounded-[0.5vmin]"></span>
+                    <span data-campo="time2" class="hidden text-[65%] font-bold whitespace-nowrap overflow-hidden text-ellipsis"></span>
+                </div>
+                
+            </div>
+            
+            <!-- Local -->
+            <div class="flex items-center justify-center gap-[1vmin] mb-[0.5vmin]">
+                <div data-campo="horario" class="text-[60%] text-white/90"></div>
+                <div data-campo="local" class="text-[60%] text-white/70 text-center"></div>
+            </div>
+
+        </div>
+    </template>
+
+</body>
+
+</html>
