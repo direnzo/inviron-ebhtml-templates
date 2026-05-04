@@ -1,0 +1,20 @@
+{
+  "name": "tabela-futebol",
+  "version": "1.0.0",
+  "description": "Template de tabela de grupos da Copa do Mundo 2026 para EdgeContents Digital Signage",
+  "scripts": {
+    "dev": "tailwindcss -i css/input.css -o css/master.css --watch",
+    "build": "tailwindcss -i css/input.css -o css/master.css --minify"
+  },
+  "keywords": [
+    "digital-signage",
+    "edgecontents",
+    "tailwindcss",
+    "copa-do-mundo",
+    "tabela",
+    "grupos",
+    "futebol"
+  ],
+  "author": "EdgeContents",
+  "license": "ISC"
+}
