@@ -59,6 +59,14 @@ var FASE_PRIORIDADE = {
     'R32':    1
 };
 
+// Fases em ordem sequencial para lógica de ocultamento
+var FASES_COLS = [
+    { fase: 'R32', total: 16, colIds: ['col-r32-l', 'col-r32-r'] },
+    { fase: 'R16', total: 8,  colIds: ['col-r16-l', 'col-r16-r'] },
+    { fase: 'QF',  total: 4,  colIds: ['col-qf-l',  'col-qf-r']  },
+    { fase: 'SF',  total: 2,  colIds: ['col-sf-l',  'col-sf-r']  }
+];
+
 // ──────────────────────────────────────────────────
 //  ENTRY POINT
 // ──────────────────────────────────────────────────
@@ -97,20 +105,21 @@ function processarDados(loader) {
     var total  = lista.count();
     var dados  = {};
     for (var i = 0; i < total; i++) {
-        var reg    = lista.get(i);
-        var fase   = reg.value('FASE').value   || '';
-        var pos    = reg.value('POSICAO').value || '';
-        var chave  = fase + '_' + pos;
+        var reg   = lista.get(i);
+        var fase  = reg.value('CATEGORY').value    || '';
+        var pos   = reg.value('SUBTITULO').value   || '';
+        var chave = fase + '_' + pos;
         dados[chave] = {
-            fase:             fase,
-            posicao:          parseInt(pos, 10),
-            timeCasa:         reg.value('TIME_CASA').value        || '',
-            timeVisitante:    reg.value('TIME_VISITANTE').value   || '',
-            flagCasa:         reg.value('FLAG_CASA').value        || '',
-            flagVisitante:    reg.value('FLAG_VISITANTE').value   || '',
-            golsCasa:         reg.value('GOLS_CASA').value        || '',
-            golsVisitante:    reg.value('GOLS_VISITANTE').value   || '',
-            status:           reg.value('STATUS').value           || 'NS'
+            fase:          fase,
+            posicao:       parseInt(pos, 10),
+            timeCasa:      reg.value('TITULO').value      || '',
+            timeVisitante: reg.value('TITULO2').value     || '',
+            flagCasa:      reg.value('FOTO').value        || '',
+            flagVisitante: reg.value('FOTO2').value       || '',
+            golsCasa:      reg.value('TEXTO').value       || '',
+            golsVisitante: reg.value('TEXTO2').value      || '',
+            status:        reg.value('SUBTITULO3').value  || 'NS',
+            datahora:      reg.value('SUBTITULO2').value  || ''
         };
     }
     return dados;
@@ -123,17 +132,20 @@ function processarDadosMock(partidas) {
     var dados = {};
     for (var i = 0; i < partidas.length; i++) {
         var p     = partidas[i];
-        var chave = p.FASE + '_' + p.POSICAO;
+        var fase  = p.CATEGORY  || '';
+        var pos   = p.SUBTITULO || '';
+        var chave = fase + '_' + pos;
         dados[chave] = {
-            fase:          p.FASE,
-            posicao:       parseInt(p.POSICAO, 10),
-            timeCasa:      p.TIME_CASA       || '',
-            timeVisitante: p.TIME_VISITANTE  || '',
-            flagCasa:      p.FLAG_CASA       || '',
-            flagVisitante: p.FLAG_VISITANTE  || '',
-            golsCasa:      p.GOLS_CASA       || '',
-            golsVisitante: p.GOLS_VISITANTE  || '',
-            status:        p.STATUS          || 'NS'
+            fase:          fase,
+            posicao:       parseInt(pos, 10),
+            timeCasa:      p.TITULO     || '',
+            timeVisitante: p.TITULO2    || '',
+            flagCasa:      p.FOTO       || '',
+            flagVisitante: p.FOTO2      || '',
+            golsCasa:      p.TEXTO      || '',
+            golsVisitante: p.TEXTO2     || '',
+            status:        p.SUBTITULO3 || 'NS',
+            datahora:      p.SUBTITULO2 || ''
         };
     }
     return dados;
@@ -144,6 +156,8 @@ function processarDadosMock(partidas) {
 // ──────────────────────────────────────────────────
 function iniciarTemplate(dados, config, loader) {
     renderizarBracket(dados);
+    BracketDraw.init();
+    ocultarFasesAnteriores(dados);
     atualizarFaseAtual(dados);
     aplicarSponsor(config);
     animarEntradaBracket();
@@ -161,6 +175,50 @@ function iniciarTemplate(dados, config, loader) {
     setTimeout(function() {
         loader.finished();
     }, config.duration || 30000);
+}
+
+// ──────────────────────────────────────────────────
+//  OCULTAR FASES ANTERIORES
+//  Quando uma fase tem todos os times definidos,
+//  as colunas das fases anteriores são ocultadas.
+//  Ex: se R16 está completo → oculta colunas R32.
+// ──────────────────────────────────────────────────
+function isFaseCompleta(dados, fase, total) {
+    for (var i = 1; i <= total; i++) {
+        var p = dados[fase + '_' + i];
+        if (!p || !p.timeCasa || p.timeCasa === 'TBD' ||
+            !p.timeVisitante || p.timeVisitante === 'TBD') {
+            return false;
+        }
+    }
+    return true;
+}
+
+function ocultarFasesAnteriores(dados) {
+    // Encontra a fase mais avançada com TODOS os times definidos
+    var latestCompleto = -1;
+    for (var i = 0; i < FASES_COLS.length; i++) {
+        var f = FASES_COLS[i];
+        if (isFaseCompleta(dados, f.fase, f.total)) {
+            latestCompleto = i;
+        } else {
+            break; // Fases são sequenciais
+        }
+    }
+
+    // Oculta todas as fases ANTES da mais avançada completa
+    for (var k = 0; k < latestCompleto; k++) {
+        var ids = FASES_COLS[k].colIds;
+        for (var m = 0; m < ids.length; m++) {
+            var col = document.getElementById(ids[m]);
+            if (col) col.style.display = 'none';
+        }
+    }
+
+    // Redesenha conectores SVG se alguma coluna foi ocultada
+    if (latestCompleto > 0) {
+        BracketDraw.init();
+    }
 }
 
 // ──────────────────────────────────────────────────
@@ -199,14 +257,25 @@ function renderizarCard(slotId, partida) {
     var card = document.getElementById(slotId);
     if (!card) return;
 
+    // Preenche data/hora no .match-slot pai
+    var slot = card.parentNode;
+    if (slot) {
+        var dateEl = slot.querySelector('.match-date');
+        if (dateEl) dateEl.textContent = (partida && partida.datahora) ? partida.datahora : '';
+    }
+
     var linhas = card.querySelectorAll('.team-row');
     if (!linhas || linhas.length < 2) return;
 
     var linhaCasa      = linhas[0];
     var linhaVisitante = linhas[1];
 
-    // Sem dados → mantém "TBD"
-    if (!partida || !partida.timeCasa) return;
+    // Sem dados → exibe "a definir"
+    if (!partida || !partida.timeCasa) {
+        preencherLinha(linhaCasa,      '', '', '');
+        preencherLinha(linhaVisitante, '', '', '');
+        return;
+    }
 
     // Preenche time da casa (linha 0)
     preencherLinha(linhaCasa, partida.timeCasa, partida.flagCasa, partida.golsCasa);
@@ -221,19 +290,34 @@ function renderizarCard(slotId, partida) {
 }
 
 function preencherLinha(linha, nome, flagUrl, gols) {
-    var imgFlag = linha.querySelector('.flag');
+    var imgFlag   = linha.querySelector('.flag');
     var spanNome  = linha.querySelector('.tname');
     var spanScore = linha.querySelector('.score');
 
+    var nomeValido = nome && nome !== 'TBD';
+
     if (imgFlag) {
-        if (flagUrl) {
-            imgFlag.src = flagUrl;
-            imgFlag.alt = nome;
+        if (flagUrl && nomeValido) {
+            imgFlag.src          = flagUrl;
+            imgFlag.alt          = nome;
+            imgFlag.style.display = '';
         } else {
             imgFlag.style.display = 'none';
         }
     }
-    if (spanNome)  spanNome.textContent  = nome  || 'TBD';
+
+    if (spanNome) {
+        if (nomeValido) {
+            spanNome.textContent = nome;
+            spanNome.className   = spanNome.className.replace(/\s*tname-indef/g, '');
+        } else {
+            spanNome.textContent = 'a definir';
+            if (spanNome.className.indexOf('tname-indef') === -1) {
+                spanNome.className = spanNome.className + ' tname-indef';
+            }
+        }
+    }
+
     if (spanScore) spanScore.textContent = (gols !== '' && gols !== undefined && gols !== null) ? gols : '';
 }
 
@@ -309,8 +393,37 @@ var STAGGER_ORDER = [
 ];
 
 function animarEntradaBracket() {
+    // 1. Labels: cascata rápida (incluindo gold/bronze com escala)
+    animarLabels();
+    // 2. Cards: stagger existente
     for (var i = 0; i < STAGGER_ORDER.length; i++) {
         animarCardComDelay(STAGGER_ORDER[i], i * 60);
+    }
+    // 3. Linhas SVG: simultâneas com os cards
+    BracketDraw.animarLinhas(0);
+}
+
+function animarLabelComDelay(el, delay) {
+    setTimeout(function() {
+        el.style.opacity   = '1';
+        el.style.transform = 'scale(1)';
+    }, delay);
+}
+
+function animarLabels() {
+    var labels = document.querySelectorAll('.round-label');
+    for (var i = 0; i < labels.length; i++) {
+        labels[i].style.opacity    = '0';
+        labels[i].style.transition = 'opacity 0.4s ease';
+    }
+    // Gold e Bronze: efeito de escala extra para destacar
+    var especiais = document.querySelectorAll('.round-label--gold, .round-label--bronze');
+    for (var k = 0; k < especiais.length; k++) {
+        especiais[k].style.transform  = 'scale(0.6)';
+        especiais[k].style.transition = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.34,1.56,0.64,1)';
+    }
+    for (var j = 0; j < labels.length; j++) {
+        animarLabelComDelay(labels[j], j * 80);
     }
 }
 

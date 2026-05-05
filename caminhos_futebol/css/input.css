@@ -14,14 +14,14 @@
    VARIÁVEIS
    ═══════════════════════════════════════ */
 :root {
-    --cor-blue:    #1a2a6c;
-    --cor-green:   #064e3b;
-    --cor-red:     #7f1d1d;
-    --cor-gold:    #78350f;
-    --cor-bronze:  #1f2937;
-    --cor-conn:    rgba(255,255,255,0.18);
-    --conn-w:      2vmin;
-    --card-radius: 4px;
+    --cor-blue:    #60a5fa;
+    --cor-green:   #4ade80;
+    --cor-red:     #fb923c;
+    --cor-purple:  #c084fc;
+    --cor-gold:    #fbbf24;
+    --cor-bronze:  #f97316;
+    --card-bg:     rgba(8,12,28,0.90);
+    --card-radius: 1vmin;
     --label-h:     1.6vmin;
 }
 
@@ -31,24 +31,39 @@
 .bracket-area {
     flex: 1;
     min-height: 0;
+    position: relative;
     display: flex;
     flex-direction: row;
     align-items: stretch;
-    padding: 0.4% 0.4%;
+    padding: 0.4% 2%;
     gap: 0;
     overflow: hidden;
+}
+
+/* SVG overlay — drawn by bracket-draw.js */
+#bracket-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: visible;
 }
 
 /* Metades esq/dir */
 .half {
     flex: 1;
     min-width: 0;
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: stretch;
-    gap: 0;
+    gap: 5vmin;
 }
 .half-left  { flex-direction: row; }
-.half-right { flex-direction: row-reverse; }
+.half-right { flex-direction: row; }
 
 /* ═══════════════════════════════════════
    ROUND COLUMNS
@@ -66,15 +81,16 @@
 .round-label {
     text-align: center;
     font-family: 'Roboto Regular', sans-serif;
-    font-size: 0.75vmin;
+    font-size: 1.75vmin;
     color: rgba(255,255,255,0.35);
     text-transform: uppercase;
     letter-spacing: 0.1em;
     height: var(--label-h);
     line-height: var(--label-h);
     flex-shrink: 0;
+    white-space: nowrap;
 }
-.round-label--gold   { color: rgba(251,191,36,0.7); }
+.round-label--gold   { color: rgba(251,191,36,0.7); ; margin-bottom: 1.2vh; }
 .round-label--bronze { color: rgba(255,255,255,0.25); margin-top: 1.2vh; }
 
 /* Cards area: distribui os match-cards igualmente */
@@ -91,11 +107,30 @@
 }
 
 /* ═══════════════════════════════════════
+   MATCH SLOT (wrapper data + card)
+   ═══════════════════════════════════════ */
+.match-slot {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3vmin;
+}
+.match-date {
+    font-family: 'Roboto Regular', sans-serif;
+    font-size: 1.2vmin;
+    color: rgba(255,255,255,0.40);
+    text-align: center;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    line-height: 1;
+}
+.match-date:empty { display: none; }
+
+/* ═══════════════════════════════════════
    MATCH CARD
    ═══════════════════════════════════════ */
 .match-card {
     border-radius: var(--card-radius);
-    border: 1px solid rgba(255,255,255,0.12);
+    border: 2px solid rgba(255,255,255,0.12);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
@@ -104,27 +139,28 @@
     /* Não usar margin vertical — space-around do cards-area cuida do espaçamento */
 }
 
-.match-blue   { background-color: var(--cor-blue);   border-color: rgba(96,165,250,0.25); }
-.match-green  { background-color: var(--cor-green);  border-color: rgba(52,211,153,0.25); }
-.match-red    { background-color: var(--cor-red);    border-color: rgba(252,165,165,0.25); }
-.match-gold   { background-color: var(--cor-gold);   border-color: rgba(251,191,36,0.5); }
-.match-bronze { background-color: var(--cor-bronze); border-color: rgba(156,163,175,0.3); }
+.match-blue   { background-color: var(--card-bg); border-color: rgba(96,165,250,0.70);  }
+.match-green  { background-color: var(--card-bg); border-color: rgba(74,222,128,0.70);  }
+.match-red    { background-color: var(--card-bg); border-color: rgba(251,146,60,0.70);   }
+.match-purple { background-color: var(--card-bg); border-color: rgba(192,132,252,0.70); }
+.match-gold   { background-color: var(--card-bg); border-color: rgba(251,191,36,0.90);  box-shadow: 0 0 10px rgba(251,191,36,0.25); }
+.match-bronze { background-color: var(--card-bg); border-color: rgba(249,115,22,0.80);  box-shadow: 0 0 8px  rgba(249,115,22,0.20); }
 
 .team-row {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 3%;
-    padding: 2% 5%;
-    font-size: 1.0vmin;
+    gap: 1vmin;
+    padding: 1.2vmin 1.5vmin;
+    font-size: 1.3vmin;
     line-height: 1;
     border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 .team-row:last-child { border-bottom: none; }
 
 .flag {
-    width: 2.4vmin;
-    height: 1.7vmin;
+    width: 3.2vmin;
+    height: 2.3vmin;
     object-fit: cover;
     border-radius: 2px;
     flex-shrink: 0;
@@ -134,7 +170,7 @@
 .tname {
     flex: 1;
     font-family: 'Roboto Bold', sans-serif;
-    font-size: 1.0vmin;
+    font-size: 1.8vmin;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     white-space: nowrap;
@@ -145,101 +181,62 @@
 
 .score {
     font-family: 'Roboto Black', sans-serif;
-    font-size: 1.3vmin;
-    min-width: 2vmin;
+    font-size: 1.7vmin;
+    min-width: 2.8vmin;
     text-align: center;
     color: #fbbf24;
     flex-shrink: 0;
 }
 
-/* ═══════════════════════════════════════
-   CONNECTOR COLUMNS
-   ═══════════════════════════════════════ */
-.conn-col {
-    width: var(--conn-w);
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
+/* Time não definido — exibe "a definir" com estilo discreto */
+.tname-indef {
+    font-family: 'Roboto Regular', sans-serif;
+    font-size: 1.8vmin;
+    font-style: italic;
+    opacity: 0.38;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    text-align: center;
 }
 
-/* Spacer para alinhar com round-label */
-.conn-label-spacer {
-    height: var(--label-h);
-    flex-shrink: 0;
-}
 
-/* conn-area ocupa o restante: contém os conn-pairs */
-.conn-area {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Cada conn-pair = 1 fusão de 2 cards em 1 */
-.conn-pair {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Lado direito do bracket (esquerda → centro):
-   borda na direita + cantos arredondados formam o ∟ */
-.conn-rt {
-    flex: 1;
-    border-right: 1px solid var(--cor-conn);
-    border-bottom: 1px solid var(--cor-conn);
-    border-bottom-right-radius: 3px;
-}
-.conn-rb {
-    flex: 1;
-    border-right: 1px solid var(--cor-conn);
-    border-top: 1px solid var(--cor-conn);
-    border-top-right-radius: 3px;
-}
-
-/* Lado esquerdo do bracket (direita → centro):
-   borda na esquerda */
-.conn-lt {
-    flex: 1;
-    border-left: 1px solid var(--cor-conn);
-    border-bottom: 1px solid var(--cor-conn);
-    border-bottom-left-radius: 3px;
-}
-.conn-lb {
-    flex: 1;
-    border-left: 1px solid var(--cor-conn);
-    border-top: 1px solid var(--cor-conn);
-    border-top-left-radius: 3px;
-}
-
-/* Connectors SF → centro: linha horizontal simples */
-.conn-to-center-left  { width: var(--conn-w); flex-shrink: 0; display: flex; flex-direction: column; }
-.conn-to-center-right { width: var(--conn-w); flex-shrink: 0; display: flex; flex-direction: column; }
-.conn-h-line {
-    flex: 1;
-    border-top: 1px solid var(--cor-conn);
-    align-self: center;
-    width: 100%;
-    margin-top: auto;
-    margin-bottom: auto;
-}
 
 /* ═══════════════════════════════════════
    COLUNA CENTRAL (Final + Bronze)
    ═══════════════════════════════════════ */
 .center-col {
-    width: 14vw;
+    width: 5vw;
     flex-shrink: 0;
+    position: relative;
+    z-index: 2;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 0 0.3%;
+    padding: 0;
+    gap: 25vh;
+    overflow: visible;
+}
+.center-col > div {
+    overflow: visible;
+}
+.center-col .match-slot {
+    width: 14vw;
 }
 .center-col .match-card {
     width: 100%;
 }
+/* Cards centrais menores — proporcionais aos cards laterais */
+.center-col .team-row {
+    padding: 0.8vmin 1.0vmin;
+    font-size: 1.1vmin;
+    gap: 0.8vmin;
+}
+.center-col .flag  { width: 2.6vmin; height: 1.9vmin; }
+/* .center-col .tname { font-size: 1.1vmin; } */
+.center-col .score { font-size: 1.4vmin; min-width: 2.2vmin; }
+
+/* Ocultamento de fase anterior */
+.round-col.round-hidden { display: none; }
 
 /* ═══════════════════════════════════════
    DESTAQUES — vencedor / perdedor
