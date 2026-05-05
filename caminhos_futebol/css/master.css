@@ -1150,7 +1150,7 @@ video {
   flex-direction: row;
   align-items: center;
   gap: 1vmin;
-  padding: 1.2vmin 1.5vmin;
+  padding: 0.8vmin 0.5vmin;
   font-size: 1.3vmin;
   line-height: 1;
   border-bottom: 1px solid rgba(255,255,255,0.06);
@@ -1290,6 +1290,76 @@ video {
 }
 
 /* ═══════════════════════════════════════
+   DESTAQUE BRASIL
+   ═══════════════════════════════════════ */
+
+.match-brasil {
+  background-color:#facc15;
+  border-width: 2px !important;
+  border-color: #22c55e !important;
+  box-shadow: 0 0 0 1px rgba(34,197,94,0.25), inset 0 0 12px rgba(34,197,94,0.08) !important;
+  animation: brasilGlow 2.8s ease-in-out infinite !important;
+}
+
+.team-row.brasil-row .tname {
+  color: #18803e !important;
+  font-family: 'Roboto Black', sans-serif;
+}
+
+.team-row.brasil-row .flag {
+  box-shadow: 0 0 5px rgba(34,197,94,0.6);
+  border-radius: 3px;
+}
+
+.team-row.winner.brasil-row .score {
+  color: #0a4620;
+  text-shadow: 0 0 10px rgba(34,197,94,0.8);
+}
+
+.match-brasil .team-row .tname {
+  color: #272727;
+  opacity: 1;
+}
+
+.match-brasil .team-row .score {
+  color: #272727;
+  opacity: 1;
+  text-shadow: none;
+}
+
+/* ═══════════════════════════════════════
+   DESTAQUE CAMPEÃO (Final encerrada)
+   Vem após BRASIL para ganhar !important
+   ═══════════════════════════════════════ */
+
+.match-campeao {
+  animation: campeoGlow 2s ease-in-out infinite !important;
+  border-color: #fbbf24 !important;
+}
+
+.match-campeao .team-row.campeao-row {
+  background-color: rgba(251,191,36,0.20);
+}
+
+.match-campeao .team-row.campeao-row .tname {
+  /* color: #fbbf24 !important; */
+  font-family: 'Roboto Black', sans-serif;
+  letter-spacing: 0.08em;
+  opacity: 1 !important;
+}
+
+.match-campeao .team-row.campeao-row .score {
+  color: #fbbf24 !important;
+  text-shadow: 0 0 14px rgba(251,191,36,1) !important;
+  opacity: 1 !important;
+}
+
+.match-campeao .team-row.campeao-row .flag {
+  box-shadow: 0 0 10px rgba(251,191,36,0.8);
+  border-radius: 3px;
+}
+
+/* ═══════════════════════════════════════
    KEYFRAMES
    ═══════════════════════════════════════ */
 
@@ -1302,6 +1372,28 @@ video {
   50%       {
     box-shadow: 0 0 14px rgba(251,191,36,0.6);
     border-color: rgba(251,191,36,0.9) !important;
+  }
+}
+
+@keyframes brasilGlow {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(34,197,94,0.2), 0 0 0 1px rgba(34,197,94,0.2), inset 0 0 8px rgba(34,197,94,0.05);
+    border-color: rgba(34,197,94,0.55) !important;
+  }
+
+  50%       {
+    box-shadow: 0 0 18px rgba(34,197,94,0.7), 0 0 0 2px rgba(251,191,36,0.5), inset 0 0 16px rgba(34,197,94,0.15);
+    border-color: #22c55e !important;
+  }
+}
+
+@keyframes campeoGlow {
+  0%, 100% {
+    box-shadow: 0 0 6px rgba(251,191,36,0.3), 0 0 0 1px rgba(251,191,36,0.3);
+  }
+
+  50%       {
+    box-shadow: 0 0 28px rgba(251,191,36,0.9), 0 0 0 3px rgba(251,191,36,0.7), 0 0 60px rgba(251,191,36,0.3);
   }
 }
 

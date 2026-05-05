@@ -60,11 +60,10 @@ var FASE_PRIORIDADE = {
 };
 
 // Fases em ordem sequencial para lógica de ocultamento
+// QF, SF, Final e Bronze NUNCA são ocultadas — sempre visíveis
 var FASES_COLS = [
     { fase: 'R32', total: 16, colIds: ['col-r32-l', 'col-r32-r'] },
-    { fase: 'R16', total: 8,  colIds: ['col-r16-l', 'col-r16-r'] },
-    { fase: 'QF',  total: 4,  colIds: ['col-qf-l',  'col-qf-r']  },
-    { fase: 'SF',  total: 2,  colIds: ['col-sf-l',  'col-sf-r']  }
+    { fase: 'R16', total: 8,  colIds: ['col-r16-l', 'col-r16-r'] }
 ];
 
 // ──────────────────────────────────────────────────
@@ -156,6 +155,8 @@ function processarDadosMock(partidas) {
 // ──────────────────────────────────────────────────
 function iniciarTemplate(dados, config, loader) {
     renderizarBracket(dados);
+    marcarBrasil();
+    marcarCampeao(dados);
     BracketDraw.init();
     ocultarFasesAnteriores(dados);
     atualizarFaseAtual(dados);
@@ -175,6 +176,54 @@ function iniciarTemplate(dados, config, loader) {
     setTimeout(function() {
         loader.finished();
     }, config.duration || 30000);
+}
+
+// ──────────────────────────────────────────────────
+//  DESTAQUE BRASIL
+//  Marca qualquer card que contenha "Brasil" (casa ou visitante)
+// ──────────────────────────────────────────────────
+function marcarBrasil() {
+    var cards = document.querySelectorAll('.match-card');
+    for (var i = 0; i < cards.length; i++) {
+        var linhas = cards[i].querySelectorAll('.team-row');
+        for (var j = 0; j < linhas.length; j++) {
+            var span = linhas[j].querySelector('.tname');
+            if (span && span.textContent.toLowerCase().indexOf('brasil') !== -1) {
+                if (cards[i].className.indexOf('match-brasil') === -1) {
+                    cards[i].className = cards[i].className + ' match-brasil';
+                }
+                if (linhas[j].className.indexOf('brasil-row') === -1) {
+                    linhas[j].className = linhas[j].className + ' brasil-row';
+                }
+            }
+        }
+    }
+}
+
+// ──────────────────────────────────────────────────
+//  DESTAQUE CAMPEÃO
+//  Se a Final tiver resultado, destaca o time vencedor
+// ──────────────────────────────────────────────────
+function marcarCampeao(dados) {
+    var final = dados['FINAL_1'];
+    if (!final || !final.golsCasa || !final.golsVisitante) return;
+
+    var gcasa = parseInt(final.golsCasa, 10);
+    var gvis  = parseInt(final.golsVisitante, 10);
+    if (isNaN(gcasa) || isNaN(gvis) || gcasa === gvis) return;
+
+    var card = document.getElementById('m-final');
+    if (!card) return;
+
+    var linhas = card.querySelectorAll('.team-row');
+    var linhaVencedor = (gcasa > gvis) ? linhas[0] : linhas[1];
+
+    if (card.className.indexOf('match-campeao') === -1) {
+        card.className = card.className + ' match-campeao';
+    }
+    if (linhaVencedor && linhaVencedor.className.indexOf('campeao-row') === -1) {
+        linhaVencedor.className = linhaVencedor.className + ' campeao-row';
+    }
 }
 
 // ──────────────────────────────────────────────────
@@ -206,8 +255,8 @@ function ocultarFasesAnteriores(dados) {
         }
     }
 
-    // Oculta todas as fases ANTES da mais avançada completa
-    for (var k = 0; k < latestCompleto; k++) {
+    // Oculta todas as fases ATÉ a mais avançada completa (inclusive)
+    for (var k = 0; k <= latestCompleto; k++) {
         var ids = FASES_COLS[k].colIds;
         for (var m = 0; m < ids.length; m++) {
             var col = document.getElementById(ids[m]);
