@@ -195,10 +195,13 @@ var ModuloClima = (function () {
 		var root = node.querySelector ? node.querySelector('div') : node.children[0];
 		if (!root) return;
 
-		// Ícone
-		var iconeContainer = root.querySelector('span');
-		if (iconeContainer && dados.iconeCodigo) {
-			xhr = carregarSvgInline(iconeContainer, 'img/clima/' + iconeArquivo(dados.iconeCodigo, dados.isNoite));
+		// Ícone — carrega o SVG em todos os slots de ícone dos 3 slides
+		var iconSlots = root.querySelectorAll('.clima-icon-slot');
+		var iconeArq = dados.iconeCodigo ? 'img/clima/' + iconeArquivo(dados.iconeCodigo, dados.isNoite) : null;
+		if (iconeArq) {
+			for (var s = 0; s < iconSlots.length; s++) {
+				xhr = carregarSvgInline(iconSlots[s], iconeArq);
+			}
 		}
 
 

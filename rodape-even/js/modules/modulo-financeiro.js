@@ -312,9 +312,8 @@ var ModuloFinanceiro = (function () {
 			slides[j].classList.add('top-0');
 			slides[j].classList.add('w-full');
 			slides[j].classList.add('h-full');
-			slides[j].classList.add('ps-[20vmin]');
+			slides[j].classList.add('justify-center');
 			slides[j].classList.add('gap-[50vmin]');
-			slides[j].classList.add('ms-[6vmin]');
 			slides[j].classList.remove('translate-y-0');
 			slides[j].classList.remove('translate-y-8');
 			if (slidesAtivos.indexOf(slides[j]) === 0) {
