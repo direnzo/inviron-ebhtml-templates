@@ -309,7 +309,7 @@ window.onload = function () {
             loader.loaded();
             setTimeout(function () {
                 loader.finished();
-            }, 15000);
+            }, 10000);
         };
 
         photo.onerror = function () {
