@@ -22,7 +22,7 @@
 
 // Troque aqui para testar cada fase do jogo Brasil x Argentina Copa 2026:
 // 'pre_jogo_copa2026', 'ao_vivo_copa2026', 'pos_jogo_copa2026'
-var cenario = 'pos_jogo_copa2026';
+var cenario = 'pre_jogo_copa2026';
 
 var CENARIOS = {
 
@@ -34,7 +34,7 @@ var CENARIOS = {
                 SUBTITULO:  'MetLife Stadium',
                 SUBTITULO2: 'Final',
                 SUBTITULO3: 'NS',
-                CATEGORY:   'Copa do Mundo 2026',
+                CATEGORY:   'O Mundo em Campo 2026',
                 DATE:       '2026-07-19 18:00:00',
                 TEXTO:      'BRARG2026',
                 FOTO:       'https://flagcdn.com/256x192/br.png',
@@ -43,7 +43,7 @@ var CENARIOS = {
         ],
         D_SPD: [
             { CONFIG: '0',  TYPE: '10', TITLE: 'BRARG2026', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '1789802400', TEXT4: '', TEXT5: '', TEXT6: '', TEXT7: '', TEXT8: '', TEXT9: '', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'Final da Copa do Mundo 2026', IMAGE_LOGO: 'img/logoipsum-332.png' }
+            { CONFIG: '1',  TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png' }
         ]
     },
 
@@ -55,7 +55,7 @@ var CENARIOS = {
                 SUBTITULO:  'MetLife Stadium',
                 SUBTITULO2: 'Final',
                 SUBTITULO3: '2H',
-                CATEGORY:   'Copa do Mundo 2026',
+                CATEGORY:   'O Mundo em Campo 2026',
                 DATE:       '2026-07-19 18:00:00',
                 TEXTO:      'BRARG2026',
                 FOTO:       'https://flagcdn.com/256x192/br.png',
@@ -64,7 +64,7 @@ var CENARIOS = {
         ],
         D_SPD: [
             { CONFIG: '0',  TYPE: '10', TITLE: 'BRARG2026', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '1789802400', TEXT4: '2H', TEXT5: '2', TEXT6: '1', TEXT7: '', TEXT8: '', TEXT9: '78', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'Final da Copa do Mundo 2026', IMAGE_LOGO: 'img/logoipsum-402.png' }
+            { CONFIG: '1',  TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png' }
         ]
     },
 
@@ -76,7 +76,7 @@ var CENARIOS = {
                 SUBTITULO:  'MetLife Stadium',
                 SUBTITULO2: 'Final',
                 SUBTITULO3: 'FT',
-                CATEGORY:   'Copa do Mundo 2026',
+                CATEGORY:   'O Mundo em Campo 2026',
                 DATE:       '2026-07-19 18:00:00',
                 TEXTO:      'BRARG2026',
                 FOTO:       'https://flagcdn.com/256x192/br.png',
@@ -85,7 +85,7 @@ var CENARIOS = {
         ],
         D_SPD: [
             { CONFIG: '0',  TYPE: '10', TITLE: 'BRARG2026', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '1789802400', TEXT4: 'FT', TEXT5: '3', TEXT6: '1', TEXT7: '', TEXT8: '', TEXT9: '90', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'Final da Copa do Mundo 2026', IMAGE_LOGO: 'img/logoipsum-418.png' }
+            { CONFIG: '1',  TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png' }
         ]
     },
 
@@ -127,7 +127,7 @@ var CENARIOS = {
         ],
         D_SPD: [
             { CONFIG: '0',  TYPE: '10', TITLE: '9900011', TEXT1: 'Real Madrid', TEXT2: 'Manchester City', TEXT3: '1774886400', TEXT4: '', TEXT5: '', TEXT6: '', TEXT7: '', TEXT8: '', TEXT9: '', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'informa os resultados dos jogos.', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/200px-Google_2015_logo.svg.png' }
+            { CONFIG: '1',  TEXT1: 'Apoio:', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/200px-Google_2015_logo.svg.png' }
         ]
     },
 
