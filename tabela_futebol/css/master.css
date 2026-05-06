@@ -793,12 +793,12 @@ video {
   max-width: 56rem;
 }
 
-.max-w-\[18vmin\] {
-  max-width: 18vmin;
-}
-
 .max-w-\[20vmin\] {
   max-width: 20vmin;
+}
+
+.max-w-\[25vmin\] {
+  max-width: 25vmin;
 }
 
 .flex-1 {

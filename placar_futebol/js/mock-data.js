@@ -19,30 +19,73 @@
  *   'cancelado'   - CANC: cancelado
  */
 
-var CENARIOS_AO_VIVO = ['ao_vivo_1h', 'intervalo', 'ao_vivo_2h', 'prorrogacao', 'encerrado', 'encerrado_p', 'penalties', 'suspenso',
-                       'pre_jogo', 'pre_jogo_2', 'pre_jogo_3', 'pre_jogo_4', 'pre_jogo_5'];
-var cenario = CENARIOS_AO_VIVO[Math.floor(Math.random() * CENARIOS_AO_VIVO.length)];
+
+// Troque aqui para testar cada fase do jogo Brasil x Argentina Copa 2026:
+// 'pre_jogo_copa2026', 'ao_vivo_copa2026', 'pos_jogo_copa2026'
+var cenario = 'pre_jogo_copa2026';
 
 var CENARIOS = {
 
-    pre_jogo: {
+    pre_jogo_copa2026: {
         D_FOOTBALL: [
             {
-                TITULO:     'Arsenal',
-                TITULO2:    'Chelsea',
-                SUBTITULO:  'Emirates Stadium',
-                SUBTITULO2: '1st Qualifying Round',
+                TITULO:     'Brasil',
+                TITULO2:    'Argentina',
+                SUBTITULO:  'MetLife Stadium',
+                SUBTITULO2: 'Final',
                 SUBTITULO3: 'NS',
-                CATEGORY:   'UEFA Champions League',
-                DATE:       '2026-03-20 20:00:00',
-                TEXTO:      '1383422',
-                FOTO:       'https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/200px-Arsenal_FC.svg.png',
-                FOTO2:      'https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/200px-Chelsea_FC.svg.png'
+                CATEGORY:   'O Mundo em Campo 2026',
+                DATE:       '2026-07-19 18:00:00',
+                TEXTO:      'BRARG2026',
+                FOTO:       'https://flagcdn.com/256x192/br.png',
+                FOTO2:      'https://flagcdn.com/256x192/ar.png'
             }
         ],
         D_SPD: [
-            { CONFIG: '0',  TYPE: '10', TITLE: '1383422', TEXT1: 'Arsenal', TEXT2: 'Chelsea', TEXT3: '1773769500', TEXT4: '', TEXT5: '', TEXT6: '', TEXT7: '', TEXT8: '', TEXT9: '', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'Esse conteúdo é trazido por:', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Microsoft_logo_%282012%29.svg/200px-Microsoft_logo_%282012%29.svg.png' }
+            { CONFIG: '0',  TYPE: '10', TITLE: 'BRARG2026', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '1789802400', TEXT4: '', TEXT5: '', TEXT6: '', TEXT7: '', TEXT8: '', TEXT9: '', TEXT10: '' },
+            { CONFIG: '1',  TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png' }
+        ]
+    },
+
+    ao_vivo_copa2026: {
+        D_FOOTBALL: [
+            {
+                TITULO:     'Brasil',
+                TITULO2:    'Argentina',
+                SUBTITULO:  'MetLife Stadium',
+                SUBTITULO2: 'Final',
+                SUBTITULO3: '2H',
+                CATEGORY:   'O Mundo em Campo 2026',
+                DATE:       '2026-07-19 18:00:00',
+                TEXTO:      'BRARG2026',
+                FOTO:       'https://flagcdn.com/256x192/br.png',
+                FOTO2:      'https://flagcdn.com/256x192/ar.png'
+            }
+        ],
+        D_SPD: [
+            { CONFIG: '0',  TYPE: '10', TITLE: 'BRARG2026', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '1789802400', TEXT4: '2H', TEXT5: '2', TEXT6: '1', TEXT7: '', TEXT8: '', TEXT9: '78', TEXT10: '' },
+            { CONFIG: '1',  TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png' }
+        ]
+    },
+
+    pos_jogo_copa2026: {
+        D_FOOTBALL: [
+            {
+                TITULO:     'Brasil',
+                TITULO2:    'Argentina',
+                SUBTITULO:  'MetLife Stadium',
+                SUBTITULO2: 'Final',
+                SUBTITULO3: 'FT',
+                CATEGORY:   'O Mundo em Campo 2026',
+                DATE:       '2026-07-19 18:00:00',
+                TEXTO:      'BRARG2026',
+                FOTO:       'https://flagcdn.com/256x192/br.png',
+                FOTO2:      'https://flagcdn.com/256x192/ar.png'
+            }
+        ],
+        D_SPD: [
+            { CONFIG: '0',  TYPE: '10', TITLE: 'BRARG2026', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '1789802400', TEXT4: 'FT', TEXT5: '3', TEXT6: '1', TEXT7: '', TEXT8: '', TEXT9: '90', TEXT10: '' },
+            { CONFIG: '1',  TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png' }
         ]
     },
 
@@ -84,7 +127,7 @@ var CENARIOS = {
         ],
         D_SPD: [
             { CONFIG: '0',  TYPE: '10', TITLE: '9900011', TEXT1: 'Real Madrid', TEXT2: 'Manchester City', TEXT3: '1774886400', TEXT4: '', TEXT5: '', TEXT6: '', TEXT7: '', TEXT8: '', TEXT9: '', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'informa os resultados dos jogos.', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/200px-Google_2015_logo.svg.png' }
+            { CONFIG: '1',  TEXT1: 'Apoio:', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/200px-Google_2015_logo.svg.png' }
         ]
     },
 
@@ -99,8 +142,8 @@ var CENARIOS = {
                 CATEGORY:   'Copa América',
                 DATE:       '2026-03-25 19:00:00',
                 TEXTO:      '9900012',
-                FOTO:       'https://flagcdn.com/w160/br.png',
-                FOTO2:      'https://flagcdn.com/w160/ar.png'
+                FOTO:       'https://flagcdn.com/256x192/br.png',
+                FOTO2:      'https://flagcdn.com/256x192/ar.png'
             }
         ],
         D_SPD: [

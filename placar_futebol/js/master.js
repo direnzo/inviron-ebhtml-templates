@@ -175,7 +175,7 @@ var SVG_ESCUDO = [
    ==================================================== */
 var CONFIG = {
     corDestaque: '#FBBF24',  // cor de destaque (hora, tempo, glow)
-    corEscura:   '#006400',  // cor de fundo (painéis, gradientes)
+    corEscura:   '#006400',  // cor de fundo (painéis, gradientes) verde bem escuro 
     corClara:    '#FFFFFF'   // cor de texto e bordas
 };
 /* segundos de exibição da imagem de abertura (vídeo usa duração natural do arquivo) */
@@ -197,14 +197,14 @@ function aplicarCores(cfg) {
     var s = document.documentElement.style;
     s.setProperty('--cor-destaque',      cfg.corDestaque);
     s.setProperty('--cor-destaque-glow', hexToRgba(cfg.corDestaque, 0.70));
-    s.setProperty('--cor-fundo-painel',  hexToRgba(cfg.corEscura,   0.60));
+    s.setProperty('--cor-fundo-painel',  hexToRgba(cfg.corEscura,   0.90));
     s.setProperty('--cor-fundo-area',    hexToRgba(cfg.corEscura,   0.40));
     s.setProperty('--cor-borda',         hexToRgba(cfg.corClara,    0.10));
     s.setProperty('--cor-texto',         cfg.corClara);
-    s.setProperty('--cor-texto-sec',     hexToRgba(cfg.corClara,    0.50));
-    s.setProperty('--cor-texto-ter',     hexToRgba(cfg.corClara,    0.38));
-    s.setProperty('--cor-grad-from',     hexToRgba(cfg.corEscura,   0.70));
-    s.setProperty('--cor-grad-mid',      hexToRgba(cfg.corEscura,   0.60));
+    s.setProperty('--cor-texto-sec',     hexToRgba(cfg.corClara,    0.90));
+    s.setProperty('--cor-texto-ter',     hexToRgba(cfg.corClara,    0.98));
+    s.setProperty('--cor-grad-from',     hexToRgba(cfg.corEscura,   0.90));
+    s.setProperty('--cor-grad-mid',      hexToRgba(cfg.corEscura,   0.90));
     s.setProperty('--cor-grad-to',       hexToRgba(cfg.corEscura,   0.80));
 }
 
@@ -213,9 +213,52 @@ function aplicarCores(cfg) {
    ENTRADA
    ==================================================== */
 window.onload = function() {
-
     aplicarCores(CONFIG);
 
+    if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
+        // Loader mock
+        var mockLoader = MOCK_DATA.getMockLoader();
+        var lista = mockLoader.datalist('D_SPD');
+        if (!lista || lista.count() === 0) {
+            console.log('[placar_futebol][mock] D_SPD vazio — skip');
+            mockLoader.finished();
+            return;
+        }
+        // Separa jogos (CONFIG=0) e patrocinador (CONFIG=1)
+        var jogos = [];
+        var spdSponsor = null;
+        for (var i = 0; i < lista.count(); i++) {
+            var item = lista.get(i);
+            if (obterValor(item, 'CONFIG') === '1') {
+                spdSponsor = item;
+            } else if (obterValor(item, 'TYPE') === '10') {
+                jogos.push(item);
+            }
+        }
+        if (jogos.length === 0) {
+            console.log('[placar_futebol][mock] Nenhum jogo encontrado em D_SPD');
+            mockLoader.finished();
+            return;
+        }
+        var idx = 0;
+        var spdData = jogos[idx];
+        var partidaId = obterValor(spdData, 'TITLE').trim();
+        if (!partidaId) {
+            console.log('[placar_futebol][mock] TITLE vazio — skip');
+            mockLoader.finished();
+            return;
+        }
+        var footballData = mockLoader.data('D_FOOTBALL');
+        if (!footballData) {
+            console.log('[placar_futebol][mock] D_FOOTBALL sem dados para ID=' + partidaId);
+            mockLoader.finished();
+            return;
+        }
+        processarDados(spdData, spdSponsor, footballData, mockLoader);
+        return;
+    }
+
+    // EdgeContents real
     ebhtml.create2({}, function(loader) {
         // Carrega TODOS os itens TYPE=10 (jogos + patrocinador) de uma vez.
         // A rotação é feita client-side via localStorage (padrão master_2).
@@ -226,7 +269,6 @@ window.onload = function() {
         loader.load(function() {
 
             loader.loaded();
-
 
             var lista = loader.datalist('D_SPD');
             if (!lista || lista.count() === 0) {

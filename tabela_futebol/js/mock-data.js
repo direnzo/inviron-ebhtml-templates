@@ -3,9 +3,9 @@ var MOCK_DATA = {
     config: {
         duration: 12000,
         sponsor: {
-            fraseHeader: 'Acompanhe ao vivo',
+            fraseHeader: '',
             logoHeader:  'img/logo_patrocinio_01.png',
-            fraseFooter: 'Fique ligado em todos os jogos da Copa 2026',
+            fraseFooter: 'Fique ligado em todos os jogos',
             logoFooter:  'img/logo_patrocinio_02.png'
         }
     },
