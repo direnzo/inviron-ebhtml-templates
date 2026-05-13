@@ -114,7 +114,7 @@ var ModuloFinanceiro = (function () {
 				iconeText: iconeTexto  // texto/sigla fallback
 			};
 			if (tipo === 'currency') {
-				console.log('[DEBUG][FINANCEIRO] Item moeda:', debugItem);
+				// console.log('[DEBUG][FINANCEIRO] Item moeda:', debugItem);
 			}
 			lista.push(debugItem);
 		}
@@ -200,9 +200,10 @@ var ModuloFinanceiro = (function () {
 		   inner.appendChild(root);
 
 		var fadeDuracao = (config && config.fadeDuracao) || 400;
+		inner.classList.add('transition-opacity');
+		inner.classList.add('duration-500');
+		var _reflow = inner.offsetHeight; // força reflow para registrar estado opacity:0
 		setTimeout(function () {
-			inner.classList.add('transition-opacity');
-			inner.classList.add('duration-500');
 			inner.classList.remove('opacity-0');
 			inner.classList.add('opacity-100');
 		}, 20);
@@ -245,6 +246,10 @@ var ModuloFinanceiro = (function () {
 				var item = lista[k];
 				var cont = slideEl.querySelector('[data-fin-' + prefixo + '-' + (k + 1) + ']');
 				cont.innerHTML = '';
+				// Reseta estilos inline de animações anteriores
+				cont.style.opacity = '';
+				cont.style.transform = '';
+				cont.style.transition = '';
 				if (!item) continue;
 				var itemNode = tplItem.content ? tplItem.content.cloneNode(true) : tplItem.cloneNode(true);
 				var itemRoot = itemNode.querySelector ? itemNode.querySelector('div') : itemNode.children[0];
@@ -318,6 +323,7 @@ var ModuloFinanceiro = (function () {
 			slides[j].classList.remove('translate-y-8');
 			if (slidesAtivos.indexOf(slides[j]) === 0) {
 				slides[j].classList.remove('hidden');
+				var _rf = slides[j].offsetHeight; // força reflow para transition funcionar
 				slides[j].classList.remove('opacity-0');
 				slides[j].classList.add('opacity-100');
 				slides[j].classList.remove('translate-y-8');
@@ -340,21 +346,38 @@ var ModuloFinanceiro = (function () {
 		var slideTimeout = null;
 		var slideDuration = Math.floor(((config && config.itemDuracao) || 6000) / slidesAtivos.length);
 
+		/* Anima cada item do slide subindo de baixo com stagger */
+		function animarItensSlide(slideEl) {
+			var items = slideEl.querySelectorAll('.financeiro-item');
+			for (var k = 0; k < items.length; k++) {
+				if (!items[k].firstChild) continue;
+				(function (el, delay) {
+					el.style.opacity = '0';
+					el.style.transform = 'translateY(10px)';
+					el.style.transition = 'none';
+					setTimeout(function () {
+						el.style.transition = 'opacity 350ms ease-out, transform 350ms ease-out';
+						el.style.opacity = '1';
+						el.style.transform = 'translateY(0)';
+					}, delay);
+				})(items[k], k * 130 + 60);
+			}
+		}
+
 		function showSlide(idx) {
 			for (var i = 0; i < slidesAtivos.length; i++) {
 				if (!slidesAtivos[i]) continue;
-				slidesAtivos[i].classList.add('transition-opacity');
-				slidesAtivos[i].classList.add('transition-transform');
-				slidesAtivos[i].classList.add('duration-500');
-				slidesAtivos[i].classList.remove('translate-y-0');
-				slidesAtivos[i].classList.remove('translate-y-8');
 				if (i === idx) {
+					// Unhide com opacity-0 ainda ativo, força reflow, depois fade in
 					slidesAtivos[i].classList.remove('hidden');
+					var _rf = slidesAtivos[i].offsetHeight;
 					slidesAtivos[i].classList.remove('opacity-0');
 					slidesAtivos[i].classList.add('opacity-100');
 					slidesAtivos[i].classList.remove('translate-y-8');
 					slidesAtivos[i].classList.add('translate-y-0');
+					animarItensSlide(slidesAtivos[i]);
 				} else {
+					// Fade out e esconde após transição
 					slidesAtivos[i].classList.remove('opacity-100');
 					slidesAtivos[i].classList.add('opacity-0');
 					slidesAtivos[i].classList.remove('translate-y-0');
