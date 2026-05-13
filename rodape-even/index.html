@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br" class="h-full w-full overflow-hidden bg-gray-900">
+<html lang="pt-br" class="h-full w-full overflow-hidden bg-transparent">
 
 <head>
     <meta charset="UTF-8">
@@ -14,7 +14,7 @@
     <title>Rodape</title>
 </head>
 
-<body class="w-full h-full overflow-hidden font-poppins-medium text-[25vmin] px-[20vmin] pb-[15vmin]">
+<body class="w-full h-full overflow-hidden font-poppins-medium text-[15vmin] px-[35px] pb-[30px]">
     <div id="rodape-bar" class="flex flex-row items-center w-full h-full overflow-hidden box-border px-[20vmin] gap-[2vmin] bg-white/90 rounded-2xl">
         <div id="col-logo" class="flex items-center justify-center h-full flex-shrink min-w-0 max-w-[20vw] p-0">
             <img id="logo-img" class="h-[40vmin] w-auto object-contain block" src="" alt="">
@@ -42,15 +42,15 @@
 
         <!-- Slide 1: Temperatura atual + min/max -->
         <div class="clima-slide clima-slide-1 flex items-center justify-center gap-[4vmin] transition-opacity transition-transform duration-500 opacity-0 translate-y-8 hidden absolute inset-0">
-            <span class="clima-icon-slot flex items-center justify-center flex-shrink-0 size-[68vmin]"></span>
+            <span class="clima-icon-slot flex items-center justify-center flex-shrink-0 size-[58vmin]"></span>
             <span class="font-bold" data-clima-temp-atual></span>
-            <span class="flex gap-[10vmin]">
+            <span class="flex gap-[10vmin] ml-10">
                 <span class="flex items-center gap-[10vmin] font-bold opacity-80">
-                    <span class="-ms-[10vmin] inline-flex h-[30vmin] align-middle" data-clima-max-ico></span>
+                    <span class="-ms-[10vmin] inline-flex h-[25vmin] align-middle" data-clima-max-ico></span>
                     <span class="-ms-[10vmin]" data-clima-max></span>
                 </span>
                 <span class="flex items-center gap-[10vmin] font-bold opacity-80 ml-[2vmin]">
-                    <span class="-ms-[10vmin] inline-flex h-[30vmin] rotate-180 align-middle" data-clima-min-ico></span>
+                    <span class="-ms-[10vmin] inline-flex h-[25vmin] rotate-180 align-middle" data-clima-min-ico></span>
                     <span class="-ms-[10vmin]" data-clima-min></span>
                 </span>
             </span>
@@ -58,13 +58,13 @@
 
         <!-- Slide 2: Descrição -->
         <div class="clima-slide clima-slide-2 flex items-center justify-center gap-[4vmin] transition-opacity transition-transform duration-500 opacity-0 translate-y-8 hidden absolute inset-0">
-            <span class="clima-icon-slot flex items-center justify-center flex-shrink-0 size-[68vmin]"></span>
+            <span class="clima-icon-slot flex items-center justify-center flex-shrink-0 size-[58vmin]"></span>
             <span class="whitespace-nowrap" data-clima-desc></span>
         </div>
 
         <!-- Slide 3: Umidade, Vento, UV -->
         <div class="clima-slide clima-slide-3 flex items-center justify-center gap-[8vmin] transition-opacity transition-transform duration-500 opacity-0 translate-y-8 hidden absolute inset-0">
-            <span class="clima-icon-slot flex items-center justify-center flex-shrink-0 size-[68vmin]"></span>
+            <span class="clima-icon-slot flex items-center justify-center flex-shrink-0 size-[58vmin]"></span>
             <span class="opacity-80 flex items-center gap-[2vmin]" data-clima-umidade>
                 <span class="inline-flex h-[52vmin] align-middle" data-clima-umidade-ico></span>
                 <span class="-ms-[2vmin]" data-clima-umidade-text></span>
@@ -105,7 +105,7 @@
 <template id="tpl-financeiro-item">
     <div class="flex flex-row items-center gap-[2vmin] w-full min-w-0 leading-none">
         <span class="opacity-80 ms-[2vmin] w-min text-[80%] leading-none text-end" data-fin-nome></span>
-        <span class="flex items-center justify-center flex-shrink-0 h-[52vmin]" data-fin-ico></span>
+        <span class="flex items-center justify-center flex-shrink-0 h-[40vmin]" data-fin-ico></span>
         <div class="flex flex-col">
             <span class="font-bold ms-[2vmin] leading-tight text-center" data-fin-valor></span>
             <div class="flex justify-center items-center">

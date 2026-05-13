@@ -240,7 +240,7 @@ window.onload = function () {
 
 		if (canaisAtivos.length === 0) {
 			console.error('[Rodape] Nenhum canal ativo com dados disponíveis.');
-			if (loader) loader.finished();
+			// if (loader) loader.finished();
 			return;
 		}
 
@@ -249,7 +249,7 @@ window.onload = function () {
 				clearInterval(clockInterval);
 				clockInterval = null;
 			}
-			if (loader) loader.finished();
+			// if (loader) loader.finished();
 		});
 	}
 
@@ -344,7 +344,7 @@ window.onload = function () {
 
 			if (!temDados) {
 				console.error('[Rodape] Sem dados em nenhum canal ativo.');
-				loader.finished();
+				// loader.finished();
 				return;
 			}
 
