@@ -234,9 +234,8 @@ window.onload = function () {
 	function criarItemCompativel(fields) {
 		return {
 			value: function(campo) {
+				// Retorna o valor bruto — cada módulo faz sua própria filtragem
 				var val = fields[campo.toUpperCase()] || '';
-				// Filtra placeholder EBHTML: [campo] quando campo não existe
-				if (val && val.charAt(0) === '[' && val.charAt(val.length - 1) === ']') val = '';
 				return { value: val };
 			}
 		};
