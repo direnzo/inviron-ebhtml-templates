@@ -30,6 +30,8 @@ window.onload = function () {
 	   ===================================================== */
 	var clockInterval = null;
 	var slideshowCancelFn = null;
+	var dadosAtivos = {};
+	var refreshTimer = null;
 
 	/* =====================================================
 	   APLICAR CONFIGURAÇÃO VISUAL
@@ -146,27 +148,32 @@ window.onload = function () {
 	}
 
 	/**
-	 * Transition: fade out inner → swap content → fade in
+	 * Fade out do canal atual → limpa → chama fn() que renderiza o próximo canal.
+	 * O próximo canal faz seu próprio fade in via classes Tailwind.
 	 */
 	function fadeTrocarConteudo(inner, fn, duracao) {
-		inner.style.transition = 'opacity ' + duracao + 'ms';
+		inner.style.transition = 'opacity ' + duracao + 'ms ease-in-out';
 		inner.style.opacity = '0';
 		setTimeout(function () {
+			inner.innerHTML = '';
+			inner.classList.remove('opacity-100');
+			inner.classList.remove('opacity-0');
+			inner.style.transition = '';
+			inner.style.opacity = '';
 			fn();
-			inner.style.opacity = '1';
 		}, duracao);
 	}
 
 	/**
-	 * Roda o canal de índice idx dentro de canaisAtivos.
-	 * onCicloCompleto() é chamado quando todos os canais terminam.
+	 * Roda o canal de índice idx dentro de canaisAtivos em loop infinito.
+	 * Ao terminar o último canal, reinicia do primeiro automaticamente.
 	 */
-	function rodarSlideshow(canaisAtivos, dados, loader, onCicloCompleto) {
+	function rodarSlideshow(canaisAtivos, dados, loader) {
 		var cancelaAtual = null;
 
 		function rodarCanal(idx) {
 			if (idx >= canaisAtivos.length) {
-				if (onCicloCompleto) onCicloCompleto();
+				rodarCanal(0);
 				return;
 			}
 
@@ -190,19 +197,20 @@ window.onload = function () {
 				   rodarCanal(idx + 1);
 				   return;
 			   }
-			   // Limpa o conteúdo anterior antes de renderizar o próximo canal
-			   inner.innerHTML = '';
 
-			   cancelaAtual = modulo.render(inner, dadosCanal, CONFIG, function () {
-				   cancelaAtual = null;
-				   rodarCanal(idx + 1);
-			   });
-
-			// loaded() na primeira renderização real
-			if (idx === 0 && loader && loader.loaded && !loader._rodapeLoaded) {
-				loader._rodapeLoaded = true;
-				loader.loaded();
-			}
+			   // Fade out do canal atual, depois renderiza o próximo
+			   var fadeDuracao = (CONFIG && CONFIG.fadeDuracao) ? Math.min(CONFIG.fadeDuracao, 400) : 400;
+			   fadeTrocarConteudo(inner, function () {
+				   cancelaAtual = modulo.render(inner, dadosCanal, CONFIG, function () {
+					   cancelaAtual = null;
+					   rodarCanal(idx + 1);
+				   });
+				   // loaded() na primeira renderização real
+				   if (idx === 0 && loader && loader.loaded && !loader._rodapeLoaded) {
+					   loader._rodapeLoaded = true;
+					   loader.loaded();
+				   }
+			   }, fadeDuracao);
 		}
 
 		rodarCanal(0);
@@ -216,12 +224,125 @@ window.onload = function () {
 	}
 
 	/* =====================================================
+	   REFRESH PERIÓDICO DE DADOS
+	   ===================================================== */
+
+	/**
+	 * Cria objeto compatível com EBBrowserDataItem a partir de campos plain.
+	 * fields = { CAMPO_MAIUSCULO: 'valor', ... }
+	 */
+	function criarItemCompativel(fields) {
+		return {
+			value: function(campo) {
+				var val = fields[campo.toUpperCase()] || '';
+				// Filtra placeholder EBHTML: [campo] quando campo não existe
+				if (val && val.charAt(0) === '[' && val.charAt(val.length - 1) === ']') val = '';
+				return { value: val };
+			}
+		};
+	}
+
+	/**
+	 * Parseia XML do EdgeContents e retorna EBBrowserDataItem-compatível (primeiro item).
+	 */
+	function parseXmlParaItem(xmlDoc) {
+		if (!xmlDoc || !xmlDoc.firstChild) return null;
+		var root = xmlDoc.firstChild;
+		var firstItem = null;
+		for (var i = 0; i < root.childNodes.length; i++) {
+			if (root.childNodes[i].nodeType === 1) {
+				firstItem = root.childNodes[i];
+				break;
+			}
+		}
+		if (!firstItem) return null;
+		var fields = {};
+		for (var j = 0; j < firstItem.childNodes.length; j++) {
+			var fNode = firstItem.childNodes[j];
+			if (fNode.nodeType !== 1) continue;
+			var val = fNode.hasChildNodes() ? (fNode.firstChild.nodeValue || '') : '';
+			fields[fNode.nodeName.toUpperCase()] = val;
+		}
+		return criarItemCompativel(fields);
+	}
+
+	/**
+	 * Faz XHR para um dataset e chama callback(dadosParsed|null).
+	 */
+	function recarregarDataset(canal, modulo, callback) {
+		var url = '/content/data/' + canal.dataset + '?time=' + new Date().getTime();
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', url, true);
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState !== 4) return;
+			if (xhr.status !== 200) {
+				console.warn('[Rodape] Refresh falhou (' + xhr.status + '): ' + canal.dataset);
+				callback(null);
+				return;
+			}
+			var xmlDoc = xhr.responseXML;
+			if (!xmlDoc && xhr.responseText) {
+				try {
+					var parser = new DOMParser();
+					xmlDoc = parser.parseFromString(xhr.responseText.trim(), 'text/xml');
+				} catch (e) {
+					callback(null);
+					return;
+				}
+			}
+			var item = parseXmlParaItem(xmlDoc);
+			if (!item) { callback(null); return; }
+			var parsed;
+			if (canal.tipo === 'clima' && modulo.parseEbhtml) {
+				parsed = modulo.parseEbhtml(item, null);
+			} else if (modulo.parseEbhtml) {
+				parsed = modulo.parseEbhtml(item);
+			} else {
+				callback(null);
+				return;
+			}
+			if (!parsed) { callback(null); return; }
+			if (canal.tipo === 'clima' && !(parsed instanceof Array)) {
+				parsed = [parsed];
+			}
+			callback(parsed);
+		};
+		xhr.send(null);
+	}
+
+	/**
+	 * Atualiza dadosAtivos com dados frescos de todos os canais ativos.
+	 * Chamado periodicamente via setInterval.
+	 */
+	function refreshTodosDados() {
+		console.log('[Rodape] Atualizando dados dos canais...');
+		for (var i = 0; i < CONFIG.canais.length; i++) {
+			(function (canal) {
+				if (!canal.ativo) return;
+				var modulo = encontrarModulo(canal.tipo);
+				if (!modulo) return;
+				recarregarDataset(canal, modulo, function (novosDados) {
+					if (novosDados) {
+						dadosAtivos[canal.tipo] = novosDados;
+						console.log('[Rodape] Dados atualizados: ' + canal.tipo);
+					}
+				});
+			})(CONFIG.canais[i]);
+		}
+	}
+
+	/* =====================================================
 	   INICIAR TEMPLATE
 	   ===================================================== */
 
 	function iniciarTemplate(dados, loader) {
 		aplicarConfig();
 		iniciarRelogio();
+
+		// Copia dados para dadosAtivos (referência compartilhada com o slideshow)
+		for (var chave in dados) {
+			if (dados.hasOwnProperty(chave)) dadosAtivos[chave] = dados[chave];
+		}
 
 		// Exibe col-content só após dados populados
 		var colContent = document.getElementById('col-content');
@@ -233,7 +354,7 @@ window.onload = function () {
 		var canaisAtivos = [];
 		for (var i = 0; i < CONFIG.canais.length; i++) {
 			var c = CONFIG.canais[i];
-			if (c.ativo && dados[c.tipo] && dados[c.tipo].length > 0) {
+			if (c.ativo && dadosAtivos[c.tipo] && dadosAtivos[c.tipo].length > 0) {
 				canaisAtivos.push(c);
 			}
 		}
@@ -244,13 +365,15 @@ window.onload = function () {
 			return;
 		}
 
-		rodarSlideshow(canaisAtivos, dados, loader, function () {
-			if (clockInterval) {
-				clearInterval(clockInterval);
-				clockInterval = null;
-			}
-			// if (loader) loader.finished();
-		});
+		// Inicia refresh periódico (somente modo EdgeContents — não no mock)
+		if (loader && loader.loaded) {
+			var intervaloRefresh = (CONFIG.refreshIntervalo && CONFIG.refreshIntervalo > 0)
+				? CONFIG.refreshIntervalo
+				: (5 * 60 * 1000);
+			refreshTimer = setInterval(refreshTodosDados, intervaloRefresh);
+		}
+
+		rodarSlideshow(canaisAtivos, dadosAtivos, loader);
 	}
 
 	/* =====================================================

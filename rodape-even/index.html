@@ -37,14 +37,14 @@
 
 <!-- Templates para módulos -->
 <template id="tpl-clima">
-    <!-- Root preenche todo o channel-inner; cada slide se centraliza individualmente -->
+    <!-- w-full h-full: slides absolute inset-0 cobrem tudo e se auto-centralizam -->
     <div class="w-full h-full relative">
 
-        <!-- Slide 1: Temperatura atual + min/max -->
-        <div class="clima-slide clima-slide-1 flex items-center justify-center gap-[4vmin] transition-opacity transition-transform duration-500 opacity-0 translate-y-8 hidden absolute inset-0">
-            <span class="clima-icon-slot flex items-center justify-center flex-shrink-0 size-[58vmin]"></span>
-            <span class="font-bold" data-clima-temp-atual></span>
-            <span class="flex gap-[10vmin] ml-10">
+        <!-- Slide 1: Min/Max -->
+        <div class="clima-slide clima-slide-1 flex items-center justify-center gap-[4vmin] transition-all duration-500 opacity-0 translate-y-8 hidden absolute inset-0">
+            <!-- ícone+temp serão movidos aqui pelo JS -->
+            <span class="clima-icon-group flex items-center gap-[2vmin] flex-shrink-0"></span>
+            <span class="flex gap-[10vmin] ml-6">
                 <span class="flex items-center gap-[10vmin] font-bold opacity-80">
                     <span class="-ms-[10vmin] inline-flex h-[25vmin] align-middle" data-clima-max-ico></span>
                     <span class="-ms-[10vmin]" data-clima-max></span>
@@ -57,28 +57,29 @@
         </div>
 
         <!-- Slide 2: Descrição -->
-        <div class="clima-slide clima-slide-2 flex items-center justify-center gap-[4vmin] transition-opacity transition-transform duration-500 opacity-0 translate-y-8 hidden absolute inset-0">
-            <span class="clima-icon-slot flex items-center justify-center flex-shrink-0 size-[58vmin]"></span>
-            <span class="whitespace-nowrap" data-clima-desc></span>
+        <div class="clima-slide clima-slide-2 flex items-center justify-center gap-[4vmin] transition-all duration-500 opacity-0 translate-y-8 hidden absolute inset-0">
+            <span class="clima-icon-group flex items-center gap-[2vmin] flex-shrink-0"></span>
+            <span class="whitespace-nowrap ml-4" data-clima-desc></span>
         </div>
 
         <!-- Slide 3: Umidade, Vento, UV -->
-        <div class="clima-slide clima-slide-3 flex items-center justify-center gap-[8vmin] transition-opacity transition-transform duration-500 opacity-0 translate-y-8 hidden absolute inset-0">
-            <span class="clima-icon-slot flex items-center justify-center flex-shrink-0 size-[58vmin]"></span>
-            <span class="opacity-80 flex items-center gap-[2vmin]" data-clima-umidade>
+        <div class="clima-slide clima-slide-3 flex items-center justify-center gap-[8vmin] transition-all duration-500 opacity-0 translate-y-8 hidden absolute inset-0">
+            <span class="clima-icon-group flex items-center gap-[2vmin] flex-shrink-0"></span>
+            <span class="opacity-80 flex items-center gap-[2vmin] ml-4" data-clima-umidade>
                 <span class="inline-flex h-[52vmin] align-middle" data-clima-umidade-ico></span>
-                <span class="-ms-[2vmin]" data-clima-umidade-text></span>
+                <span class="-ms-[10vmin]" data-clima-umidade-text></span>
             </span>
             <span class="opacity-80 flex items-center gap-[2vmin]" data-clima-vento>
                 <span class="inline-flex h-[52vmin] align-middle" data-clima-vento-ico></span>
-                <span class="-ms-[2vmin]" data-clima-vento-text></span>
+                <span class="-ms-[12vmin]" data-clima-vento-text></span>
                 <span class="inline-flex h-[22vmin] align-middle" data-clima-vento-compass></span>
             </span>
             <span class="opacity-80 flex items-center gap-[2vmin]" data-clima-uv>
                 <span class="inline-flex h-[52vmin] align-middle" data-clima-umidade-ico></span>
-                <span class="-ms-[2vmin]" data-clima-uv-text></span>
+                <span class="-ms-[10vmin]" data-clima-uv-text></span>
             </span>
         </div>
+
     </div>
 </template>
 
@@ -87,13 +88,13 @@
     <!-- Estrutura base para os slides financeiros, os itens serão clonados a partir do template-financeiro-item | animação:  fadein aparece -->
     <div class="flex flex-row items-center gap-[4vmin] w-full min-w-0 relative">
         <!-- Slide 1: Moedas (sempre presente no DOM) -->
-        <div class="financeiro-slide financeiro-slide-moedas flex items-center justify-center gap-[50vmin] transition-opacity duration-500 opacity-0 hidden absolute left-0 top-0 w-full h-full">
+        <div class="financeiro-slide financeiro-slide-moedas flex items-center justify-center gap-[50vmin] transition-all duration-500 opacity-0 hidden absolute left-0 top-0 w-full h-full">
             <div class="financeiro-item" data-fin-moeda-1></div>
             <div class="financeiro-item" data-fin-moeda-2></div>
             <div class="financeiro-item" data-fin-moeda-3></div>
         </div>
         <!-- Slide 2: Bolsas (sempre presente no DOM) -->
-        <div class="financeiro-slide financeiro-slide-bolsas flex items-center justify-center gap-[50vmin] transition-opacity duration-500 opacity-0 hidden absolute left-0 top-0 w-full h-full">
+        <div class="financeiro-slide financeiro-slide-bolsas flex items-center justify-center gap-[50vmin] transition-all duration-500 opacity-0 hidden absolute left-0 top-0 w-full h-full">
             <div class="financeiro-item" data-fin-bolsa-1></div>
             <div class="financeiro-item" data-fin-bolsa-2></div>
             <div class="financeiro-item" data-fin-bolsa-3></div>

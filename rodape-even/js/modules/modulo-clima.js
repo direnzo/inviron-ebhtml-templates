@@ -195,25 +195,22 @@ var ModuloClima = (function () {
 		var root = node.querySelector ? node.querySelector('div') : node.children[0];
 		if (!root) return;
 
-		// Ícone — carrega o SVG em todos os slots de ícone dos 3 slides
-		var iconSlots = root.querySelectorAll('.clima-icon-slot');
+		// Cria grupo ícone+temp UMA vez — será movido entre slides no showSlide
+		var iconGroup = document.createElement('span');
+		iconGroup.className = 'flex items-center gap-[2vmin] flex-shrink-0';
+
+		var iconSlot = document.createElement('span');
+		iconSlot.className = 'flex items-center justify-center size-[58vmin]';
+		iconGroup.appendChild(iconSlot);
+
+		var tempSpan = document.createElement('span');
+		tempSpan.className = 'font-bold';
+		tempSpan.textContent = (dados.tempAtual !== '' && dados.tempAtual !== null) ? dados.tempAtual + '°' : '';
+		iconGroup.appendChild(tempSpan);
+
 		var iconeArq = dados.iconeCodigo ? 'img/clima/' + iconeArquivo(dados.iconeCodigo, dados.isNoite) : null;
 		if (iconeArq) {
-			for (var s = 0; s < iconSlots.length; s++) {
-				xhr = carregarSvgInline(iconSlots[s], iconeArq);
-			}
-		}
-
-
-		// Temperatura atual (se disponível)
-		var tempAtualEl = root.querySelector('[data-clima-temp-atual]');
-		if (tempAtualEl) {
-			if (dados.tempAtual !== '' && dados.tempAtual !== null) {
-				tempAtualEl.textContent = dados.tempAtual + '°';
-				tempAtualEl.style.display = '';
-			} else {
-				tempAtualEl.style.display = 'none';
-			}
+			xhr = carregarSvgInline(iconSlot, iconeArq);
 		}
 
 
@@ -304,10 +301,10 @@ var ModuloClima = (function () {
 					setTimeout(function() {
 						var dir = dados.direcaoVento;
 						var ang = direcaoCardinalParaAngulo(dir);
-						console.log('[Clima] Direção vento recebida:', dir);
-						console.log('[Clima] Ângulo calculado:', ang);
+						// console.log('[Clima] Direção vento recebida:', dir);
+						// console.log('[Clima] Ângulo calculado:', ang);
 						ventoCompass.style.transform = 'rotate(' + ang + 'deg)';
-						console.log('[Clima] Rotação aplicada ao container:', ventoCompass);
+						// console.log('[Clima] Rotação aplicada ao container:', ventoCompass);
 					}, 50);
 				} else {
 					ventoCompass.innerHTML = '';
@@ -378,11 +375,12 @@ var ModuloClima = (function () {
 
 		inner.appendChild(root);
 
-		// Fade in antes de iniciar slides
+		// Fade in: transition deve estar definida ANTES da mudança de opacity
 		var fadeDuracao = (config && config.fadeDuracao) || 400;
+		inner.classList.add('transition-opacity');
+		inner.classList.add('duration-500');
+		var _reflow = inner.offsetHeight; // força reflow para registrar estado opacity:0
 		setTimeout(function () {
-			inner.classList.add('transition-opacity');
-			inner.classList.add('duration-500');
 			inner.classList.remove('opacity-0');
 			inner.classList.add('opacity-100');
 		}, 20);
@@ -395,23 +393,25 @@ var ModuloClima = (function () {
 		];
 		var current = 0;
 		var slideTimeout = null;
-		var slideDuration = Math.floor(((config && config.itemDuracao) || 6000) / 3);
+		var slideDuration = Math.floor(((config && config.itemDuracao) || 6000) /2);
 
 		function showSlide(idx) {
+			// Move o iconGroup para o placeholder do slide ativo
+			var wrapper = slides[idx] && slides[idx].querySelector('.clima-icon-group');
+			if (wrapper) wrapper.appendChild(iconGroup);
+
 			for (var i = 0; i < slides.length; i++) {
 				if (!slides[i]) continue;
-				slides[i].classList.add('transition-opacity');
-				slides[i].classList.add('transition-transform');
-				slides[i].classList.add('duration-500');
-				slides[i].classList.remove('translate-y-0');
-				slides[i].classList.remove('translate-y-8');
 				if (i === idx) {
+					// Unhide com opacity-0 ainda ativo, força reflow, depois fade in
 					slides[i].classList.remove('hidden');
+					var _rf = slides[i].offsetHeight;
 					slides[i].classList.remove('opacity-0');
 					slides[i].classList.add('opacity-100');
 					slides[i].classList.remove('translate-y-8');
 					slides[i].classList.add('translate-y-0');
 				} else {
+					// Fade out e esconde após transição
 					slides[i].classList.remove('opacity-100');
 					slides[i].classList.add('opacity-0');
 					slides[i].classList.remove('translate-y-0');
