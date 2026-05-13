@@ -15,5 +15,5 @@ var CONFIG = {
     ],
     corClimaPrincipal: '#000000', // cor dos ícones de clima, dólar, euro
     corClimaSecundaria: '#888888', // cor secundária (ex: roxo convertido para cinza)
-    refreshIntervalo: 1 * 60 * 1000, // ms — recarrega dados dos canais (padrão: 5 min)
+    refreshIntervalo: 10 * 60 * 1000, // ms — recarrega dados dos canais (padrão: 10 min)
 };
