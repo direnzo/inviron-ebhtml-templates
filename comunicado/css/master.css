@@ -1,0 +1,197 @@
+@font-face {
+    font-family: 'FuturaBT Bold';
+    src: url('fonts/FuturaBT-Bold.otf');
+}
+
+@font-face {
+    font-family: 'FuturaBT Medium';
+    src: url('fonts/FuturaBT-Medium.otf');
+}
+
+@font-face {
+    font-family: 'FuturaBT Bold Condensed';
+    src: url('fonts/FuturaBT-BoldCondensed.otf');
+}
+
+body {
+	opacity: 0;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	height: 100%;
+	/* text-align: center; */
+	background-color: #000;
+	
+}
+
+p {
+	margin: 0;
+}
+#video{
+	width: 88%;
+    height: 85%;
+    position: absolute;
+    top: 38%;
+    left: 6%;
+}
+
+#bg {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	z-index: -1;
+	opacity: 0.2;
+}
+
+#header {
+	background-color: transparent;
+	/* border-radius: 2vw; */
+	margin: 1%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1%;
+	height: 10%;
+	text-align: center;
+}
+
+#title {
+	background-color: #f58220;
+	color: white;
+	border-radius: 1vw;
+	padding: 1vw 2vw;
+	text-align: center;
+	/* margin-right: 20px; */
+	width: 100%;
+	height: 100%;
+	font-family: 'FuturaBT Bold';
+	font-size: 3vw;
+	justify-content: center;
+	display: flex;
+	/* Adiciona display flex */
+	align-items: center;
+	/* Centraliza verticalmente o texto */
+	line-height: 4vw;
+}
+
+#logo {
+	width: 15%;
+	max-width: 400px;
+	max-height: 90px;
+	object-fit: contain;
+	margin-right: 10px;
+	display: none;
+	/* background-color: white; */
+    height: 100%;
+    border-radius: 9px;
+	/* oculta o logo a pedido do cliente */
+}
+#imagem {
+	position: absolute;
+	-webkit-transform: translate(-50%, -50%);
+	left: 86%;
+	top: 50%;
+	width: 27%;
+	vertical-align: middle;
+	/* max-width: 150px;
+	max-height: 90px; */
+	height: 75%;
+	object-fit: cover;
+	align-items: center;
+	display: none;
+	
+	/* oculta o logo a pedido do cliente */
+}
+#imagem img {
+	width: 100%;
+	/* max-width: 150px;
+	max-height: 90px; */
+	object-fit: contain;
+	max-width: 100%;
+	max-height: 83%;
+	/* margin-right: 10px; */
+
+	/* oculta o logo a pedido do cliente */
+}
+
+#code {
+	width: 15%;
+	max-width: 150px;
+	max-height: 90px;
+	object-fit: contain;
+	margin-left: 10px;
+	display: none;
+	background-color: white;
+    height: 100%;
+    border-radius: 9px;
+	/* oculta o logo a pedido do cliente */
+}
+
+#content {
+	background-color: #fff;
+	/* border-radius: 10px; */
+	margin: 1% 1% 1% 2%;
+	padding: 1%;
+	/* text-align: center; */
+	height: calc(100vh - 64px);
+	display: flex;
+	flex-direction: column;
+	justify-content: start;
+	font-family: 'FuturaBT Medium';
+	font-size: 3vw;
+	height: 90vh;
+	/* border: 3px solid #f6c941; */
+	/* color: #000; */
+	overflow: hidden;
+	border-radius: 1vw;
+
+}
+
+.ql-align-center{
+	text-align: center;
+}
+.ql-align-justify{
+	text-align: justify;
+}
+.ql-align-left{
+	text-align: left;
+}
+.ql-align-right{
+	text-align: right;
+}
+
+.scrolling-text {
+	animation: scrollText 27s linear 3s forwards;
+	animation-direction: alternate;
+	padding: 0 30px;
+}
+
+#loading-bar {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 3px;
+	/* background-color: #ccc; Cor de fundo da barra */
+}
+
+#progress {
+	width: 0;
+	height: 100%;
+	background-color: #f58220;
+	transition: width 1s linear;
+}
+
+@keyframes scrollText {
+	0% {
+		transform: translateY(0%);
+	}
+
+	100% {
+		transform: translateY(calc(-85%));
+	}
+}
+
