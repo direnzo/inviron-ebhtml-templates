@@ -1,0 +1,8 @@
+{
+    "name": "americanas2",
+    "version": "1.0.0",
+    "scripts": {
+        "dev": "tailwindcss -i css/input.css -o css/master.css --watch",
+        "build": "tailwindcss -i css/input.css -o css/master.css --minify"
+    }
+}

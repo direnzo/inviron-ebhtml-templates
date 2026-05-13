@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html class="h-full w-full overflow-hidden">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Americanas - Consulta de Preços</title>
+    <link rel="stylesheet" href="css/master.css">
+    <!-- Mock: descomente para desenvolvimento local -->
+    <script src="js/mock-data.js"></script>
+    <script src="js/ebhtml.js"></script>
+    <script src="js/master.js"></script>
+</head>
+
+<body class="m-0 w-full h-full font-helvetica-neue  overflow-hidden bg-white bg-[url('../img/bg_aproveite.jpeg')] bg-cover bg-center flex flex-col opacity-0 transition-opacity duration-700 ease-in-out">
+
+
+    <!-- Produto -->
+    <main id="main-content" class="flex flex-col items-center justify-evenly pb-6 pt-[18vh]">
+
+        <!-- Imagem do produto (visível somente quando has-image) -->
+        <div id="img-container" class="w-full flex items-center justify-center px-12">
+            <img id="produto" class="max-w-full object-contain" />
+        </div>
+
+        <!-- Título + Preço -->
+        <div id="texto-container" class="flex flex-col items-center justify-center w-full px-10 gap-4">
+            <div id="titulo" class="w-full h-[21vh] font-stretch-condensed text-center content-center  font-[400] text-white leading-snug overflow-hidden"></div>
+
+            <!-- Preço DE (somente com promoção) -->
+            <div id="preco-de" style="display:none" class="flex items-baseline justify-center gap-[1.5vw] w-full px-6">
+                <span class=" font-[400] text-black leading-none" id="preco-de-label">DE:</span>
+                <span class=" font-[600] text-black leading-none line-through" id="preco-de-valor"></span>
+            </div>
+
+            <!-- Preço POR (principal) -->
+            <div id="preco-bloco" class="flex h-[43vh] content-center items-center justify-center gap-[2vw] w-full px-6 mt-4 animate-pulseScaleWithDelay">
+                <div class="flex flex-col items-end shrink-0">
+                    <span id="preco-por-label" class=" font-[700] text-black leading-none text-[2vw]">por:</span>
+                    <span id="preco-simbolo" class=" font-[700] text-black leading-none">R$</span>
+                </div>
+                <span id="preco" class=" font-[700] text-black leading-none min-w-0"></span>
+            </div>
+
+
+            <!-- TakeWin (leve X por Y) -->
+            <div id="takewin" style="display:none" class="w-full flex flex-col items-center justify-center mt-2 border-2 border-[#ed0030] rounded-lg px-4 pt-3 animate-pulseScaleWithDelay">
+                <span class="inline-block bg-[#ed0030] text-white  font-[900] rounded-full px-6 py-2 mr-4 text-[2.5vw] shadow-lg" id="takewin-badge" style="display:none">OFERTA ESPECIAL</span>
+                <span class=" font-[800] text-black leading-tight text-[4vw] mt-2" id="takewin-text"></span>
+            </div>
+
+            <!-- Fidelidade (preço fidelidade cliente·ã) -->
+            <div id="fidelidade" style="display:none" class="w-full flex flex-col items-center rounded-2xl overflow-hidden">
+                <!-- Badge -->
+                <div class="flex items-center justify-center w-full pt-4 pb-2">
+                   <img src="img/fidelidade.png" class="w-[60vw] object-contain" />
+                </div>
+                <!-- Leve N -->
+                <div class="flex items-center justify-center w-full py-1 h-[18vh]">
+                    <span id="fidelidade-leve" class="font-[600] text-[19vw] text-black leading-none">leve 3</span>
+                </div>
+                <!-- Bloco amarelo: por R$ + total -->
+                <div class="w-full flex items-center justify-center gap-[2vw] py-8">
+                    <div class="flex flex-col items-end">
+                        <span class="font-[600] text-[5.5vw] text-black leading-tight">por</span>
+                        <span class="font-[600] text-[6vw] text-black leading-tight">R$</span>
+                    </div>
+                    <span id="fidelidade-total" class="font-[600] text-[17vw] text-black leading-none">119,99</span>
+                </div>
+                <!-- Preços unitários (fundo amarelo) -->
+                <div class="w-full  flex flex-col items-center pb-3 pt-1">
+                    <span id="fidelidade-unitario-promo" class="font-[700] text-center text-[3.5vw] text-black"></span>
+                    <span id="fidelidade-unitario-regular" class="font-[400] text-center text-[3vw] text-black"></span>
+                </div>
+            </div>
+
+
+            <!-- Texto legal -->
+            <div id="legaltext" class="w-full flex flex-col items-center justify-center px-6">
+                <span class=" font-[500] text-center font-stretch-condensed text-black  leading-tight text-[3vw]" id="legaltext-text">Oferta válida apenas para clientes cadastrados.
+                    <br>Consulte o regulamento e torne-se participante no site: www.americanas.com.br/especial/cliente-a
+                </span>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Tela de erro -->
+    <div id="erro" style="display:none" class="flex-1 flex flex-col items-center justify-center text-center bg-[#ed0030]">
+        <p class=" font-[700] text-white text-[6vw] portrait:text-[9vw]">PRODUTO NÃO</p>
+        <p class=" font-[700] text-white text-[6vw] portrait:text-[9vw]">ENCONTRADO</p>
+    </div>
+
+</body>
+
+</html>
