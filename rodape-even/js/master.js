@@ -259,7 +259,9 @@ window.onload = function () {
 		for (var j = 0; j < firstItem.childNodes.length; j++) {
 			var fNode = firstItem.childNodes[j];
 			if (fNode.nodeType !== 1) continue;
-			var val = fNode.hasChildNodes() ? (fNode.firstChild.nodeValue || '') : '';
+			var val = (typeof fNode.textContent !== 'undefined')
+				? (fNode.textContent || '')
+				: (fNode.innerText || '');
 			fields[fNode.nodeName.toUpperCase()] = val;
 		}
 		return criarItemCompativel(fields);
@@ -321,7 +323,7 @@ window.onload = function () {
 				var modulo = encontrarModulo(canal.tipo);
 				if (!modulo) return;
 				recarregarDataset(canal, modulo, function (novosDados) {
-					if (novosDados) {
+					if (novosDados && novosDados.length > 0) {
 						dadosAtivos[canal.tipo] = novosDados;
 						console.log('[Rodape] Dados atualizados: ' + canal.tipo);
 					}
@@ -347,7 +349,7 @@ window.onload = function () {
 		var colContent = document.getElementById('col-content');
 		if (colContent) {
 			colContent.classList.remove('opacity-0');
-			colContent.classList.remove('hidden');
+			colContent.style.display = '';
 		}
 
 		var canaisAtivos = [];

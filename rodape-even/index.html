@@ -20,7 +20,7 @@
             <img id="logo-img" class="h-[40vmin] w-auto object-contain block" src="" alt="">
         </div>
         <div id="divider-1" class="w-px mx-[20vmin] h-[60%] flex-shrink-0 opacity-50 bg-black/20"></div>
-        <div id="col-content" class="flex flex-row items-center h-full flex-1 min-w-0 gap-[2vmin] px-0 overflow-hidden opacity-0 hidden">
+        <div id="col-content" class="flex flex-row items-center h-full flex-1 min-w-0 gap-[2vmin] px-0 overflow-hidden opacity-0" style="display:none">
             <div id="channel-content" class="flex-1 h-full min-w-0 flex items-center overflow-hidden">
                 <div id="channel-inner" class="w-full h-full min-w-0 flex items-center justify-center overflow-hidden"></div>
             </div>
@@ -41,7 +41,7 @@
     <div class="w-full h-full relative">
 
         <!-- Slide 1: Min/Max -->
-        <div class="clima-slide clima-slide-1 flex items-center justify-center gap-[4vmin] transition-all duration-500 opacity-0 translate-y-8 hidden absolute inset-0">
+        <div class="clima-slide clima-slide-1 flex items-center justify-center gap-[4vmin] transition-all duration-500 opacity-0 translate-y-8 absolute inset-0" style="display:none">
             <!-- ícone+temp serão movidos aqui pelo JS -->
             <span class="clima-icon-group flex items-center gap-[2vmin] flex-shrink-0"></span>
             <span class="flex gap-[10vmin] ml-6">
@@ -57,13 +57,13 @@
         </div>
 
         <!-- Slide 2: Descrição -->
-        <div class="clima-slide clima-slide-2 flex items-center justify-center gap-[4vmin] transition-all duration-500 opacity-0 translate-y-8 hidden absolute inset-0">
+        <div class="clima-slide clima-slide-2 flex items-center justify-center gap-[4vmin] transition-all duration-500 opacity-0 translate-y-8 absolute inset-0" style="display:none">
             <span class="clima-icon-group flex items-center gap-[2vmin] flex-shrink-0"></span>
-            <span class="whitespace-nowrap ml-4" data-clima-desc></span>
+            <span class="ml-4" data-clima-desc></span>
         </div>
 
         <!-- Slide 3: Umidade, Vento, UV -->
-        <div class="clima-slide clima-slide-3 flex items-center justify-center gap-[8vmin] transition-all duration-500 opacity-0 translate-y-8 hidden absolute inset-0">
+        <div class="clima-slide clima-slide-3 flex items-center justify-center gap-[8vmin] transition-all duration-500 opacity-0 translate-y-8 absolute inset-0" style="display:none">
             <span class="clima-icon-group flex items-center gap-[2vmin] flex-shrink-0"></span>
             <span class="opacity-80 flex items-center gap-[2vmin] ml-4" data-clima-umidade>
                 <span class="inline-flex h-[52vmin] align-middle" data-clima-umidade-ico></span>
@@ -88,13 +88,13 @@
     <!-- Estrutura base para os slides financeiros, os itens serão clonados a partir do template-financeiro-item | animação:  fadein aparece -->
     <div class="flex flex-row items-center gap-[4vmin] w-full min-w-0 relative">
         <!-- Slide 1: Moedas (sempre presente no DOM) -->
-        <div class="financeiro-slide financeiro-slide-moedas flex items-center justify-center gap-[50vmin] transition-all duration-500 opacity-0 hidden absolute left-0 top-0 w-full h-full">
+        <div class="financeiro-slide financeiro-slide-moedas flex items-center justify-center gap-[50vmin] transition-all duration-500 opacity-0 absolute left-0 top-0 w-full h-full" style="display:none">
             <div class="financeiro-item" data-fin-moeda-1></div>
             <div class="financeiro-item" data-fin-moeda-2></div>
             <div class="financeiro-item" data-fin-moeda-3></div>
         </div>
         <!-- Slide 2: Bolsas (sempre presente no DOM) -->
-        <div class="financeiro-slide financeiro-slide-bolsas flex items-center justify-center gap-[50vmin] transition-all duration-500 opacity-0 hidden absolute left-0 top-0 w-full h-full">
+        <div class="financeiro-slide financeiro-slide-bolsas flex items-center justify-center gap-[50vmin] transition-all duration-500 opacity-0 absolute left-0 top-0 w-full h-full" style="display:none">
             <div class="financeiro-item" data-fin-bolsa-1></div>
             <div class="financeiro-item" data-fin-bolsa-2></div>
             <div class="financeiro-item" data-fin-bolsa-3></div>

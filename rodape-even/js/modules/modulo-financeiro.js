@@ -222,6 +222,11 @@ var ModuloFinanceiro = (function () {
 
 	/* --- Render: cicla todos os indicadores --- */
 	function render(inner, dados, config, onDone) {
+		if (!dados || !dados.length) {
+			if (onDone) onDone();
+			return function(){};
+		}
+		var svgXhrs = [];
 		// Separa moedas e bolsas
 		var moedas = [];
 		var bolsas = [];
@@ -233,9 +238,11 @@ var ModuloFinanceiro = (function () {
 		// Não remove/recria slides, apenas preenche slots
 		var root = inner.querySelector('.flex.flex-row');
 		if (!root) {
-			// Primeira renderização: injeta o template
-			inner.innerHTML = document.getElementById('tpl-financeiro').innerHTML;
+			var tplFin = document.getElementById('tpl-financeiro');
+			if (!tplFin) { if (onDone) onDone(); return function(){}; }
+			inner.innerHTML = tplFin.innerHTML;
 			root = inner.querySelector('.flex.flex-row');
+			if (!root) { if (onDone) onDone(); return function(){}; }
 		}
 		var slideMoedas = root.querySelector('.financeiro-slide-moedas');
 		var slideBolsas = root.querySelector('.financeiro-slide-bolsas');
@@ -245,6 +252,7 @@ var ModuloFinanceiro = (function () {
 			for (var k = 0; k < 3; k++) {
 				var item = lista[k];
 				var cont = slideEl.querySelector('[data-fin-' + prefixo + '-' + (k + 1) + ']');
+				if (!cont) continue;
 				cont.innerHTML = '';
 				// Reseta estilos inline de animações anteriores
 				cont.style.opacity = '';
@@ -253,11 +261,12 @@ var ModuloFinanceiro = (function () {
 				if (!item) continue;
 				var itemNode = tplItem.content ? tplItem.content.cloneNode(true) : tplItem.cloneNode(true);
 				var itemRoot = itemNode.querySelector ? itemNode.querySelector('div') : itemNode.children[0];
+				if (!itemRoot) continue;
 				// Ícone
 				var iconeEl = itemRoot.querySelector('[data-fin-ico]');
 				if (iconeEl) {
 					if (item.iconeSvg) {
-						injetarSvgInline(iconeEl, item.iconeSvg);
+						svgXhrs.push(injetarSvgInline(iconeEl, item.iconeSvg));
 					} else if (item.iconeText) {
 						iconeEl.textContent = item.iconeText;
 					} else {
@@ -322,7 +331,7 @@ var ModuloFinanceiro = (function () {
 			slides[j].classList.remove('translate-y-0');
 			slides[j].classList.remove('translate-y-8');
 			if (slidesAtivos.indexOf(slides[j]) === 0) {
-				slides[j].classList.remove('hidden');
+				slides[j].style.display = '';
 				var _rf = slides[j].offsetHeight; // força reflow para transition funcionar
 				slides[j].classList.remove('opacity-0');
 				slides[j].classList.add('opacity-100');
@@ -333,7 +342,7 @@ var ModuloFinanceiro = (function () {
 				slides[j].classList.add('opacity-0');
 				slides[j].classList.remove('translate-y-0');
 				slides[j].classList.add('translate-y-8');
-				slides[j].classList.add('hidden');
+				slides[j].style.display = 'none';
 			}
 		}
 
@@ -369,7 +378,7 @@ var ModuloFinanceiro = (function () {
 				if (!slidesAtivos[i]) continue;
 				if (i === idx) {
 					// Unhide com opacity-0 ainda ativo, força reflow, depois fade in
-					slidesAtivos[i].classList.remove('hidden');
+					slidesAtivos[i].style.display = '';
 					var _rf = slidesAtivos[i].offsetHeight;
 					slidesAtivos[i].classList.remove('opacity-0');
 					slidesAtivos[i].classList.add('opacity-100');
@@ -383,7 +392,7 @@ var ModuloFinanceiro = (function () {
 					slidesAtivos[i].classList.remove('translate-y-0');
 					slidesAtivos[i].classList.add('translate-y-8');
 					(function(slide){
-						setTimeout(function(){ slide.classList.add('hidden'); }, 500);
+					setTimeout(function(){ slide.style.display = 'none'; }, 500);
 					})(slidesAtivos[i]);
 				}
 			}
@@ -408,6 +417,10 @@ var ModuloFinanceiro = (function () {
 
 		return function cancel() {
 			if (slideTimeout) { clearTimeout(slideTimeout); slideTimeout = null; }
+			for (var _i = 0; _i < svgXhrs.length; _i++) {
+				if (svgXhrs[_i]) svgXhrs[_i].abort();
+			}
+			svgXhrs = [];
 		};
 	}
 		return {

@@ -158,8 +158,8 @@ var ModuloClima = (function () {
 						  if (reg.nr_uv_wea) resultado.uv = reg.nr_uv_wea;
 						  if (reg.ds_uvlevel_wea) resultado.uvLevel = reg.ds_uvlevel_wea;
 						  resultado.iconeCodigo = reg.nr_icon_wea || '3';
-						  // Detecta noite se campo hr_period_wea for '3' (noite)
-						  resultado.isNoite     = (reg.hr_period_wea == '3');
+					  // Detecta noite: nr_period_wea == '1' (madrugada/noite)
+					  resultado.isNoite     = (reg.nr_period_wea == '1');
 					  }
 				  }
 			  }
@@ -179,21 +179,22 @@ var ModuloClima = (function () {
 	function render(inner, dados, config, onDone) {
 		var timer = null;
 		var xhr = null;
+		var svgXhrs = [];
 
 		// Padroniza: espera sempre array, pega o primeiro item
 		if (dados instanceof Array) {
 			dados = dados[0];
 		}
-		if (!dados) return;
+		if (!dados) { if (onDone) onDone(); return; }
 
 		// Usa o template HTML
 		inner.innerHTML = '';
 		inner.classList.add('opacity-0');
 		var tpl = document.getElementById('tpl-clima');
-		if (!tpl) return;
+		if (!tpl) { if (onDone) onDone(); return; }
 		var node = tpl.content ? tpl.content.cloneNode(true) : tpl.cloneNode(true);
 		var root = node.querySelector ? node.querySelector('div') : node.children[0];
-		if (!root) return;
+		if (!root) { if (onDone) onDone(); return; }
 
 		// Cria grupo ícone+temp UMA vez — será movido entre slides no showSlide
 		var iconGroup = document.createElement('span');
@@ -219,7 +220,7 @@ var ModuloClima = (function () {
 		var maxIco = root.querySelector('[data-clima-max-ico]');
 		if (maxEl) maxEl.textContent = (dados.tempMax !== '' ? dados.tempMax + '°' : '');
 		if (maxIco) {
-			carregarSvgInline(maxIco, 'img/clima/compass.svg');
+			svgXhrs.push(carregarSvgInline(maxIco, 'img/clima/compass.svg'));
 			// Polling para garantir que o SVG e path estejam presentes
 			(function tentaColorirMax(tries) {
 				if (tries > 20) return; // timeout de ~600ms
@@ -240,7 +241,7 @@ var ModuloClima = (function () {
 		var minIco = root.querySelector('[data-clima-min-ico]');
 		if (minEl) minEl.textContent = (dados.tempMin !== '' ? dados.tempMin + '°' : '');
 		if (minIco) {
-			carregarSvgInline(minIco, 'img/clima/compass.svg');
+			svgXhrs.push(carregarSvgInline(minIco, 'img/clima/compass.svg'));
 			(function tentaColorirMin(tries) {
 				if (tries > 20) return;
 				var svg = minIco.querySelector('svg');
@@ -275,7 +276,7 @@ var ModuloClima = (function () {
 					valorUmidade = String(dados.umidade).replace(/[^0-9]/g, '');
 				}
 				umidText.textContent = valorUmidade + '%';
-				carregarSvgInline(umidIco, 'img/clima/humidity.svg');
+				svgXhrs.push(carregarSvgInline(umidIco, 'img/clima/humidity.svg'));
 				umidIco.style.display = '';
 			} else {
 				umidText.textContent = '';
@@ -292,11 +293,11 @@ var ModuloClima = (function () {
 		if (ventoEl && ventoText && ventoIco && ventoCompass) {
 			if (dados.vento) {
 				ventoText.textContent = dados.vento + 'km/h';
-				carregarSvgInline(ventoIco, 'img/clima/wind.svg');
+				svgXhrs.push(carregarSvgInline(ventoIco, 'img/clima/wind.svg'));
 				ventoIco.style.display = '';
 				// Compass: direção do vento
 				if (typeof dados.direcaoVento === 'string' && dados.direcaoVento.length > 0) {
-					carregarSvgInline(ventoCompass, 'img/clima/compass.svg');
+					svgXhrs.push(carregarSvgInline(ventoCompass, 'img/clima/compass.svg'));
 					ventoCompass.style.display = '';
 					setTimeout(function() {
 						var dir = dados.direcaoVento;
@@ -357,7 +358,7 @@ var ModuloClima = (function () {
 			if (dados.uv) {
 				var uvNum = parseInt(dados.uv, 10);
 				if (!isNaN(uvNum) && uvNum >= 1 && uvNum <= 11) {
-					carregarSvgInline(uvIco, 'img/clima/meteocons--uv-index-' + uvNum + '-fill.svg');
+					svgXhrs.push(carregarSvgInline(uvIco, 'img/clima/meteocons--uv-index-' + uvNum + '-fill.svg'));
 					uvIco.style.display = '';
 				} else {
 					uvIco.innerHTML = '';
@@ -393,7 +394,7 @@ var ModuloClima = (function () {
 		];
 		var current = 0;
 		var slideTimeout = null;
-		var slideDuration = Math.floor(((config && config.itemDuracao) || 6000) /2);
+		var slideDuration = Math.floor(((config && config.itemDuracao) || 6000) / 2);
 
 		function showSlide(idx) {
 			// Move o iconGroup para o placeholder do slide ativo
@@ -404,7 +405,7 @@ var ModuloClima = (function () {
 				if (!slides[i]) continue;
 				if (i === idx) {
 					// Unhide com opacity-0 ainda ativo, força reflow, depois fade in
-					slides[i].classList.remove('hidden');
+					slides[i].style.display = '';
 					var _rf = slides[i].offsetHeight;
 					slides[i].classList.remove('opacity-0');
 					slides[i].classList.add('opacity-100');
@@ -417,7 +418,7 @@ var ModuloClima = (function () {
 					slides[i].classList.remove('translate-y-0');
 					slides[i].classList.add('translate-y-8');
 					setTimeout((function(slide){
-						return function(){ slide.classList.add('hidden'); };
+						return function(){ slide.style.display = 'none'; };
 					})(slides[i]), 500);
 				}
 			}
@@ -448,6 +449,10 @@ var ModuloClima = (function () {
 			if (slideTimeout) { clearTimeout(slideTimeout); slideTimeout = null; }
 			if (timer) { clearTimeout(timer); timer = null; }
 			if (xhr)   { xhr.abort();           xhr = null;   }
+			for (var _i = 0; _i < svgXhrs.length; _i++) {
+				if (svgXhrs[_i]) svgXhrs[_i].abort();
+			}
+			svgXhrs = [];
 			if (oldCancel) oldCancel();
 		};
 
