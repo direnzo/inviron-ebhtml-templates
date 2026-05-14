@@ -349,7 +349,7 @@ window.onload = function () {
 		var colContent = document.getElementById('col-content');
 		if (colContent) {
 			colContent.classList.remove('opacity-0');
-			colContent.classList.remove('hidden');
+			colContent.style.display = '';
 		}
 
 		var canaisAtivos = [];

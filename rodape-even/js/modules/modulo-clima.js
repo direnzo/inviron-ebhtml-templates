@@ -394,7 +394,7 @@ var ModuloClima = (function () {
 		];
 		var current = 0;
 		var slideTimeout = null;
-		var slideDuration = Math.floor(((config && config.itemDuracao) || 6000) / 3);
+		var slideDuration = Math.floor(((config && config.itemDuracao) || 6000) / 2);
 
 		function showSlide(idx) {
 			// Move o iconGroup para o placeholder do slide ativo
@@ -405,7 +405,7 @@ var ModuloClima = (function () {
 				if (!slides[i]) continue;
 				if (i === idx) {
 					// Unhide com opacity-0 ainda ativo, força reflow, depois fade in
-					slides[i].classList.remove('hidden');
+					slides[i].style.display = '';
 					var _rf = slides[i].offsetHeight;
 					slides[i].classList.remove('opacity-0');
 					slides[i].classList.add('opacity-100');
@@ -418,7 +418,7 @@ var ModuloClima = (function () {
 					slides[i].classList.remove('translate-y-0');
 					slides[i].classList.add('translate-y-8');
 					setTimeout((function(slide){
-						return function(){ slide.classList.add('hidden'); };
+						return function(){ slide.style.display = 'none'; };
 					})(slides[i]), 500);
 				}
 			}

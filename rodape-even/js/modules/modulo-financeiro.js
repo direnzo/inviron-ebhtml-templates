@@ -331,7 +331,7 @@ var ModuloFinanceiro = (function () {
 			slides[j].classList.remove('translate-y-0');
 			slides[j].classList.remove('translate-y-8');
 			if (slidesAtivos.indexOf(slides[j]) === 0) {
-				slides[j].classList.remove('hidden');
+				slides[j].style.display = '';
 				var _rf = slides[j].offsetHeight; // força reflow para transition funcionar
 				slides[j].classList.remove('opacity-0');
 				slides[j].classList.add('opacity-100');
@@ -342,7 +342,7 @@ var ModuloFinanceiro = (function () {
 				slides[j].classList.add('opacity-0');
 				slides[j].classList.remove('translate-y-0');
 				slides[j].classList.add('translate-y-8');
-				slides[j].classList.add('hidden');
+				slides[j].style.display = 'none';
 			}
 		}
 
@@ -378,7 +378,7 @@ var ModuloFinanceiro = (function () {
 				if (!slidesAtivos[i]) continue;
 				if (i === idx) {
 					// Unhide com opacity-0 ainda ativo, força reflow, depois fade in
-					slidesAtivos[i].classList.remove('hidden');
+					slidesAtivos[i].style.display = '';
 					var _rf = slidesAtivos[i].offsetHeight;
 					slidesAtivos[i].classList.remove('opacity-0');
 					slidesAtivos[i].classList.add('opacity-100');
@@ -392,7 +392,7 @@ var ModuloFinanceiro = (function () {
 					slidesAtivos[i].classList.remove('translate-y-0');
 					slidesAtivos[i].classList.add('translate-y-8');
 					(function(slide){
-						setTimeout(function(){ slide.classList.add('hidden'); }, 500);
+					setTimeout(function(){ slide.style.display = 'none'; }, 500);
 					})(slidesAtivos[i]);
 				}
 			}
