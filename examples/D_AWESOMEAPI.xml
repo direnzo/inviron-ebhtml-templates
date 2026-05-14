@@ -7,19 +7,19 @@
 <![CDATA[ ]]>
 </DT_BEGIN>
 <DT_CREATE>
-<![CDATA[ 2026-04-14 10:29:29 ]]>
+<![CDATA[ 2026-05-14 11:27:58 ]]>
 </DT_CREATE>
 <DT_END>
 <![CDATA[ ]]>
 </DT_END>
 <DT_UPDATE>
-<![CDATA[ 2026-04-14 10:29:29 ]]>
+<![CDATA[ 2026-05-14 11:27:58 ]]>
 </DT_UPDATE>
 <ID>
 <![CDATA[ 150 ]]>
 </ID>
 <M1_ATUALIZA>
-<![CDATA[ 2026-04-14 10:25:03 ]]>
+<![CDATA[ 2026-05-14 11:15:02 ]]>
 </M1_ATUALIZA>
 <M1_NOME>
 <![CDATA[ Dólar Comercial ]]>
@@ -28,16 +28,16 @@
 <![CDATA[ currency:br:dolar-comercial ]]>
 </M1_QUOTE>
 <M1_VALOR>
-<![CDATA[ 4.9822 ]]>
+<![CDATA[ 4.9995 ]]>
 </M1_VALOR>
 <M1_VALOR_COMPRA>
-<![CDATA[ 4.9792 ]]>
+<![CDATA[ 4.9965 ]]>
 </M1_VALOR_COMPRA>
 <M1_VAR>
-<![CDATA[ -0.015 ]]>
+<![CDATA[ -0.009 ]]>
 </M1_VAR>
 <M2_ATUALIZA>
-<![CDATA[ 2026-04-14 10:25:03 ]]>
+<![CDATA[ 2026-05-14 11:15:02 ]]>
 </M2_ATUALIZA>
 <M2_NOME>
 <![CDATA[ Dólar Turismo ]]>
@@ -46,16 +46,16 @@
 <![CDATA[ currency:br:dolar-turismo ]]>
 </M2_QUOTE>
 <M2_VALOR>
-<![CDATA[ 5.1702 ]]>
+<![CDATA[ 5.1881 ]]>
 </M2_VALOR>
 <M2_VALOR_COMPRA>
-<![CDATA[ 5.0148 ]]>
+<![CDATA[ 5.0323 ]]>
 </M2_VALOR_COMPRA>
 <M2_VAR>
-<![CDATA[ -0.015 ]]>
+<![CDATA[ -0.009 ]]>
 </M2_VAR>
 <M3_ATUALIZA>
-<![CDATA[ 2026-04-14 10:25:03 ]]>
+<![CDATA[ 2026-05-14 11:15:02 ]]>
 </M3_ATUALIZA>
 <M3_NOME>
 <![CDATA[ Euro ]]>
@@ -64,16 +64,16 @@
 <![CDATA[ currency:br:euro ]]>
 </M3_QUOTE>
 <M3_VALOR>
-<![CDATA[ 5.8858 ]]>
+<![CDATA[ 5.8548 ]]>
 </M3_VALOR>
 <M3_VALOR_COMPRA>
-<![CDATA[ 5.872 ]]>
+<![CDATA[ 5.8411 ]]>
 </M3_VALOR_COMPRA>
 <M3_VAR>
-<![CDATA[ 0.003 ]]>
+<![CDATA[ -0.038 ]]>
 </M3_VAR>
 <M4_ATUALIZA>
-<![CDATA[ 2026-04-14 10:25:03 ]]>
+<![CDATA[ 2026-05-14 11:15:02 ]]>
 </M4_ATUALIZA>
 <M4_NOME>
 <![CDATA[ Yen ]]>
@@ -82,16 +82,16 @@
 <![CDATA[ currency:br:yen ]]>
 </M4_QUOTE>
 <M4_VALOR>
-<![CDATA[ 0.0314 ]]>
+<![CDATA[ 0.0317 ]]>
 </M4_VALOR>
 <M4_VALOR_COMPRA>
-<![CDATA[ 0.0314 ]]>
+<![CDATA[ 0.0317 ]]>
 </M4_VALOR_COMPRA>
 <M4_VAR>
 <![CDATA[ 0 ]]>
 </M4_VAR>
 <M5_ATUALIZA>
-<![CDATA[ 2026-04-14 10:25:03 ]]>
+<![CDATA[ 2026-05-14 11:15:02 ]]>
 </M5_ATUALIZA>
 <M5_NOME>
 <![CDATA[ Peso ]]>
@@ -100,16 +100,16 @@
 <![CDATA[ currency:br:peso ]]>
 </M5_QUOTE>
 <M5_VALOR>
-<![CDATA[ 0.0037 ]]>
+<![CDATA[ 0.0036 ]]>
 </M5_VALOR>
 <M5_VALOR_COMPRA>
-<![CDATA[ 0.0037 ]]>
+<![CDATA[ 0.0036 ]]>
 </M5_VALOR_COMPRA>
 <M5_VAR>
 <![CDATA[ 0 ]]>
 </M5_VAR>
 <M6_ATUALIZA>
-<![CDATA[ 2026-04-14 10:25:03 ]]>
+<![CDATA[ 2026-05-14 11:15:02 ]]>
 </M6_ATUALIZA>
 <M6_NOME>
 <![CDATA[ Libra ]]>
@@ -118,13 +118,13 @@
 <![CDATA[ currency:br:libra ]]>
 </M6_QUOTE>
 <M6_VALOR>
-<![CDATA[ 6.7651 ]]>
+<![CDATA[ 6.7659 ]]>
 </M6_VALOR>
 <M6_VALOR_COMPRA>
-<![CDATA[ 6.761 ]]>
+<![CDATA[ 6.7476 ]]>
 </M6_VALOR_COMPRA>
 <M6_VAR>
-<![CDATA[ 0.01 ]]>
+<![CDATA[ -0.046 ]]>
 </M6_VAR>
 </ITEM>
 </EBDATA>
