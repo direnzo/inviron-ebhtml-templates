@@ -7,7 +7,7 @@
     <title>Americanas - Consulta de Preços</title>
     <link rel="stylesheet" href="css/master.css">
     <!-- Mock: descomente para desenvolvimento local -->
-    <script src="js/mock-data.js"></script>
+    <!-- <script src="js/mock-data.js"></script> -->
     <script src="js/ebhtml.js"></script>
     <script src="js/master.js"></script>
 </head>
@@ -45,8 +45,29 @@
 
             <!-- TakeWin (leve X por Y) -->
             <div id="takewin" style="display:none" class="w-full flex flex-col items-center justify-center mt-2 border-2 border-[#ed0030] rounded-lg px-4 pt-3 animate-pulseScaleWithDelay">
-                <span class="inline-block bg-[#ed0030] text-white  font-[900] rounded-full px-6 py-2 mr-4 text-[2.5vw] shadow-lg" id="takewin-badge" style="display:none">OFERTA ESPECIAL</span>
-                <span class=" font-[800] text-black leading-tight text-[4vw] mt-2" id="takewin-text"></span>
+                <!-- <span class="inline-block bg-[#ed0030] text-white  font-[900] rounded-full px-6 py-2 mr-4 text-[2.5vw] shadow-lg" id="takewin-badge" style="display:none">OFERTA ESPECIAL</span> -->
+                <!-- <span class=" font-[800] text-black leading-tight text-[4vw] mt-2" id="takewin-text"></span> -->
+                <!-- Badge -->
+                <div class="flex items-center justify-center w-full pt-4 pb-2">
+                   <img src="img/fidelidade.png" class="w-[60vw] object-contain" />
+                </div>
+                <!-- Leve N -->
+                <div class="flex items-center justify-center w-full py-1 h-[18vh]">
+                    <span id="takewin-leve" class="font-[600] text-[19vw] text-black leading-none">leve 3</span>
+                </div>
+                <!-- Bloco amarelo: por R$ + total -->
+                <div class="w-full flex items-center justify-center gap-[2vw] py-8">
+                    <div class="flex flex-col items-end">
+                        <span class="font-[600] text-[5.5vw] text-black leading-tight">por</span>
+                        <span class="font-[600] text-[6vw] text-black leading-tight">R$</span>
+                    </div>
+                    <span id="takewin-total" class="font-[600] text-[17vw] text-black leading-none">119,99</span>
+                </div>
+                <!-- Preços unitários (fundo amarelo) -->
+                <div class="w-full  flex flex-col items-center pb-3 pt-1">
+                    <span id="takewin-unitario-promo" class="font-[700] text-center text-[3.5vw] text-black"></span>
+                    <span id="takewin-unitario-regular" class="font-[400] text-center text-[3vw] text-black"></span>
+                </div>
             </div>
 
             <!-- Fidelidade (preço fidelidade cliente·ã) -->

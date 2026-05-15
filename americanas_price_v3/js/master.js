@@ -145,20 +145,17 @@ function renderizar(produto, loader) {
         precoFormatado = formatarPreco(fid.totalPrice);
         console.log('[AMERICANAS2] Exibindo preço: FIDELIDADE');
     } else if (hasTakeWin && produto.takeWin.quantity && produto.takeWin.totalPriceWithDiscount) {
-        // Exibe preço regular como principal
-        precoFinal = produto.regularPrice;
-        precoFormatado = formatarPreco(precoFinal);
-        document.getElementById('preco').innerText = precoFormatado;
-        precoDeBloco.style.display = 'none';
-        // porLabel.style.display = 'none';
-        // Remove animação do preço
-        var precoBloco = document.getElementById('preco-bloco');
-        if (precoBloco) precoBloco.classList.remove('animate-pulseScaleWithDelay');
-        // Badge e texto
-        takewinText.innerHTML = 'Leve <span style="font-weight:900; font-size:7vw; color:#ed0030">' + produto.takeWin.quantity + ' </span> por <span style="font-weight:900; font-size:7vw; color:#ed0030">R$ ' + formatarPreco(produto.takeWin.totalPriceWithDiscount) + '</span>';
-        if (takewinBadge) takewinBadge.style.display = 'inline-block';
+        var tw = produto.takeWin;
+        document.body.style.backgroundImage = "url('img/bg_oferta.jpeg')";
+        document.getElementById('takewin-leve').innerText = 'leve ' + tw.quantity;
+        document.getElementById('takewin-total').innerText = formatarPreco(tw.totalPriceWithDiscount);
+        document.getElementById('takewin-unitario-promo').innerText = 'preço unitário na promoção R$ ' + formatarPreco(tw.unitPriceWithDiscount);
+        document.getElementById('takewin-unitario-regular').innerText = 'preço unitário sem promoção R$ ' + formatarPreco(produto.regularPrice);
         takewinBloco.style.display = 'flex';
-        console.log('[AMERICANAS2] Exibindo preço: TAKEWIN (regularPrice principal, destaque total)');
+        precoDeBloco.style.display = 'none';
+        document.getElementById('preco-bloco').style.display = 'none';
+        precoFormatado = formatarPreco(tw.totalPriceWithDiscount);
+        console.log('[AMERICANAS2] Exibindo preço: TAKEWIN');
     } else if (hasPromotional) {
         // Promoção comum
         precoFinal = produto.promotional.price;
@@ -184,7 +181,7 @@ function renderizar(produto, loader) {
         mostrarErro();
     }
 
-    if (!hasFidelidade) {
+    if (!hasFidelidade && !(hasTakeWin && produto.takeWin.quantity && produto.takeWin.totalPriceWithDiscount)) {
         ajustarFontePreco(precoFormatado);
     }
 
