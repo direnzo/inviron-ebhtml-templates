@@ -394,7 +394,8 @@ var ModuloClima = (function () {
 		];
 		var current = 0;
 		var slideTimeout = null;
-		var slideDuration = Math.floor(((config && config.itemDuracao) || 6000) / 2);
+		var slideDuration = Math.floor(((config && config.itemDuracao) || 7000));
+		// console.log('[DEBUG][CLIMA] Config itemDuracao:', config && config.itemDuracao, 'ms, slideDuration:', slideDuration, 'ms');
 
 		function showSlide(idx) {
 			// Move o iconGroup para o placeholder do slide ativo

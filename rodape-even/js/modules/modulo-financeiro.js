@@ -208,11 +208,13 @@ var ModuloFinanceiro = (function () {
 			inner.classList.add('opacity-100');
 		}, 20);
 
-		var duracao = (config && config.itemDuracao) || 6000;
+		var duracao = Math.floor(((config && config.itemDuracao) || 7000) * 1.43); // considera que cada item tem 7 slides (3 moedas + 3 bolsas + 1 geral) 
 		timer = setTimeout(function () {
 			timer = null;
 			if (onDone) onDone();
 		}, duracao + fadeDuracao);
+
+		// console.log('[DEBUG][FINANCEIRO] Renderizando item:', item, 'duração:', duracao, 'ms');
 
 		return function cancel() {
 			if (timer) { clearTimeout(timer); timer = null; }
@@ -353,7 +355,8 @@ var ModuloFinanceiro = (function () {
 
 		var current = 0;
 		var slideTimeout = null;
-		var slideDuration = Math.floor(((config && config.itemDuracao) || 6000) / slidesAtivos.length);
+		var slideDuration = Math.floor(((config && config.itemDuracao) || 7000) * 1.43); // considera que cada item tem 7 slides (3 moedas + 3 bolsas + 1 geral)
+		console.log('[DEBUG][FINANCEIRO] Config itemDuracao:', config && config.itemDuracao, 'ms, slideDuration:', slideDuration, 'ms');
 
 		/* Anima cada item do slide subindo de baixo com stagger */
 		function animarItensSlide(slideEl) {
