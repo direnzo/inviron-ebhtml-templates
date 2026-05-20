@@ -28,7 +28,8 @@ function carregarSvgInline(containerEl, src) {
 var LS_KEY_GRUPO = 'tabela_futebol_grupo_idx';
 var DURACAO = 12000;
 
-window.onload = function() {
+/* --- Modo player (producao / mock local) --- */
+function playerView() {
     if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
         var mockLoader = {
             loaded: function() { console.log('[Mock] loaded'); },
@@ -61,7 +62,7 @@ window.onload = function() {
             });
         });
     }
-};
+}
 
 function extrairGrupo(loader) {
     var item = loader.data('D_STANDINGS');

@@ -9,13 +9,14 @@
     <script src="js/mock-data.js"></script>
     <script src="js/ebhtml.js"></script>
     <script src="js/master.js"></script>
+    <script src="js/preview.js"></script>
 </head>
 
-<body class="relative w-full h-screen overflow-hidden bg-[#0a0a1a] text-[4vmin] portrait:text-[3vmin] text-white font-roboto-regular">
+<body class="relative w-full h-screen overflow-hidden bg-[#0a0a1a] text-[4vmin] superbanner:text-[5.5vmin] empena:text-[11vmin] text-white font-roboto-regular">
 
     <!-- Video de fundo em loop -->
     <video id="bgVideo" autoplay loop muted playsinline
-           src="img/soccer-background-loop-6-2026-01-28-03-43-08-utc.mp4"
+           src="img/bg.mp4"
            class="absolute inset-0 z-0 w-full h-full object-cover">
     </video>
 
@@ -35,7 +36,7 @@
                      class="h-[8vmin] w-auto hidden"
                      onerror="this.classList.add('opacity-0')">
                 <div>
-                    <div class="text-white font-bold uppercase tracking-[0.08em] portrait:text-[60%]">
+                    <div class="text-white font-bold uppercase tracking-[0.08em]">
                         O MUNDO EM CAMPO 2026
                     </div>
                     <div class="text-[40%] text-white/50 tracking-[0.2em] mt-[0.4vmin]">
@@ -45,7 +46,7 @@
             </div>
 
 
-            <div id="grupoNome" class="text-white font-bold uppercase text-center text-[85%] portrait:text-[60%] tracking-[0.2em] mb-[2vmin] [text-shadow:0_2px_16px_rgba(0,0,0,0.9)]">
+            <div id="grupoNome" class="text-white font-bold uppercase text-center text-[85%] tracking-[0.2em] mb-[2vmin] [text-shadow:0_2px_16px_rgba(0,0,0,0.9)]">
             </div>
 
             <!-- Lado direito: patrocinador -->
@@ -94,7 +95,7 @@
                 </div>
 
                 <!-- CARD 2: Jogos do grupo -->
-                <div id="jogosCard" class="w-[36vw] portrait:w-full flex flex-col overflow-hidden backdrop-blur-xl p-[3vmin] rounded-2xl bg-[#0a0a1a]/[0.72] border-[0.4vmin] border-blue-600 shrink-0">
+                <div id="jogosCard" class="flex-1 portrait:w-full flex flex-col overflow-hidden backdrop-blur-xl p-[3vmin] rounded-2xl bg-[#0a0a1a]/[0.72] border-[0.4vmin] border-blue-600 min-w-0">
 
                     <div class="text-[55%] text-center uppercase tracking-[0.15em] text-white/50 border-b border-white/20 pb-[0.5em] mb-[0.8em] shrink-0">
                         Jogos do Grupo
@@ -110,10 +111,10 @@
         </div>
 
         <!-- FOOTER: patrocinador -->
-        <div id="footerBar" class="flex items-center justify-between shrink-0 h-[10vmin] px-[3vmin] bg-black/[0.72] border-t-[0.4vmin] border-yellow-500">
+        <div id="footerBar" class="flex items-center justify-center shrink-0 h-[10vmin] px-[3vmin] bg-black/[0.72] border-t-[0.4vmin] border-yellow-500">
 
             <img id="footerLogo" src=""
-                 class="h-[6vmin] w-auto max-w-[20vmin] object-contain"
+                 class="h-[6vmin] w-auto max-w-[20vmin] object-contain hidden"
                  onerror="this.classList.add('opacity-0')">
 
             <div id="footerFrase" class="text-white font-bold uppercase text-center text-[60%] tracking-[0.12em]"></div>
@@ -178,6 +179,17 @@
 
         </div>
     </template>
+
+    <script>
+        // Detecta se esta sendo exibido na extranet (preview) ou no player normal
+        var _tfCheckEl = null;
+        try {
+            if (window.parent && window.parent.document) {
+                _tfCheckEl = window.parent.document.getElementById('template_check');
+            }
+        } catch (e) { _tfCheckEl = null; }
+        if (_tfCheckEl !== null) { extranetView(); } else { playerView(); }
+    </script>
 
 </body>
 
