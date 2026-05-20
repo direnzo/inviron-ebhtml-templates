@@ -26,7 +26,7 @@ module.exports = {
     },
     screens: {
       'portrait':    { 'raw': '(max-aspect-ratio: 3/4)' },
-      'square':      { 'raw': '(aspect-ratio: 1/1)' },
+      'square':      { 'raw': '(max-aspect-ratio: 1/1)' },
       'landscape':   { 'raw': '(min-aspect-ratio: 4/3) and (max-aspect-ratio: 2/1)' },
       'ultrawide':   { 'raw': '(min-aspect-ratio: 3/1)' },
       'superbanner': { 'raw': '(min-aspect-ratio: 5/1) and (max-aspect-ratio: 15/1)' },

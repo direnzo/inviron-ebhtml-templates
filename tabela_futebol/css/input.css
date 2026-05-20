@@ -18,12 +18,31 @@
     src: url('fonts/Roboto-Bold.ttf');
 }
 
-/* Variaveis */
+/* Variaveis — sobrescritas por aplicarCores() em master.js */
 :root {
-    --cor-fundo: #0a0a1a;
-    --cor-texto: #ffffff;
-    --cor-classificado: #22c55e;
+    --cor-destaque:           #FBBF24;
+    --cor-destaque-glow:      rgba(251, 191, 36, 0.10);
+    --cor-fundo-painel:       rgba(0, 100, 0, 0.90);
+    --cor-fundo-area:         rgba(0, 100, 0, 0.40);
+    --cor-fundo-classificado: rgba(0, 100, 0, 0.55);
+    --cor-borda:              rgba(255, 255, 255, 0.10);
+    --cor-texto:              #FFFFFF;
+    --cor-texto-sec:          rgba(255, 255, 255, 0.50);
+    --cor-grad-from:          rgba(0, 100, 0, 0.90);
+    --cor-grad-mid:           rgba(0, 100, 0, 0.90);
+    --cor-grad-to:            rgba(0, 100, 0, 0.80);
 }
+
+/* Cores dinamicas via CSS vars — somente header e footer */
+#headerBar              { background-color: var(--cor-fundo-painel); border-bottom-color: var(--cor-destaque); }
+#sponsorFooter          { background-color: var(--cor-fundo-painel); border-top-color:    var(--cor-destaque); }
+
+/* Cor de texto (corClara): ID+* supera especificidade de .text-white (classe) */
+#headerBar *            { color: var(--cor-texto); }
+#sponsorFooter,
+#sponsorFooter *        { color: var(--cor-texto); }
+#tabelaClassificacao *  { color: var(--cor-texto); }
+#jogosCard *            { color: var(--cor-texto); }
 
 /* Fallbacks hex - Android 7 / Chrome < 65 (fora de @layer) */
 .text-white { color: #ffffff }
@@ -44,13 +63,13 @@
 /* Tabela de grupos */
 .tabela-grid {
     display: grid;
-    grid-template-columns: 4vmin 1fr repeat(8, 6.5vmin);
+    grid-template-columns: 1.2em 1fr repeat(8, 1.8em);
     align-items: center;
 }
 .tabela-linha { background-color: rgba(255,255,255,0.05); align-items: center; }
 .tabela-linha--classificado {
-    background-color: rgba(20,83,45,0.45);
-    border-left: 0.4vmin solid #4ade80;
+    background-color: var(--cor-destaque-glow);
+    border-left: 0.4vmin solid var(--cor-destaque);
 }
 
 @keyframes aoVivoFlash {
@@ -58,12 +77,12 @@
     50%       { opacity: 0.35; }
 }
 .jogo-linha--ao-vivo {
-    background-color: rgba(251,146,60,0.1);
-    border-left: 0.35vmin solid #f97316;
+    background-color: var(--cor-fundo-area);
+    border-left: 0.35vmin solid var(--cor-destaque);
     border-radius: 0 0.3vmin 0.3vmin 0;
 }
 .ao-vivo-badge {
-    color: #f97316;
+    color: var(--cor-destaque);
     font-weight: bold;
     font-size: 80%;
     letter-spacing: 0.05em;

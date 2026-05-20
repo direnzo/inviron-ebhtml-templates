@@ -198,16 +198,29 @@ function hexToRgba(hex, alpha) {
 function aplicarCores(cfg) {
     var s = document.documentElement.style;
     s.setProperty('--cor-destaque',      cfg.corDestaque);
-    s.setProperty('--cor-destaque-glow', hexToRgba(cfg.corDestaque, 0.70));
+    s.setProperty('--cor-destaque-glow', hexToRgba(cfg.corDestaque, 0.10));
     s.setProperty('--cor-fundo-painel',  hexToRgba(cfg.corEscura,   0.90));
     s.setProperty('--cor-fundo-area',    hexToRgba(cfg.corEscura,   0.40));
     s.setProperty('--cor-borda',         hexToRgba(cfg.corClara,    0.10));
     s.setProperty('--cor-texto',         cfg.corClara);
-    s.setProperty('--cor-texto-sec',     hexToRgba(cfg.corClara,    0.90));
+    s.setProperty('--cor-texto-sec',     hexToRgba(cfg.corClara,    0.50));
     s.setProperty('--cor-texto-ter',     hexToRgba(cfg.corClara,    0.98));
     s.setProperty('--cor-grad-from',     hexToRgba(cfg.corEscura,   0.90));
     s.setProperty('--cor-grad-mid',      hexToRgba(cfg.corEscura,   0.90));
     s.setProperty('--cor-grad-to',       hexToRgba(cfg.corEscura,   0.80));
+}
+
+/* --- Mescla cores do D_SPD (TEXTO7/TEXTO8/TEXTO9) com defaults do CONFIG --- */
+function mergeColorsFromSpd(defaults, spd) {
+    if (!spd) { return defaults; }
+    var destaque = obterValor(spd, 'TEXTO7') || '';
+    var escura   = obterValor(spd, 'TEXTO8') || '';
+    var clara    = obterValor(spd, 'TEXTO9') || '';
+    return {
+        corDestaque: destaque || defaults.corDestaque,
+        corEscura:   escura   || defaults.corEscura,
+        corClara:    clara    || defaults.corClara
+    };
 }
 
 
@@ -217,8 +230,6 @@ function aplicarCores(cfg) {
    NÃO está no modo preview da extranet.
    ==================================================== */
 function playerView() {
-    aplicarCores(CONFIG);
-
     if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
         // Loader mock
         var mockLoader = MOCK_DATA.getMockLoader();
@@ -258,6 +269,7 @@ function playerView() {
             mockLoader.finished();
             return;
         }
+        aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
         processarDados(spdData, spdSponsor, footballData, mockLoader);
         return;
     }
@@ -335,6 +347,7 @@ function playerView() {
 
                     console.log('[placar_futebol] D_FOOTBALL TEXTO:', obterValor(footballData, 'TEXTO'));
 
+                    aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
                     processarDados(spdData, spdSponsor, footballData, loader);
                 });
             });

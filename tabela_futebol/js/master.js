@@ -25,74 +25,128 @@ function carregarSvgInline(containerEl, src) {
     return xhr;
 }
 
-var LS_KEY_GRUPO = 'tabela_futebol_grupo_idx';
-var DURACAO = 12000;
+var LS_KEY_GRUPO   = 'tabela_futebol_grupo_idx';
+var DURACAO        = 10000;
+var INTRO_MAX_MS   = 5000;
+var CONTENT_FILES_HOST = window.location.protocol + '//127.0.0.1:13199';
+
+/* --- Configuracao de cores (sobrescreve CSS vars em :root) --- */
+var CONFIG = {
+    corDestaque: '#FBBF24',  // cor de destaque (hora, tempo, glow)
+    corEscura:   '#006400',  // cor de fundo (painéis, gradientes) verde bem escuro 
+    corClara:    '#FFFFFF'   // cor de texto e bordas
+};
+
+/* Converte HEX para rgba com opacidade */
+function hexToRgba(hex, alpha) {
+    var r = parseInt(hex.slice(1, 3), 16);
+    var g = parseInt(hex.slice(3, 5), 16);
+    var b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+}
+
+function aplicarCores(cfg) {
+    var s = document.documentElement.style;
+    s.setProperty('--cor-destaque',           cfg.corDestaque);
+    s.setProperty('--cor-destaque-glow',      hexToRgba(cfg.corDestaque, 0.10));
+    s.setProperty('--cor-fundo-painel',       hexToRgba(cfg.corEscura,   0.90));
+    s.setProperty('--cor-fundo-area',         hexToRgba(cfg.corDestaque, 0.15));
+    s.setProperty('--cor-fundo-classificado', hexToRgba(cfg.corEscura,   0.55));
+    s.setProperty('--cor-borda',              hexToRgba(cfg.corClara,    0.10));
+    s.setProperty('--cor-texto',              cfg.corClara);
+    s.setProperty('--cor-texto-sec',          hexToRgba(cfg.corClara,    0.50));
+    s.setProperty('--cor-grad-from',          hexToRgba(cfg.corEscura,   0.90));
+    s.setProperty('--cor-grad-mid',           hexToRgba(cfg.corEscura,   0.90));
+    s.setProperty('--cor-grad-to',            hexToRgba(cfg.corEscura,   0.80));
+}
+
+/* --- Mescla cores do D_SPD (TEXTO7/TEXTO8/TEXTO9) com defaults do CONFIG --- */
+function mergeColorsFromSpd(defaults, spd) {
+    if (!spd) { return defaults; }
+    var destaque = (spd.TEXTO7) || (spd.value && spd.value('TEXTO7') && spd.value('TEXTO7').value) || '';
+    var escura   = (spd.TEXTO8) || (spd.value && spd.value('TEXTO8') && spd.value('TEXTO8').value) || '';
+    var clara    = (spd.TEXTO9) || (spd.value && spd.value('TEXTO9') && spd.value('TEXTO9').value) || '';
+    return {
+        corDestaque: destaque || defaults.corDestaque,
+        corEscura:   escura   || defaults.corEscura,
+        corClara:    clara    || defaults.corClara
+    };
+}
 
 /* --- Modo player (producao / mock local) --- */
 function playerView() {
     if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
         var mockLoader = {
-            loaded: function() { console.log('[Mock] loaded'); },
+            loaded:   function() { console.log('[Mock] loaded'); },
             finished: function() { console.log('[Mock] finished'); }
         };
 
+        var todosGruposMock = MOCK_DATA.D_FOOTBALL.TEXTO2.grupos;
         var idx = parseInt(localStorage.getItem(LS_KEY_GRUPO), 10);
-        if (isNaN(idx) || idx >= MOCK_DATA.grupos.length) { idx = 0; }
+        if (isNaN(idx) || idx >= todosGruposMock.length) { idx = 0; }
 
-        var grupo = MOCK_DATA.grupos[idx];
+        var grupo = todosGruposMock[idx];
         localStorage.setItem(LS_KEY_GRUPO, idx + 1);
 
-        var duracao = (MOCK_DATA.config && MOCK_DATA.config.duration) || DURACAO;
-        renderizarGrupo(grupo, mockLoader, duracao, MOCK_DATA.config);
+        var duracao    = (MOCK_DATA.config && MOCK_DATA.config.duration) || DURACAO;
+        var spdSponsor = MOCK_DATA.D_SPD || null;
+
+        aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
+        renderizarGrupo(grupo, spdSponsor, mockLoader, duracao);
     } else {
         ebhtml.create2({}, function(loader) {
-            loader.addData('D_STANDINGS', false);
-            loader.autoloaded = false;
+            loader.addData('D_FOOTBALL', false);
+            loader.addData('D_SPD',      false);
+            loader.autoloaded    = false;
             loader.nodataiserror = false;
 
             loader.load(function() {
-                if (loader.data('D_STANDINGS') == undefined) {
-                    console.error('ERRO: Sem dados D_STANDINGS');
+                if (loader.data('D_FOOTBALL') == undefined) {
+                    console.error('ERRO: Sem dados D_FOOTBALL');
                     loader.finished();
                     return;
                 }
 
-                var grupo = extrairGrupo(loader);
-                renderizarGrupo(grupo, loader, DURACAO, null);
+                // Le todos os grupos do campo TEXTO2 (JSON string)
+                var texto2Str = loader.data('D_FOOTBALL').value('TEXTO2') ? loader.data('D_FOOTBALL').value('TEXTO2').value : '';
+                var todosGrupos = [];
+                try { todosGrupos = JSON.parse(texto2Str).grupos || []; } catch (e) { console.error('ERRO: JSON.parse TEXTO2', e); }
+
+                if (todosGrupos.length === 0) {
+                    console.error('ERRO: Nenhum grupo encontrado em TEXTO2');
+                    loader.finished();
+                    return;
+                }
+
+                var idx = parseInt(localStorage.getItem(LS_KEY_GRUPO), 10);
+                if (isNaN(idx) || idx >= todosGrupos.length) { idx = 0; }
+                var grupo = todosGrupos[idx];
+                localStorage.setItem(LS_KEY_GRUPO, idx + 1);
+
+                // Extrai patrocinador do D_SPD (CONFIG='1')
+                var spdSponsor = null;
+                var spdLista   = loader.datalist('D_SPD');
+                if (spdLista) {
+                    for (var i = 0; i < spdLista.count(); i++) {
+                        var item = spdLista.get(i);
+                        var cfgField = item.value && item.value('CONFIG');
+                        if (cfgField && cfgField.value === '1') {
+                            spdSponsor = item;
+                            break;
+                        }
+                    }
+                }
+
+                aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
+                renderizarGrupo(grupo, spdSponsor, loader, duracao);
             });
         });
     }
 }
 
-function extrairGrupo(loader) {
-    var item = loader.data('D_STANDINGS');
-    var grupo = {
-        nome: 'Grupo ' + (item.value('GRUPO') ? item.value('GRUPO').value : ''),
-        times: []
-    };
-
-    var lista = loader.datalist('D_STANDINGS');
-    for (var i = 0; i < lista.count(); i++) {
-        var reg = lista.get(i);
-        grupo.times.push({
-            posicao: i + 1,
-            nome: reg.value('TITULO') ? reg.value('TITULO').value : '',
-            bandeira: reg.value('FOTO') ? reg.value('FOTO').value : '',
-            pts: reg.value('PTS') ? reg.value('PTS').value : '0',
-            pj: reg.value('PJ') ? reg.value('PJ').value : '0',
-            vit: reg.value('VIT') ? reg.value('VIT').value : '0',
-            emp: reg.value('EMP') ? reg.value('EMP').value : '0',
-            der: reg.value('DER') ? reg.value('DER').value : '0',
-            gm: reg.value('GM') ? reg.value('GM').value : '0',
-            gc: reg.value('GC') ? reg.value('GC').value : '0',
-            sg: reg.value('SG') ? reg.value('SG').value : '0'
-        });
-    }
-    return grupo;
-}
-
-function renderizarGrupo(grupo, loader, duracao, config) {
-    aplicarSponsor(config);
+/* --- Renderiza grupo: tabela + jogos + sponsor + playlist --- */
+function renderizarGrupo(grupo, spdSponsor, loader, duracao) {
+    aplicarSponsor(spdSponsor);
 
     document.getElementById('grupoNome').innerHTML = grupo.nome;
 
@@ -129,11 +183,29 @@ function renderizarGrupo(grupo, loader, duracao, config) {
 
     document.getElementById('mainContent').style.opacity = '1';
     renderizarJogos(grupo.jogos || []);
-    loader.loaded();
 
-    setTimeout(function() {
-        loader.finished();
-    }, duracao);
+    var introMedia = spdSponsor
+        ? (spdSponsor.FILE_IMAGE1 || (spdSponsor.value && spdSponsor.value('FILE_IMAGE1') && spdSponsor.value('FILE_IMAGE1').value) || '')
+        : '';
+
+    if (introMedia) {
+        var introStartTime = Date.now();
+        mostrarIntro(introMedia, function() {
+            var introActualMs = Math.min(Date.now() - introStartTime, INTRO_MAX_MS);
+            esconderIntro(function() {
+                loader.loaded();
+                var tabelaMs = Math.max(duracao - introActualMs, 1000);
+                setTimeout(function() {
+                    loader.finished();
+                }, tabelaMs);
+            });
+        });
+    } else {
+        loader.loaded();
+        setTimeout(function() {
+            loader.finished();
+        }, duracao);
+    }
 }
 
 function renderizarJogos(jogos) {
@@ -199,16 +271,125 @@ function jogoEstaAoVivo(dataJogo, horaJogo) {
     return agora >= inicio && agora <= fimEstimado;
 }
 
-function aplicarSponsor(config) {    var sponsor = config && config.sponsor;
-    if (!sponsor) { return; }
+function aplicarSponsor(spdSponsor) {
+    var footerEl = document.getElementById('sponsorFooter');
+    if (!footerEl) { return; }
 
-    var headerFrase = document.getElementById('headerFrase');
-    var headerLogo  = document.getElementById('headerLogo');
-    var footerFrase = document.getElementById('footerFrase');
-    var footerLogo  = document.getElementById('footerLogo');
+    var frase = '';
+    var logo  = '';
+    if (spdSponsor) {
+        // Suporta objeto plano (mock) ou item EdgeContents (value())
+        frase = (spdSponsor.TEXT1)       || (spdSponsor.value && spdSponsor.value('TEXT1')       && spdSponsor.value('TEXT1').value)       || '';
+        logo  = (spdSponsor.IMAGE_LOGO)  || (spdSponsor.value && spdSponsor.value('IMAGE_LOGO')  && spdSponsor.value('IMAGE_LOGO').value)  || '';
+    }
 
-    if (headerFrase && sponsor.fraseHeader) { headerFrase.innerHTML = sponsor.fraseHeader; }
-    if (headerLogo  && sponsor.logoHeader)  { headerLogo.src = sponsor.logoHeader; headerLogo.classList.remove('opacity-0'); }
-    if (footerFrase && sponsor.fraseFooter) { footerFrase.innerHTML = sponsor.fraseFooter; }
-    if (footerLogo  && sponsor.logoFooter)  { footerLogo.src = sponsor.logoFooter; footerLogo.classList.remove('opacity-0'); }
+    if (frase || logo) {
+        footerEl.classList.remove('hidden');
+        var fraseEl = document.getElementById('sponsorFrase');
+        var logoEl  = document.getElementById('sponsorLogo');
+        if (fraseEl) { fraseEl.innerHTML = frase; }
+        if (logoEl && logo) {
+            logoEl.src = logo;
+            logoEl.classList.remove('hidden');
+        }
+    }
+}
+
+/* ====================================================
+   HELPERS DE INTRO / MEDIA
+   ==================================================== */
+
+function normalizarUrlMidia(url) {
+    if (!url) { return url; }
+    url = url.trim();
+    if (url.indexOf('file:///') === 0 || url.indexOf('file://') === 0) {
+        var partes     = url.replace(/\\/g, '/').split('/');
+        var nomeArquivo = partes[partes.length - 1];
+        var mId = nomeArquivo.match(/^f_(\d+)\./);
+        if (mId) { return CONTENT_FILES_HOST + '/FILES/' + mId[1]; }
+        return CONTENT_FILES_HOST + '/FILES/' + nomeArquivo;
+    }
+    return url;
+}
+
+function isUrlVideo(url) {
+    if (!url) { return false; }
+    return /\.(mp4|webm|mov|avi|ogv|ogg)(\?.*)?$/i.test(url.trim());
+}
+
+function mostrarIntro(url, onDone) {
+    var introEl = document.querySelector('#introScreen');
+    if (!introEl) { onDone(); return; }
+
+    var isVideo = isUrlVideo(url);
+    url = normalizarUrlMidia(url);
+    console.log('[tabela_futebol] intro (' + (isVideo ? 'video' : 'imagem') + '): ' + url);
+
+    introEl.innerHTML = '';
+    introEl.style.opacity = '1';
+    introEl.classList.remove('hidden');
+
+    if (isVideo) {
+        var vid = document.createElement('video');
+        vid.className = 'w-full h-full object-cover';
+        vid.setAttribute('playsinline', '');
+        vid.muted = true;
+        introEl.appendChild(vid);
+
+        var _introDone  = false;
+        var _introTimer = null;
+        function _onIntroDone() {
+            if (_introDone) { return; }
+            _introDone = true;
+            clearTimeout(_introTimer);
+            onDone();
+        }
+        _introTimer = setTimeout(function() {
+            console.log('[intro-video] timeout ' + INTRO_MAX_MS + 'ms — cortando');
+            vid.pause();
+            _onIntroDone();
+        }, INTRO_MAX_MS);
+
+        vid.addEventListener('ended', function() { console.log('[intro-video] ended'); _onIntroDone(); });
+        vid.addEventListener('error', function() {
+            var code = vid.error ? vid.error.code : '?';
+            console.error('[intro-video] error code=' + code);
+            _onIntroDone();
+        });
+
+        vid.addEventListener('canplay', function onFirstCanPlay() {
+            vid.removeEventListener('canplay', onFirstCanPlay);
+            var p = vid.play();
+            if (p && typeof p.then === 'function') {
+                p.then(null, function(err) {
+                    console.error('[intro-video] play() falhou:', err);
+                    _onIntroDone();
+                });
+            }
+        });
+
+        vid.src = url;
+        vid.load();
+    } else {
+        var img = document.createElement('img');
+        img.className = 'w-full h-full object-cover';
+        img.onload  = function() { setTimeout(onDone, INTRO_MAX_MS); };
+        img.onerror = onDone;
+        introEl.appendChild(img);
+        img.src = url;
+    }
+}
+
+function esconderIntro(onDone) {
+    var introEl = document.querySelector('#introScreen');
+    if (!introEl || introEl.classList.contains('hidden')) {
+        if (onDone) { onDone(); }
+        return;
+    }
+    introEl.style.opacity = '0';
+    setTimeout(function() {
+        introEl.classList.add('hidden');
+        introEl.innerHTML = '';
+        if (onDone) { onDone(); }
+    }, 700);
 }

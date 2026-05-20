@@ -1,15 +1,37 @@
+/**
+ * mock-data.js - Tabela Copa 2026
+ *
+ * Estrutura espelha os dados reais do EdgeContents:
+ *   D_SPD      → patrocinador (CONFIG='1')
+ *   D_FOOTBALL → campo TEXTO2 contém JSON com todos os grupos
+ *
+ * Para habilitar: descomente <script src="js/mock-data.js"> no HTML
+ * Para produção:  comente o <script> do mock-data no HTML
+ */
 var MOCK_DATA = {
     enabled: true,
     config: {
-        duration: 12000,
-        sponsor: {
-            fraseHeader: '',
-            logoHeader:  'img/logo_patrocinio_01.png',
-            fraseFooter: 'Fique ligado em todos os jogos',
-            logoFooter:  'img/logo_patrocinio_02.png'
-        }
+        duration: 10000
     },
-    grupos: [
+
+    /* --- Simula registro D_SPD (item com CONFIG='1') --- */
+    D_SPD: {
+        CONFIG:      '1',
+        TEXT1:       'Apoio:',
+        IMAGE_LOGO:  'img/logo_sponsor.png',
+        FILE_IMAGE1: 'img/sponsor.mp4',
+        TEXTO7:      '#FBBF24',   // corDestaque
+        TEXTO8:      '#006400',   // corEscura
+        TEXTO9:      '#FFFFFF'    // corClara
+    },
+
+    /* --- Simula registro D_FOOTBALL ---
+         TEXTO2: em produção chega como string JSON; aqui é objeto JS
+         master.js o usa diretamente (mock) ou via JSON.parse (produção)    --- */
+    D_FOOTBALL: {
+        TITULO: 'Copa do Mundo FIFA 2026',
+        TEXTO2: {
+            grupos: [
         {
             /* R1: México 2x1 Coreia do Sul | África do Sul 0x2 Tchéquia
                R2: México 1x1 África do Sul | Tchéquia 0x1 Coreia do Sul */
@@ -238,5 +260,7 @@ var MOCK_DATA = {
                 { rodada: 3, time1: 'Cro\u00e1cia', bandeira1: 'img/flags/hr.svg',    time2: 'Gana',        bandeira2: 'img/flags/gh.svg', gols1: null, gols2: null, data: '02/07', hora: '21:00', local: 'AT&T Stadium, Dallas' }
             ]
         }
-    ]
+            ]
+        }
+    }
 };

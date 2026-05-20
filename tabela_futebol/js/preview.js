@@ -4,6 +4,8 @@
  */
 
 function extranetView() {
+    aplicarCores(CONFIG);
+
     // No modo preview, exibe o primeiro grupo do mock (se disponivel)
     // ou tenta carregar D_STANDINGS via EBHTML
     if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled && MOCK_DATA.grupos && MOCK_DATA.grupos.length > 0) {

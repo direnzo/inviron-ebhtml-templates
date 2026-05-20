@@ -32,7 +32,7 @@
 
 :root {
     --cor-destaque:       #FBBF24;
-    --cor-destaque-glow:  rgba(251, 191, 36, 0.7);
+    --cor-destaque-glow:  rgba(251, 191, 36, 0.1);
     --cor-fundo-painel:   rgb(0, 40, 0);
     --cor-fundo-area:     rgba(7, 65, 192, 0.664);
     --cor-borda:          #FFFFFF;
