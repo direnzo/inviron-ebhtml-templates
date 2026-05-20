@@ -178,8 +178,10 @@ var CONFIG = {
     corEscura:   '#006400',  // cor de fundo (painéis, gradientes) verde bem escuro 
     corClara:    '#FFFFFF'   // cor de texto e bordas
 };
-/* segundos de exibição da imagem de abertura (vídeo usa duração natural do arquivo) */
-var INTRO_DURACAO_IMG = 5;
+/* Duração total do template em ms: intro + placar = sempre 10s */
+var DURACAO_TOTAL = 10000;
+/* Duração máxima da intro em ms — vídeo cortado se ultrapassar */
+var INTRO_MAX_MS  = 5000;
 
 /* chave localStorage para rotação de partidas (padrão master_2) */
 var LS_KEY_PARTIDA = 'placar_futebol_partida_idx';
@@ -210,9 +212,11 @@ function aplicarCores(cfg) {
 
 
 /* ====================================================
-   ENTRADA
+   ENTRADA — modo player (produção / mock local)
+   Chamada pelo inline script no final do body quando
+   NÃO está no modo preview da extranet.
    ==================================================== */
-window.onload = function() {
+function playerView() {
     aplicarCores(CONFIG);
 
     if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
@@ -267,8 +271,6 @@ window.onload = function() {
         loader.nodataiserror = false;
 
         loader.load(function() {
-
-            loader.loaded();
 
             var lista = loader.datalist('D_SPD');
             if (!lista || lista.count() === 0) {
@@ -338,7 +340,7 @@ window.onload = function() {
             });
         });
     });
-};
+}
 
 /* ====================================================
    PROCESSA OS DADOS E RENDERIZA
@@ -546,7 +548,7 @@ function renderizarTemplate(dados, loader) {
 
         document.querySelector('#placar').innerHTML =
             '<span id="gols1Placar">' + dados.gols1 + '</span>' +
-            '<span class="text-white/30 mx-[0.15em]"> x </span>' +
+            '<span class="text-white/30 mx-[0.15em] text-[50%]"> x </span>' +
             '<span id="gols2Placar">' + dados.gols2 + '</span>';
         document.querySelector('#horaSmall').innerHTML = dados.hora + ' · ' + dados.data;
 
@@ -588,15 +590,11 @@ function renderizarTemplate(dados, loader) {
     // --- Vídeo de fundo conforme estado ---
     var videoSrc;
     if (dados.estado === 'encerrado' || dados.estado === 'penalties') {
-        // videoSrc = 'img/soccer-background-loop-2026-01-28-04-07-44-utc.mp4';
-        videoSrc = 'img/soccer-background-loop-1-2026-01-28-03-22-41-utc.mp4';
-
+        videoSrc = 'img/pos.mp4';
     } else if (dados.estado === 'ao_vivo') {
-        videoSrc = 'img/soccer-background-loop-1-2026-01-28-03-22-41-utc.mp4';
+        videoSrc = 'img/live.mp4';
     } else {
-        // videoSrc = 'img/soccer-background-loop-6-2026-01-28-03-43-08-utc.mp4';
-        videoSrc = 'img/soccer-background-loop-1-2026-01-28-03-22-41-utc.mp4';
-
+        videoSrc = 'img/pre.mp4';
     }
     var bgVideo = document.querySelector('#bgVideo');
     if (bgVideo && bgVideo.src.indexOf(videoSrc) === -1) {
@@ -620,6 +618,8 @@ function renderizarTemplate(dados, loader) {
 
     var escudosProntos = false;
     var introFeita     = !dados.introMedia; // sem intro = já concluída
+    var introActualMs  = 0;   // tempo real da intro (medido em ms)
+    var introStartTime = 0;   // timestamp de início da intro
     var loadedCount    = 0;
 
     // Revela o placar após intro E escudos estarem prontos
@@ -660,9 +660,14 @@ function renderizarTemplate(dados, loader) {
             var gradEl = document.querySelector('#gradientOverlay');
             if (gradEl) { gradEl.classList.remove('opacity-0'); gradEl.classList.add('opacity-50'); }
 
+            loader.loaded();
+
+            // placar fica visível pelo tempo restante até completar DURACAO_TOTAL
+            var placarMs = Math.max(DURACAO_TOTAL - introActualMs, 1000);
+            console.log('[placar_futebol] intro=' + introActualMs + 'ms placar=' + placarMs + 'ms total=' + (introActualMs + placarMs) + 'ms');
             setTimeout(function() {
                 loader.finished();
-            }, 10000);
+            }, placarMs);
         });
     }
 
@@ -698,7 +703,9 @@ function renderizarTemplate(dados, loader) {
 
     // --- Intro / abertura (exibida antes do placar) ---
     if (dados.introMedia) {
+        introStartTime = Date.now();
         mostrarIntro(dados.introMedia, function() {
+            introActualMs = Math.min(Date.now() - introStartTime, INTRO_MAX_MS);
             introFeita = true;
             verificarPronto();
         });
@@ -789,15 +796,31 @@ function mostrarIntro(url, onDone) {
         vid.muted = true;
         introEl.appendChild(vid);
 
+        // Guard: onDone chamado no máximo uma vez (ended OU timeout)
+        var _introDone = false;
+        var _introTimer = null;
+        function _onIntroDone() {
+            if (_introDone) { return; }
+            _introDone = true;
+            clearTimeout(_introTimer);
+            onDone();
+        }
+        // Corta o vídeo após INTRO_MAX_MS mesmo que não tenha terminado
+        _introTimer = setTimeout(function() {
+            console.log('[intro-video] timeout ' + INTRO_MAX_MS + 'ms — cortando');
+            vid.pause();
+            _onIntroDone();
+        }, INTRO_MAX_MS);
+
         vid.addEventListener('loadstart',  function() { console.log('[intro-video] loadstart'); });
         vid.addEventListener('loadeddata', function() { console.log('[intro-video] loadeddata'); });
         vid.addEventListener('canplay',    function() { console.log('[intro-video] canplay'); });
         vid.addEventListener('playing',    function() { console.log('[intro-video] playing'); });
-        vid.addEventListener('ended',      function() { console.log('[intro-video] ended'); onDone(); });
+        vid.addEventListener('ended',      function() { console.log('[intro-video] ended'); _onIntroDone(); });
         vid.addEventListener('error',      function(e) {
             var code = vid.error ? vid.error.code : '?';
             console.error('[intro-video] error code=' + code + ' url=' + url);
-            onDone();
+            _onIntroDone();
         });
         vid.addEventListener('stalled',    function() { console.warn('[intro-video] stalled'); });
         vid.addEventListener('waiting',    function() { console.warn('[intro-video] waiting'); });
@@ -810,7 +833,7 @@ function mostrarIntro(url, onDone) {
                     console.log('[intro-video] play() ok');
                 }, function(err) {
                     console.error('[intro-video] play() falhou:', err);
-                    onDone();
+                    _onIntroDone();
                 });
             }
         });
@@ -821,7 +844,7 @@ function mostrarIntro(url, onDone) {
         var img = document.createElement('img');
         img.className = 'w-full h-full object-cover';
         img.onload = function() {
-            setTimeout(onDone, INTRO_DURACAO_IMG * 1000);
+            setTimeout(onDone, INTRO_MAX_MS);
         };
         img.onerror = onDone;
         introEl.appendChild(img);

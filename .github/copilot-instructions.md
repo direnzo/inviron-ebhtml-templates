@@ -407,9 +407,41 @@ screens: {
 
 **Uso no HTML:**
 ```html
-<body class="portrait:text-[3.8vh] landscape:text-[3vw] ultrawide:text-[10vh]">
+<!-- ✅ CORRETO: font-size base centralizado no body via vmin (ver regra abaixo) -->
+<body class="text-[3.2vmin] superbanner:text-[5vmin] empena:text-[11vmin]">
     <div class="ultrawide:w-2/3 portrait:h-2/3 empena:hidden">
 ```
+
+### ⚡ Sistema de Fontes Centralizado (vmin) — REGRA PRIMORDIAL
+
+`vmin` = `min(vw, vh)` → na prática: `vw` em portrait (largura é menor), `vh` em landscape (altura é menor).
+Isso significa que **um único valor vmin no body escala proporcionalmente em TODOS os formatos** sem breakpoints nos filhos.
+
+**Regra:**
+- `<body>`: define o tamanho base em `vmin`. Apenas formatos extremos (superbanner, empena) precisam de override.
+- **Filhos**: SOMENTE `em` ou `%`. Nunca `vw`, `vh`, `vmin` em elementos filhos.
+- **NUNCA** colocar `portrait:text-[Xem]`, `landscape:text-[Xem]` em elementos filhos — ajuste o body.
+
+```html
+<!-- ✅ CORRETO -->
+<body class="text-[3.2vmin] superbanner:text-[5vmin] empena:text-[11vmin]">
+  <span class="text-[1.3em]">Título</span>    <!-- não precisa portrait: override -->
+  <div  class="text-[5.2em]">20:00</div>      <!-- não precisa portrait: override -->
+
+<!-- ❌ ERRADO: spreads de vmin/vw/vh nos filhos -->
+<body class="portrait:text-[2.8vh] landscape:text-[1.8vw] ultrawide:text-[1.2vw]">
+  <span class="text-[1.3em] portrait:text-[1.1em]">...
+  <div  class="text-[5.2em] portrait:text-[3.5em]">...
+```
+
+**Referência de valores por breakpoint:**
+| Breakpoint | Resolução | vmin | Valor sugerido | px resultante |
+|---|---|---|---|---|
+| portrait + landscape + ultrawide | — | = altura ou largura menor | `3.2vmin` | escala natural |
+| superbanner (5:1–15:1) | ex. 3840×576 | 576 | `5vmin` | ≈ 28px |
+| empena (<1:3) | ex. 360×1920 | 360 | `11vmin` | ≈ 39px |
+
+---
 
 ### Detecção de Device (WebKit/Android)
 ```javascript
@@ -519,8 +551,10 @@ Padrão para melhorar legibilidade de texto sobre imagens:
 | Playlist trava | Faltou `loaded()`/`finished()` | Adicionar ambos |
 | `[ebloaded]` com erro | Chamou `loaded()` em erro | Remove `loaded()` |
 | CSS não carrega | TailwindCSS não compilou | `npm run dev` |
-| Arrow function error | ES6 em Android 7 | Use `function() {}` || `clamp()` não funciona | Requer Chrome 79+ | Use `vmin/vw/vh` simples |
+| Arrow function error | ES6 em Android 7 | Use `function() {}` |
+| `clamp()` não funciona | Requer Chrome 79+ | Use `vmin/vw/vh` simples |
 | Cores invisíveis | Tailwind gera `rgb(r g b / alpha)` (Chrome 65+) | Fallbacks hex em `input.css` |
+| Texto diferente em portrait/landscape | `portrait:text-[X]` espalhados nos filhos | `vmin` no body, `em` nos filhos |
 ---
 
 ## 📋 Checklist Código
@@ -533,6 +567,7 @@ Padrão para melhorar legibilidade de texto sobre imagens:
 - [ ] Classes Tailwind válidas
 - [ ] Sem `clamp()` em CSS (não suportado Chrome < 79)
 - [ ] Fallbacks hex em `input.css` para todas as cores usadas (`text-white`, `bg-black`, `text-[#hex]`, etc.)
+- [ ] `font-size` no body via `vmin` — filhos usam apenas `em` ou `%`, sem `portrait:text-[X]` nos filhos
 
 ---
 

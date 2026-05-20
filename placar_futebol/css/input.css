@@ -45,7 +45,7 @@
 }
 
 header                 { background-color: var(--cor-fundo-painel); border-bottom-color: var(--cor-borda); }
-footer                 { background-color: rgba(0, 51, 3, 0.8); border-top-color:    var(--cor-borda); }
+footer                 { background-color: var(--cor-fundo-painel); border-top-color:    var(--cor-borda); }
 #gameAreaInner         { background-color: var(--cor-fundo-area); }
 #gradientOverlay       { background: linear-gradient(to bottom, var(--cor-grad-from), var(--cor-grad-mid), var(--cor-grad-to)); }
 #torneio               { color: var(--cor-texto); }
@@ -65,3 +65,25 @@ footer                 { background-color: rgba(0, 51, 3, 0.8); border-top-color
     0%, 100% { transform: scale(1);    filter: brightness(1); }
     50%      { transform: scale(1.06); filter: brightness(1.4) drop-shadow(0 0 12px var(--cor-destaque-glow)); }
 }
+
+/* ========================================
+   FALLBACKS HEX — Android 7 / Chrome < 65
+   Tailwind v3 gera rgb(r g b / alpha) que Chrome < 65 não suporta.
+   Estas regras sobrescrevem com valores hex/rgba diretos.
+   Devem ficar APÓS @tailwind utilities e FORA de @layer.
+   ======================================== */
+
+/* Body background */
+body                    { background-color: #052e16 }    /* bg-green-950 */
+
+/* Bordas do header/footer */
+header                  { border-bottom-color: #eab308 } /* border-yellow-500 */
+footer                  { border-top-color:    #eab308 } /* border-yellow-500 */
+
+/* Texto branco e variantes */
+.text-white             { color: #ffffff }
+.text-white\/30         { color: rgba(255,255,255,0.30) }
+.text-white\/50         { color: rgba(255,255,255,0.50) }
+
+/* Gradiente e overlay de fundo */
+#gradientOverlay.opacity-50 { opacity: 0.50 }

@@ -1,383 +1,642 @@
-﻿/**
+/**
  * MOCK DATA - Placar Futebol
+ * O mundo em campo 2026
  *
  * Para usar: descomente <script src="js/mock-data.js"></script> no HTML
- * Para trocar cenário: altere a variável `cenario` abaixo
- * Para produção: comente o <script> do mock-data no HTML
+ * Para trocar cen�rio: altere a vari�vel `cenario` abaixo
+ * Para produ��o: comente o <script> do mock-data no HTML
  *
- * Cenários disponíveis:
- *   'pre_jogo'    - NS:   jogo ainda não começou
- *   'ao_vivo_1h'  - 1H:   1º tempo em andamento (67')
- *   'intervalo'   - HT:   intervalo
- *   'ao_vivo_2h'  - 2H:   2º tempo em andamento (78')
- *   'prorrogacao' - ET:   prorrogação em andamento
- *   'encerrado'   - FT:   encerrado no tempo normal
- *   'encerrado_p' - AET:  encerrado na prorrogação
- *   'penalties'   - PEN:  encerrado nos pênaltis
- *   'suspenso'    - SUSP: suspenso pelo árbitro
- *   'adiado'      - PST:  adiado
- *   'cancelado'   - CANC: cancelado
+ * -- FASE DE GRUPOS -----------------------------------------------
+ *   'copa2026_grupo_br_pre'      BRA x SRB | NS       | Grupo G Rodada 1
+ *   'copa2026_grupo_br_1h'       BRA x SRB | 1H  23' | 1-0
+ *   'copa2026_grupo_br_ht'       BRA x SRB | HT       | Intervalo 2-0
+ *   'copa2026_grupo_br_2h'       BRA x SRB | 2H  67' | 3-0
+ *   'copa2026_grupo_br_ft'       BRA x SRB | FT       | Encerrado 3-0
+ *   'copa2026_grupo_espfra_2h'   ESP x FRA | 2H  78' | 1-1 (empate tenso)
+ *   'copa2026_grupo_arur_ft'     ARG x URU | FT       | 2-0 (derby sul-americano)
+ *
+ * -- OITAVAS DE FINAL ---------------------------------------------
+ *   'copa2026_r16_pre'           BRA x MEX | NS       | Oitavas de Final
+ *   'copa2026_r16_2h'            BRA x MEX | 2H  72' | 1-0
+ *   'copa2026_r16_ft'            BRA x MEX | FT       | 2-1
+ *
+ * -- QUARTAS DE FINAL ---------------------------------------------
+ *   'copa2026_qf_pre'            BRA x ING | NS       | Quartas de Final
+ *   'copa2026_qf_et'             BRA x ING | ET 105'+3| 1-1 (prorroga��o)
+ *   'copa2026_qf_pen'            BRA x ING | PEN      | 1-1 (pen 5-4)
+ *
+ * -- SEMIFINAIS ---------------------------------------------------
+ *   'copa2026_semi_pre'          ARG x POR | NS       | Semifinal
+ *   'copa2026_semi_2h'           ARG x POR | 2H  82' | 2-1
+ *   'copa2026_semi_ft'           ARG x POR | FT       | 3-2
+ *
+ * -- GOLEADA 7x1 -------------------------------------------------
+ *   'copa2026_goleada_1h'        BRA x GER | 1H  43' | 4-0 (goleada em curso)
+ *   'copa2026_goleada_2h'        BRA x GER | 2H  90'+5| 7-1 (minutos finais)
+ *   'copa2026_goleada_ft'        BRA x GER | FT       | 7-1 (encerrado)
+ *
+ * -- FINAL --------------------------------------------------------
+ *   'copa2026_final_pre'         BRA x ARG | NS       | Final
+ *   'copa2026_final_1h'          BRA x ARG | 1H  38' | 1-0
+ *   'copa2026_final_2h'          BRA x ARG | 2H  82' | 2-1
+ *   'copa2026_final_et'          BRA x ARG | ET 109' | 2-2 (prorroga��o)
+ *   'copa2026_final_pen'         BRA x ARG | PEN      | 2-2 (pen 4-2)
+ *   'copa2026_final_ft'          BRA x ARG | FT       | 3-1
+ *
+ * -- DISPUTA DE 3� LUGAR ------------------------------------------
+ *   'copa2026_terceiro_pre'      FRA x MAR | NS       | Disputa de 3� Lugar
+ *   'copa2026_terceiro_ft'       FRA x MAR | FT       | 2-1
  */
 
+// Lista de cen�rios para rotação aleat�ria
+var CENARIOS_LISTA = [
+    'copa2026_grupo_br_pre',
+    'copa2026_grupo_br_1h',
+    'copa2026_grupo_br_ht',
+    'copa2026_grupo_br_2h',
+    'copa2026_grupo_br_ft',
+    'copa2026_grupo_espfra_2h',
+    'copa2026_grupo_arur_ft',
+    'copa2026_r16_pre',
+    'copa2026_r16_2h',
+    'copa2026_r16_ft',
+    'copa2026_qf_pre',
+    'copa2026_qf_et',
+    'copa2026_qf_pen',
+    'copa2026_semi_pre',
+    'copa2026_semi_2h',
+    'copa2026_semi_ft',
+    'copa2026_goleada_1h',
+    'copa2026_goleada_2h',
+    'copa2026_goleada_ft',
+    'copa2026_terceiro_pre',
+    'copa2026_terceiro_ft',
+    'copa2026_final_pre',
+    'copa2026_final_1h',
+    'copa2026_final_2h',
+    'copa2026_final_et',
+    'copa2026_final_pen',
+    'copa2026_final_ft'
+];
 
-// Troque aqui para testar cada fase do jogo Brasil x Argentina Copa 2026:
-// 'pre_jogo_copa2026', 'ao_vivo_copa2026', 'pos_jogo_copa2026'
-var cenario = 'pre_jogo_copa2026';
+// Para fixar um cen�rio espec�fico: substitua o valor abaixo pelo nome desejado
+// Para rotação aleat�ria: deixe como est�
+var cenario = CENARIOS_LISTA[Math.floor(Math.random() * CENARIOS_LISTA.length)];
 
 var CENARIOS = {
 
-    pre_jogo_copa2026: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Brasil',
-                TITULO2:    'Argentina',
-                SUBTITULO:  'MetLife Stadium',
-                SUBTITULO2: 'Final',
-                SUBTITULO3: 'NS',
-                CATEGORY:   'O Mundo em Campo 2026',
-                DATE:       '2026-07-19 18:00:00',
-                TEXTO:      'BRARG2026',
-                FOTO:       'https://flagcdn.com/256x192/br.png',
-                FOTO2:      'https://flagcdn.com/256x192/ar.png'
-            }
-        ],
+    /* ================================================================
+       FASE DE GRUPOS � BRA x SRB  (Grupo G � Rodada 1)
+       Estadio: AT&T Stadium, Arlington TX
+       ================================================================ */
+    copa2026_grupo_br_pre: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Sérvia',
+            SUBTITULO:  'AT&T Stadium',
+            SUBTITULO2: 'Matchday 1',
+            SUBTITULO3: 'NS',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-06-14 15:00:00',
+            TEXTO:      'WC26_BRRS_G',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/rs.png'
+        }],
         D_SPD: [
-            { CONFIG: '0',  TYPE: '10', TITLE: 'BRARG2026', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '1789802400', TEXT4: '', TEXT5: '', TEXT6: '', TEXT7: '', TEXT8: '', TEXT9: '', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png' }
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRRS_G', TEXT1: 'Brasil', TEXT2: 'Sérvia', TEXT3: '', TEXT4: '',    TEXT5: '',  TEXT6: '',  TEXT7: '', TEXT8: '', TEXT9: '',   TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
         ]
     },
 
-    ao_vivo_copa2026: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Brasil',
-                TITULO2:    'Argentina',
-                SUBTITULO:  'MetLife Stadium',
-                SUBTITULO2: 'Final',
-                SUBTITULO3: '2H',
-                CATEGORY:   'O Mundo em Campo 2026',
-                DATE:       '2026-07-19 18:00:00',
-                TEXTO:      'BRARG2026',
-                FOTO:       'https://flagcdn.com/256x192/br.png',
-                FOTO2:      'https://flagcdn.com/256x192/ar.png'
-            }
-        ],
+    copa2026_grupo_br_1h: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Sérvia',
+            SUBTITULO:  'AT&T Stadium',
+            SUBTITULO2: 'Matchday 1',
+            SUBTITULO3: '1H',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-06-14 15:00:00',
+            TEXTO:      'WC26_BRRS_G',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/rs.png'
+        }],
         D_SPD: [
-            { CONFIG: '0',  TYPE: '10', TITLE: 'BRARG2026', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '1789802400', TEXT4: '2H', TEXT5: '2', TEXT6: '1', TEXT7: '', TEXT8: '', TEXT9: '78', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png' }
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRRS_G', TEXT1: 'Brasil', TEXT2: 'Sérvia', TEXT3: '', TEXT4: '1H',  TEXT5: '1',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '23',  TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
         ]
     },
 
-    pos_jogo_copa2026: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Brasil',
-                TITULO2:    'Argentina',
-                SUBTITULO:  'MetLife Stadium',
-                SUBTITULO2: 'Final',
-                SUBTITULO3: 'FT',
-                CATEGORY:   'O Mundo em Campo 2026',
-                DATE:       '2026-07-19 18:00:00',
-                TEXTO:      'BRARG2026',
-                FOTO:       'https://flagcdn.com/256x192/br.png',
-                FOTO2:      'https://flagcdn.com/256x192/ar.png'
-            }
-        ],
+    copa2026_grupo_br_ht: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Sérvia',
+            SUBTITULO:  'AT&T Stadium',
+            SUBTITULO2: 'Matchday 1',
+            SUBTITULO3: 'HT',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-06-14 15:00:00',
+            TEXTO:      'WC26_BRRS_G',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/rs.png'
+        }],
         D_SPD: [
-            { CONFIG: '0',  TYPE: '10', TITLE: 'BRARG2026', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '1789802400', TEXT4: 'FT', TEXT5: '3', TEXT6: '1', TEXT7: '', TEXT8: '', TEXT9: '90', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png' }
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRRS_G', TEXT1: 'Brasil', TEXT2: 'Sérvia', TEXT3: '', TEXT4: 'HT',  TEXT5: '2',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '45',  TEXT10: '3' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
         ]
     },
 
-    pre_jogo_2: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Liverpool',
-                TITULO2:    'Palmeiras',
-                SUBTITULO:  'Anfield',
-                SUBTITULO2: 'Final',
-                SUBTITULO3: 'NS',
-                CATEGORY:   'UEFA Champions League',
-                DATE:       '2026-03-21 21:30:00',
-                TEXTO:      '9900010',
-                FOTO:       'https://upload.wikimedia.org/wikipedia/en/thumb/0/0c/Liverpool_FC.svg/200px-Liverpool_FC.svg.png',
-                FOTO2:      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Palmeiras_logo.svg/200px-Palmeiras_logo.svg.png'
-            }
-        ],
+    copa2026_grupo_br_2h: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Sérvia',
+            SUBTITULO:  'AT&T Stadium',
+            SUBTITULO2: 'Matchday 1',
+            SUBTITULO3: '2H',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-06-14 15:00:00',
+            TEXTO:      'WC26_BRRS_G',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/rs.png'
+        }],
         D_SPD: [
-            { CONFIG: '0',  TYPE: '10', TITLE: '9900010', TEXT1: 'Liverpool', TEXT2: 'Palmeiras', TEXT3: '1774800000', TEXT4: '', TEXT5: '', TEXT6: '', TEXT7: '', TEXT8: '', TEXT9: '', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'Esse conteúdo é oferecido por:', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/200px-Amazon_logo.svg.png' }
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRRS_G', TEXT1: 'Brasil', TEXT2: 'Sérvia', TEXT3: '', TEXT4: '2H',  TEXT5: '3',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '67',  TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
         ]
     },
 
-    pre_jogo_3: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Real Madrid',
-                TITULO2:    'Manchester City',
-                SUBTITULO:  'Santiago Bernabéu',
-                SUBTITULO2: 'Quarter-Finals',
-                SUBTITULO3: 'NS',
-                CATEGORY:   'UEFA Champions League',
-                DATE:       '2026-03-22 21:00:00',
-                TEXTO:      '9900011',
-                FOTO:       'https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/200px-Real_Madrid_CF.svg.png',
-                FOTO2:      'https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/200px-Manchester_City_FC_badge.svg.png'
-            }
-        ],
+    copa2026_grupo_br_ft: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Sérvia',
+            SUBTITULO:  'AT&T Stadium',
+            SUBTITULO2: 'Matchday 1',
+            SUBTITULO3: 'FT',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-06-14 15:00:00',
+            TEXTO:      'WC26_BRRS_G',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/rs.png'
+        }],
         D_SPD: [
-            { CONFIG: '0',  TYPE: '10', TITLE: '9900011', TEXT1: 'Real Madrid', TEXT2: 'Manchester City', TEXT3: '1774886400', TEXT4: '', TEXT5: '', TEXT6: '', TEXT7: '', TEXT8: '', TEXT9: '', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'Apoio:', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/200px-Google_2015_logo.svg.png' }
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRRS_G', TEXT1: 'Brasil', TEXT2: 'Sérvia', TEXT3: '', TEXT4: 'FT',  TEXT5: '3',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
         ]
     },
 
-    pre_jogo_4: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Brasil',
-                TITULO2:    'Argentina',
-                SUBTITULO:  'Arena Corinthians',
-                SUBTITULO2: 'League Stage - 5',
-                SUBTITULO3: 'TBD',
-                CATEGORY:   'Copa América',
-                DATE:       '2026-03-25 19:00:00',
-                TEXTO:      '9900012',
-                FOTO:       'https://flagcdn.com/256x192/br.png',
-                FOTO2:      'https://flagcdn.com/256x192/ar.png'
-            }
-        ],
+    /* ----------------------------------------------------------------
+       FASE DE GRUPOS � ESP x FRA  (Grupo D � Rodada 2)
+       Estadio: Rose Bowl, Pasadena CA
+       ---------------------------------------------------------------- */
+    copa2026_grupo_espfra_2h: {
+        D_FOOTBALL: [{
+            TITULO:     'Espanha',
+            TITULO2:    'Fran�a',
+            SUBTITULO:  'Rose Bowl',
+            SUBTITULO2: 'Matchday 2',
+            SUBTITULO3: '2H',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-06-21 18:00:00',
+            TEXTO:      'WC26_ESFR_G',
+            FOTO:       'https://flagcdn.com/256x192/es.png',
+            FOTO2:      'https://flagcdn.com/256x192/fr.png'
+        }],
         D_SPD: [
-            { CONFIG: '0',  TYPE: '10', TITLE: '9900012', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '1775145600', TEXT4: '', TEXT5: '', TEXT6: '', TEXT7: '', TEXT8: '', TEXT9: '', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'Esse conteúdo é oferecido por:', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/200px-Amazon_logo.svg.png' }
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_ESFR_G', TEXT1: 'Espanha', TEXT2: 'Fran�a', TEXT3: '', TEXT4: '2H',  TEXT5: '1',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '78',  TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
         ]
     },
 
-    pre_jogo_5: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Bayern Munich',
-                TITULO2:    'Borussia Dortmund',
-                SUBTITULO:  'Allianz Arena',
-                SUBTITULO2: 'Matchday 28',
-                SUBTITULO3: 'PST',
-                CATEGORY:   'Bundesliga',
-                DATE:       '2026-03-28 15:30:00',
-                TEXTO:      '9900013',
-                FOTO:       'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg/200px-FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg.png',
-                FOTO2:      'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Borussia_Dortmund_logo.svg/200px-Borussia_Dortmund_logo.svg.png'
-            }
-        ],
+    /* ----------------------------------------------------------------
+       FASE DE GRUPOS � ARG x URU  (Grupo F � Rodada 3)
+       Estadio: Estadio Azteca, Cidade do M�xico
+       ---------------------------------------------------------------- */
+    copa2026_grupo_arur_ft: {
+        D_FOOTBALL: [{
+            TITULO:     'Argentina',
+            TITULO2:    'Uruguai',
+            SUBTITULO:  'Estadio Azteca',
+            SUBTITULO2: 'Matchday 3',
+            SUBTITULO3: 'FT',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-06-26 20:00:00',
+            TEXTO:      'WC26_ARUY_G',
+            FOTO:       'https://flagcdn.com/256x192/ar.png',
+            FOTO2:      'https://flagcdn.com/256x192/uy.png'
+        }],
         D_SPD: [
-            { CONFIG: '0',  TYPE: '10', TITLE: '9900013', TEXT1: 'Bayern Munich', TEXT2: 'Borussia Dortmund', TEXT3: '1775404200', TEXT4: '', TEXT5: '', TEXT6: '', TEXT7: '', TEXT8: '', TEXT9: '', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'torcendo com você.', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/200px-Netflix_2015_logo.svg.png' }
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_ARUY_G', TEXT1: 'Argentina', TEXT2: 'Uruguai', TEXT3: '', TEXT4: 'FT',  TEXT5: '2',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
         ]
     },
 
-    ao_vivo_1h: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Arsenal',
-                TITULO2:    'Chelsea',
-                SUBTITULO:  'Emirates Stadium',
-                SUBTITULO2: '1st Qualifying Round',
-                SUBTITULO3: '1H',
-                CATEGORY:   'UEFA Champions League',
-                DATE:       '2026-03-20 20:00:00',
-                TEXTO:      '1383422',
-                FOTO:       'https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/200px-Arsenal_FC.svg.png',
-                FOTO2:      'https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/200px-Chelsea_FC.svg.png',
-            }
-        ],
+    /* ================================================================
+       OITAVAS DE FINAL � BRA x MEX
+       Estadio: Levi's Stadium, Santa Clara CA
+       ================================================================ */
+    copa2026_r16_pre: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'M�xico',
+            SUBTITULO:  "Levi's Stadium",
+            SUBTITULO2: 'Round of 16',
+            SUBTITULO3: 'NS',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-01 17:00:00',
+            TEXTO:      'WC26_BRMX_R16',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/mx.png'
+        }],
         D_SPD: [
-            { CONFIG: '0',  TYPE: '10', TITLE: '1383422', TEXT1: 'Arsenal', TEXT2: 'Chelsea', TEXT3: '1773769500', TEXT4: '1H',  TEXT5: '1', TEXT6: '0', TEXT7: '', TEXT8: '', TEXT9: '34', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'Esse conteúdo é trazido por:', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Microsoft_logo_%282012%29.svg/200px-Microsoft_logo_%282012%29.svg.png' }
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRMX_R16', TEXT1: 'Brasil', TEXT2: 'M�xico', TEXT3: '', TEXT4: '',    TEXT5: '',   TEXT6: '',   TEXT7: '', TEXT8: '', TEXT9: '',    TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
         ]
     },
 
-    intervalo: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Arsenal',
-                TITULO2:    'Chelsea',
-                SUBTITULO:  'Emirates Stadium',
-                SUBTITULO2: '1st Qualifying Round',
-                SUBTITULO3: 'HT',
-                CATEGORY:   'UEFA Champions League',
-                DATE:       '2026-03-20 20:00:00',
-                TEXTO:      '1383422',
-                FOTO:       'https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/200px-Arsenal_FC.svg.png',
-                FOTO2:      'https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/200px-Chelsea_FC.svg.png',
-            }
-        ],
+    copa2026_r16_2h: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'M�xico',
+            SUBTITULO:  "Levi's Stadium",
+            SUBTITULO2: 'Round of 16',
+            SUBTITULO3: '2H',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-01 17:00:00',
+            TEXTO:      'WC26_BRMX_R16',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/mx.png'
+        }],
         D_SPD: [
-            { CONFIG: '0',  TYPE: '10', TITLE: '1383422', TEXT1: 'Arsenal', TEXT2: 'Chelsea', TEXT3: '1773769500', TEXT4: 'HT',  TEXT5: '1', TEXT6: '0', TEXT7: '', TEXT8: '', TEXT9: '45', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'informa os resultados dos jogos.', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/200px-Amazon_logo.svg.png' }
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRMX_R16', TEXT1: 'Brasil', TEXT2: 'M�xico', TEXT3: '', TEXT4: '2H',  TEXT5: '1',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '72',  TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
         ]
     },
 
-    ao_vivo_2h: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Arsenal',
-                TITULO2:    'Chelsea',
-                SUBTITULO:  'Emirates Stadium',
-                SUBTITULO2: '1st Qualifying Round',
-                SUBTITULO3: '2H',
-                CATEGORY:   'UEFA Champions League',
-                DATE:       '2026-03-20 20:00:00',
-                TEXTO:      '1383422',
-                FOTO:       'https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/200px-Arsenal_FC.svg.png',
-                FOTO2:      'https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/200px-Chelsea_FC.svg.png',
-            }
-        ],
+    copa2026_r16_ft: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'M�xico',
+            SUBTITULO:  "Levi's Stadium",
+            SUBTITULO2: 'Round of 16',
+            SUBTITULO3: 'FT',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-01 17:00:00',
+            TEXTO:      'WC26_BRMX_R16',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/mx.png'
+        }],
         D_SPD: [
-            { CONFIG: '0',  TYPE: '10', TITLE: '1383422', TEXT1: 'Arsenal', TEXT2: 'Chelsea', TEXT3: '1773769500', TEXT4: '2H',  TEXT5: '2', TEXT6: '1', TEXT7: '', TEXT8: '', TEXT9: '78', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'torcendo com você.', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/200px-Google_2015_logo.svg.png' }
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRMX_R16', TEXT1: 'Brasil', TEXT2: 'M�xico', TEXT3: '', TEXT4: 'FT',  TEXT5: '2',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
         ]
     },
 
-    prorrogacao: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Arsenal',
-                TITULO2:    'Chelsea',
-                SUBTITULO:  'Emirates Stadium',
-                SUBTITULO2: '1st Qualifying Round',
-                SUBTITULO3: 'ET',
-                CATEGORY:   'UEFA Champions League',
-                DATE:       '2026-03-20 20:00:00',
-                TEXTO:      '1383422',
-                FOTO:       'https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/200px-Arsenal_FC.svg.png',
-                FOTO2:      'https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/200px-Chelsea_FC.svg.png',
-            }
-        ],
+    /* ================================================================
+       QUARTAS DE FINAL � BRA x ING
+       Estadio: MetLife Stadium, East Rutherford NJ
+       ================================================================ */
+    copa2026_qf_pre: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Inglaterra',
+            SUBTITULO:  'MetLife Stadium',
+            SUBTITULO2: 'Quarter-Finals',
+            SUBTITULO3: 'NS',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-08 19:00:00',
+            TEXTO:      'WC26_BRENG_QF',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/gb-eng.png'
+        }],
         D_SPD: [
-            { CONFIG: '0',  TYPE: '10', TITLE: '1383422', TEXT1: 'Arsenal', TEXT2: 'Chelsea', TEXT3: '1773769500', TEXT4: 'ET',  TEXT5: '2', TEXT6: '2', TEXT7: '', TEXT8: '', TEXT9: '100', TEXT10: '5' },
-            { CONFIG: '1',  TEXT1: 'Esse conteúdo é oferecido por:', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/200px-Apple_logo_black.svg.png' }
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRENG_QF', TEXT1: 'Brasil', TEXT2: 'Inglaterra', TEXT3: '', TEXT4: '',    TEXT5: '',   TEXT6: '',   TEXT7: '', TEXT8: '', TEXT9: '',    TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
         ]
     },
 
-    encerrado: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Arsenal',
-                TITULO2:    'Chelsea',
-                SUBTITULO:  'Emirates Stadium',
-                SUBTITULO2: '1st Qualifying Round',
-                SUBTITULO3: 'FT',
-                CATEGORY:   'UEFA Champions League',
-                DATE:       '2026-03-13 17:00:00',
-                TEXTO:      '1383422',
-                FOTO:       'https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/200px-Arsenal_FC.svg.png',
-                FOTO2:      'https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/200px-Chelsea_FC.svg.png',
-            }
-        ],
+    copa2026_qf_et: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Inglaterra',
+            SUBTITULO:  'MetLife Stadium',
+            SUBTITULO2: 'Quarter-Finals',
+            SUBTITULO3: 'ET',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-08 19:00:00',
+            TEXTO:      'WC26_BRENG_QF',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/gb-eng.png'
+        }],
         D_SPD: [
-            { CONFIG: '0',  TYPE: '10', TITLE: '1383422', TEXT1: 'Arsenal', TEXT2: 'Chelsea', TEXT3: '1773769500', TEXT4: 'FT',  TEXT5: '2', TEXT6: '1', TEXT7: '', TEXT8: '', TEXT9: '90', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'informa os resultados dos jogos.', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png' }
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRENG_QF', TEXT1: 'Brasil', TEXT2: 'Inglaterra', TEXT3: '', TEXT4: 'ET',  TEXT5: '1',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '105', TEXT10: '3' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
         ]
     },
 
-    encerrado_p: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Arsenal',
-                TITULO2:    'Chelsea',
-                SUBTITULO:  'Emirates Stadium',
-                SUBTITULO2: '1st Qualifying Round',
-                SUBTITULO3: 'AET',
-                CATEGORY:   'UEFA Champions League',
-                DATE:       '2026-03-13 17:00:00',
-                TEXTO:      '1383422',
-                FOTO:       'https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/200px-Arsenal_FC.svg.png',
-                FOTO2:      'https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/200px-Chelsea_FC.svg.png',
-            }
-        ],
+    copa2026_qf_pen: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Inglaterra',
+            SUBTITULO:  'MetLife Stadium',
+            SUBTITULO2: 'Quarter-Finals',
+            SUBTITULO3: 'PEN',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-08 19:00:00',
+            TEXTO:      'WC26_BRENG_QF',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/gb-eng.png'
+        }],
         D_SPD: [
-            { CONFIG: '0',  TYPE: '10', TITLE: '1383422', TEXT1: 'Arsenal', TEXT2: 'Chelsea', TEXT3: '1773769500', TEXT4: 'AET', TEXT5: '3', TEXT6: '2', TEXT7: '', TEXT8: '', TEXT9: '120', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'torcendo com você.', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/200px-Netflix_2015_logo.svg.png' }
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRENG_QF', TEXT1: 'Brasil', TEXT2: 'Inglaterra', TEXT3: '', TEXT4: 'PEN', TEXT5: '1',  TEXT6: '1',  TEXT7: '5', TEXT8: '4', TEXT9: '120', TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
         ]
     },
 
-    penalties: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Liverpool',
-                TITULO2:    'AC Milan',
-                SUBTITULO:  'San Siro',
-                SUBTITULO2: 'Quartas de Final',
-                SUBTITULO3: 'PEN',
-                CATEGORY:   'Copa Intercontinental',
-                DATE:       '2026-03-16 21:00:00',
-                TEXTO:      '9900001',
-                FOTO:       'https://upload.wikimedia.org/wikipedia/en/thumb/0/0c/Liverpool_FC.svg/200px-Liverpool_FC.svg.png',
-                FOTO2:      'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Logo_of_AC_Milan.svg/200px-Logo_of_AC_Milan.svg.png',
-            }
-        ],
+    /* ================================================================
+       SEMIFINAIS � ARG x POR
+       Estadio: SoFi Stadium, Los Angeles CA
+       ================================================================ */
+    copa2026_semi_pre: {
+        D_FOOTBALL: [{
+            TITULO:     'Argentina',
+            TITULO2:    'Portugal',
+            SUBTITULO:  'SoFi Stadium',
+            SUBTITULO2: 'Semi-Finals',
+            SUBTITULO3: 'NS',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-14 20:00:00',
+            TEXTO:      'WC26_ARPT_SF',
+            FOTO:       'https://flagcdn.com/256x192/ar.png',
+            FOTO2:      'https://flagcdn.com/256x192/pt.png'
+        }],
         D_SPD: [
-            { CONFIG: '0',  TYPE: '10', TITLE: '9900001', TEXT1: 'Liverpool', TEXT2: 'AC Milan', TEXT3: '1773864000', TEXT4: 'PEN', TEXT5: '0', TEXT6: '0', TEXT7: '4', TEXT8: '3', TEXT9: '120', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'torcendo com você.', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/200px-Google_2015_logo.svg.png' }
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_ARPT_SF', TEXT1: 'Argentina', TEXT2: 'Portugal', TEXT3: '', TEXT4: '',    TEXT5: '',   TEXT6: '',   TEXT7: '', TEXT8: '', TEXT9: '',    TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
         ]
     },
 
-    suspenso: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Arsenal',
-                TITULO2:    'Chelsea',
-                SUBTITULO:  'Emirates Stadium',
-                SUBTITULO2: '1st Qualifying Round',
-                SUBTITULO3: 'SUSP',
-                CATEGORY:   'UEFA Champions League',
-                DATE:       '2026-03-20 20:00:00',
-                TEXTO:      '1383422',
-                FOTO:       'https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/200px-Arsenal_FC.svg.png',
-                FOTO2:      'https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/200px-Chelsea_FC.svg.png',
-            }
-        ],
+    copa2026_semi_2h: {
+        D_FOOTBALL: [{
+            TITULO:     'Argentina',
+            TITULO2:    'Portugal',
+            SUBTITULO:  'SoFi Stadium',
+            SUBTITULO2: 'Semi-Finals',
+            SUBTITULO3: '2H',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-14 20:00:00',
+            TEXTO:      'WC26_ARPT_SF',
+            FOTO:       'https://flagcdn.com/256x192/ar.png',
+            FOTO2:      'https://flagcdn.com/256x192/pt.png'
+        }],
         D_SPD: [
-            { CONFIG: '0',  TYPE: '10', TITLE: '1383422', TEXT1: 'Arsenal', TEXT2: 'Chelsea', TEXT3: '1773769500', TEXT4: 'SUSP', TEXT5: '1', TEXT6: '1', TEXT7: '', TEXT8: '', TEXT9: '67', TEXT10: '' },
-            { CONFIG: '1',  TEXT1: 'Esse conteúdo é trazido por:', IMAGE_LOGO: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/200px-Amazon_logo.svg.png' }
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_ARPT_SF', TEXT1: 'Argentina', TEXT2: 'Portugal', TEXT3: '', TEXT4: '2H',  TEXT5: '2',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '82',  TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
         ]
     },
 
-    adiado: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Arsenal',
-                TITULO2:    'Chelsea',
-                SUBTITULO:  'Emirates Stadium',
-                SUBTITULO2: '1st Qualifying Round',
-                SUBTITULO3: 'PST',
-                CATEGORY:   'UEFA Champions League',
-                DATE:       '2026-03-20 20:00:00',
-                TEXTO:      '1383422',
-                FOTO:       'https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/200px-Arsenal_FC.svg.png',
-                FOTO2:      'https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/200px-Chelsea_FC.svg.png'
-            }
-        ],
-        D_SPD: []
+    copa2026_semi_ft: {
+        D_FOOTBALL: [{
+            TITULO:     'Argentina',
+            TITULO2:    'Portugal',
+            SUBTITULO:  'SoFi Stadium',
+            SUBTITULO2: 'Semi-Finals',
+            SUBTITULO3: 'FT',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-14 20:00:00',
+            TEXTO:      'WC26_ARPT_SF',
+            FOTO:       'https://flagcdn.com/256x192/ar.png',
+            FOTO2:      'https://flagcdn.com/256x192/pt.png'
+        }],
+        D_SPD: [
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_ARPT_SF', TEXT1: 'Argentina', TEXT2: 'Portugal', TEXT3: '', TEXT4: 'FT',  TEXT5: '3',  TEXT6: '2',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
+        ]
     },
 
-    cancelado: {
-        D_FOOTBALL: [
-            {
-                TITULO:     'Arsenal',
-                TITULO2:    'Chelsea',
-                SUBTITULO:  'Emirates Stadium',
-                SUBTITULO2: '1st Qualifying Round',
-                SUBTITULO3: 'CANC',
-                CATEGORY:   'UEFA Champions League',
-                DATE:       '2026-03-20 20:00:00',
-                TEXTO:      '1383422',
-                FOTO:       'https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/200px-Arsenal_FC.svg.png',
-                FOTO2:      'https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/200px-Chelsea_FC.svg.png'
-            }
-        ],
-        D_SPD: []
+    /* ================================================================
+       GOLEADA 7x1 � BRA x GER  (Semifinal)
+       Estadio: AT&T Stadium, Arlington TX
+       ================================================================ */
+    copa2026_goleada_1h: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Alemanha',
+            SUBTITULO:  'AT&T Stadium',
+            SUBTITULO2: 'Semi-Finals',
+            SUBTITULO3: '1H',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-15 19:00:00',
+            TEXTO:      'WC26_BRDE_SF',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/de.png'
+        }],
+        D_SPD: [
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRDE_SF', TEXT1: 'Brasil', TEXT2: 'Alemanha', TEXT3: '', TEXT4: '1H',  TEXT5: '4',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '43',  TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
+        ]
+    },
+
+    copa2026_goleada_2h: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Alemanha',
+            SUBTITULO:  'AT&T Stadium',
+            SUBTITULO2: 'Semi-Finals',
+            SUBTITULO3: '2H',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-15 19:00:00',
+            TEXTO:      'WC26_BRDE_SF',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/de.png'
+        }],
+        D_SPD: [
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRDE_SF', TEXT1: 'Brasil', TEXT2: 'Alemanha', TEXT3: '', TEXT4: '2H',  TEXT5: '7',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '5' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
+        ]
+    },
+
+    copa2026_goleada_ft: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Alemanha',
+            SUBTITULO:  'AT&T Stadium',
+            SUBTITULO2: 'Semi-Finals',
+            SUBTITULO3: 'FT',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-15 19:00:00',
+            TEXTO:      'WC26_BRDE_SF',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/de.png'
+        }],
+        D_SPD: [
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRDE_SF', TEXT1: 'Brasil', TEXT2: 'Alemanha', TEXT3: '', TEXT4: 'FT',  TEXT5: '7',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
+        ]
+    },
+
+    /* ================================================================
+       DISPUTA DE 3� LUGAR � FRA x MAR
+       Estadio: Arrowhead Stadium, Kansas City MO
+       ================================================================ */
+    copa2026_terceiro_pre: {
+        D_FOOTBALL: [{
+            TITULO:     'Fran�a',
+            TITULO2:    'Marrocos',
+            SUBTITULO:  'Arrowhead Stadium',
+            SUBTITULO2: '3rd Place Final',
+            SUBTITULO3: 'NS',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-18 16:00:00',
+            TEXTO:      'WC26_FRMA_3P',
+            FOTO:       'https://flagcdn.com/256x192/fr.png',
+            FOTO2:      'https://flagcdn.com/256x192/ma.png'
+        }],
+        D_SPD: [
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_FRMA_3P', TEXT1: 'Fran�a', TEXT2: 'Marrocos', TEXT3: '', TEXT4: '',    TEXT5: '',   TEXT6: '',   TEXT7: '', TEXT8: '', TEXT9: '',    TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
+        ]
+    },
+
+    copa2026_terceiro_ft: {
+        D_FOOTBALL: [{
+            TITULO:     'Fran�a',
+            TITULO2:    'Marrocos',
+            SUBTITULO:  'Arrowhead Stadium',
+            SUBTITULO2: '3rd Place Final',
+            SUBTITULO3: 'FT',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-18 16:00:00',
+            TEXTO:      'WC26_FRMA_3P',
+            FOTO:       'https://flagcdn.com/256x192/fr.png',
+            FOTO2:      'https://flagcdn.com/256x192/ma.png'
+        }],
+        D_SPD: [
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_FRMA_3P', TEXT1: 'Fran�a', TEXT2: 'Marrocos', TEXT3: '', TEXT4: 'FT',  TEXT5: '2',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
+        ]
+    },
+
+    /* ================================================================
+       FINAL � BRA x ARG
+       Estadio: MetLife Stadium, East Rutherford NJ
+       ================================================================ */
+    copa2026_final_pre: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Argentina',
+            SUBTITULO:  'MetLife Stadium',
+            SUBTITULO2: 'Final',
+            SUBTITULO3: 'NS',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-19 18:00:00',
+            TEXTO:      'WC26_BRAR_F',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/ar.png'
+        }],
+        D_SPD: [
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: '',    TEXT5: '',   TEXT6: '',   TEXT7: '', TEXT8: '', TEXT9: '',    TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
+        ]
+    },
+
+    copa2026_final_1h: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Argentina',
+            SUBTITULO:  'MetLife Stadium',
+            SUBTITULO2: 'Final',
+            SUBTITULO3: '1H',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-19 18:00:00',
+            TEXTO:      'WC26_BRAR_F',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/ar.png'
+        }],
+        D_SPD: [
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: '1H',  TEXT5: '1',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '38',  TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
+        ]
+    },
+
+    copa2026_final_2h: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Argentina',
+            SUBTITULO:  'MetLife Stadium',
+            SUBTITULO2: 'Final',
+            SUBTITULO3: '2H',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-19 18:00:00',
+            TEXTO:      'WC26_BRAR_F',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/ar.png'
+        }],
+        D_SPD: [
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: '2H',  TEXT5: '2',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '82',  TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
+        ]
+    },
+
+    copa2026_final_et: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Argentina',
+            SUBTITULO:  'MetLife Stadium',
+            SUBTITULO2: 'Final',
+            SUBTITULO3: 'ET',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-19 18:00:00',
+            TEXTO:      'WC26_BRAR_F',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/ar.png'
+        }],
+        D_SPD: [
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: 'ET',  TEXT5: '2',  TEXT6: '2',  TEXT7: '', TEXT8: '', TEXT9: '109', TEXT10: '2' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
+        ]
+    },
+
+    copa2026_final_pen: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Argentina',
+            SUBTITULO:  'MetLife Stadium',
+            SUBTITULO2: 'Final',
+            SUBTITULO3: 'PEN',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-19 18:00:00',
+            TEXTO:      'WC26_BRAR_F',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/ar.png'
+        }],
+        D_SPD: [
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: 'PEN', TEXT5: '2',  TEXT6: '2',  TEXT7: '4', TEXT8: '2', TEXT9: '120', TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
+        ]
+    },
+
+    copa2026_final_ft: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Argentina',
+            SUBTITULO:  'MetLife Stadium',
+            SUBTITULO2: 'Final',
+            SUBTITULO3: 'FT',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-19 18:00:00',
+            TEXTO:      'WC26_BRAR_F',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/ar.png'
+        }],
+        D_SPD: [
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: 'FT',  TEXT5: '3',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logoipsum-418.png', FILE_IMAGE1: 'img/sponsor.mp4' }
+        ]
     }
 
 };
+
+
 
 var MOCK_DATA = {
     enabled: true,

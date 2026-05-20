@@ -7,7 +7,7 @@ Vamos criar um novo template chamado “tabela_futebol”, baseado no “placar_
 - Base: estrutura e lógica do “placar_futebol”
 - Mock dos dados conforme tabela de grupos da Copa do Mundo
 - Seguir regras críticas: ES5 puro, controle de playlist EBHTML, Tailwind compatível Android 7, README único e objetivo
-
+> **REGRA DE FONTES:** `font-size` base no `<body>` via `vmin` (ex: `text-[3.2vmin]`). Overrides apenas para superbanner/empena. Filhos usam **somente `em` ou `%`** — nunca `portrait:text-[X]`, `landscape:text-[X]` em elementos filhos.
 ---
 
 **Fases e Passos**
