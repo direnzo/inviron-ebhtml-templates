@@ -67,6 +67,45 @@ var FASES_COLS = [
 ];
 
 // ──────────────────────────────────────────────────
+//  CONFIG — 3 cores primarias do template (header/footer)
+//  Altere apenas estes 3 valores HEX para customizar o visual
+// ──────────────────────────────────────────────────
+var CONFIG = {
+    corDestaque: '#FBBF24',  // cor de destaque (bordas, destaques)
+    corEscura:   '#006400',  // cor de fundo (paineis, gradientes)
+    corClara:    '#FFFFFF'   // cor de texto e bordas
+};
+
+function hexToRgba(hex, alpha) {
+    var r = parseInt(hex.slice(1, 3), 16);
+    var g = parseInt(hex.slice(3, 5), 16);
+    var b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+}
+
+function aplicarCores(cfg) {
+    var s = document.documentElement.style;
+    s.setProperty('--cor-destaque',     cfg.corDestaque);
+    s.setProperty('--cor-fundo-painel', hexToRgba(cfg.corEscura, 0.90));
+    s.setProperty('--cor-borda',        hexToRgba(cfg.corClara,  0.30));
+    s.setProperty('--cor-texto',        cfg.corClara);
+}
+
+/* Mescla cores do D_SPD (TEXTO7/TEXTO8/TEXTO9) com defaults do CONFIG
+   Suporta objeto plano (mock: spd.TEXTO7) ou item EdgeContents (spd.value()) */
+function mergeColorsFromSpd(defaults, spd) {
+    if (!spd) { return defaults; }
+    var destaque = (spd.TEXTO7) || (spd.value && spd.value('TEXTO7') && spd.value('TEXTO7').value) || '';
+    var escura   = (spd.TEXTO8) || (spd.value && spd.value('TEXTO8') && spd.value('TEXTO8').value) || '';
+    var clara    = (spd.TEXTO9) || (spd.value && spd.value('TEXTO9') && spd.value('TEXTO9').value) || '';
+    return {
+        corDestaque: destaque || defaults.corDestaque,
+        corEscura:   escura   || defaults.corEscura,
+        corClara:    clara    || defaults.corClara
+    };
+}
+
+// ──────────────────────────────────────────────────
 //  ENTRY POINT
 // ──────────────────────────────────────────────────
 window.onload = function() {
@@ -76,10 +115,13 @@ window.onload = function() {
             finished: function() { console.log('[Mock] finished'); }
         };
         var dados = processarDadosMock(MOCK_DATA.partidas);
-        iniciarTemplate(dados, MOCK_DATA.config, mockLoader);
+        var mockConfig = MOCK_DATA.config || {};
+        aplicarCores(mergeColorsFromSpd(CONFIG, mockConfig));
+        iniciarTemplate(dados, mockConfig, mockLoader);
     } else {
         ebhtml.create2({}, function(loader) {
             loader.addData('D_COPA', false);
+            loader.addData('D_SPD',  false);
             loader.autoloaded    = false;
             loader.nodataiserror = false;
 
@@ -89,8 +131,33 @@ window.onload = function() {
                     loader.finished();
                     return;
                 }
+
+                // Extrai patrocinador e cores do D_SPD (CONFIG='1')
+                var spdSponsor = null;
+                var spdLista = loader.datalist('D_SPD');
+                if (spdLista) {
+                    for (var i = 0; i < spdLista.count(); i++) {
+                        var item = spdLista.get(i);
+                        var cfgField = item.value && item.value('CONFIG');
+                        if (cfgField && cfgField.value === '1') {
+                            spdSponsor = item;
+                            break;
+                        }
+                    }
+                }
+
+                // Monta config com sponsor e duracao (compativel com aplicarSponsor)
+                var runConfig = {
+                    duration: 30000,
+                    sponsor: spdSponsor ? {
+                        frase: (spdSponsor.value('TEXT1')      && spdSponsor.value('TEXT1').value)      || '',
+                        logo:  (spdSponsor.value('IMAGE_LOGO') && spdSponsor.value('IMAGE_LOGO').value) || ''
+                    } : null
+                };
+
+                aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
                 var dados = processarDados(loader);
-                iniciarTemplate(dados, { duration: 30000 }, loader);
+                iniciarTemplate(dados, runConfig, loader);
             });
         });
     }

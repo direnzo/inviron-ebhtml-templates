@@ -18,6 +18,9 @@ var MOCK_DATA = {
     enabled: true,
     config: {
         duration: 30000,
+        TEXTO7: '#FBBF24',  // corDestaque
+        TEXTO8: '#006400',  // corEscura
+        TEXTO9: '#FFFFFF',  // corClara
         sponsor: {
             frase: '',
             logo:  './img/logo_patrocinio_02.png'

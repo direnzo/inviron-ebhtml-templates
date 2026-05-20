@@ -23,6 +23,11 @@
     --card-bg:     rgba(8,12,28,0.90);
     --card-radius: 1vmin;
     --label-h:     1.6vmin;
+    /* Cores dinamicas — preenchidas por aplicarCores() em master.js */
+    --cor-destaque:     #FBBF24;
+    --cor-fundo-painel: rgba(0,100,0,0.90);
+    --cor-borda:        rgba(255,255,255,0.30);
+    --cor-texto:        #FFFFFF;
 }
 
 /* ═══════════════════════════════════════
@@ -343,6 +348,18 @@
         transform: translate(-50%, -50%) rotate(90deg);
         transform-origin: center center;
     }
+}
+
+/* ═══════════════════════════════════════
+   CORES DINAMICAS — header
+   Especificidade (1,0,0) supera Tailwind (0,1,0)
+   ═══════════════════════════════════════ */
+#headerBar {
+    background-color:    var(--cor-fundo-painel);
+    border-bottom-color: var(--cor-destaque);
+}
+#headerBar * {
+    color: var(--cor-texto);
 }
 
 /* ═══════════════════════════════════════
