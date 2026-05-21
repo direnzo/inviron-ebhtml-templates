@@ -1,0 +1,9 @@
+Substituir os arquivos de imagem de fundo respeitando 
+as dimensões 2368x912 para alterar o fundo
+Imagens => corUm.png, corDois.png, corTres.png, corQuatro.png
+
+
+Substituir o arquivo de vídeo (video.mp4) 
+para alterar o que será exibido junto ao relógio
+- respeitar as dimensões 912 x 912
+- não renomear

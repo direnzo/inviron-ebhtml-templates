@@ -1,0 +1,13 @@
+@font-face{font-family:Digiface;src:url(digiface.ttf) format('truetype')}
+body{overflow:hidden;-ms-overflow-style:none;scrollbar-width:none;-webkit-scrollbar:display none;margin:0 auto;}
+#geral{ height: 912px; width: 2368px}
+#container-esquerdo{width:2368px;height:912px;display:block; float: left}
+#container-direito{width:1456px;height:912px;display:block; float: left; position: fixed; padding-left: 912px;}
+#relogio-digital{width:1456px;height:912px}
+#relogio-digital,p{
+  font-family:Digiface,Arial,sans-serif;
+  font-size:680px;color:#fff;
+  text-shadow:#000 .02em .02em .02em;
+  z-index:99; text-align: center; line-height: 912px; margin: 0px; padding: 0px;}
+#relogio{height:912px;width:2368px;z-index:96}
+#relogio{background-image:url(../img/dia/fundo-azul-dia.png)}
