@@ -3,6 +3,8 @@
 ## TL;DR
 Criar template `placar_futebol/` do zero copiando a base de `_template-base/`. Layout de placar com dois escudos (FOTO/FOTO2), dados vindos de D_FOOTBALL (info do jogo) + D_SPD opcional (placar ao vivo, matching por TYPE=10 e TITLE=D_FOOTBALL.TEXTO). Duração: 10s. ES5 obrigatório.
 
+> **REGRA DE FONTES:** `font-size` base no `<body>` via `vmin` (ex: `text-[3.2vmin]`). Overrides apenas para superbanner/empena. Filhos usam **somente `em` ou `%`** — nunca `portrait:text-[X]`, `landscape:text-[X]` em elementos filhos.
+
 ---
 
 ## Fases

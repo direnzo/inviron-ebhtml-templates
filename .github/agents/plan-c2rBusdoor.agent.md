@@ -4,6 +4,8 @@
 
 Construir um novo template que exiba informações dinâmicas de portas de ônibus (através da correspondência de dados entre D_LOCAL e D_OLHOVIVO) com um número gigante em fundo preto e rodapé branco fixo. O template fará referência cruzada entre ID/SCREEN_CUSTOMERID nos datasets, extrairá o valor TEXTO correspondente e renderizará responsivamente em 520×208px.
 
+> **REGRA DE FONTES:** `font-size` base no `<body>` via `vmin` (ex: `text-[3.2vmin]`). Overrides apenas para superbanner/empena. Filhos usam **somente `em` ou `%`** — nunca `portrait:text-[X]`, `landscape:text-[X]` em elementos filhos.
+
 ---
 
 ## 📋 Passos de Implementação

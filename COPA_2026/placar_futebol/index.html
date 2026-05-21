@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html class="bg-black h-full w-full overflow-hidden">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placar Futebol</title>
+    <link rel="stylesheet" href="css/master.css">
+    <script src="js/mock-data.js"></script>
+    <script src="js/ebhtml.js"></script>
+    <script src="js/master.js"></script>
+    <script src="js/preview.js"></script>
+</head>
+
+<!--
+  BREAKPOINTS (tailwind.config.js):
+    portrait    max-aspect-ratio: 3/4          (9:16, 1:2 — vertical)
+    landscape   4/3 a 2/1                      (16:9 — padrão)
+    ultrawide   min-aspect-ratio: 3/1          (3:1+, ex: 4:1 = 1536x384)
+    superbanner 5/1 a 15/1                     (5:1+, ex: 6.67:1 = 3840x576)
+    footer      min-aspect-ratio: 15/1         (>15:1)
+    empena      max-aspect-ratio: 1/3          (<1:3 — muito estreito)
+-->
+
+<body class="relative w-full h-screen overflow-hidden
+             bg-green-950
+             text-[3.2vmin]
+             superbanner:text-[5vmin]
+             empena:text-[11vmin]">
+
+    <!-- Vídeo de fundo em loop (src trocado por JS conforme o estado do jogo) -->
+    <video id="bgVideo" autoplay loop muted playsinline src="img/pre.mp4" class="absolute inset-0 z-0 w-full h-full object-cover opacity-0 transition-opacity duration-700">
+    </video>
+
+    <!-- Gradiente de fundo (src controlado por CSS var --cor-grad-*) -->
+    <div id="gradientOverlay" class="absolute inset-0 z-0 opacity-0 transition-opacity duration-700"></div>
+
+    <!-- Layout principal -->
+    <main id="mainContent" class="relative z-10 w-full h-full flex flex-col opacity-0 transition-opacity duration-700">
+
+        <!-- ════════════════════════════════════
+             HEADER: Torneio · Rodada
+             ════════════════════════════════════ -->
+        <header class="flex-none flex items-center justify-center gap-[1.5%]
+                        py-[1.5%] px-[5%]
+                        ultrawide:py-[1vh]
+                        superbanner:py-[0.8vh]
+                        border-b-4 border-yellow-500">
+            <span id="torneio" class="font-roboto-bold uppercase tracking-widest"></span>
+            <span id="headerSep" class="mx-1">|</span>
+            <span id="rodada" class="font-roboto-regular uppercase tracking-wide"></span>
+        </header>
+
+        <!-- ════════════════════════════════════
+             ÁREA DO JOGO — 3 colunas
+             ════════════════════════════════════ -->
+        <div id="gameArea" class="flex-1 min-h-0 flex items-stretch overflow-hidden 
+                        py-[2%] px-[5%]
+                        portrait:py-[3%] portrait:px-[4%]
+                        ultrawide:py-[1.5vh]
+                        superbanner:py-[1vh]">
+            <div id="gameAreaInner" class="flex-1 min-h-0 flex flex-row items-stretch 
+                    portrait:flex-col backdrop-blur-xl rounded-3xl overflow-hidden">
+
+                <!-- ── TIME 1 (esquerda) ── -->
+                <div id="team1" class="flex-1 flex flex-col items-center justify-center
+                         gap-[4%] py-[4%] px-[2%]
+                         portrait:flex-col portrait:items-center portrait:gap-[4%] portrait:py-[2%] portrait:px-[3%]
+                         ultrawide:py-[1.5vh] ultrawide:gap-[1.5vh]
+                         superbanner:py-[1vh] superbanner:gap-[1vh]">
+
+                    <span id="time1Nome" class="font-roboto-bold uppercase tracking-wider
+                             w-full text-center leading-tight"></span>
+
+                    <div id="logo1Container" class="relative flex-shrink-0 w-full h-[46vh] portrait:h-[20vh] portrait:w-[20vh] portrait:flex-none">
+                        <div id="logo1Clip" class="flex items-center justify-center landscape:size-full">
+                            <img id="logo1" src="" alt="" class="w-full h-full object-contain">
+                        </div>
+                        <!-- <svg class="hexagon-border absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <polygon points="50,2 98,26 98,74 50,98 2,74 2,26" fill="none" stroke-width="2"/>
+                        </svg> -->
+                    </div>
+                </div>
+
+                <!-- ── CENTRO: Hora / Data / Placar ── -->
+                <div id="centerContent" class="flex-none flex flex-col items-center justify-center min-w-[26%]
+                        py-[4%] px-[4%]
+                        portrait:py-[2%] portrait:px-[5%]
+                        ultrawide:py-[1.5vh]
+                        superbanner:py-[1vh]">
+
+                    <!-- Estádio — sempre visível -->
+                    <div id="estadioCentro" class="font-roboto-medium  uppercase tracking-widest text-center
+                         ultrawide:mb-[1.5vh] superbanner:mb-[1vh]"></div>
+
+                    <!-- Pré-jogo: hora e data em destaque -->
+                    <div id="preGameInfo" class="flex flex-col items-center gap-[6%]
+                         ultrawide:gap-[1.5vh] superbanner:gap-[1vh]">
+                        <div id="hora" class="font-roboto-black text-[300%]  leading-none tracking-widest drop-shadow-lg"></div>
+                        <div id="data" class="font-roboto-bold text-[150%] tracking-widest"></div>
+                    </div>
+
+                    <!-- Com placar: oculto enquanto pré-jogo (JS remove display:none) -->
+                    <div id="scoreSection" class="hidden flex flex-col items-center gap-[2%]">
+
+                        <!-- Hora pequena acima do placar -->
+                        <div id="horaSmall" class="font-roboto-regular  tracking-widest"></div>
+
+                        <!-- Placar principal "2 x 1" -->
+                        <div id="placar" class="flex items-center font-roboto-black text-[600%] leading-none tracking-widest"></div>
+
+                        <!-- Tempo da partida / FT / PEN -->
+                        <div id="tempoSection" class="hidden flex items-center gap-[2%] mt-[2%]">
+                            <span id="tempo" class="font-roboto-bold  tracking-wide"></span>
+                        </div>
+
+                        <!-- Pênaltis — oculto a não ser em estado 'penalties' -->
+                        <div id="penaltySection" class="hidden mb-[1%]">
+                            <span id="penPlacar" class="font-roboto-regular "></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── TIME 2 (direita) ── -->
+                <div id="team2" class="flex-1 flex flex-col items-center justify-center
+                         gap-[4%] py-[4%] px-[2%]
+                         portrait:flex-col portrait:items-center portrait:gap-[4%] portrait:py-[2%] portrait:px-[3%]
+                         ultrawide:py-[1.5vh] ultrawide:gap-[1.5vh]
+                         superbanner:py-[1vh] superbanner:gap-[1vh]">
+
+                    <span id="time2Nome" class="font-roboto-bold  uppercase tracking-wider
+                             w-full text-center leading-tight"></span>
+
+                    <div id="logo2Container" class="relative flex-shrink-0 w-full h-[46vh] portrait:h-[20vh] portrait:w-[20vh] portrait:flex-none">
+                        <div id="logo2Clip" class="flex items-center justify-center landscape:size-full">
+                            <img id="logo2" src="" alt="" class="w-full h-full object-contain">
+                        </div>
+                        <!-- <svg class="hexagon-border absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <polygon points="50,2 98,26 98,74 50,98 2,74 2,26" fill="none" stroke-width="2"/>
+                        </svg> -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- /gameArea -->
+
+        <!-- ════════════════════════════════════
+             FOOTER: Patrocinador (oculto se sem dados)
+             ════════════════════════════════════ -->
+        <footer id="sponsorFooter"
+                class="hidden flex-none flex items-center justify-center gap-[2%]
+                        py-[2%] px-[6%]
+                        ultrawide:py-[1.5vh]
+                        superbanner:py-[1vh]
+                        border-t-4 border-yellow-500
+                        portrait:flex-col">
+            <span id="sponsorFrase" class="font-roboto-regular  tracking-wide text-center"></span>
+            <img id="sponsorLogo" src="" alt="" class="h-[10vh] w-auto max-w-[80vw] object-contain flex-shrink-0">
+        </footer>
+
+    </main>
+
+    <!-- Tela de abertura (intro/preloader) — JS popula e remove ao terminar -->
+    <div id="introScreen" style="transition: opacity 0.7s ease;"
+         class="hidden absolute inset-0 z-50 bg-black flex items-center justify-center">
+    </div>
+
+    <script>
+        // Detecta se esta sendo exibido na extranet (preview) ou no player normal
+        // Executado aqui (final do body) para garantir que o DOM esta pronto
+        var _pfCheckEl = null;
+        try {
+            if (window.parent && window.parent.document) {
+                _pfCheckEl = window.parent.document.getElementById('template_check');
+            }
+        } catch (e) { _pfCheckEl = null; }
+        if (_pfCheckEl !== null) { extranetView(); } else { playerView(); }
+    </script>
+
+</body>
+
+</html>

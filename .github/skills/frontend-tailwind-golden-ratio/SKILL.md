@@ -40,6 +40,7 @@ Use this skill when user asks for:
 - no uncontrolled natural-size rendering
 6. Keep styles in Tailwind utility classes and tokenized config, not random inline styling.
 7. Preserve ES5 compatibility in JS for legacy WebKit devices.
+8. **Sistema de fontes centralizado (vmin):** definir `font-size` base no `<body>` usando `vmin` (ex: `text-[3.2vmin]`). Overrides de breakpoint apenas em superbanner e empena. **Todos os filhos usam somente `em` ou `%`** — nunca `portrait:text-[X]` ou `landscape:text-[X]` em elementos individuais. Para ajustar tamanho em um formato: alterar o valor do body, não dos filhos.
 
 ## Golden Ratio Tokens
 Reference tokens file:
