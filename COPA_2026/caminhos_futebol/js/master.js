@@ -1,3 +1,8 @@
+// === CONTROLE DE PERCENTUAIS DE TEMPO (ajuste centralizado) ===
+var TEMPO_PCT_ENTRADA = 0.15; // 15% para animar todos os cards e linhas
+var TEMPO_PCT_ZOOM    = 0.30; // 30% para o efeito de zoom
+var TEMPO_PCT_FOCO    = 0.55; // 55% para exibir o chaveamento ampliado
+
 // ===== ANIMAÇÃO DE INTRO BRACKET-AREA (zoom + alternância de canto) =====
 // Zoom reverso: começa em scale 1, termina em scale 2 nos 30% finais do tempo
 function animarZoomOutBracketArea(restanteMs) {
@@ -12,8 +17,8 @@ function animarZoomOutBracketArea(restanteMs) {
     var origin = ORIGINS[idx];
     localStorage.setItem('bracket_intro_origin_idx', (idx + 1) % 4);
 
-    var zoomDelay = Math.round(restanteMs * 0.7);
-    var zoomDur   = Math.max(Math.round(restanteMs * 0.3), 300); // mínimo 300ms
+    var zoomDelay = 0; // inicia imediatamente
+    var zoomDur   = Math.max(restanteMs, 200); // ocupa todo o tempo do zoom, mínimo 200ms
 
     console.log('[animarZoomOutBracketArea] INICIO', {
         restanteMs: restanteMs,
@@ -36,12 +41,14 @@ function animarZoomOutBracketArea(restanteMs) {
         area.style.transformOrigin = origin;
         area.style.transform = 'scale(2)';
     }, zoomDelay);
-    setTimeout(function() {
-        console.log('[animarZoomOutBracketArea] RESETANDO estilos');
-        area.style.transition = '';
-        area.style.transform = '';
-        area.style.transformOrigin = '';
-    }, zoomDelay + zoomDur + 80);
+    // NÃO remove mais o scale 2 após o zoom: permanece ampliado
+    // Se quiser resetar só em debug, comente a linha abaixo
+    // setTimeout(function() {
+    //     console.log('[animarZoomOutBracketArea] RESETANDO estilos');
+    //     area.style.transition = '';
+    //     area.style.transform = '';
+    //     area.style.transformOrigin = '';
+    // }, zoomDelay + zoomDur + 80);
 }
 // ═══════════════════════════════════════════════════════
 //  caminhos_futebol — master.js
@@ -369,6 +376,12 @@ function iniciarTemplate(dados, config, loader) {
 }
 
 function iniciarTemplateSemIntro(dados, config, loader, introMs) {
+        // DEBUG: Verifica estrutura dos dados recebidos
+        var chaves = Object.keys(dados);
+        console.log('[DEBUG iniciarTemplateSemIntro] chaves dos dados:', chaves);
+        if (chaves.length > 0) {
+            console.log('[DEBUG iniciarTemplateSemIntro] exemplo de dado:', chaves[0], dados[chaves[0]]);
+        }
     renderizarBracket(dados);
     marcarBrasil();
     marcarCampeao(dados);
@@ -381,37 +394,44 @@ function iniciarTemplateSemIntro(dados, config, loader, introMs) {
     for (var k in dados) {
         if (dados.hasOwnProperty(k)) {
             var f = k.split('_')[0];
-            if (!faseMaisAlta || (FASE_PRIORIDADE[f] && FASE_PRIORIDADE[f] > (FASE_PRIORIDADE[faseMaisAlta]||0))) {
-                faseMaisAlta = f;
+            var partida = dados[k];
+            // Só considera fases com timeCasa preenchido
+            if (partida && partida.timeCasa && partida.timeCasa !== '' && partida.timeCasa !== 'TBD') {
+                if (!faseMaisAlta || (FASE_PRIORIDADE[f] && FASE_PRIORIDADE[f] > (FASE_PRIORIDADE[faseMaisAlta]||0))) {
+                    faseMaisAlta = f;
+                }
             }
         }
     }
     console.log('[iniciarTemplateSemIntro] faseMaisAlta:', faseMaisAlta);
-    if (faseMaisAlta === 'R32' || faseMaisAlta === 'R16') {
-        var restante = Math.max(DURACAO_TOTAL - (introMs || 0), 1000);
-        // Espera a animação de entrada dos brackets (700ms), depois aplica o zoom reverso
-        setTimeout(function() {
-            console.log('[iniciarTemplateSemIntro] Chamando animarZoomOutBracketArea, restante:', restante - 700);
-            animarZoomOutBracketArea(restante - 700);
-        }, 700);
-    }
+    var restante = Math.max(DURACAO_TOTAL - (introMs || 0), 5000); // mínimo 5s
+    var tempoEntrada = Math.round(restante * TEMPO_PCT_ENTRADA); // 10% entrada
+    var tempoZoom    = Math.round(restante * TEMPO_PCT_ZOOM);    // 5% zoom
+    var tempoFoco    = Math.max(restante - tempoEntrada - tempoZoom, 0); // 85% foco
 
-    animarEntradaBracket();
+    // 1. Animação de entrada dos cards e linhas
+    animarEntradaBracket(tempoEntrada);
     destacarPartidaRecente(dados);
     animarCaminhoVencedor(dados);
-
     setTimeout(function() {
         BracketDraw.init();
         BracketDraw.animarLinhas(0);
-    }, 80);
+    }, Math.round(tempoEntrada * 0.4)); // linhas SVG entram junto, mas um pouco depois dos cards
 
+    // 2. Zoom após entrada
+    if (faseMaisAlta === 'R32' || faseMaisAlta === 'R16') {
+        setTimeout(function() {
+            console.log('[iniciarTemplateSemIntro] Chamando animarZoomOutBracketArea, tempoZoom:', tempoZoom);
+            animarZoomOutBracketArea(tempoZoom);
+        }, tempoEntrada);
+    }
+
+    // 3. Loader termina após todo o tempo
     var wrapper = document.getElementById('main-wrapper');
     if (wrapper) {
         wrapper.style.opacity = '1';
     }
-
     loader.loaded();
-    var restante = Math.max(DURACAO_TOTAL - (introMs || 0), 1000);
     setTimeout(function() {
         loader.finished();
     }, restante);
@@ -683,15 +703,14 @@ var STAGGER_ORDER = [
     'm-bronze', 'm-final'
 ];
 
-function animarEntradaBracket() {
-    // 1. Labels: cascata rápida (incluindo gold/bronze com escala)
+function animarEntradaBracket(tempoEntrada) {
+    tempoEntrada = tempoEntrada || 500;
+    var stagger = Math.max(Math.floor(tempoEntrada / STAGGER_ORDER.length), 10); // mínimo 10ms
     animarLabels();
-    // 2. Cards: stagger existente
     for (var i = 0; i < STAGGER_ORDER.length; i++) {
-        animarCardComDelay(STAGGER_ORDER[i], i * 60);
+        animarCardComDelay(STAGGER_ORDER[i], i * stagger);
     }
-    // 3. Linhas SVG: gerenciadas pelo setTimeout em iniciarTemplate (após reflow)
-    //    BracketDraw.animarLinhas(0) chamado lá junto com init()
+    // Linhas SVG: já controladas por iniciarTemplateSemIntro
 }
 
 function animarLabelComDelay(el, delay) {

@@ -236,7 +236,7 @@
     overflow: visible;
 }
 .center-col .match-slot {
-    width: 14vw;
+    width: 20vw;
 }
 .center-col .match-card {
     width: 100%;
@@ -247,9 +247,9 @@
     font-size: 1.1vmin;
     gap: 0.8vmin;
 }
-.center-col .flag  { width: 2.6vmin; height: 1.9vmin; }
-/* .center-col .tname { font-size: 1.1vmin; } */
-.center-col .score { font-size: 1.4vmin; min-width: 2.2vmin; }
+.center-col .flag  { width: 3.6vmin; height: 2.9vmin; }
+.center-col .tname { font-size: 3vmin !important; }
+.center-col .score { font-size: 4vmin; min-width: 4.2vmin; }
 
 /* Ocultamento de fase anterior */
 .round-col.round-hidden { display: none; }
@@ -317,7 +317,7 @@
     opacity: 1 !important;
 }
 .match-campeao .team-row.campeao-row .score {
-    color: #fbbf24 !important;
+    color: #000877 !important;
     text-shadow: 0 0 14px rgba(251,191,36,1) !important;
     opacity: 1 !important;
 }
