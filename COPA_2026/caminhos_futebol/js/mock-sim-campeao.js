@@ -17,14 +17,17 @@
 var MOCK_DATA = {
     enabled: true,
     config: {
-        duration: 30000,
-        TEXTO7: '#FBBF24',  // corDestaque
-        TEXTO8: '#006400',  // corEscura
-        TEXTO9: '#FFFFFF',  // corClara
-        sponsor: {
-            frase: '',
-            logo:  './img/logo_patrocinio_02.png'
-        }
+        duration: 30000
+    },
+    /* --- Simula registro D_SPD (item com CONFIG='1') --- */
+    D_SPD: {
+        CONFIG:      '1',
+        TEXT1:       'Apoio:',
+        IMAGE_LOGO:  'img/logo_patrocinio_02.png',
+        FILE_IMAGE1: 'img/sponsor.mp4',
+        TEXTO7:      '#FBBF24',  // corDestaque
+        TEXTO8:      '#006400',  // corEscura
+        TEXTO9:      '#FFFFFF'   // corClara
     },
     partidas: [
 
@@ -102,3 +105,6 @@ var MOCK_DATA = {
           TEXTO:'1', TEXTO2:'0', SUBTITULO3:'FT' }
     ]
 };
+
+// Gera D_FOOTBALL.TEXTO3 espelhando a producao (campo JSON no XML)
+MOCK_DATA.D_FOOTBALL = { TEXTO3: JSON.stringify(MOCK_DATA.partidas) };

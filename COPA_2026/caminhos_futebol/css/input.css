@@ -61,6 +61,7 @@
 .half {
     flex: 1;
     min-width: 0;
+    min-height: 0;
     position: relative;
     z-index: 1;
     display: flex;
@@ -76,6 +77,7 @@
 .round-col {
     display: flex;
     flex-direction: column;
+    min-height: 0;
     flex: 1.8;
     min-width: 0;
 }
@@ -95,7 +97,7 @@
     flex-shrink: 0;
     white-space: nowrap;
 }
-.round-label--gold   { color: rgba(251,191,36,0.7); ; margin-bottom: 1.2vh; }
+.round-label--gold   { color: rgba(251,191,36,0.7); ; margin-bottom: 2.2vh; }
 .round-label--bronze { color: rgba(255,255,255,0.25); margin-top: 1.2vh; }
 
 /* Cards area: distribui os match-cards igualmente */
@@ -122,11 +124,19 @@
 .match-date {
     font-family: 'Roboto Regular', sans-serif;
     font-size: 1.2vmin;
-    color: rgba(255,255,255,0.40);
+    color: rgba(255, 255, 255, 0.788);
     text-align: center;
     letter-spacing: 0.05em;
     white-space: nowrap;
     line-height: 1;
+    z-index: 10;
+    background: rgba(39, 40, 41, 0.9);
+    width: fit-content;
+    padding: 0.4vmin 0.9vmin;
+    border-radius: 0.4vmin;
+    align-self: end;
+    margin-right: 0.9vmin;
+    display: none;
 }
 .match-date:empty { display: none; }
 
@@ -141,7 +151,8 @@
     flex-shrink: 0;
     overflow: hidden;
     transition: box-shadow 0.3s ease, border-color 0.3s ease;
-    /* Não usar margin vertical — space-around do cards-area cuida do espaçamento */
+    /* Sobreposição com o badge de data — escala com vmin */
+    /* margin-top: -1.4vmin; */
 }
 
 .match-blue   { background-color: var(--card-bg); border-color: rgba(96,165,250,0.70);  }
@@ -336,18 +347,107 @@
 }
 
 /* ═══════════════════════════════════════
-   PORTRAIT — ROTAÇÃO 90°
+   PORTRAIT — LAYOUT VERTICAL
+   Esquerdo → topo | Finais → centro | Direito → base
    ═══════════════════════════════════════ */
 @media (max-aspect-ratio: 3/4) {
-    #main-wrapper {
-        position: absolute;
-        width: 100vh;
-        height: 100vw;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(90deg);
-        transform-origin: center center;
+
+    /* SVG connectors: redesenha em portrait via BracketDraw (vertical) */
+    /* #bracket-svg display mantido — linhas recalculadas por isPortrait() */
+
+    /* Bracket-area vira coluna */
+    .bracket-area {
+        flex-direction: column;
+        padding: 0.4% 1%;
+        gap: 0.4vmin;
+        overflow: hidden;
     }
+
+    /* Cada metade ocupa espaço igual acima/abaixo do centro */
+    .half {
+        flex: 1;
+        min-height: 0;
+        flex-direction: column;
+        gap: 0.4vmin;
+        align-items: stretch;
+    }
+
+    /* Round-cols: largura total, altura automática */
+    .round-col,
+    .round-col--r16,
+    .round-col--qf,
+    .round-col--sf {
+        flex: 1;
+        min-height: 0;
+        width: 100%;
+    }
+
+    /* Cards ficam lado a lado dentro de cada rodada */
+    .cards-area {
+        flex-direction: row;
+        justify-content: space-around;
+        min-width: 0;
+        align-items: stretch;
+        gap: 1vmin;
+    }
+    .cards-area--center {
+        justify-content: center;
+    }
+    /* Largura igual para todos os cards — impede variação por tamanho do texto */
+    .cards-area .match-slot { flex: 1; min-width: 0; align-items: center; }
+    .cards-area .match-card  { width: 100%; max-width: 20vw; }
+    /* SF (1 único card): não deve esticar para 100% */
+    .cards-area--center .match-slot { flex: 0 0 60%; max-width: 60%; }
+
+    /* Match-slot em portrait: sem data para economizar espaço */
+    .match-date { display: none; }
+    /* Remove sobreposição do badge — date está oculto em portrait */
+    .match-card { margin-top: 0; }
+
+    /* Round-label menor */
+    .round-label {
+        font-size: 1.2vmin;
+        height: auto;
+        line-height: 1.4;
+        margin-bottom: 0.2vmin;
+    }
+
+    /* Cards menores para caber 8 lado a lado em R32 */
+    .team-row {
+        padding: 0.5vmin 0.4vmin;
+        gap: 0.5vmin;
+        font-size: 2.0vmin;
+        justify-content: center;
+        height: 4vmin;
+      
+    }
+    .tname, .tname-indef {
+        font-size: 1.8min;
+        flex: 1;
+        min-width: 0;
+        text-align: center;
+    }
+    .flag  { width: 2.2vmin; height: 1.6vmin; }
+    .score { font-size: 2.3vmin; min-width: 2.0vmin; text-align: center; }
+
+    /* Centro: Final centralizada | Bronze menor à direita */
+    .center-col {
+        width: 100%;
+        flex: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 4vmin;
+        padding: 0.5vmin 0;
+    }
+    /* Final: card largo centrado */
+    .center-col .match-slot            { width: 65vw; }
+    /* Bronze: card menor, empurrado à direita */
+    .center-col > div:last-child       { align-self: flex-end; padding-right: 5vmin; }
+    .center-col > div:last-child .match-slot { width: 32vw; }
+    .center-col .team-row   { padding: 0.8vmin 0.8vmin; gap: 0.8vmin; height: 3vh; }
+    .center-col .flag       { width: 2.8vmin; height: 2.0vmin; }
+    .center-col .score      { font-size: 1.6vmin; min-width: 2.4vmin; }
 }
 
 /* ═══════════════════════════════════════
@@ -359,6 +459,15 @@
     border-bottom-color: var(--cor-destaque);
 }
 #headerBar * {
+    color: var(--cor-texto);
+}
+
+/* Footer do patrocinador */
+#sponsorFooter {
+    background-color: var(--cor-fundo-painel);
+    border-top-color: var(--cor-destaque);
+}
+#sponsorFooter * {
     color: var(--cor-texto);
 }
 

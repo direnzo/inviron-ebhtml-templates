@@ -12,18 +12,21 @@
 //  G:Bélgica H:Espanha  I:França  J:Argentina K:Portugal L:Inglaterra
 // ═══════════════════════════════════════════════════
 var MOCK_DATA = {
-    enabled: true,
-    config: {
-        duration: 30000,
-        TEXTO7: '#FBBF24',  // corDestaque
-        TEXTO8: '#006400',  // corEscura
-        TEXTO9: '#FFFFFF',  // corClara
-        sponsor: {
-            frase: '',
-            logo:  './img/logo_patrocinio_02.png'
-        }
-    },
-    partidas: [
+  enabled: true,
+  config: {
+    duration: 30000
+  },
+  /* --- Simula registro D_SPD (item com CONFIG='1') --- */
+  D_SPD: {
+    CONFIG:      '1',
+    TEXT1:       'Apoio:',
+    IMAGE_LOGO:  'img/logo_sponsor.png',
+    FILE_IMAGE1: 'img/sponsor.mp4',
+    TEXTO7:      '#FBBF24',  // corDestaque
+    TEXTO8:      '#006400',  // corEscura
+    TEXTO9:      '#FFFFFF'   // corClara
+  },
+  partidas: [
 
         // ══════════════════════════════════════════════════
         //  2ª RODADA — LADO ESQUERDO (L1-L8)
@@ -183,5 +186,10 @@ var MOCK_DATA = {
         { CATEGORY:'SF',     SUBTITULO:'2', SUBTITULO2:'', TITULO:'', TITULO2:'', FOTO:'', FOTO2:'', TEXTO:'', TEXTO2:'', SUBTITULO3:'NS' },
         { CATEGORY:'FINAL',  SUBTITULO:'1', SUBTITULO2:'', TITULO:'', TITULO2:'', FOTO:'', FOTO2:'', TEXTO:'', TEXTO2:'', SUBTITULO3:'NS' },
         { CATEGORY:'BRONZE', SUBTITULO:'1', SUBTITULO2:'', TITULO:'', TITULO2:'', FOTO:'', FOTO2:'', TEXTO:'', TEXTO2:'', SUBTITULO3:'NS' }
-    ]
-};
+    ],
+    D_FOOTBALL: {
+      TEXTO3: "" // será preenchido abaixo
+    }
+  };
+  // Sempre sincroniza TEXTO3 com as partidas
+  MOCK_DATA.D_FOOTBALL.TEXTO3 = JSON.stringify(MOCK_DATA.partidas);

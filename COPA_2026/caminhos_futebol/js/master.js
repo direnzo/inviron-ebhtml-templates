@@ -1,3 +1,48 @@
+// ===== ANIMAÇÃO DE INTRO BRACKET-AREA (zoom + alternância de canto) =====
+// Zoom reverso: começa em scale 1, termina em scale 2 nos 30% finais do tempo
+function animarZoomOutBracketArea(restanteMs) {
+    var area = document.querySelector('.bracket-area');
+    if (!area) {
+        console.log('[animarZoomOutBracketArea] .bracket-area NÃO encontrada');
+        return;
+    }
+    var ORIGINS = ['top left', 'bottom left', 'top right', 'bottom right'];
+    var idx = parseInt(localStorage.getItem('bracket_intro_origin_idx'), 10);
+    if (isNaN(idx) || idx < 0 || idx > 3) idx = 0;
+    var origin = ORIGINS[idx];
+    localStorage.setItem('bracket_intro_origin_idx', (idx + 1) % 4);
+
+    var zoomDelay = Math.round(restanteMs * 0.7);
+    var zoomDur   = Math.max(Math.round(restanteMs * 0.3), 300); // mínimo 300ms
+
+    console.log('[animarZoomOutBracketArea] INICIO', {
+        restanteMs: restanteMs,
+        zoomDelay: zoomDelay,
+        zoomDur: zoomDur,
+        origin: origin,
+        area: area
+    });
+
+    area.style.transition = 'none';
+    area.style.transformOrigin = origin;
+    area.style.transform = 'scale(1)';
+    void area.offsetWidth;
+    setTimeout(function() {
+        console.log('[animarZoomOutBracketArea] INICIANDO ZOOM', {
+            transition: 'transform ' + (zoomDur/1000) + 's cubic-bezier(0.77,0,0.175,1), transform-origin ' + (zoomDur/1000) + 's cubic-bezier(0.77,0,0.175,1)',
+            origin: origin
+        });
+        area.style.transition = 'transform ' + (zoomDur/1000) + 's cubic-bezier(0.77,0,0.175,1), transform-origin ' + (zoomDur/1000) + 's cubic-bezier(0.77,0,0.175,1)';
+        area.style.transformOrigin = origin;
+        area.style.transform = 'scale(2)';
+    }, zoomDelay);
+    setTimeout(function() {
+        console.log('[animarZoomOutBracketArea] RESETANDO estilos');
+        area.style.transition = '';
+        area.style.transform = '';
+        area.style.transformOrigin = '';
+    }, zoomDelay + zoomDur + 80);
+}
 // ═══════════════════════════════════════════════════════
 //  caminhos_futebol — master.js
 //  Copa FIFA 2026 | Bracket Pathways | ES5
@@ -114,20 +159,45 @@ window.onload = function() {
             loaded:   function() { console.log('[Mock] loaded'); },
             finished: function() { console.log('[Mock] finished'); }
         };
-        var dados = processarDadosMock(MOCK_DATA.partidas);
-        var mockConfig = MOCK_DATA.config || {};
-        aplicarCores(mergeColorsFromSpd(CONFIG, mockConfig));
+        var dfJson = MOCK_DATA.D_FOOTBALL && MOCK_DATA.D_FOOTBALL.TEXTO3;
+        var partidas;
+        try { partidas = JSON.parse(dfJson || '[]'); } catch (e) { partidas = []; }
+        var dados = processarDadosMock(partidas);
+        var spdSponsor = MOCK_DATA.D_SPD || null;
+        var mockConfig = {
+            duration: (MOCK_DATA.config && MOCK_DATA.config.duration) || 30000,
+            sponsor: spdSponsor ? {
+                frase: spdSponsor.TEXT1       || '',
+                logo:  spdSponsor.IMAGE_LOGO  || ''
+            } : (MOCK_DATA.config && MOCK_DATA.config.sponsor) || null
+        };
+        aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
         iniciarTemplate(dados, mockConfig, mockLoader);
     } else {
         ebhtml.create2({}, function(loader) {
-            loader.addData('D_COPA', false);
-            loader.addData('D_SPD',  false);
+            loader.addData('D_FOOTBALL', false);
+            loader.addData('D_SPD',      false);
             loader.autoloaded    = false;
             loader.nodataiserror = false;
 
             loader.load(function() {
-                if (loader.datalist('D_COPA') === undefined || loader.datalist('D_COPA').count() === 0) {
-                    console.error('[caminhos_futebol] Sem dados D_COPA');
+                var dfReg = loader.data('D_FOOTBALL');
+                if (!dfReg) {
+                    console.error('[caminhos_futebol] Sem dados D_FOOTBALL');
+                    loader.finished();
+                    return;
+                }
+                var jsonStr = (dfReg.value('TEXTO3') && dfReg.value('TEXTO3').value) || '';
+                if (!jsonStr) {
+                    console.error('[caminhos_futebol] D_FOOTBALL.TEXTO3 vazio');
+                    loader.finished();
+                    return;
+                }
+                var partidas;
+                try {
+                    partidas = JSON.parse(jsonStr);
+                } catch (e) {
+                    console.error('[caminhos_futebol] Erro JSON.parse TEXTO3:', e);
                     loader.finished();
                     return;
                 }
@@ -156,7 +226,7 @@ window.onload = function() {
                 };
 
                 aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
-                var dados = processarDados(loader);
+                var dados = processarDadosMock(partidas);
                 iniciarTemplate(dados, runConfig, loader);
             });
         });
@@ -164,35 +234,7 @@ window.onload = function() {
 };
 
 // ──────────────────────────────────────────────────
-//  PROCESSAR DADOS — EdgeContents (datalist)
-// ──────────────────────────────────────────────────
-function processarDados(loader) {
-    var lista  = loader.datalist('D_COPA');
-    var total  = lista.count();
-    var dados  = {};
-    for (var i = 0; i < total; i++) {
-        var reg   = lista.get(i);
-        var fase  = reg.value('CATEGORY').value    || '';
-        var pos   = reg.value('SUBTITULO').value   || '';
-        var chave = fase + '_' + pos;
-        dados[chave] = {
-            fase:          fase,
-            posicao:       parseInt(pos, 10),
-            timeCasa:      reg.value('TITULO').value      || '',
-            timeVisitante: reg.value('TITULO2').value     || '',
-            flagCasa:      reg.value('FOTO').value        || '',
-            flagVisitante: reg.value('FOTO2').value       || '',
-            golsCasa:      reg.value('TEXTO').value       || '',
-            golsVisitante: reg.value('TEXTO2').value      || '',
-            status:        reg.value('SUBTITULO3').value  || 'NS',
-            datahora:      reg.value('SUBTITULO2').value  || ''
-        };
-    }
-    return dados;
-}
-
-// ──────────────────────────────────────────────────
-//  PROCESSAR DADOS — Mock (array direto)
+//  PROCESSAR DADOS — array de partidas (mock e producao)
 // ──────────────────────────────────────────────────
 function processarDadosMock(partidas) {
     var dados = {};
@@ -220,29 +262,159 @@ function processarDadosMock(partidas) {
 // ──────────────────────────────────────────────────
 //  INICIAR TEMPLATE
 // ──────────────────────────────────────────────────
+
+// ===== Helpers para intro de patrocinador (copiado do placar_futebol) =====
+function normalizarUrlMidia(url) {
+    if (!url) { return url; }
+    url = url.trim();
+    if (url.indexOf('file:///') === 0 || url.indexOf('file://') === 0) {
+        var partes = url.replace(/\\/g, '/').split('/');
+        var nomeArquivo = partes[partes.length - 1];
+        var mId = nomeArquivo.match(/^f_(\d+)\./);
+        if (mId) {
+            return window.location.protocol + '//127.0.0.1:13199/FILES/' + mId[1];
+        }
+        return window.location.protocol + '//127.0.0.1:13199/FILES/' + nomeArquivo;
+    }
+    return url;
+}
+function isUrlVideo(url) {
+    if (!url) { return false; }
+    return /\.(mp4|webm|mov|avi|ogv|ogg)(\?.*)?$/i.test(url.trim());
+}
+function mostrarIntro(url, onDone) {
+    var introEl = document.querySelector('#introScreen');
+    if (!introEl) { onDone(); return; }
+    var isVideo = isUrlVideo(url);
+    url = normalizarUrlMidia(url);
+    introEl.innerHTML = '';
+    introEl.style.opacity = '1';
+    introEl.classList.remove('hidden');
+    if (isVideo) {
+        var vid = document.createElement('video');
+        vid.className = 'w-full h-full object-cover';
+        vid.setAttribute('playsinline', '');
+        vid.muted = true;
+        introEl.appendChild(vid);
+        var _introDone = false;
+        var _introTimer = null;
+        function _onIntroDone() {
+            if (_introDone) { return; }
+            _introDone = true;
+            clearTimeout(_introTimer);
+            onDone();
+        }
+        _introTimer = setTimeout(function() {
+            vid.pause();
+            _onIntroDone();
+        }, 5000);
+        vid.addEventListener('ended', _onIntroDone);
+        vid.addEventListener('error', _onIntroDone);
+        vid.addEventListener('canplay', function onFirstCanPlay() {
+            vid.removeEventListener('canplay', onFirstCanPlay);
+            var p = vid.play();
+            if (p && typeof p.then === 'function') {
+                p.then(function() {}, function() { _onIntroDone(); });
+            }
+        });
+        vid.src = url;
+        vid.load();
+    } else {
+        var img = document.createElement('img');
+        img.className = 'w-full h-full object-cover';
+        img.onload = function() { setTimeout(onDone, 5000); };
+        img.onerror = onDone;
+        introEl.appendChild(img);
+        img.src = url;
+    }
+}
+function esconderIntro(onDone) {
+    var introEl = document.querySelector('#introScreen');
+    if (!introEl || introEl.classList.contains('hidden')) {
+        if (onDone) { onDone(); }
+        return;
+    }
+    introEl.style.opacity = '0';
+    setTimeout(function() {
+        introEl.classList.add('hidden');
+        introEl.innerHTML = '';
+        if (onDone) { onDone(); }
+    }, 700);
+}
+
+// ====== INICIAR TEMPLATE COM INTRO E TEMPO TOTAL DE 10s ======
+var DURACAO_TOTAL = 10000; // ms
+var INTRO_MAX_MS = 5000;   // ms
+
 function iniciarTemplate(dados, config, loader) {
+    var sponsor = config && config.sponsor;
+    var introUrl = sponsor && sponsor.intro ? sponsor.intro : (sponsor && sponsor.FILE_IMAGE1 ? sponsor.FILE_IMAGE1 : null);
+    if (!introUrl && sponsor && sponsor.logo && sponsor.logo.indexOf('.mp4') !== -1) {
+        introUrl = sponsor.logo;
+    }
+    if (!introUrl && typeof MOCK_DATA !== 'undefined' && MOCK_DATA.D_SPD && MOCK_DATA.D_SPD.FILE_IMAGE1) {
+        introUrl = MOCK_DATA.D_SPD.FILE_IMAGE1;
+    }
+    if (introUrl) {
+        var introStart = Date.now();
+        mostrarIntro(introUrl, function() {
+            var introMs = Math.min(Date.now() - introStart, INTRO_MAX_MS);
+            esconderIntro(function() {
+                iniciarTemplateSemIntro(dados, config, loader, introMs);
+            });
+        });
+    } else {
+        iniciarTemplateSemIntro(dados, config, loader, 0);
+    }
+}
+
+function iniciarTemplateSemIntro(dados, config, loader, introMs) {
     renderizarBracket(dados);
     marcarBrasil();
     marcarCampeao(dados);
-    BracketDraw.init();
     ocultarFasesAnteriores(dados);
     atualizarFaseAtual(dados);
     aplicarSponsor(config);
+
+    // Detecta se a fase mais avançada exibida é R32 ou R16
+    var faseMaisAlta = null;
+    for (var k in dados) {
+        if (dados.hasOwnProperty(k)) {
+            var f = k.split('_')[0];
+            if (!faseMaisAlta || (FASE_PRIORIDADE[f] && FASE_PRIORIDADE[f] > (FASE_PRIORIDADE[faseMaisAlta]||0))) {
+                faseMaisAlta = f;
+            }
+        }
+    }
+    console.log('[iniciarTemplateSemIntro] faseMaisAlta:', faseMaisAlta);
+    if (faseMaisAlta === 'R32' || faseMaisAlta === 'R16') {
+        var restante = Math.max(DURACAO_TOTAL - (introMs || 0), 1000);
+        // Espera a animação de entrada dos brackets (700ms), depois aplica o zoom reverso
+        setTimeout(function() {
+            console.log('[iniciarTemplateSemIntro] Chamando animarZoomOutBracketArea, restante:', restante - 700);
+            animarZoomOutBracketArea(restante - 700);
+        }, 700);
+    }
+
     animarEntradaBracket();
     destacarPartidaRecente(dados);
     animarCaminhoVencedor(dados);
 
-    // Fade-in do wrapper
+    setTimeout(function() {
+        BracketDraw.init();
+        BracketDraw.animarLinhas(0);
+    }, 80);
+
     var wrapper = document.getElementById('main-wrapper');
     if (wrapper) {
         wrapper.style.opacity = '1';
     }
 
     loader.loaded();
-
+    var restante = Math.max(DURACAO_TOTAL - (introMs || 0), 1000);
     setTimeout(function() {
         loader.finished();
-    }, config.duration || 30000);
+    }, restante);
 }
 
 // ──────────────────────────────────────────────────
@@ -302,10 +474,9 @@ function marcarCampeao(dados) {
 function isFaseCompleta(dados, fase, total) {
     for (var i = 1; i <= total; i++) {
         var p = dados[fase + '_' + i];
-        if (!p || !p.timeCasa || p.timeCasa === 'TBD' ||
-            !p.timeVisitante || p.timeVisitante === 'TBD') {
-            return false;
-        }
+        if (!p) { return false; }
+        var s = p.status || '';
+        if (s !== 'FT' && s !== 'AET' && s !== 'PEN') { return false; }
     }
     return true;
 }
@@ -344,13 +515,17 @@ function aplicarSponsor(config) {
     var sponsor = config && config.sponsor;
     if (!sponsor) return;
 
-    var fraseEl = document.getElementById('sponsor-frase');
-    var logoEl  = document.getElementById('sponsor-logo');
+    var footerEl = document.getElementById('sponsorFooter');
+    var fraseEl  = document.getElementById('sponsorFrase');
+    var logoEl   = document.getElementById('sponsorLogo');
 
     if (fraseEl && sponsor.frase) { fraseEl.textContent = sponsor.frase; }
-    if (logoEl  && sponsor.logo)  {
-        logoEl.src = sponsor.logo;
-        logoEl.style.display = 'block';
+    if (logoEl  && sponsor.logo)  { logoEl.src = sponsor.logo; }
+
+    // Exibe o footer quando houver frase ou logo
+    if (footerEl && (sponsor.frase || sponsor.logo)) {
+        footerEl.classList.remove('hidden');
+        footerEl.classList.add('flex');
     }
 }
 
@@ -515,8 +690,8 @@ function animarEntradaBracket() {
     for (var i = 0; i < STAGGER_ORDER.length; i++) {
         animarCardComDelay(STAGGER_ORDER[i], i * 60);
     }
-    // 3. Linhas SVG: simultâneas com os cards
-    BracketDraw.animarLinhas(0);
+    // 3. Linhas SVG: gerenciadas pelo setTimeout em iniciarTemplate (após reflow)
+    //    BracketDraw.animarLinhas(0) chamado lá junto com init()
 }
 
 function animarLabelComDelay(el, delay) {

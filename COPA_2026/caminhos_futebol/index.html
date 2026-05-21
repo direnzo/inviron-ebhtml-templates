@@ -6,336 +6,349 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rumo ao Mundial - Chaveamento</title>
     <link rel="stylesheet" href="css/master.css">
-    <script src="js/mock-sim-campeao.js"></script>
-    <script src="js/mock-data.js"></script> original pré-torneio
+    
+    <script src="js/mock-sim-01jul.js"></script> <!-- original pré-torneio -->
     <script src="js/ebhtml.js"></script>
     <script src="js/bracket-draw.js"></script>
     <script src="js/master.js"></script>
+    <script src="js/preview.js"></script>
 </head>
 
 <body class="relative w-full h-screen overflow-hidden bg-[#0a0f1e] text-white font-roboto-regular">
+
+    <!-- IntroScreen: garantir que está no topo do body -->
+    <div id="introScreen" style="transition: opacity 0.7s ease;"
+        class="hidden absolute inset-0 z-50 bg-black flex items-center justify-center">
+    </div>
 
     <video id="bgVideo" autoplay loop muted playsinline src="img/pre.mp4" class="absolute inset-0 z-0 w-full h-full object-cover opacity-40">
     </video>
     <div class="absolute inset-0 z-0 bg-[linear-gradient(to_bottom,rgba(10,15,30,0.85)_0%,rgba(10,15,30,0.55)_40%,rgba(10,15,30,0.55)_70%,rgba(10,15,30,0.9)_100%)]"></div>
 
-    <div id="main-wrapper" class="absolute inset-0 z-10 flex flex-col opacity-0" style="transition: opacity 0.7s ease;">
+    <div id="main-wrapper" class="absolute inset-0 z-10 flex flex-col overflow-hidden opacity-0" style="transition: opacity 0.7s ease;">
 
-        <header id="headerBar" class="flex-none flex items-center justify-between px-[2%] py-[0.8%] border-b-4 border-yellow-600 bg-black/30">
+        <header id="headerBar" class="flex-none flex items-center justify-between px-[2%] py-[0.5%] border-b-4 border-yellow-600 bg-black/30">
             <div class="flex items-center gap-[1.5vmin] h-[5vh]">
                 <div class="flex flex-col leading-tight">
                     <span class="font-roboto-black text-[2.5vmin] uppercase tracking-[0.2em] text-yellow-400">O Mundo em Campo 2026</span>
-                    <span class="font-roboto-regular text-[1.2vmin] uppercase tracking-widest text-white/40">Fase Eliminatória</span>
                 </div>
             </div>
+            <span class="font-roboto-regular text-[2.2vmin] uppercase tracking-widest text-white/40">Fase Eliminatória</span>
             <div>
-                <span id="header-fase" class="font-roboto-bold text-[2.2vmin] uppercase tracking-[0.25em] text-white/80">Rumo ao Mundial</span>
-            </div>
-            <div class="flex items-center gap-[1.5vmin] justify-end">
-                <div class="flex flex-col items-end leading-tight">
-                    <span class="font-roboto-regular text-[0.75vmin] uppercase tracking-widest text-white/30">Apoio</span>
-                    <span id="sponsor-frase" class="font-roboto-bold text-[0.95vmin] text-white/70"></span>
-                </div>
-                <img id="sponsor-logo" src="" alt="" class="h-[4vh] w-auto object-contain" style="display:none;">
+                <span id="header-fase" class="font-roboto-bold text-[2.2vmin] uppercase tracking-[0.25em] text-white/80 portrait:hidden">Rumo ao Mundial</span>
             </div>
         </header>
 
-        <div class="bracket-area">
-
-            <svg id="bracket-svg"></svg>
-
-            <div class="half half-left">
-
-                <div class="round-col" id="col-r32-l">
-                    <div class="round-label">Segundas de final</div>
-                    <div class="cards-area">
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r32-l1" class="match-card match-blue">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+        <main class="overflow-hidden flex flex-1 relative min-h-0 flex-row items-stretch p-0 gap-0">
+            <div class="bracket-area ">
+                <svg id="bracket-svg"></svg>
+                <div class="half half-left">
+                    <div class="round-col" id="col-r32-l">
+                        <div class="round-label">Segundas de final</div>
+                        <div class="cards-area">
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r32-l1" class="match-card match-blue">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r32-l2" class="match-card match-blue">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r32-l3" class="match-card match-blue">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r32-l4" class="match-card match-blue">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r32-l5" class="match-card match-purple">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r32-l6" class="match-card match-purple">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r32-l7" class="match-card match-purple">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r32-l8" class="match-card match-purple">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
                             </div>
                         </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r32-l2" class="match-card match-blue">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                    </div>
+                    <div class="round-col round-col--r16" id="col-r16-l">
+                        <div class="round-label">Oitavas</div>
+                        <div class="cards-area">
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r16-l1" class="match-card match-blue">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r16-l2" class="match-card match-blue">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r16-l3" class="match-card match-purple">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r16-l4" class="match-card match-purple">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
                             </div>
                         </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r32-l3" class="match-card match-blue">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                    </div>
+                    <div class="round-col round-col--qf" id="col-qf-l">
+                        <div class="round-label">Quartas</div>
+                        <div class="cards-area">
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-qf-l1" class="match-card match-blue">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-qf-l2" class="match-card match-purple">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
                             </div>
                         </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r32-l4" class="match-card match-blue">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r32-l5" class="match-card match-purple">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r32-l6" class="match-card match-purple">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r32-l7" class="match-card match-purple">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r32-l8" class="match-card match-purple">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                    </div>
+                    <div class="round-col round-col--sf" id="col-sf-l">
+                        <div class="round-label">Semifinal</div>
+                        <div class="cards-area cards-area--center">
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-sf-l" class="match-card match-blue">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="round-col round-col--r16" id="col-r16-l">
-                    <div class="round-label">Oitavas</div>
-                    <div class="cards-area">
+                <div class="center-col">
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="round-label round-label--gold">Final</div>
                         <div class="match-slot">
                             <div class="match-date"></div>
-                            <div id="m-r16-l1" class="match-card match-blue">
+                            <div id="m-final" class="match-card match-gold">
+                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname font-roboto-bold">TBD</span><span class="score"></span></div>
+                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname font-roboto-bold">TBD</span><span class="score"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="match-slot">
+                            <div class="match-date"></div>
+                            <div id="m-bronze" class="match-card match-bronze">
                                 <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
                                 <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
                             </div>
                         </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r16-l2" class="match-card match-blue">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                        <div class="round-label round-label--bronze">3&ordm; Lugar</div>
+                    </div>
+                </div>
+                <div class="half half-right" id="half-right">
+                    <div class="round-col round-col--sf" id="col-sf-r">
+                        <div class="round-label">Semifinal</div>
+                        <div class="cards-area cards-area--center">
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-sf-r" class="match-card match-green">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
                             </div>
                         </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r16-l3" class="match-card match-purple">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                    </div>
+                    <div class="round-col round-col--qf" id="col-qf-r">
+                        <div class="round-label">Quartas</div>
+                        <div class="cards-area">
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-qf-r1" class="match-card match-green">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-qf-r2" class="match-card match-red">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
                             </div>
                         </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r16-l4" class="match-card match-purple">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                    </div>
+                    <div class="round-col round-col--r16" id="col-r16-r">
+                        <div class="round-label">Oitavas</div>
+                        <div class="cards-area">
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r16-r1" class="match-card match-green">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r16-r2" class="match-card match-green">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r16-r3" class="match-card match-red">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r16-r4" class="match-card match-red">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="round-col" id="col-r32-r">
+                        <div class="round-label">Segundas de Final</div>
+                        <div class="cards-area">
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r32-r1" class="match-card match-green">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r32-r2" class="match-card match-green">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r32-r3" class="match-card match-green">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r32-r4" class="match-card match-green">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r32-r5" class="match-card match-red">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r32-r6" class="match-card match-red">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r32-r7" class="match-card match-red">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
+                            </div>
+                            <div class="match-slot">
+                                <div class="match-date"></div>
+                                <div id="m-r32-r8" class="match-card match-red">
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                    <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="round-col round-col--qf" id="col-qf-l">
-                    <div class="round-label">Quartas</div>
-                    <div class="cards-area">
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-qf-l1" class="match-card match-blue">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-qf-l2" class="match-card match-purple">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="round-col round-col--sf" id="col-sf-l">
-                    <div class="round-label">Semifinal</div>
-                    <div class="cards-area cards-area--center">
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-sf-l" class="match-card match-blue">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
+        </main>
 
-            <div class="center-col">
-                <div class="flex flex-col items-center justify-center">
-                    <div class="round-label round-label--gold">Final</div>
-                    <div class="match-slot">
-                        <div class="match-date"></div>
-                        <div id="m-final" class="match-card match-gold">
-                            <div class="team-row"><img class="flag" src="" alt=""><span class="tname font-roboto-bold">TBD</span><span class="score"></span></div>
-                            <div class="team-row"><img class="flag" src="" alt=""><span class="tname font-roboto-bold">TBD</span><span class="score"></span></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex flex-col items-center justify-center">
-                    <div class="match-slot">
-                        <div class="match-date"></div>
-                        <div id="m-bronze" class="match-card match-bronze">
-                            <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                        </div>
-                    </div>
-                    <div class="round-label round-label--bronze">3&ordm; Lugar</div>
-                </div>
-            </div>
-
-            <div class="half half-right" id="half-right">
-
-                <div class="round-col round-col--sf" id="col-sf-r">
-                    <div class="round-label">Semifinal</div>
-                    <div class="cards-area cards-area--center">
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-sf-r" class="match-card match-green">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="round-col round-col--qf" id="col-qf-r">
-                    <div class="round-label">Quartas</div>
-                    <div class="cards-area">
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-qf-r1" class="match-card match-green">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-qf-r2" class="match-card match-red">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="round-col round-col--r16" id="col-r16-r">
-                    <div class="round-label">Oitavas</div>
-                    <div class="cards-area">
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r16-r1" class="match-card match-green">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r16-r2" class="match-card match-green">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r16-r3" class="match-card match-red">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r16-r4" class="match-card match-red">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="round-col" id="col-r32-r">
-                    <div class="round-label">Segundas de Final</div>
-                    <div class="cards-area">
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r32-r1" class="match-card match-green">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r32-r2" class="match-card match-green">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r32-r3" class="match-card match-green">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r32-r4" class="match-card match-green">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r32-r5" class="match-card match-red">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r32-r6" class="match-card match-red">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r32-r7" class="match-card match-red">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                        <div class="match-slot">
-                            <div class="match-date"></div>
-                            <div id="m-r32-r8" class="match-card match-red">
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                                <div class="team-row"><img class="flag" src="" alt=""><span class="tname">TBD</span><span class="score"></span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
+         <!-- FOOTER: patrocinador (oculto por padrao; JS exibe quando houver dados) -->
+        <footer id="sponsorFooter"
+                class="hidden flex-none flex items-center justify-center gap-[2%]
+                        py-[1%] px-[6%]
+                        ultrawide:py-[1.5vh]
+                        superbanner:py-[1vh]
+                        border-t-4 border-yellow-500
+                        portrait:flex-col">
+            <span id="sponsorFrase" class="font-roboto-regular  tracking-wide text-center"></span>
+            <img id="sponsorLogo" src="" alt="" class="h-[10vh] portrait:h-[8vh] square:h-[8vh] w-auto max-w-[80vw] object-contain flex-shrink-0">
+        </footer>
 
     </div>
+
+
+    
+    <script>
+        // Detecta se esta sendo exibido na extranet (preview) ou no player normal
+        // Executado aqui (final do body) para garantir que o DOM esta pronto
+        var _pfCheckEl = null;
+        try {
+            if (window.parent && window.parent.document) {
+                _pfCheckEl = window.parent.document.getElementById('template_check');
+            }
+        } catch (e) { _pfCheckEl = null; }
+        if (_pfCheckEl !== null) { extranetView(); } else { playerView(); }
+    </script>
+
 
 </body>
 

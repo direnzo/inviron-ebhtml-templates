@@ -152,7 +152,61 @@ var BracketDraw = (function () {
     }
 
     // ------------------------------------------------------------------
-    //  drawSFCenter — SF-L and SF-R connect to Final (bottom) and
+    //  isPortrait — detecta orientacao portrait (aspect-ratio <= 3/4)
+    // ------------------------------------------------------------------
+    function isPortrait() {
+        return window.innerWidth / window.innerHeight <= 0.75;
+    }
+
+    // ------------------------------------------------------------------
+    //  drawMergeVertical — portrait: fontes saem pela BAIXO, alvo entra pelo TOPO
+    //
+    //  [srcA]  [srcB]
+    //    │       │
+    //    └──┬───┘   ← barra horizontal no midY
+    //       │
+    //    [target]
+    // ------------------------------------------------------------------
+    function drawMergeVertical(svg, container, conn) {
+        var ra = getRect(conn.a, container);
+        var rb = getRect(conn.b, container);
+        var rt = getRect(conn.t, container);
+        if (!ra || !rb || !rt) return;
+
+        var exitY  = ra.bottom;
+        var entryY = rt.top;
+        var midY   = (exitY + entryY) / 2;
+
+        svg.appendChild(makeLine(ra.centerX, exitY,  ra.centerX, midY));   // V: A → midY
+        svg.appendChild(makeLine(rb.centerX, exitY,  rb.centerX, midY));   // V: B → midY
+        svg.appendChild(makeLine(ra.centerX, midY,   rb.centerX, midY));   // H: barra
+        svg.appendChild(makeLine(rt.centerX, midY,   rt.centerX, entryY)); // V: midY → alvo
+    }
+
+    // ------------------------------------------------------------------
+    //  drawSFCenterVertical — portrait:
+    //  SF-L (acima do Final) e SF-R (abaixo do Final) conectam ao Final
+    //
+    //  [SF-L]
+    //    │ (desce ao topo do Final)
+    //  [Final][Bronze]
+    //    │ (sobe da base do Final ao SF-R)
+    //  [SF-R]
+    // ------------------------------------------------------------------
+    function drawSFCenterVertical(svg, container) {
+        var sfL    = getRect('m-sf-l',   container);
+        var sfR    = getRect('m-sf-r',   container);
+        var rFinal = getRect('m-final',  container);
+        if (!sfL || !sfR || !rFinal) return;
+
+        // SF-L sai por baixo → Final entra pelo topo
+        svg.appendChild(makeLine(sfL.centerX, sfL.bottom, rFinal.centerX, rFinal.top));
+        // SF-R sai pelo topo → Final entra pela base (SF-R fica abaixo do centro)
+        svg.appendChild(makeLine(sfR.centerX, sfR.top, rFinal.centerX, rFinal.bottom));
+    }
+
+    // ------------------------------------------------------------------
+    //  drawSFCenter — landscape (original)
     //  Bronze (top) via a shared vertical axis at centerX of Final card.
     //
     //  SF-L (left side)  ──────────────┐
@@ -197,17 +251,25 @@ var BracketDraw = (function () {
             svg.removeChild(svg.firstChild);
         }
 
+        var portrait = isPortrait();
+
         for (var i = 0; i < CONNECTIONS.length; i++) {
             var conn = CONNECTIONS[i];
-            if (conn.type === 'merge') {
+            if (portrait) {
+                drawMergeVertical(svg, container, conn);
+            } else if (conn.type === 'merge') {
                 drawMerge(svg, container, conn);
             } else {
                 drawSingle(svg, container, conn);
             }
         }
 
-        // SF → Final / Bronze central T-connection
-        drawSFCenter(svg, container);
+        // SF → Final / Bronze
+        if (portrait) {
+            drawSFCenterVertical(svg, container);
+        } else {
+            drawSFCenter(svg, container);
+        }
     }
 
     // ------------------------------------------------------------------
