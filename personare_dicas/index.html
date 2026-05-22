@@ -16,7 +16,7 @@
     Landscape / ultrawide: flex-row — conteúdo à esquerda (~38%), imagem à direita (~62%)
     Portrait / empena:     flex-col — imagem no topo (~40%), conteúdo abaixo (~60%)
 -->
-<body class="opacity-0 transition-opacity duration-1000
+<body class="opacity-0 transition-opacity duration-1000 text-[3vmin]
              w-full h-full overflow-hidden
              flex flex-row items-stretch
              portrait:flex-col">
@@ -36,9 +36,8 @@
                        text-[3.8vmin]"></p>
         </div>
 
-        <div id="texto" class="w-full flex-1 min-h-0 overflow-hidden">
-            <p class="font-montserrat-regular text-white leading-snug
-                       text-[4.6vmin]"></p>
+        <div id="texto-container" class="w-full flex-1 min-h-0 max-h-[24vh] landscape:max-h-[48vh]    ">
+            <p id="texto" class="resize text-[60px] font-montserrat-regular text-white leading-snug h-full text-start"></p>
         </div>
 
     </div>
