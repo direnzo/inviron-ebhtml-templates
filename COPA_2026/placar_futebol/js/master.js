@@ -13,6 +13,9 @@
  *                               nomes, escudos (FOTO/FOTO2), estadio, data,
  *                               torneio (CATEGORY), rodada (SUBTITULO2),
  *                               ID da partida em TEXTO (cruzado com D_SPD.TITLE)
+ *
+ * Tempo: com intro (FILE_IMAGE1) = DURACAO (segundos, D_SPD CONFIG=1) + placar 5s;
+ *         sem intro = placar 10s. Fallback sem DURACAO: video ate ended / imagem 5s.
  */
 
 /* ====================================================
@@ -178,10 +181,16 @@ var CONFIG = {
     corEscura:   '#006400',  // cor de fundo (painéis, gradientes) verde bem escuro 
     corClara:    '#FFFFFF'   // cor de texto e bordas
 };
-/* Duração total do template em ms: intro + placar = sempre 10s */
-var DURACAO_TOTAL = 10000;
-/* Duração máxima da intro em ms — vídeo cortado se ultrapassar */
-var INTRO_MAX_MS  = 5000;
+/* Tempo de exibicao: sem intro = 10s; com intro = DURACAO (D_SPD) + placar fixo 5s */
+var DURACAO_SEM_INTRO_MS     = 10000;
+var DURACAO_CONTEUDO_MS      = 5000;
+var DURACAO_IMAGEM_PADRAO_MS = 5000;
+
+function obterDuracaoIntroMs(spd) {
+    if (!spd) { return 0; }
+    var seg = parseInt(obterValor(spd, 'DURACAO'), 10);
+    return (seg > 0) ? seg * 1000 : 0;
+}
 
 /* chave localStorage para rotação de partidas (padrão master_2) */
 var LS_KEY_PARTIDA = 'placar_futebol_partida_idx';
@@ -387,7 +396,8 @@ function processarDados(spdData, spdSponsor, footballData, loader) {
         tempoExtra: spdData ? obterValor(spdData, 'TEXT10') : '',
         patroFrase:  spdSponsor ? obterValor(spdSponsor, 'TEXT1') : '',
         patroLogo:   spdSponsor ? obterValor(spdSponsor, 'IMAGE_LOGO') : '',
-        introMedia:  spdSponsor ? obterValor(spdSponsor, 'FILE_IMAGE1') : ''
+        introMedia:  spdSponsor ? obterValor(spdSponsor, 'FILE_IMAGE1') : '',
+        introDuracaoMs: spdSponsor ? obterDuracaoIntroMs(spdSponsor) : 0
     };
 
     console.log('[placar_futebol] >>> Exibindo: ' + dados.time1 + ' x ' + dados.time2
@@ -675,8 +685,7 @@ function renderizarTemplate(dados, loader) {
 
             loader.loaded();
 
-            // placar fica visível pelo tempo restante até completar DURACAO_TOTAL
-            var placarMs = Math.max(DURACAO_TOTAL - introActualMs, 1000);
+            var placarMs = dados.introMedia ? DURACAO_CONTEUDO_MS : DURACAO_SEM_INTRO_MS;
             console.log('[placar_futebol] intro=' + introActualMs + 'ms placar=' + placarMs + 'ms total=' + (introActualMs + placarMs) + 'ms');
             setTimeout(function() {
                 loader.finished();
@@ -718,10 +727,10 @@ function renderizarTemplate(dados, loader) {
     if (dados.introMedia) {
         introStartTime = Date.now();
         mostrarIntro(dados.introMedia, function() {
-            introActualMs = Math.min(Date.now() - introStartTime, INTRO_MAX_MS);
+            introActualMs = Date.now() - introStartTime;
             introFeita = true;
             verificarPronto();
-        });
+        }, dados.introDuracaoMs);
     }
 
     // --- Patrocinador ---
@@ -785,7 +794,7 @@ function isUrlVideo(url) {
    url: campo FILE_IMAGE1 do item CONFIG=1 do D_SPD
    onDone: callback chamado quando a intro terminar
    ==================================================== */
-function mostrarIntro(url, onDone) {
+function mostrarIntro(url, onDone, introMaxMs) {
     var introEl = document.querySelector('#introScreen');
     if (!introEl) { onDone(); return; }
 
@@ -793,7 +802,7 @@ function mostrarIntro(url, onDone) {
     var isVideo = isUrlVideo(url);
 
     url = normalizarUrlMidia(url);
-    console.log('[placar_futebol] intro (' + (isVideo ? 'video' : 'imagem') + '): ' + url);
+    console.log('[placar_futebol] intro (' + (isVideo ? 'video' : 'imagem') + '): ' + url + (introMaxMs > 0 ? ' max=' + introMaxMs + 'ms' : ' sem limite'));
 
     introEl.innerHTML = '';
     introEl.style.opacity = '1';
@@ -818,12 +827,13 @@ function mostrarIntro(url, onDone) {
             clearTimeout(_introTimer);
             onDone();
         }
-        // Corta o vídeo após INTRO_MAX_MS mesmo que não tenha terminado
-        _introTimer = setTimeout(function() {
-            console.log('[intro-video] timeout ' + INTRO_MAX_MS + 'ms — cortando');
-            vid.pause();
-            _onIntroDone();
-        }, INTRO_MAX_MS);
+        if (introMaxMs > 0) {
+            _introTimer = setTimeout(function() {
+                console.log('[intro-video] timeout ' + introMaxMs + 'ms — cortando');
+                vid.pause();
+                _onIntroDone();
+            }, introMaxMs);
+        }
 
         vid.addEventListener('loadstart',  function() { console.log('[intro-video] loadstart'); });
         vid.addEventListener('loadeddata', function() { console.log('[intro-video] loadeddata'); });
@@ -856,8 +866,9 @@ function mostrarIntro(url, onDone) {
     } else {
         var img = document.createElement('img');
         img.className = 'w-full h-full object-cover';
+        var imgMs = introMaxMs > 0 ? introMaxMs : DURACAO_IMAGEM_PADRAO_MS;
         img.onload = function() {
-            setTimeout(onDone, INTRO_MAX_MS);
+            setTimeout(onDone, imgMs);
         };
         img.onerror = onDone;
         introEl.appendChild(img);

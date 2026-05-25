@@ -1,0 +1,12 @@
+{
+  "name": "segundafase-futebol",
+  "version": "1.0.0",
+  "description": "Copa 2026 — Segunda fase em lista (LED / telas pequenas) para Digital Signage",
+  "scripts": {
+    "dev": "tailwindcss -i css/input.css -o css/master.css --watch",
+    "build": "tailwindcss -i css/input.css -o css/master.css --minify"
+  },
+  "keywords": ["digital-signage", "edgecontents", "tailwindcss", "copa2026"],
+  "author": "EdgeContents",
+  "license": "ISC"
+}

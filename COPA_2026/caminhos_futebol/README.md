@@ -169,17 +169,28 @@ Redesenho automático no `window.resize` (debounce 150ms).
 
 ---
 
+## Tempo de exibição
+
+| Cenário | Intro (`D_SPD.FILE_IMAGE1`) | Conteúdo (bracket) | Total |
+|---------|----------------------------|-------------------|-------|
+| Com intro | `DURACAO` em segundos (`D_SPD`, `CONFIG='1'`) | **5 s fixos** | intro + 5s |
+| Sem intro | — | **10 s** | 10 s |
+
+**Fallback** (sem `DURACAO` válido): vídeo até `ended`; imagem **5 s**.
+
+Produção: partidas em `D_FOOTBALL.TEXTO3` (JSON). Patrocinador e `DURACAO` em `D_SPD`.
+
+---
+
 ## Configurações do mock (`mock-data.js`)
 
 ```javascript
 var MOCK_DATA = {
-    enabled: true,          // false em produção
-    config: {
-        duration: 30000,    // tempo de exibição em ms
-        sponsor: {
-            frase: 'Vivo Fibra',
-            logo:  ''       // URL da imagem do logo (vazio = oculta)
-        }
+    enabled: true,
+    D_SPD: {
+        CONFIG: '1',
+        FILE_IMAGE1: 'img/sponsor.mp4',
+        DURACAO: '8'   // segundos da intro
     },
     partidas: [ /* array de partidas */ ]
 };

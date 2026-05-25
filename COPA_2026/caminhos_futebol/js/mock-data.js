@@ -38,6 +38,7 @@ var MOCK_DATA = {
         TEXT1:       'Apoio:',
         IMAGE_LOGO:  'img/logo_sponsor.png',
         FILE_IMAGE1: 'img/sponsor.mp4',
+        DURACAO:     '8',
         TEXTO7:      '#FBBF24',  // corDestaque
         TEXTO8:      '#006400',  // corEscura
         TEXTO9:      '#FFFFFF'   // corClara

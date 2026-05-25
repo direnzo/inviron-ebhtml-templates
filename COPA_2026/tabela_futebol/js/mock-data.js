@@ -7,6 +7,9 @@
  *
  * Para habilitar: descomente <script src="js/mock-data.js"> no HTML
  * Para produção:  comente o <script> do mock-data no HTML
+ *
+ * Tempo: D_SPD.DURACAO (segundos) na intro + tabela 5s fixo; sem intro = 10s.
+ * Teste fallback: remova DURACAO (video ate ended / imagem 5s).
  */
 var MOCK_DATA = {
     enabled: true,
@@ -20,6 +23,7 @@ var MOCK_DATA = {
         TEXT1:       'Apoio:',
         IMAGE_LOGO:  'img/logo_sponsor.png',
         FILE_IMAGE1: 'img/sponsor.mp4',
+        DURACAO:     '8',         // segundos da intro (omitir para fallback: video ate ended / imagem 5s)
         TEXTO7:      '#FBBF24',   // corDestaque
         TEXTO8:      '#006400',   // corEscura
         TEXTO9:      '#FFFFFF'    // corClara

@@ -1,4 +1,4 @@
-# tabela_futubel
+# tabela_futebol
 
 Template para exibição da tabela de grupos da Copa do Mundo 2026 (fase de grupos) para EdgeContents Digital Signage.
 
@@ -6,6 +6,15 @@ Template para exibição da tabela de grupos da Copa do Mundo 2026 (fase de grup
 - Layout responsivo (Tailwind compatível Android 7)
 - Mock de dados inspirado na tabela do Google
 - Segue padrão EBHTML (loader.loaded/finished)
+
+## Tempo de exibição
+
+| Cenário | Intro (`D_SPD.FILE_IMAGE1`) | Conteúdo (tabela + jogos) | Total |
+|---------|----------------------------|---------------------------|-------|
+| Com intro | `DURACAO` segundos (campo `D_SPD`, item `CONFIG='1'`) | **5 s fixos** | intro + 5s (pode passar de 10s) |
+| Sem intro | — | **10 s** | 10 s |
+
+**Fallback** (sem `DURACAO` válido): vídeo até `ended`; imagem **5 s**.
 
 ## Estrutura dos dados
 - Grupos (A, B, C...)

@@ -1,6 +1,11 @@
 /**
  * master.js - Tabela Copa 2026
  * ES5 obrigatorio - sem const/let/arrow/template-strings/Promise/fetch
+ *
+ * Tempo de exibicao:
+ *   Sem intro (FILE_IMAGE1): conteudo 10s
+ *   Com intro: intro conforme D_SPD.DURACAO (segundos); sem DURACAO = video ate ended / imagem 5s
+ *   Apos intro: conteudo fixo 5s (total pode ultrapassar 10s)
  */
 
 /* --- Injeta SVG inline via XHR (evita problema de img src em servidor local) --- */
@@ -26,9 +31,24 @@ function carregarSvgInline(containerEl, src) {
 }
 
 var LS_KEY_GRUPO   = 'tabela_futebol_grupo_idx';
-var DURACAO        = 10000;
-var INTRO_MAX_MS   = 5000;
+var DURACAO_SEM_INTRO_MS     = 10000;
+var DURACAO_CONTEUDO_MS      = 5000;
+var DURACAO_IMAGEM_PADRAO_MS = 5000;
 var CONTENT_FILES_HOST = window.location.protocol + '//127.0.0.1:13199';
+
+function obterValorSpd(spd, campo) {
+    if (!spd) { return ''; }
+    return spd[campo] || (spd.value && spd.value(campo) && spd.value(campo).value) || '';
+}
+
+function obterDuracaoIntroMs(spd) {
+    var seg = parseInt(obterValorSpd(spd, 'DURACAO'), 10);
+    return (seg > 0) ? seg * 1000 : 0;
+}
+
+function temIntroMedia(spd) {
+    return !!obterValorSpd(spd, 'FILE_IMAGE1');
+}
 
 /* --- Configuracao de cores (sobrescreve CSS vars em :root) --- */
 var CONFIG = {
@@ -88,11 +108,10 @@ function playerView() {
         var grupo = todosGruposMock[idx];
         localStorage.setItem(LS_KEY_GRUPO, idx + 1);
 
-        var duracao    = (MOCK_DATA.config && MOCK_DATA.config.duration) || DURACAO;
         var spdSponsor = MOCK_DATA.D_SPD || null;
 
         aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
-        renderizarGrupo(grupo, spdSponsor, mockLoader, duracao);
+        renderizarGrupo(grupo, spdSponsor, mockLoader);
     } else {
         ebhtml.create2({}, function(loader) {
             loader.addData('D_FOOTBALL', false);
@@ -138,7 +157,7 @@ function playerView() {
                 }
 
                 aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
-                renderizarGrupo(grupo, spdSponsor, loader, duracao);
+                renderizarGrupo(grupo, spdSponsor, loader);
             });
         });
     }
@@ -184,27 +203,27 @@ function renderizarGrupo(grupo, spdSponsor, loader, duracao) {
     document.getElementById('mainContent').style.opacity = '1';
     renderizarJogos(grupo.jogos || []);
 
-    var introMedia = spdSponsor
-        ? (spdSponsor.FILE_IMAGE1 || (spdSponsor.value && spdSponsor.value('FILE_IMAGE1') && spdSponsor.value('FILE_IMAGE1').value) || '')
-        : '';
+    var introMedia = obterValorSpd(spdSponsor, 'FILE_IMAGE1');
+    var introMaxMs = obterDuracaoIntroMs(spdSponsor);
 
     if (introMedia) {
         var introStartTime = Date.now();
         mostrarIntro(introMedia, function() {
-            var introActualMs = Math.min(Date.now() - introStartTime, INTRO_MAX_MS);
+            var introActualMs = Date.now() - introStartTime;
             esconderIntro(function() {
                 loader.loaded();
-                var tabelaMs = Math.max(duracao - introActualMs, 1000);
+                console.log('[tabela_futebol] intro=' + introActualMs + 'ms conteudo=' + DURACAO_CONTEUDO_MS + 'ms total=' + (introActualMs + DURACAO_CONTEUDO_MS) + 'ms');
                 setTimeout(function() {
                     loader.finished();
-                }, tabelaMs);
+                }, DURACAO_CONTEUDO_MS);
             });
-        });
+        }, introMaxMs);
     } else {
         loader.loaded();
+        console.log('[tabela_futebol] sem intro conteudo=' + DURACAO_SEM_INTRO_MS + 'ms');
         setTimeout(function() {
             loader.finished();
-        }, duracao);
+        }, DURACAO_SEM_INTRO_MS);
     }
 }
 
@@ -317,13 +336,13 @@ function isUrlVideo(url) {
     return /\.(mp4|webm|mov|avi|ogv|ogg)(\?.*)?$/i.test(url.trim());
 }
 
-function mostrarIntro(url, onDone) {
+function mostrarIntro(url, onDone, introMaxMs) {
     var introEl = document.querySelector('#introScreen');
     if (!introEl) { onDone(); return; }
 
     var isVideo = isUrlVideo(url);
     url = normalizarUrlMidia(url);
-    console.log('[tabela_futebol] intro (' + (isVideo ? 'video' : 'imagem') + '): ' + url);
+    console.log('[tabela_futebol] intro (' + (isVideo ? 'video' : 'imagem') + '): ' + url + (introMaxMs > 0 ? ' max=' + introMaxMs + 'ms' : ' sem limite'));
 
     introEl.innerHTML = '';
     introEl.style.opacity = '1';
@@ -341,14 +360,16 @@ function mostrarIntro(url, onDone) {
         function _onIntroDone() {
             if (_introDone) { return; }
             _introDone = true;
-            clearTimeout(_introTimer);
+            if (_introTimer) { clearTimeout(_introTimer); }
             onDone();
         }
-        _introTimer = setTimeout(function() {
-            console.log('[intro-video] timeout ' + INTRO_MAX_MS + 'ms — cortando');
-            vid.pause();
-            _onIntroDone();
-        }, INTRO_MAX_MS);
+        if (introMaxMs > 0) {
+            _introTimer = setTimeout(function() {
+                console.log('[intro-video] timeout ' + introMaxMs + 'ms — cortando');
+                vid.pause();
+                _onIntroDone();
+            }, introMaxMs);
+        }
 
         vid.addEventListener('ended', function() { console.log('[intro-video] ended'); _onIntroDone(); });
         vid.addEventListener('error', function() {
@@ -371,9 +392,10 @@ function mostrarIntro(url, onDone) {
         vid.src = url;
         vid.load();
     } else {
+        var imgMs = introMaxMs > 0 ? introMaxMs : DURACAO_IMAGEM_PADRAO_MS;
         var img = document.createElement('img');
         img.className = 'w-full h-full object-cover';
-        img.onload  = function() { setTimeout(onDone, INTRO_MAX_MS); };
+        img.onload  = function() { setTimeout(onDone, imgMs); };
         img.onerror = onDone;
         introEl.appendChild(img);
         img.src = url;

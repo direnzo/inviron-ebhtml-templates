@@ -157,6 +157,31 @@ function mergeColorsFromSpd(defaults, spd) {
     };
 }
 
+var DURACAO_SEM_INTRO_MS     = 10000;
+var DURACAO_CONTEUDO_MS      = 5000;
+var DURACAO_IMAGEM_PADRAO_MS = 5000;
+
+function obterValorSpd(spd, campo) {
+    if (!spd) { return ''; }
+    return spd[campo] || (spd.value && spd.value(campo) && spd.value(campo).value) || '';
+}
+
+function obterDuracaoIntroMs(spd) {
+    var seg = parseInt(obterValorSpd(spd, 'DURACAO'), 10);
+    return (seg > 0) ? seg * 1000 : 0;
+}
+
+function montarSponsorConfig(spdSponsor) {
+    if (!spdSponsor) { return null; }
+    return {
+        frase:       obterValorSpd(spdSponsor, 'TEXT1'),
+        logo:        obterValorSpd(spdSponsor, 'IMAGE_LOGO'),
+        intro:       obterValorSpd(spdSponsor, 'FILE_IMAGE1'),
+        FILE_IMAGE1: obterValorSpd(spdSponsor, 'FILE_IMAGE1'),
+        introMaxMs:  obterDuracaoIntroMs(spdSponsor)
+    };
+}
+
 // ──────────────────────────────────────────────────
 //  ENTRY POINT
 // ──────────────────────────────────────────────────
@@ -172,11 +197,7 @@ window.onload = function() {
         var dados = processarDadosMock(partidas);
         var spdSponsor = MOCK_DATA.D_SPD || null;
         var mockConfig = {
-            duration: (MOCK_DATA.config && MOCK_DATA.config.duration) || 30000,
-            sponsor: spdSponsor ? {
-                frase: spdSponsor.TEXT1       || '',
-                logo:  spdSponsor.IMAGE_LOGO  || ''
-            } : (MOCK_DATA.config && MOCK_DATA.config.sponsor) || null
+            sponsor: montarSponsorConfig(spdSponsor) || (MOCK_DATA.config && MOCK_DATA.config.sponsor) || null
         };
         aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
         iniciarTemplate(dados, mockConfig, mockLoader);
@@ -225,11 +246,7 @@ window.onload = function() {
 
                 // Monta config com sponsor e duracao (compativel com aplicarSponsor)
                 var runConfig = {
-                    duration: 30000,
-                    sponsor: spdSponsor ? {
-                        frase: (spdSponsor.value('TEXT1')      && spdSponsor.value('TEXT1').value)      || '',
-                        logo:  (spdSponsor.value('IMAGE_LOGO') && spdSponsor.value('IMAGE_LOGO').value) || ''
-                    } : null
+                    sponsor: montarSponsorConfig(spdSponsor)
                 };
 
                 aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
@@ -289,11 +306,12 @@ function isUrlVideo(url) {
     if (!url) { return false; }
     return /\.(mp4|webm|mov|avi|ogv|ogg)(\?.*)?$/i.test(url.trim());
 }
-function mostrarIntro(url, onDone) {
+function mostrarIntro(url, onDone, introMaxMs) {
     var introEl = document.querySelector('#introScreen');
     if (!introEl) { onDone(); return; }
     var isVideo = isUrlVideo(url);
     url = normalizarUrlMidia(url);
+    console.log('[caminhos_futebol] intro (' + (isVideo ? 'video' : 'imagem') + '): ' + url + (introMaxMs > 0 ? ' max=' + introMaxMs + 'ms' : ' sem limite'));
     introEl.innerHTML = '';
     introEl.style.opacity = '1';
     introEl.classList.remove('hidden');
@@ -308,13 +326,16 @@ function mostrarIntro(url, onDone) {
         function _onIntroDone() {
             if (_introDone) { return; }
             _introDone = true;
-            clearTimeout(_introTimer);
+            if (_introTimer) { clearTimeout(_introTimer); }
             onDone();
         }
-        _introTimer = setTimeout(function() {
-            vid.pause();
-            _onIntroDone();
-        }, 5000);
+        if (introMaxMs > 0) {
+            _introTimer = setTimeout(function() {
+                console.log('[intro-video] timeout ' + introMaxMs + 'ms — cortando');
+                vid.pause();
+                _onIntroDone();
+            }, introMaxMs);
+        }
         vid.addEventListener('ended', _onIntroDone);
         vid.addEventListener('error', _onIntroDone);
         vid.addEventListener('canplay', function onFirstCanPlay() {
@@ -327,9 +348,10 @@ function mostrarIntro(url, onDone) {
         vid.src = url;
         vid.load();
     } else {
+        var imgMs = introMaxMs > 0 ? introMaxMs : DURACAO_IMAGEM_PADRAO_MS;
         var img = document.createElement('img');
         img.className = 'w-full h-full object-cover';
-        img.onload = function() { setTimeout(onDone, 5000); };
+        img.onload = function() { setTimeout(onDone, imgMs); };
         img.onerror = onDone;
         introEl.appendChild(img);
         img.src = url;
@@ -349,27 +371,28 @@ function esconderIntro(onDone) {
     }, 700);
 }
 
-// ====== INICIAR TEMPLATE COM INTRO E TEMPO TOTAL DE 10s ======
-var DURACAO_TOTAL = 10000; // ms
-var INTRO_MAX_MS = 5000;   // ms
-
+// ====== INICIAR TEMPLATE — intro via D_SPD.DURACAO + conteudo 5s ou 10s sem intro ======
 function iniciarTemplate(dados, config, loader) {
     var sponsor = config && config.sponsor;
     var introUrl = sponsor && sponsor.intro ? sponsor.intro : (sponsor && sponsor.FILE_IMAGE1 ? sponsor.FILE_IMAGE1 : null);
     if (!introUrl && sponsor && sponsor.logo && sponsor.logo.indexOf('.mp4') !== -1) {
         introUrl = sponsor.logo;
     }
-    if (!introUrl && typeof MOCK_DATA !== 'undefined' && MOCK_DATA.D_SPD && MOCK_DATA.D_SPD.FILE_IMAGE1) {
-        introUrl = MOCK_DATA.D_SPD.FILE_IMAGE1;
+    if (!introUrl && typeof MOCK_DATA !== 'undefined' && MOCK_DATA.D_SPD) {
+        introUrl = obterValorSpd(MOCK_DATA.D_SPD, 'FILE_IMAGE1');
+    }
+    var introMaxMs = (sponsor && sponsor.introMaxMs) ? sponsor.introMaxMs : 0;
+    if (!introMaxMs && typeof MOCK_DATA !== 'undefined' && MOCK_DATA.D_SPD) {
+        introMaxMs = obterDuracaoIntroMs(MOCK_DATA.D_SPD);
     }
     if (introUrl) {
         var introStart = Date.now();
         mostrarIntro(introUrl, function() {
-            var introMs = Math.min(Date.now() - introStart, INTRO_MAX_MS);
+            var introMs = Date.now() - introStart;
             esconderIntro(function() {
                 iniciarTemplateSemIntro(dados, config, loader, introMs);
             });
-        });
+        }, introMaxMs);
     } else {
         iniciarTemplateSemIntro(dados, config, loader, 0);
     }
@@ -404,7 +427,8 @@ function iniciarTemplateSemIntro(dados, config, loader, introMs) {
         }
     }
     console.log('[iniciarTemplateSemIntro] faseMaisAlta:', faseMaisAlta);
-    var restante = Math.max(DURACAO_TOTAL - (introMs || 0), 5000); // mínimo 5s
+    var restante = (introMs > 0) ? DURACAO_CONTEUDO_MS : DURACAO_SEM_INTRO_MS;
+    console.log('[caminhos_futebol] intro=' + (introMs || 0) + 'ms conteudo=' + restante + 'ms total=' + ((introMs || 0) + restante) + 'ms');
     var tempoEntrada = Math.round(restante * TEMPO_PCT_ENTRADA); // 10% entrada
     var tempoZoom    = Math.round(restante * TEMPO_PCT_ZOOM);    // 5% zoom
     var tempoFoco    = Math.max(restante - tempoEntrada - tempoZoom, 0); // 85% foco

@@ -1,10 +1,13 @@
-﻿/**
+/**
  * MOCK DATA - Placar Futebol
  * O mundo em campo 2026
  *
  * Para usar: descomente <script src="js/mock-data.js"></script> no HTML
  * Para trocar cen�rio: altere a vari�vel `cenario` abaixo
  * Para produ��o: comente o <script> do mock-data no HTML
+ *
+ * Tempo: D_SPD.DURACAO (segundos) na intro + placar 5s fixo; sem intro = 10s.
+ * Teste fallback: remova DURACAO do item CONFIG=1 (video ate ended / imagem 5s).
  *
  * -- FASE DE GRUPOS -----------------------------------------------
  *   'copa2026_grupo_br_pre'      BRA x SRB | NS       | Grupo G Rodada 1
@@ -104,7 +107,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRRS_G', TEXT1: 'Brasil', TEXT2: 'Sérvia', TEXT3: '', TEXT4: '',    TEXT5: '',  TEXT6: '',  TEXT7: '', TEXT8: '', TEXT9: '',   TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -123,7 +126,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRRS_G', TEXT1: 'Brasil', TEXT2: 'Sérvia', TEXT3: '', TEXT4: '1H',  TEXT5: '1',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '23',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -142,7 +145,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRRS_G', TEXT1: 'Brasil', TEXT2: 'Sérvia', TEXT3: '', TEXT4: 'HT',  TEXT5: '2',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '45',  TEXT10: '3' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -161,7 +164,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRRS_G', TEXT1: 'Brasil', TEXT2: 'Sérvia', TEXT3: '', TEXT4: '2H',  TEXT5: '3',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '67',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -180,7 +183,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRRS_G', TEXT1: 'Brasil', TEXT2: 'Sérvia', TEXT3: '', TEXT4: 'FT',  TEXT5: '3',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -203,7 +206,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_ESFR_G', TEXT1: 'Espanha', TEXT2: 'Fran�a', TEXT3: '', TEXT4: '2H',  TEXT5: '1',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '78',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -226,7 +229,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_ARUY_G', TEXT1: 'Argentina', TEXT2: 'Uruguai', TEXT3: '', TEXT4: 'FT',  TEXT5: '2',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -249,7 +252,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRMX_R16', TEXT1: 'Brasil', TEXT2: 'M�xico', TEXT3: '', TEXT4: '',    TEXT5: '',   TEXT6: '',   TEXT7: '', TEXT8: '', TEXT9: '',    TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -268,7 +271,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRMX_R16', TEXT1: 'Brasil', TEXT2: 'M�xico', TEXT3: '', TEXT4: '2H',  TEXT5: '1',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '72',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -287,7 +290,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRMX_R16', TEXT1: 'Brasil', TEXT2: 'M�xico', TEXT3: '', TEXT4: 'FT',  TEXT5: '2',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -310,7 +313,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRENG_QF', TEXT1: 'Brasil', TEXT2: 'Inglaterra', TEXT3: '', TEXT4: '',    TEXT5: '',   TEXT6: '',   TEXT7: '', TEXT8: '', TEXT9: '',    TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -329,7 +332,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRENG_QF', TEXT1: 'Brasil', TEXT2: 'Inglaterra', TEXT3: '', TEXT4: 'ET',  TEXT5: '1',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '105', TEXT10: '3' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -348,7 +351,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRENG_QF', TEXT1: 'Brasil', TEXT2: 'Inglaterra', TEXT3: '', TEXT4: 'PEN', TEXT5: '1',  TEXT6: '1',  TEXT7: '5', TEXT8: '4', TEXT9: '120', TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -371,7 +374,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_ARPT_SF', TEXT1: 'Argentina', TEXT2: 'Portugal', TEXT3: '', TEXT4: '',    TEXT5: '',   TEXT6: '',   TEXT7: '', TEXT8: '', TEXT9: '',    TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -390,7 +393,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_ARPT_SF', TEXT1: 'Argentina', TEXT2: 'Portugal', TEXT3: '', TEXT4: '2H',  TEXT5: '2',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '82',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -409,7 +412,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_ARPT_SF', TEXT1: 'Argentina', TEXT2: 'Portugal', TEXT3: '', TEXT4: 'FT',  TEXT5: '3',  TEXT6: '2',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -432,7 +435,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRDE_SF', TEXT1: 'Brasil', TEXT2: 'Alemanha', TEXT3: '', TEXT4: '1H',  TEXT5: '4',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '43',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -451,7 +454,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRDE_SF', TEXT1: 'Brasil', TEXT2: 'Alemanha', TEXT3: '', TEXT4: '2H',  TEXT5: '7',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '5' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -470,7 +473,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRDE_SF', TEXT1: 'Brasil', TEXT2: 'Alemanha', TEXT3: '', TEXT4: 'FT',  TEXT5: '7',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -493,7 +496,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_FRMA_3P', TEXT1: 'Fran�a', TEXT2: 'Marrocos', TEXT3: '', TEXT4: '',    TEXT5: '',   TEXT6: '',   TEXT7: '', TEXT8: '', TEXT9: '',    TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -512,7 +515,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_FRMA_3P', TEXT1: 'Fran�a', TEXT2: 'Marrocos', TEXT3: '', TEXT4: 'FT',  TEXT5: '2',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -535,7 +538,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: '',    TEXT5: '',   TEXT6: '',   TEXT7: '', TEXT8: '', TEXT9: '',    TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -554,7 +557,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: '1H',  TEXT5: '1',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '38',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -573,7 +576,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: '2H',  TEXT5: '2',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '82',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -592,7 +595,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: 'ET',  TEXT5: '2',  TEXT6: '2',  TEXT7: '', TEXT8: '', TEXT9: '109', TEXT10: '2' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -611,7 +614,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: 'PEN', TEXT5: '2',  TEXT6: '2',  TEXT7: '4', TEXT8: '2', TEXT9: '120', TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     },
 
@@ -630,7 +633,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: 'FT',  TEXT5: '3',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
         ]
     }
 

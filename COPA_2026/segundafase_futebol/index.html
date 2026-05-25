@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html class="bg-black h-full w-full overflow-hidden">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segunda Fase Copa 2026</title>
+    <link rel="stylesheet" href="css/master.css">
+    <script src="js/mock-data.js"></script>
+    <script src="js/ebhtml.js"></script>
+    <script src="js/master.js"></script>
+    <script src="js/preview.js"></script>
+</head>
+
+<body class="relative w-full h-screen overflow-hidden bg-[#0a0f1e] text-white font-roboto-regular
+             text-[2.8vmin] portrait:text-[3.2vmin] empena:text-[4.5vmin] superbanner:text-[5vmin]">
+
+    <div id="introScreen" style="transition: opacity 0.7s ease;"
+         class="hidden absolute inset-0 z-50 bg-black flex items-center justify-center"></div>
+
+    <div class="absolute inset-0 z-0 bg-[linear-gradient(to_bottom,rgba(10,15,30,0.95)_0%,rgba(10,15,30,0.75)_50%,rgba(10,15,30,0.95)_100%)]"></div>
+
+    <main id="mainContent" class="relative z-10 w-full h-full flex flex-col opacity-0 transition-opacity duration-700 overflow-hidden">
+
+        <header id="headerBar" class="flex-none flex items-center justify-between shrink-0
+                    px-[3vmin] py-[1.2vmin] border-b-[0.35vmin] border-yellow-500 bg-black/40">
+            <span class="font-roboto-bold uppercase tracking-[0.12em] text-[150%] portrait:text-[100%] text-white/90 portrait:text-center">
+                O Mundo em Campo 2026
+            </span>
+            <span id="headerFase" class="font-roboto-black uppercase tracking-[0.15em] text-yellow-400 text-[150%] portrait:text-[100%] portrait:text-center"></span>
+            <span id="headerContagem" class="font-roboto-regular text-[60%] text-white/55 uppercase tracking-widest portrait:text-[100%] portrait:text-center"></span>
+        </header>
+
+        <p id="chaveDestino" class="hidden flex-none text-center font-roboto-regular italic
+                  text-[130%] portrait:text-[100%] font-bold text-white/70 leading-snug
+                  px-[4vmin] py-[1vmin] border-b border-white/10"></p>
+
+        <div id="chaveCards" class="flex-1 min-h-0 chave-cards"></div>
+
+        <footer id="sponsorFooter"
+                class="hidden flex-none items-center justify-center gap-[2%]
+                       py-[1.5%] px-[5%] border-t-[0.35vmin] border-yellow-500/80 portrait:flex-col">
+            <span id="sponsorFrase" class="font-roboto-regular tracking-wide text-center text-[70%]"></span>
+            <img id="sponsorLogo" src="" alt="" class="h-[8vh] w-auto max-w-[70vw] object-contain flex-shrink-0">
+        </footer>
+
+    </main>
+
+    <!-- Template: card de partida -->
+    <template id="tmplCard">
+        <article class="card-partida animate-fade-slide-in">
+            <div class="card-meta">
+                <span data-campo="data"  class="card-data"></span>
+                <span data-campo="hora"  class="card-hora"></span>
+                <span data-campo="local" class="card-local"></span>
+                <span data-campo="status" class="card-status"></span>
+            </div>
+            <div class="card-confronto">
+                <span data-campo="casa" class="card-time card-time-casa">
+                    <span data-campo="nomeCasa" class="card-nome"></span>
+                    <img  data-campo="flagCasa" class="card-flag" src="" alt="">
+                </span>
+                <span data-campo="placar" class="card-placar"></span>
+                <span data-campo="visit" class="card-time card-time-visit">
+                    <span data-campo="nomeVisit" class="card-nome"></span>
+                    <img  data-campo="flagVisit" class="card-flag" src="" alt="">
+                </span>
+            </div>
+        </article>
+    </template>
+
+    <script>
+        var _sfCheckEl = null;
+        try {
+            if (window.parent && window.parent.document) {
+                _sfCheckEl = window.parent.document.getElementById('template_check');
+            }
+        } catch (e) { _sfCheckEl = null; }
+        if (_sfCheckEl !== null) { extranetView(); } else { playerView(); }
+    </script>
+
+</body>
+
+</html>
