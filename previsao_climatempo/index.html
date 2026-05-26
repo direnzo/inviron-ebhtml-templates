@@ -1,91 +1,169 @@
-<html>
+<!DOCTYPE html>
+<html lang="pt-br" class="h-full w-full overflow-hidden">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clima</title>
     <link rel="stylesheet" href="css/master.css">
+    <!-- Mock data para desenvolvimento (comentar em produção) -->
+    <script src="js/mock-data.js"></script>
+    <script src="js/meteocons-helpers.js"></script>
     <script src="js/ebhtml.js"></script>
     <script src="js/master.js"></script>
+    <title>Previsão do Tempo</title>
 </head>
 
-<body>
-    <div id="fundo">
-        <img src="img/fundo.jpg">
+<body class="relative h-screen w-full overflow-hidden bg-[#009ee3] font-montserrat leading-none font-bold text-white text-[5vmin] opacity-0 transition-opacity duration-1000">
+    <!-- Fundo animado -->
+    <div id="fundo" class="absolute inset-0 -z-10">
+        <img src="img/fundo.jpg" class="w-full h-full object-cover" />
     </div>
-    <div id="head">
-        <div id="cidade"></div>
-    </div>
-    <div id="content" class="fade">
-        <div class="box">
+    <!-- Header: cidade -->
+    <header class="w-full flex justify-center items-center pt-[2.5vmin] z-10">
+        <span id="cidade" class=" drop-shadow">Cidade</span>
+    </header>
+    <!-- Main: cards de previsão -->
+    <main class="flex justify-center items-center w-full h-[70vh]">
+        <div id="cards" class="flex flex-row flex-wrap justify-center items-stretch gap-[2vw] w-full max-w-[96vw] h-full portrait:flex-col empena:flex-col overflow-x-auto">
 
-            <div class="previsao">
-                <div class="dia"></div>
-                <img class="icone" src="">
-                <div class="dia_mes"></div>
-                <div class="graus">
-                    <img class="max" src="img/setamax.png">
-                    <div class="grau_max"></div>
-                    <div class="spacer"></div>
-                    <img class="min" src="img/setamin.png">
-                    <div class="grau_min"></div>
+            <!-- CARD 1 -->
+            <div class="card flex flex-col items-center justify-between bg-black/80 rounded-2xl p-[2.5vmin] min-w-[22vw] max-w-[28vw] w-full h-[55vh] shadow-lg -translate-x-[500%] opacity-0 transition-transform duration-1000 delay-300">
+                <div class="data tracking-wider">--</div>
+                <div class="icon size-[5vmin] flex items-center justify-center"></div>
+                <div class="flex flex-row items-center justify-center gap-[1em]">
+                    <div class="flex flex-row items-center">
+                        <img src="img/setamax.png" class="size-[1em]" alt="Max">
+                        <span class="max text-orange-400 text-[200%] leading-none">--</span>
+                    </div>
+                    <div class="flex flex-row items-center">
+                        <img src="img/setamin.png" class="size-[1em]" alt="Min">
+                        <span class="min text-blue-400 text-[200%] leading-none">--</span>
+                    </div>
                 </div>
-                <div class="condicoes">
-                    <img class="gotas" src="img/gotas.png">
-                    <div class="spacer"></div>
-                    <div class="chuva">
-                        <p class="quant_chuva"></p>
-                        <p class="prob_chuva"></p>
+                <div class="flex flex-row items-center justify-center gap-[1em] text-[35%]">
+                    <!-- dados de chuva: ícone, quantidade e probabilidade -->
+                    <div class="flex flex-row items-center justify-center">
+                        <span class="chuva-icon flex items-center"></span>
+                        <div class="flex flex-col items-start ml-2">
+                            <span class="prob_chuva text-nowrap">Prob: --%</span>
+                            <span class="quant_chuva text-nowrap">Chuva: -- mm</span>
+                        </div>
+                    </div>
+                    <!-- dados vento -->
+                    <div class="flex flex-row items-center justify-center">
+                        <span class="vento-icon flex items-center"></span>
+                        <div class="flex flex-col items-start ml-2">
+                            <span class="quant_vento text-nowrap">Vento: -- km/h</span>
+                            <span class="dir-vento-icon flex items-center gap-1">
+                                <span class="dir-vento-svg size-[1em]"></span>
+                                <span class="dir_vento">--</span>
+                            </span>
+                        </div>
+                    </div>
+                    <!-- dados de Raios UV -->
+                    <div class="flex flex-row items-center justify-center">
+                        <span class="uv-icon flex items-center"></span>
+                        <div class="flex flex-col items-start ml-2">
+                            <span class="indice_uv">UV: --</span>
+                            <span class="risco_uv text-nowrap">Risco: --</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="previsao">
-                <div class="dia"></div>
-                <img class="icone" src="">
-                <div class="dia_mes"></div>
-                <div class="graus">
-                    <img class="max" src="img/setamax.png">
-                    <div class="grau_max"></div>
-                    <div class="spacer"></div>
-                    <img class="min" src="img/setamin.png">
-                    <div class="grau_min"></div>
+            <!-- CARD 2 -->
+            <div class="card flex flex-col items-center justify-between bg-black/80 rounded-2xl p-[2.5vmin] min-w-[22vw] max-w-[28vw] w-full h-[55vh] shadow-lg -translate-x-[500%] opacity-0 transition-transform duration-1000 delay-700">
+                <div class="data tracking-wider">--</div>
+                <div class="icon size-[5vmin] flex items-center justify-center"></div>
+                <div class="flex flex-row items-center justify-center gap-[1em]">
+                    <div class="flex flex-row items-center">
+                        <img src="img/setamax.png" class="size-[1em]" alt="Max">
+                        <span class="max text-orange-400 text-[200%] leading-none">--</span>
+                    </div>
+                    <div class="flex flex-row items-center">
+                        <img src="img/setamin.png" class="size-[1em]" alt="Min">
+                        <span class="min text-blue-400 text-[200%] leading-none">--</span>
+                    </div>
                 </div>
-                <div class="condicoes">
-                    <img class="gotas" src="img/gotas.png">
-                    <div class="spacer"></div>
-                    <div class="chuva">
-                        <p class="quant_chuva"></p>
-                        <p class="prob_chuva"></p>
+                  <div class="flex flex-row items-center justify-center gap-[1em] text-[35%]">
+                    <!-- dados de chuva: ícone, quantidade e probabilidade -->
+                    <div class="flex flex-row items-center justify-center">
+                        <span class="chuva-icon flex items-center"></span>
+                        <div class="flex flex-col items-start ml-2">
+                            <span class="prob_chuva text-nowrap">Prob: --%</span>
+                            <span class="quant_chuva text-nowrap">Chuva: -- mm</span>
+                        </div>
+                    </div>
+                    <!-- dados vento -->
+                    <div class="flex flex-row items-center justify-center">
+                        <span class="vento-icon flex items-center"></span>
+                        <div class="flex flex-col items-start ml-2">
+                            <span class="quant_vento text-nowrap">Vento: -- km/h</span>
+                            <span class="dir-vento-icon flex items-center gap-1">
+                                <span class="dir-vento-svg size-[1em]"></span>
+                                <span class="dir_vento">--</span>
+                            </span>
+                        </div>
+                    </div>
+                    <!-- dados de Raios UV -->
+                    <div class="flex flex-row items-center justify-center">
+                        <span class="uv-icon flex items-center"></span>
+                        <div class="flex flex-col items-start ml-2">
+                            <span class="indice_uv">UV: --</span>
+                            <span class="risco_uv text-nowrap">Risco: --</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="previsao">
-                <div class="dia"></div>
-                <img class="icone" src="">
-                <div class="dia_mes"></div>
-                <div class="graus">
-                    <img class="max" src="img/setamax.png">
-                    <div class="grau_max"></div>
-                    <div class="spacer"></div>
-                    <img class="min" src="img/setamin.png">
-                    <div class="grau_min"></div>
+            <!-- CARD 3 -->
+            <div class="card flex flex-col items-center justify-between bg-black/80 rounded-2xl p-[2.5vmin] min-w-[22vw] max-w-[28vw] w-full h-[55vh] shadow-lg -translate-x-[500%] opacity-0 transition-transform duration-1000 delay-1000">
+                <div class="data tracking-wider">--</div>
+                <div class="icon size-[5vmin] flex items-center justify-center"></div>
+                <div class="flex flex-row items-center justify-center gap-[1em]">
+                    <div class="flex flex-row items-center">
+                        <img src="img/setamax.png" class="size-[1em]" alt="Max">
+                        <span class="max text-orange-400 text-[200%] leading-none">--</span>
+                    </div>
+                    <div class="flex flex-row items-center">
+                        <img src="img/setamin.png" class="size-[1em]" alt="Min">
+                        <span class="min text-blue-400 text-[200%] leading-none">--</span>
+                    </div>
                 </div>
-                <div class="condicoes">
-                    <img class="gotas" src="img/gotas.png">
-                    <div class="spacer"></div>
-                    <div class="chuva">
-                        <p class="quant_chuva"></p>
-                        <p class="prob_chuva"></p>
+                  <div class="flex flex-row items-center justify-center gap-[1em] text-[35%]">
+                    <!-- dados de chuva: ícone, quantidade e probabilidade -->
+                    <div class="flex flex-row items-center justify-center">
+                        <span class="chuva-icon flex items-center"></span>
+                        <div class="flex flex-col items-start ml-2">
+                            <span class="prob_chuva text-nowrap">Prob: --%</span>
+                            <span class="quant_chuva text-nowrap">Chuva: -- mm</span>
+                        </div>
+                    </div>
+                    <!-- dados vento -->
+                    <div class="flex flex-row items-center justify-center">
+                        <span class="vento-icon flex items-center"></span>
+                        <div class="flex flex-col items-start ml-2">
+                            <span class="quant_vento text-nowrap">Vento: -- km/h</span>
+                            <span class="dir-vento-icon flex items-center gap-1">
+                                <span class="dir-vento-svg size-[1em]"></span>
+                                <span class="dir_vento">--</span>
+                            </span>
+                        </div>
+                    </div>
+                    <!-- dados de Raios UV -->
+                    <div class="flex flex-row items-center justify-center">
+                        <span class="uv-icon flex items-center"></span>
+                        <div class="flex flex-col items-start ml-2">
+                            <span class="indice_uv">UV: --</span>
+                            <span class="risco_uv text-nowrap">Risco: --</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div id="footer">
-        <img class="logo" src="img/climatempo.png">
-    </div>
+
+    </main>
+    <!-- Footer: logo climatempo -->
+    <footer class="absolute bottom-0 left-0 w-full flex justify-end items-end p-[2vmin] z-10">
+        <img src="img/climatempo.png" alt="Climatempo" class="h-[7vmin] max-w-[30vw] object-contain" />
+    </footer>
 </body>
-
-
 
 </html>
