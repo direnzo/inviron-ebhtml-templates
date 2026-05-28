@@ -1,5 +1,53 @@
 // Mapeamento Climatempo para Meteocons — agora em meteocons-helpers.js (METEOCONS_MAP)
+// ============================================================
+// ASPECT RATIO DETECTION
+// ============================================================
+var ALL_RATIO_CLASSES = [
+  'ratio-landscape',
+  'ratio-ultrawide',
+  'ratio-superbanner',
+  'ratio-footer',
+  'ratio-portrait',
+  'ratio-square',
+  'ratio-empena'
+];
+
+function definirClasseAspectRatio() {
+  var ar = window.innerWidth / window.innerHeight;
+  if (ar <= (1 / 3))      { return 'ratio-empena'; }
+  if (ar <= (3 / 4))      { return 'ratio-portrait'; }
+  if (ar <= 1)            { return 'ratio-portrait'; }
+  if (ar < 1.05)          { return 'ratio-square'; }
+  if (ar >= 15)           { return 'ratio-footer'; }
+  if (ar >= 5)            { return 'ratio-superbanner'; }
+  if (ar >= 3)            { return 'ratio-ultrawide'; }
+  return 'ratio-landscape';
+}
+
+function aplicarClasseAspectRatio() {
+  var i;
+  var ratioClass = definirClasseAspectRatio();
+  for (i = 0; i < ALL_RATIO_CLASSES.length; i++) {
+    document.body.classList.remove(ALL_RATIO_CLASSES[i]);
+  }
+  document.body.classList.add(ratioClass);
+}
+
+var resizeTimeout = null;
+function onResize() {
+  if (resizeTimeout) {
+    clearTimeout(resizeTimeout);
+  }
+  resizeTimeout = setTimeout(function() {
+    aplicarClasseAspectRatio();
+  }, 200);
+}
+
 window.onload = function () {
+  // Aplica classe de aspect ratio
+  aplicarClasseAspectRatio();
+  window.addEventListener('resize', onResize);
+
   if (typeof MOCK_DATA !== "undefined" && MOCK_DATA.enabled) {
     var mockLoader = {
       loaded: function () {
@@ -56,7 +104,7 @@ window.onload = function () {
           if (idxEscolhido >= 0) {
             var reg = arr[idxEscolhido];
             var dataObj = new Date(reg.dt_date_wea * 1000);
-            var diaSemana = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SAB"][dataObj.getDay()];
+            var diaSemana = ["DOMINGO", "SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SÁBADO"][dataObj.getDay()];
             var dia = dataObj.getDate();
             if (dia < 10) dia = "0" + dia;
             var mes = dataObj.getMonth() + 1;
@@ -126,11 +174,13 @@ function iniciarTemplate(dados, config, loader) {
   }, config.duration || 10000);
 }
 
-// Função para animar os cards (remover classes iniciais)
+// Função para animar os cards com translate-X + opacity
 function animarCards(cards, qtd) {
+  var delays = [0, 400, 800];
   for (var i = 0; i < cards.length && i < qtd; i++) {
-    cards[i].classList.remove("-translate-x-[500%]", "opacity-0");
-     cards[i].classList.add("translate-x-0", "opacity-100");
+    cards[i].style.transitionDelay = delays[i] + "ms";
+    cards[i].classList.remove("-translate-x-[120%]", "opacity-0");
+    cards[i].classList.add("translate-x-0", "opacity-100");
   }
 }
 
@@ -138,9 +188,13 @@ function animarCards(cards, qtd) {
 function preencherCardClima(card, d, corClima) {
   // Data
   var dataDiv = card.querySelector(".data");
+  var dateHourDiv = card.querySelector(".date-hour");
   if (dataDiv) {
     var horaStr = d.HORA ? (" - " + d.HORA) : "";
-    dataDiv.innerText = (d.DIA || "") + " - " + (d.DATA || "");
+    dataDiv.innerText = d.DIA || "";
+  }
+  if (dateHourDiv) {
+    dateHourDiv.innerText = d.DATA + " " + (d.HORA || "--");
   }
   // Ícone principal (Meteocon SVG via XHR)
   var iconDiv = card.querySelector(".icon");
@@ -161,11 +215,11 @@ function preencherCardClima(card, d, corClima) {
   // Chuva
   var quantChuva = card.querySelector(".quant_chuva");
   if (quantChuva) {
-    quantChuva.innerText = "Chuva: " + (d.QTDE_CHUVA || "--") + " mm";
+    quantChuva.innerText = (d.QTDE_CHUVA || "--") + "mm";
   }
   var probChuva = card.querySelector(".prob_chuva");
   if (probChuva) {
-    probChuva.innerText = "Prob: " + (d.PROB_CHUVA || "--") + "%";
+    probChuva.innerText = (d.PROB_CHUVA || "--") + "%";
   }
   var chuvaIcon = card.querySelector(".chuva-icon");
   if (chuvaIcon) {
@@ -175,7 +229,7 @@ function preencherCardClima(card, d, corClima) {
   // Vento
   var quantVento = card.querySelector(".quant_vento");
   if (quantVento) {
-    quantVento.innerText = "Vento: " + (d.VENTO_VEL || "--") + " km/h";
+    quantVento.innerText = (d.VENTO_VEL || "--") + "km/h";
   }
   var dirVento = card.querySelector(".dir_vento");
   if (dirVento) {
@@ -194,11 +248,11 @@ function preencherCardClima(card, d, corClima) {
   // UV
   var indiceUV = card.querySelector(".indice_uv");
   if (indiceUV) {
-    indiceUV.innerText = "UV: " + (d.UV || "--");
+    indiceUV.innerText = "UV " + (d.UV || "--");
   }
   var riscoUV = card.querySelector(".risco_uv");
   if (riscoUV) {
-    riscoUV.innerText = "Risco: " + (d.UVLEVEL || "--");
+    riscoUV.innerText = "- " + (d.UVLEVEL || "--");
   }
   var uvIcon = card.querySelector(".uv-icon");
   if (uvIcon && d.UV) {
