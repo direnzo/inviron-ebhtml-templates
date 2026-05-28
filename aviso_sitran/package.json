@@ -1,0 +1,16 @@
+{
+  "name": "menuboard",
+  "version": "1.0.0",
+  "description": "A responsive retail template using Tailwind CSS",
+  "main": "tailwind.config.js",
+  "scripts": {
+    "dev": "tailwindcss -i css/input.css -o css/master.css --watch",
+    "build": "tailwindcss -i css/input.css -o css/master.css --minify"
+  },
+  "keywords": [],
+  "author": "Eduardo Di Renzo - Inviron Technologies",
+  "license": "ISC",
+  "dependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}

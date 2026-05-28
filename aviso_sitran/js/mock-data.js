@@ -1,0 +1,47 @@
+// Dados mockados para testes de desenvolvimento - Sistema de Alertas SITRAN
+var MOCK_DATA = {
+    enabled: true, // Altere para false quando conectar ao sistema real
+    
+    config: {
+        slideTime: 5000, // Tempo em ms de exibicao de cada slide (5 segundos)
+        showLogoSlide: true, // Exibir slide final com logo SITRAN
+        maxSlides: 10 // Numero maximo de slides permitidos (sem contar o logo final)
+    },
+    
+    // Array de alertas - frases reais do XML do SITRAN
+    alertas: [
+        "USAR O CELULAR DIRIGINDO CAUSA ACIDENTES.",
+        "CAPACETE E A PROTECAO DO MOTOCICLISTA.",
+        "ACENDA OS FAROIS DURANTE O DIA. MELHORE SUA SEGURANCA.",
+        "USE O ACOSTAMENTO SOMENTE EM EMERGENCIAS.",
+        "NAO AVANCE NA FAIXA DE PEDESTRES.",
+        "MANTENHA O FAROL ACESO DURANTE O DIA.",
+        "CRIANCAS APENAS NO BANCO TRASEIRO.",
+        "NO TRANSITO, SOMOS TODOS PEDESTRES.",
+        "NUNCA DIRIJA CANSADO.",
+        "PEDESTRE, VOCE TAMBEM FAZ PARTE DO TRANSITO.",
+        "VERIFIQUE OS PNEUS E COMBUSTIVEL DO SEU VEICULO.",
+        "RESPEITE OS LIMITES DE VELOCIDADE. PREVINA-SE, NAO CORRA RISCOS.",
+        "MANTENHA OS FAROIS REGULADOS. PREVINA-SE, NAO CORRA RISCOS.",
+        "DESACELERE. SEU BEM MAIOR E A VIDA.",
+        "MANTENHA A FAIXA ESQUERDA LIVRE.",
+        "SONO: FACA UMA PARADA!",
+        "NUNCA DIRIJA COM SONO.",
+        "FACA REVISOES EM SEU VEICULO REGULARMENTE.",
+        "ESCOLHA VIVER. DECIDA PELO TRANSITO SEGURO.",
+        "AO DIRIGIR, NAO USE O CELULAR.",
+        "USE SEMPRE O CINTO DE SEGURANCA TAMBEM NO BANCO TRASEIRO.",
+        "PEDESTRE, DE O SINAL PARA SUA VIDA.",
+        "PELA VIDA, ESCOLHA O TRANSITO SEGURO.",
+        "CINTO DE SEGURANCA SALVA VIDAS.",
+        "EM CASO DE INCENDIO NA RODOVIA, COMUNIQUE OS BOMBEIROS: 193.",
+        "MOTOCICLISTA, USE PROTECAO CONTRA O CEROL.",
+        "MINHA ESCOLHA FAZ A DIFERENCA NO TRANSITO.",
+        "EVITE ACIDENTES, MANTENHA DISTANCIA.",
+        "TRANSPORTE CRIANCAS COM SEGURANCA, USE A CADEIRINHA.",
+        "NA CIDADE, SOMOS TODOS PEDESTRES.",
+        "NAO ULTRAPASSE NA FAIXA CONTINUA.",
+        "RESPEITE A DISTANCIA AO PASSAR POR CICLISTAS.",
+        "USE SEMPRE O CINTO DE SEGURANCA."
+    ]
+};
