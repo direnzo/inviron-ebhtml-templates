@@ -46,18 +46,6 @@ var METEOCONS_MAP = {
   '9':   'fog'
 };
 
-/* ---------- MAPEAMENTO DIRECAO VENTO -> METEOCONS ---------- */
-var METEOCONS_WIND_MAP = {
-  'N':  'wind-direction-n',
-  'NE': 'wind-direction-ne',
-  'E':  'wind-direction-e',
-  'SE': 'wind-direction-se',
-  'S':  'wind-direction-s',
-  'SW': 'wind-direction-sw',
-  'W':  'wind-direction-w',
-  'NW': 'wind-direction-nw'
-};
-
 /* ---------- FUNCOES ---------- */
 
 /**
@@ -130,32 +118,6 @@ function climaToMeteocon(codigo) {
 }
 
 /**
- * Converte direcao do vento (N, NE, E, etc.) para nome do arquivo Meteocon.
- * @param {string} direcao - Sigla da direcao (ex: 'N', 'NE', 'SSW')
- * @param {boolean} inverter - Se true, inverte a direcao (oposto)
- * @returns {string} Nome do arquivo SVG (sem extensao), ou 'wind' se nao encontrar
- */
-function ventoToMeteocon(direcao, inverter) {
-  if (!direcao) return 'wind';
-  var dir = direcao.toString().toUpperCase().trim();
-  // Remove direcoes intermediarias (ex: 'NNE' vira 'N', 'WSW' vira 'W')
-  // Mantem apenas as 8 cardinales
-  if (dir.length > 2) {
-    if (dir.indexOf('N') === 0 && dir.indexOf('NE') !== 0) dir = 'N';
-    else if (dir.indexOf('S') === 0 && dir.indexOf('SE') !== 0 && dir.indexOf('SW') !== 0) dir = 'S';
-    else if (dir.indexOf('E') === 0 && dir.indexOf('NE') !== 0 && dir.indexOf('SE') !== 0) dir = 'E';
-    else if (dir.indexOf('W') === 0 && dir.indexOf('NW') !== 0 && dir.indexOf('SW') !== 0) dir = 'W';
-    else dir = dir.slice(0, 2);
-  }
-  // Se inverter, pega a direcao oposta
-  if (inverter) {
-    var opostos = { 'N': 'S', 'S': 'N', 'E': 'W', 'W': 'E', 'NE': 'SW', 'SW': 'NE', 'NW': 'SE', 'SE': 'NW' };
-    dir = opostos[dir] || dir;
-  }
-  return METEOCONS_WIND_MAP[dir] || 'wind';
-}
-
-/**
  * Converte indice UV (0-11+) para nome do arquivo Meteocon.
  * @param {string|number} valor - Indice UV (ex: '5', '11', '11+')
  * @returns {string} Nome do arquivo SVG (ex: 'uv-index-5', 'uv-index-11-plus')
@@ -167,4 +129,78 @@ function uvToMeteocon(valor) {
   if (num < 1) return 'uv-index-1';
   if (num >= 11) return 'uv-index-11-plus';
   return 'uv-index-' + num;
+}
+
+/**
+ * Converte direcao cardinal (N, NNE, NE, ..., NNW) para angulo em graus.
+ * Usado para rotacionar o ponteiro do compass.svg.
+ * @param {string} dir - Sigla da direcao (ex: 'N', 'SSE', 'WNW')
+ * @returns {number} Angulo em graus (0 a 360)
+ */
+function direcaoCardinalParaAngulo(dir) {
+  var mapa = {
+    'N': 0,
+    'NNE': 22.5,
+    'NE': 45,
+    'ENE': 67.5,
+    'E': 90,
+    'ESE': 112.5,
+    'SE': 135,
+    'SSE': 157.5,
+    'S': 180,
+    'SSW': 202.5,
+    'SW': 225,
+    'WSW': 247.5,
+    'W': 270,
+    'WNW': 292.5,
+    'NW': 315,
+    'NNW': 337.5
+  };
+  if (!dir) return 0;
+  dir = String(dir).toUpperCase().replace(/[^A-Z]/g, '');
+  if (mapa[dir] !== undefined) return mapa[dir];
+  // Fallback para nomes por extenso
+  if (dir === 'NORTE') return 0;
+  if (dir === 'LESTE') return 90;
+  if (dir === 'SUL') return 180;
+  if (dir === 'OESTE') return 270;
+  return 0;
+}
+
+/**
+ * Converte velocidade do vento (km/h) para o icone Beaufort correspondente.
+ * Segue a Escala Beaufort internacional (WMO):
+ *   0:  < 1     -> wind-beaufort-0
+ *   1:  1-5     -> wind-beaufort-1
+ *   2:  6-11    -> wind-beaufort-2
+ *   3:  12-19   -> wind-beaufort-3
+ *   4:  20-28   -> wind-beaufort-4
+ *   5:  29-38   -> wind-beaufort-5
+ *   6:  39-49   -> wind-beaufort-6
+ *   7:  50-61   -> wind-beaufort-7
+ *   8:  62-74   -> wind-beaufort-8
+ *   9:  75-88   -> wind-beaufort-9
+ *   10: 89-102  -> wind-beaufort-10
+ *   11: 103-117 -> wind-beaufort-11
+ *   12: >= 118  -> wind-beaufort-12
+ * @param {string|number} velocidade - Velocidade do vento em km/h
+ * @returns {string} Nome do arquivo SVG (ex: 'wind-beaufort-3')
+ */
+function ventoVelocidadeParaIcone(velocidade) {
+  if (!velocidade) return 'wind-beaufort-0';
+  var num = parseInt(String(velocidade).replace(/[^0-9]/g, ''), 10);
+  if (isNaN(num)) return 'wind-beaufort-0';
+  if (num < 1)   return 'wind-beaufort-0';
+  if (num <= 5)  return 'wind-beaufort-1';
+  if (num <= 11) return 'wind-beaufort-2';
+  if (num <= 19) return 'wind-beaufort-3';
+  if (num <= 28) return 'wind-beaufort-4';
+  if (num <= 38) return 'wind-beaufort-5';
+  if (num <= 49) return 'wind-beaufort-6';
+  if (num <= 61) return 'wind-beaufort-7';
+  if (num <= 74) return 'wind-beaufort-8';
+  if (num <= 88) return 'wind-beaufort-9';
+  if (num <= 102) return 'wind-beaufort-10';
+  if (num <= 117) return 'wind-beaufort-11';
+  return 'wind-beaufort-12';
 }

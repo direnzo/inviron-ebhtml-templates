@@ -23,7 +23,7 @@ var MOCK_DATA = {
             QTDE_CHUVA: "2",
             PROB_CHUVA: "10",
             VENTO_DIR: "SE",
-            VENTO_VEL: "12",
+            VENTO_VEL: "80",
             UV: "5",
             UVLEVEL: "Moderado"
         },
@@ -50,7 +50,7 @@ var MOCK_DATA = {
             ICON: "3",
             QTDE_CHUVA: "5",
             PROB_CHUVA: "30",
-            VENTO_DIR: "SW",
+            VENTO_DIR: "WSW",
             VENTO_VEL: "15",
             UV: "8",
             UVLEVEL: "Muito Alto"

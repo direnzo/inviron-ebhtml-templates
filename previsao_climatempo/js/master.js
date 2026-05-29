@@ -14,14 +14,17 @@ var ALL_RATIO_CLASSES = [
 
 function definirClasseAspectRatio() {
   var ar = window.innerWidth / window.innerHeight;
-  if (ar <= (1 / 3))      { return 'ratio-empena'; }
-  if (ar <= (3 / 4))      { return 'ratio-portrait'; }
-  if (ar <= 1)            { return 'ratio-portrait'; }
-  if (ar < 1.05)          { return 'ratio-square'; }
-  if (ar >= 15)           { return 'ratio-footer'; }
-  if (ar >= 5)            { return 'ratio-superbanner'; }
-  if (ar >= 3)            { return 'ratio-ultrawide'; }
-  return 'ratio-landscape';
+  var cls;
+  // Alinhado com tailwind.config.js — ordem de precedencia identica
+  if (ar < (1 / 3))           { cls = 'ratio-empena'; }
+  else if (ar < (3 / 4))      { cls = 'ratio-portrait'; }
+  else if (ar < (4 / 3))      { cls = 'ratio-square'; }
+  else if (ar < 2)            { cls = 'ratio-landscape'; }
+  else if (ar < 5)            { cls = 'ratio-ultrawide'; }
+  else if (ar < 15)           { cls = 'ratio-superbanner'; }
+  else                        { cls = 'ratio-footer'; }
+  console.log('[ASPECT] ar=' + ar.toFixed(4) + ' w=' + window.innerWidth + ' h=' + window.innerHeight + ' -> ' + cls);
+  return cls;
 }
 
 function aplicarClasseAspectRatio() {
@@ -68,8 +71,8 @@ window.onload = function () {
         var config = { duration: 10000 };
         var item = loader.data("D_CLIMA_CLIMATEMPO");
         var cidade = "";
+        // C1 contem os 3 dias: D1=hoje, D2=amanha, D3=depois
         var dias = ["C1_D1_DATAARRAY", "C1_D2_DATAARRAY", "C1_D3_DATAARRAY"];
-        var agora = Math.floor(new Date().getTime() / 1000);
         var agoraDate = new Date();
         var horaAlvo = agoraDate.getHours();
         var minAlvo = agoraDate.getMinutes();
@@ -84,12 +87,12 @@ window.onload = function () {
               }
             } catch (e) { arr = []; }
           }
-          // Cidade (pega do primeiro registro válido)
+          // Cidade (pega do primeiro registro valido)
           if (cidade === "" && arr.length > 0 && arr[0].city && arr[0].city.ds_name_cit) {
             cidade = arr[0].city.ds_name_cit;
           }
-          // Busca o registro mais próximo do horário alvo (hora/minuto do momento)
-          var idxEscolhido = -1;
+          // Busca o registro mais proximo do horario alvo (hora/minuto do momento)
+          var melhorReg = null;
           var menorDiff = 999999999;
           var alvoSeg = horaAlvo * 3600 + minAlvo * 60;
           for (var i = 0; i < arr.length; i++) {
@@ -98,12 +101,11 @@ window.onload = function () {
             var diff = Math.abs(seg - alvoSeg);
             if (diff < menorDiff) {
               menorDiff = diff;
-              idxEscolhido = i;
+              melhorReg = arr[i];
             }
           }
-          if (idxEscolhido >= 0) {
-            var reg = arr[idxEscolhido];
-            var dataObj = new Date(reg.dt_date_wea * 1000);
+          if (melhorReg) {
+            var dataObj = new Date(melhorReg.dt_date_wea * 1000);
             var diaSemana = ["DOMINGO", "SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SÁBADO"][dataObj.getDay()];
             var dia = dataObj.getDate();
             if (dia < 10) dia = "0" + dia;
@@ -115,15 +117,15 @@ window.onload = function () {
               DIA: diaSemana,
               DATA: dataStr,
               HORA: ("0" + dataObj.getHours()).slice(-2) + ":" + ("0" + dataObj.getMinutes()).slice(-2),
-              MAX: reg.nr_max_wea,
-              MIN: reg.nr_min_wea,
-              ICON: reg.nr_icon_wea,
-              QTDE_CHUVA: reg.nr_precipitation_wea,
-              PROB_CHUVA: reg.nr_probrain_wea,
-              VENTO_DIR: reg.ds_winddirection_wea,
-              VENTO_VEL: reg.nr_windavgvelocity_wea,
-              UV: reg.nr_uv_wea,
-              UVLEVEL: reg.ds_uvlevel_wea
+              MAX: melhorReg.nr_max_wea,
+              MIN: melhorReg.nr_min_wea,
+              ICON: melhorReg.nr_icon_wea,
+              QTDE_CHUVA: melhorReg.nr_precipitation_wea,
+              PROB_CHUVA: melhorReg.nr_probrain_wea,
+              VENTO_DIR: melhorReg.ds_winddirection_wea,
+              VENTO_VEL: melhorReg.nr_windavgvelocity_wea,
+              UV: melhorReg.nr_uv_wea,
+              UVLEVEL: melhorReg.ds_uvlevel_wea
             });
           }
         }
@@ -212,6 +214,47 @@ function preencherCardClima(card, d, corClima) {
   if (minSpan) {
     minSpan.innerText = d.MIN ? d.MIN + "°" : "--";
   }
+
+  // Setas SVG inline (arrow-up e arrow-down)
+  var arrowUpEl = card.querySelector(".arrow-up-svg");
+  if (arrowUpEl) {
+    var xhrUp = new XMLHttpRequest();
+    xhrUp.open('GET', 'img/arrow-up.svg', true);
+    xhrUp.onreadystatechange = function() {
+      if (xhrUp.readyState !== 4) return;
+      if (xhrUp.status === 200 || xhrUp.status === 0) {
+        arrowUpEl.innerHTML = xhrUp.responseText;
+        var svg = arrowUpEl.querySelector('svg');
+        if (svg) {
+          svg.style.width = '100%';
+          svg.style.height = '100%';
+          svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+          svg.style.color = '#fb923c';
+        }
+      }
+    };
+    xhrUp.send();
+  }
+  var arrowDownEl = card.querySelector(".arrow-down-svg");
+  if (arrowDownEl) {
+    var xhrDown = new XMLHttpRequest();
+    xhrDown.open('GET', 'img/arrow-down.svg', true);
+    xhrDown.onreadystatechange = function() {
+      if (xhrDown.readyState !== 4) return;
+      if (xhrDown.status === 200 || xhrDown.status === 0) {
+        arrowDownEl.innerHTML = xhrDown.responseText;
+        var svg = arrowDownEl.querySelector('svg');
+        if (svg) {
+          svg.style.width = '100%';
+          svg.style.height = '100%';
+          svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+          svg.style.color = '#60a5fa';
+        }
+      }
+    };
+    xhrDown.send();
+  }
+
   // Chuva
   var quantChuva = card.querySelector(".quant_chuva");
   if (quantChuva) {
@@ -223,7 +266,12 @@ function preencherCardClima(card, d, corClima) {
   }
   var chuvaIcon = card.querySelector(".chuva-icon");
   if (chuvaIcon) {
-    injetarMeteocon(chuvaIcon, 'raindrops');
+    var prob = parseInt(String(d.PROB_CHUVA).replace(/[^0-9]/g, ''), 10);
+    if (isNaN(prob)) prob = 0;
+    // Opacidade proporcional a probabilidade (0% = 0.15, 100% = 1)
+    var opacidade = 0.15 + (prob / 100) * 0.85;
+    chuvaIcon.style.opacity = opacidade;
+    injetarMeteocon(chuvaIcon, 'raindrops', corClima);
   }
 
   // Vento
@@ -231,18 +279,34 @@ function preencherCardClima(card, d, corClima) {
   if (quantVento) {
     quantVento.innerText = (d.VENTO_VEL || "--") + "km/h";
   }
-  var dirVento = card.querySelector(".dir_vento");
-  if (dirVento) {
-    dirVento.innerText = d.VENTO_DIR || "--";
-  }
   var ventoIcon = card.querySelector(".vento-icon");
   if (ventoIcon) {
-    injetarMeteocon(ventoIcon, 'wind');
+    var nomeIconeVento = ventoVelocidadeParaIcone(d.VENTO_VEL);
+    injetarMeteocon(ventoIcon, nomeIconeVento);
   }
   var dirVentoSvg = card.querySelector(".dir-vento-svg");
   if (dirVentoSvg && d.VENTO_DIR) {
-    var nomeDir = ventoToMeteocon(d.VENTO_DIR);
-    injetarMeteocon(dirVentoSvg, nomeDir);
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'img/compass.svg', true);
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState !== 4) return;
+      if (xhr.status === 200 || xhr.status === 0) {
+        dirVentoSvg.innerHTML = xhr.responseText;
+        var svg = dirVentoSvg.querySelector('svg');
+        if (svg) {
+          svg.style.width = '100%';
+          svg.style.height = '100%';
+          svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+          var ang = direcaoCardinalParaAngulo(d.VENTO_DIR);
+          // Rotaciona o path inteiro no centro do viewBox (12 12)
+          var path = svg.querySelector('path');
+          if (path) {
+            path.setAttribute('transform', 'rotate(' + ang + ' 12 12)');
+          }
+        }
+      }
+    };
+    xhr.send();
   }
 
   // UV

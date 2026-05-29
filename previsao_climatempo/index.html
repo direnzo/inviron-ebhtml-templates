@@ -13,138 +13,153 @@
     <title>Previsão do Tempo</title>
 </head>
 
-<body class="relative flex flex-col h-screen w-full overflow-hidden bg-[#009ee3] font-montserrat leading-none font-bold text-white text-[3vmin] opacity-0 transition-opacity duration-800">
+<body class="relative flex flex-col h-screen w-full overflow-hidden bg-[#009ee3] font-montserrat leading-none font-bold text-white text-[3.5vmin] opacity-0 transition-opacity duration-800 ease-out">
     <!-- Fundo animado -->
     <div id="fundo" class="absolute inset-0 -z-10">
         <img src="img/fundo.jpg" class="w-full h-full object-cover" />
     </div>
     <!-- Header: cidade -->
-    <header class="w-full flex flex-1 items-center justify-center z-10 py-[1.5vmin]">
-        <span id="cidade" class="drop-shadow text-[8vmin]">Cidade</span>
+    <header class="w-full flex h-[15vmin] items-center justify-center z-10 py-[1.5vmin]">
+        <span id="cidade" class="drop-shadow text-[200%]">Cidade</span>
     </header>
     <!-- Main: cards de previsão -->
-    <main class="flex flex-1 justify-center items-center w-full">
-        <div id="cards" class="flex flex-wrap justify-center items-center content-center gap-[2vw] w-full max-w-[96vw] h-full overflow-hidden">
+    <main class="flex h-full justify-center items-center w-full overflow-hidden">
+        <div id="cards" class="flex portrait:flex-col justify-center items-center content-center gap-[2vw] w-full max-w-[96vw] h-full overflow-hidden">
 
             <!-- CARD 1 -->
-            <div class="card flex flex-row landscape:flex-col items-center justify-between content-center landscape:h-fit bg-black/80 rounded-2xl p-[1.5vmin] shadow-lg -translate-x-[120%] opacity-0 transition-all duration-800 ease-out">
-                <!-- Ícone principal — protagonista -->
-                <!-- Em landscape: flex-1, preenche o centro do card (flex-col) -->
-                <!-- Em portrait/square: flex-shrink-0, vai à esquerda (flex-row via CSS) -->
-                <div class="icon flex-1 portrait:flex-[0_0_38%] w-full flex items-center justify-center min-h-0"></div>
-                <!-- Bloco de textos: dia, temp, extra-info -->
-                <!-- Em landscape: bloco na base do card -->
-                <!-- Em portrait/square: coluna direita via CSS (display:flex flex-col) -->
-                <div class="card-texts w-full flex flex-col items-center gap-[2.5vmin] landscape:-mt-[3.5vmin]">
-                    <div class="data tracking-wider text-[5.5vmin] landscape:absolute landscape:top-[2%]">--</div>
-                    <div class="hidden date-hour">--</div>
-                    <div class="flex flex-row flex-wrap items-center justify-center gap-[0.8vmin]">
+            <div class="card flex flex-1 flex-col items-center justify-evenly content-center ls:w-[32%] w-full portrait:h-[32%] ultrawide:w-[25%] bg-black/80 rounded-2xl p-[1.5vmin] shadow-lg -translate-x-[120%] opacity-0 transition-all duration-1000 ease-out">
+
+                <div class="data tracking-wider text-[200%]">--</div>
+                <div class="hidden date-hour">--</div>
+
+                <div class="flex w-full flex-col portrait:max-h-[30%] portrait:flex-row items-center gap-x-[2.5vmin]">
+                    <div class="icon flex items-center justify-center min-h-0 portrait:size-[200%]"></div>
+
+                    <div class="card-texts w-full flex flex-row items-center justify-evenly gap-[2vmin] text-[300%]">
+
                         <div class="flex flex-row items-center gap-[0.3vmin]">
-                            <img src="img/setamax.png" class="h-[6vmin] w-auto" alt="Max">
-                            <span class="max text-orange-400 text-[10vmin] leading-none">--</span>
+                            <span class="arrow-up-svg ico-svg"></span>
+                            <span class="max text-orange-400 leading-none">--</span>
                         </div>
                         <div class="flex flex-row items-center gap-[0.3vmin]">
-                            <img src="img/setamin.png" class="h-[6vmin] w-auto" alt="Min">
-                            <span class="min text-blue-400 text-[10vmin] leading-none">--</span>
+                            <span class="arrow-down-svg ico-svg"></span>
+                            <span class="min text-blue-400 leading-none">--</span>
                         </div>
-                    </div>
-                    <div class="extra-info-row flex flex-row landscape:flex-col flex-wrap items-center justify-center gap-[1vmin] w-full text-[3vmin]">
-                        <div class="flex flex-row items-center gap-[0.3vmin]">
-                            <span class="chuva-icon flex items-center w-[5vmin] h-[5vmin]"></span>
-                            <span class="prob_chuva">--%</span>
-                            <span class="quant_chuva text-nowrap">/ --mm</span>
-                        </div>
-                        <div class="flex flex-row items-center gap-[0.3vmin]">
-                            <span class="vento-icon flex items-center w-[5vmin] h-[5vmin]"></span>
-                            <span class="quant_vento text-nowrap">--km/h</span>
-                            <span class="dir-vento-svg w-[5vmin] h-[5vmin]"></span>
-                            <span class="dir_vento">--</span>
-                        </div>
-                        <div class="flex flex-row items-center gap-[0.3vmin]">
-                            <span class="uv-icon flex items-center w-[5vmin] h-[5vmin]"></span>
-                            <span class="indice_uv">UV --</span>
-                            <span class="risco_uv text-nowrap">- --</span>
-                        </div>
+
                     </div>
                 </div>
+
+                <div class="extra-info-row flex flex-row portrait:flex-wrap ls:flex-col items-center justify-center w-full text-[80%] gap-x-[3vmin]">
+                    <div class="flex flex-row items-center gap-[0.3vmin]">
+                        <span class="chuva-icon ico-svg flex items-center"></span>
+                        <span class="prob_chuva me-4">--%</span>
+                        <span class="quant_chuva text-nowrap">/ --mm</span>
+                    </div>
+                    <div class="flex flex-row items-center gap-[0.3vmin]">
+                        <span class="vento-icon ico-svg flex items-center"></span>
+                        <span class="quant_vento text-nowrap">--km/h</span>
+                        <span class="dir-vento-svg ico-svg py-5"></span>
+                        <span class="dir_vento hidden">--</span>
+                    </div>
+                    <div class="flex flex-row items-center gap-[0.3vmin]">
+                        <span class="uv-icon ico-svg flex items-center"></span>
+                        <span class="indice_uv text-nowrap">UV --</span>
+                        <span class="risco_uv text-nowrap">- --</span>
+                    </div>
+                </div>
+
             </div>
             <!-- CARD 2 -->
-            <div class="card flex flex-row landscape:flex-col items-center justify-between landscape:h-fit bg-black/80 rounded-2xl p-[1.5vmin] shadow-lg -translate-x-[120%] opacity-0 transition-all duration-800 ease-out">
-                <div class="icon portrait:flex-[0_0_38%] w-full flex items-center justify-center min-h-0"></div>
-                <div class="card-texts w-full flex flex-col items-center gap-[2.5vmin] landscape:-mt-[3.5vmin]">
-                    <div class="data tracking-wider text-[5.5vmin] landscape:absolute landscape:top-[2%]">--</div>
-                    <div class="hidden date-hour">--</div>
-                    <div class="flex flex-row flex-wrap items-center justify-center gap-[0.8vmin]">
+            <div class="card flex flex-1 flex-col items-center justify-evenly content-center ls:w-[32%] w-full portrait:h-[32%] ultrawide:w-[25%] bg-black/80 rounded-2xl p-[1.5vmin] shadow-lg -translate-x-[120%] opacity-0 transition-all duration-1000 ease-out">
+
+                <div class="data tracking-wider text-[200%]">--</div>
+                <div class="hidden date-hour">--</div>
+
+                <div class="flex w-full flex-col portrait:max-h-[30%] portrait:flex-row items-center gap-x-[2.5vmin]">
+                    <div class="icon flex items-center justify-center min-h-0 portrait:size-[200%]"></div>
+
+                    <div class="card-texts w-full flex flex-row items-center justify-evenly gap-[2vmin] text-[300%]">
+
                         <div class="flex flex-row items-center gap-[0.3vmin]">
-                            <img src="img/setamax.png" class="h-[6vmin] w-auto" alt="Max">
-                            <span class="max text-orange-400 text-[10vmin] leading-none">--</span>
+                            <span class="arrow-up-svg ico-svg"></span>
+                            <span class="max text-orange-400 leading-none">--</span>
                         </div>
                         <div class="flex flex-row items-center gap-[0.3vmin]">
-                            <img src="img/setamin.png" class="h-[6vmin] w-auto" alt="Min">
-                            <span class="min text-blue-400 text-[10vmin] leading-none">--</span>
+                            <span class="arrow-down-svg ico-svg"></span>
+                            <span class="min text-blue-400 leading-none">--</span>
                         </div>
-                    </div>
-                    <div class="extra-info-row flex flex-row landscape:flex-col flex-wrap items-center justify-center gap-[1vmin] w-full text-[3vmin]">
-                        <div class="flex flex-row items-center gap-[0.3vmin]">
-                            <span class="chuva-icon flex items-center w-[5vmin] h-[5vmin]"></span>
-                            <span class="prob_chuva">--%</span>
-                            <span class="quant_chuva text-nowrap">/ --mm</span>
-                        </div>
-                        <div class="flex flex-row items-center gap-[0.3vmin]">
-                            <span class="vento-icon flex items-center w-[5vmin] h-[5vmin]"></span>
-                            <span class="quant_vento text-nowrap">--km/h</span>
-                            <span class="dir-vento-svg w-[5vmin] h-[5vmin]"></span>
-                            <span class="dir_vento">--</span>
-                        </div>
-                        <div class="flex flex-row items-center gap-[0.3vmin]">
-                            <span class="uv-icon flex items-center w-[5vmin] h-[5vmin]"></span>
-                            <span class="indice_uv">UV --</span>
-                            <span class="risco_uv text-nowrap">- --</span>
-                        </div>
+
                     </div>
                 </div>
+
+                <div class="extra-info-row flex flex-row portrait:flex-wrap ls:flex-col items-center justify-center w-full text-[80%] gap-x-[3vmin]">
+                    <div class="flex flex-row items-center gap-[0.3vmin]">
+                        <span class="chuva-icon ico-svg flex items-center"></span>
+                        <span class="prob_chuva me-4">--%</span>
+                        <span class="quant_chuva text-nowrap">/ --mm</span>
+                    </div>
+                    <div class="flex flex-row items-center gap-[0.3vmin]">
+                        <span class="vento-icon ico-svg flex items-center"></span>
+                        <span class="quant_vento text-nowrap">--km/h</span>
+                        <span class="dir-vento-svg ico-svg py-5"></span>
+                        <span class="dir_vento hidden">--</span>
+                    </div>
+                    <div class="flex flex-row items-center gap-[0.3vmin]">
+                        <span class="uv-icon ico-svg flex items-center"></span>
+                        <span class="indice_uv text-nowrap">UV --</span>
+                        <span class="risco_uv text-nowrap">- --</span>
+                    </div>
+                </div>
+
             </div>
             <!-- CARD 3 -->
-            <div class="card flex flex-row landscape:flex-col items-center justify-between landscape:h-fit bg-black/80 rounded-2xl p-[1.5vmin] shadow-lg -translate-x-[120%] opacity-0 transition-all duration-800 ease-out">
-                <div class="icon flex-1 portrait:flex-[0_0_38%] w-full flex items-center justify-center min-h-0"></div>
-                <div class="card-texts w-full flex flex-col items-center gap-[2.5vmin] landscape:-mt-[3.5vmin]">
-                    <div class="data tracking-wider text-[5.5vmin] landscape:absolute landscape:top-[2%]">--</div>
-                    <div class="hidden date-hour">--</div>
-                    <div class="flex flex-row flex-wrap items-center justify-center gap-[0.8vmin]">
+            <div class="card flex flex-1 flex-col items-center justify-evenly content-center ls:w-[32%] w-full portrait:h-[32%] ultrawide:w-[25%] bg-black/80 rounded-2xl p-[1.5vmin] shadow-lg -translate-x-[120%] opacity-0 transition-all duration-1000 ease-out">
+
+                <div class="data tracking-wider text-[200%]">--</div>
+                <div class="hidden date-hour">--</div>
+
+                <div class="flex w-full flex-col portrait:max-h-[30%] portrait:flex-row items-center gap-x-[2.5vmin]">
+                    <div class="icon flex items-center justify-center min-h-0 portrait:size-[200%]"></div>
+
+                    <div class="card-texts w-full flex flex-row items-center justify-evenly gap-[2vmin] text-[300%]">
+
                         <div class="flex flex-row items-center gap-[0.3vmin]">
-                            <img src="img/setamax.png" class="h-[6vmin] w-auto" alt="Max">
-                            <span class="max text-orange-400 text-[10vmin] leading-none">--</span>
+                            <span class="arrow-up-svg ico-svg"></span>
+                            <span class="max text-orange-400 leading-none">--</span>
                         </div>
                         <div class="flex flex-row items-center gap-[0.3vmin]">
-                            <img src="img/setamin.png" class="h-[6vmin] w-auto" alt="Min">
-                            <span class="min text-blue-400 text-[10vmin] leading-none">--</span>
+                            <span class="arrow-down-svg ico-svg"></span>
+                            <span class="min text-blue-400 leading-none">--</span>
                         </div>
-                    </div>
-                    <div class="extra-info-row flex flex-row landscape:flex-col flex-wrap items-center justify-center gap-[1vmin] w-full text-[3vmin]">
-                        <div class="flex flex-row items-center gap-[0.3vmin]">
-                            <span class="chuva-icon flex items-center w-[5vmin] h-[5vmin]"></span>
-                            <span class="prob_chuva">--%</span>
-                            <span class="quant_chuva text-nowrap">/ --mm</span>
-                        </div>
-                        <div class="flex flex-row items-center gap-[0.3vmin]">
-                            <span class="vento-icon flex items-center w-[5vmin] h-[5vmin]"></span>
-                            <span class="quant_vento text-nowrap">--km/h</span>
-                            <span class="dir-vento-svg w-[5vmin] h-[5vmin]"></span>
-                            <span class="dir_vento">--</span>
-                        </div>
-                        <div class="flex flex-row items-center gap-[0.3vmin]">
-                            <span class="uv-icon flex items-center w-[5vmin] h-[5vmin]"></span>
-                            <span class="indice_uv">UV --</span>
-                            <span class="risco_uv text-nowrap">- --</span>
-                        </div>
+
                     </div>
                 </div>
+
+                <div class="extra-info-row flex flex-row portrait:flex-wrap ls:flex-col items-center justify-center w-full text-[80%] gap-x-[3vmin]">
+                    <div class="flex flex-row items-center gap-[0.3vmin]">
+                        <span class="chuva-icon ico-svg flex items-center"></span>
+                        <span class="prob_chuva me-4">--%</span>
+                        <span class="quant_chuva text-nowrap">/ --mm</span>
+                    </div>
+                    <div class="flex flex-row items-center gap-[0.3vmin]">
+                        <span class="vento-icon ico-svg flex items-center"></span>
+                        <span class="quant_vento text-nowrap">--km/h</span>
+                        <span class="dir-vento-svg ico-svg py-5"></span>
+                        <span class="dir_vento hidden">--</span>
+                    </div>
+                    <div class="flex flex-row items-center gap-[0.3vmin]">
+                        <span class="uv-icon ico-svg flex items-center"></span>
+                        <span class="indice_uv text-nowrap">UV --</span>
+                        <span class="risco_uv text-nowrap">- --</span>
+                    </div>
+                </div>
+
             </div>
         </div>
 
     </main>
     <!-- Footer: logo climatempo -->
-    <footer class="w-full flex flex-1 justify-end p-[1.5vmin] z-10">
+    <footer class="w-full flex h-[15vmin] items-center justify-end p-[1.5vmin] z-10">
         <img src="img/climatempo.png" alt="Climatempo" class="h-[4vmin] max-w-[20vw] object-contain" />
     </footer>
 </body>
