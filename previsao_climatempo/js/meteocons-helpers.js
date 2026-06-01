@@ -94,6 +94,23 @@ function injetarMeteocon(el, nomeArquivo, cor) {
 
     var svg = el.querySelector('svg');
     if (svg) {
+      // Ajusta viewBox para remover espaçamento extra (tight fit)
+      try {
+        var bbox = svg.getBBox();
+        if (bbox && bbox.width > 0 && bbox.height > 0) {
+          // Adiciona pequena margem (5% do tamanho) para não cortar bordas
+          var padding = Math.max(bbox.width, bbox.height) * 0.05;
+          var newX = bbox.x - padding;
+          var newY = bbox.y - padding;
+          var newW = bbox.width + (padding * 2);
+          var newH = bbox.height + (padding * 2);
+          svg.setAttribute('viewBox', newX + ' ' + newY + ' ' + newW + ' ' + newH);
+        }
+      } catch (e) {
+        // Se getBBox falhar (Firefox em alguns casos), mantém viewBox original
+        console.warn('Não foi possível ajustar viewBox:', e);
+      }
+      
       svg.style.width = '100%';
       svg.style.height = '100%';
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
