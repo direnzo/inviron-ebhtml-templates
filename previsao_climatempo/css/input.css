@@ -2,13 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
-    .ico-svg {
-        width: 8vmin;
-        height: 8vmin;
-    }
-}
-
 @font-face {
     font-family: "Montserrat";
     src: url('fonts/Montserrat-VariableFont_wght.ttf');
