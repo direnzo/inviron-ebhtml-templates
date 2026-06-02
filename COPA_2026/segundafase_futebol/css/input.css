@@ -220,6 +220,19 @@
 }
 
 /* ─────────────────────────────────────────────
+   HEADER E FOOTER — Cores dinâmicas via CSS vars
+   ───────────────────────────────────────────── */
+#headerBar {
+    border-bottom-color: var(--cor-destaque) !important;
+}
+#headerFase {
+    color: var(--cor-destaque) !important;
+}
+#sponsorFooter {
+    border-top-color: var(--cor-destaque) !important;
+}
+
+/* ─────────────────────────────────────────────
    FINAL / BRONZE — card unico, destaque grande
    ───────────────────────────────────────────── */
 .chave-fase-FINAL .card-partida,
