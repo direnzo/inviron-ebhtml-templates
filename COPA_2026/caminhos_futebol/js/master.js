@@ -667,7 +667,8 @@ function preencherLinha(linha, nome, flagUrl, gols) {
     var spanNome  = linha.querySelector('.tname');
     var spanScore = linha.querySelector('.score');
 
-    var nomeValido = nome && nome !== 'TBD';
+    // ✅ Aceita qualquer nome que venha dos dados (inclusive "Vencedor de...", "Perdedor de...")
+    var nomeValido = nome && nome.length > 0;
 
     if (imgFlag) {
         if (flagUrl && nomeValido) {
