@@ -222,9 +222,23 @@ window.onload = function() {
             loaded:   function() { console.log('[Mock] loaded'); },
             finished: function() { console.log('[Mock] finished'); }
         };
-        var dfJson = MOCK_DATA.D_FOOTBALL && MOCK_DATA.D_FOOTBALL.TEXTO3;
+        
+        // Aceita D_FOOTBALL.TEXTO3 (formato real) ou partidas direto (fallback)
         var partidas;
-        try { partidas = JSON.parse(dfJson || '[]'); } catch (e) { partidas = []; }
+        if (MOCK_DATA.D_FOOTBALL && MOCK_DATA.D_FOOTBALL.TEXTO3) {
+            try { 
+                partidas = JSON.parse(MOCK_DATA.D_FOOTBALL.TEXTO3); 
+            } catch (e) { 
+                console.error('[Mock] Erro ao parsear D_FOOTBALL.TEXTO3:', e);
+                partidas = []; 
+            }
+        } else if (MOCK_DATA.partidas) {
+            // Fallback: aceita array direto (mais conveniente para testes)
+            partidas = MOCK_DATA.partidas;
+        } else {
+            partidas = [];
+        }
+        
         var dados = processarDadosMock(partidas);
         var spdSponsor = MOCK_DATA.D_SPD || null;
         var mockConfig = {
