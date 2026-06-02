@@ -70,9 +70,11 @@ O template suporta dados de patrocinador via `D_SPD` (CONFIG='1'):
 - Imagens: TEXT2 ou **5 s padrão** (DURACAO_IMAGEM_PADRAO_MS)
 
 **Modo Preview (Extranet):**
-- Extrai COLOR1/2/3, FILE_IMAGE1, IMAGE_LOGO, TEXT1, TEXT2 do formulário
+- Extrai partidas do **D_FOOTBALL.TEXTO3** (JSON stringificado)
+- Extrai sponsor: COLOR1/2/3, FILE_IMAGE1, IMAGE_LOGO, TEXT1, TEXT2
 - Aplica cores dinâmicas via `mergeColorsFromSpd()`
 - Suporta intro de vídeo/imagem com controle de duração
+- **teamsMap vazio**: preview não acessa D_FOOTBALL_TEAMS (nomes vêm direto do TEXTO3)
 
 **IMPORTANTE:** Campo DURACAO foi DEPRECIADO. Use TEXT2.
 

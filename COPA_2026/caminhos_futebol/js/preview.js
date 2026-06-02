@@ -2,15 +2,18 @@
  * preview.js - Caminhos Futebol
  * Modo preview (extranet EdgeContents).
  *
- * extranetView() e definida no escopo global e chamada pelo inline script
- * no final do body quando o template esta sendo exibido na extranet.
+ * extranetView() é definida no escopo global e chamada pelo inline script
+ * no final do body quando o template está sendo exibido na extranet.
  *
  * Comportamento:
- *   - Exibe o template no estado pre-jogo usando dados do formulario da extranet
- *   - Nunca chama finished() para manter o template visivel na tela
- *   - Prioridade de dados: frame pai > mock local > EBHTML D_FOOTBALL
+ *   - Exibe o template com dados do formulário da extranet
+ *   - Nunca chama finished() para manter o template visível na tela
+ *   - Prioridade de dados: frame pai > mock local
+ *   - teamsMap vazio: preview não tem D_FOOTBALL_TEAMS (nomes vêm direto do TEXTO3)
+ *   - Extrai partidas do D_FOOTBALL.TEXTO3 (JSON stringificado)
+ *   - Extrai sponsor do formulário (COLOR1/2/3, TEXT1/2, FILE_IMAGE1, IMAGE_LOGO)
  *
- * ES5 obrigatorio (Android 7+ WebKit)
+ * ES5 obrigatório (Android 7+ WebKit)
  */
 
 function extranetView() {
@@ -88,15 +91,35 @@ function extranetView() {
     var previewData = extractParentData();
     var partidas = [];
     var spdSponsor = null;
+    var teamsMap = {}; // Vazio no preview (D_FOOTBALL_TEAMS não disponível na extranet)
     var mockConfig = { duration: 30000, sponsor: null };
 
-    if (previewData && previewData.D_FOOTBALL) {
-        try { partidas = JSON.parse(previewData.D_FOOTBALL.TEXTO3 || '[]'); } catch (e) { partidas = []; }
-    } else if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.D_FOOTBALL) {
-        try { partidas = JSON.parse(MOCK_DATA.D_FOOTBALL.TEXTO3 || '[]'); } catch (e2) { partidas = []; }
+    // 1. Extrair partidas do formulário (TEXTO3 do D_FOOTBALL)
+    if (previewData && previewData.D_FOOTBALL && previewData.D_FOOTBALL.TEXTO3) {
+        console.log('[caminhos_futebol][preview] usando D_FOOTBALL.TEXTO3 do formulario');
+        try { 
+            partidas = JSON.parse(previewData.D_FOOTBALL.TEXTO3); 
+        } catch (e) { 
+            console.error('[preview] Erro ao parsear TEXTO3:', e);
+            partidas = []; 
+        }
+    } else if (previewData && previewData.partidas) {
+        // Fallback: aceita partidas direto
+        console.log('[caminhos_futebol][preview] usando partidas direto do formulario');
+        partidas = previewData.partidas;
+    } else if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.D_FOOTBALL && MOCK_DATA.D_FOOTBALL.TEXTO3) {
+        console.log('[caminhos_futebol][preview] usando MOCK_DATA.D_FOOTBALL.TEXTO3');
+        try { 
+            partidas = JSON.parse(MOCK_DATA.D_FOOTBALL.TEXTO3); 
+        } catch (e2) { 
+            partidas = []; 
+        }
+    } else if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.partidas) {
+        console.log('[caminhos_futebol][preview] usando MOCK_DATA.partidas');
+        partidas = MOCK_DATA.partidas;
     }
     
-    // Extrair sponsor do formulario da extranet
+    // 2. Extrair sponsor do formulario da extranet
     spdSponsor = extractSponsorFromParent(previewData);
     
     // Fallback para mock se nao vier do formulario
@@ -108,6 +131,7 @@ function extranetView() {
         }
     }
     
+    // 3. Montar configuração do sponsor
     if (spdSponsor) {
         mockConfig.sponsor = {
             frase: spdSponsor.TEXT1 || obterValorSpd(spdSponsor, 'TEXT1') || '',
@@ -116,13 +140,16 @@ function extranetView() {
             FILE_IMAGE1: spdSponsor.FILE_IMAGE1 || obterValorSpd(spdSponsor, 'FILE_IMAGE1') || '',
             introMaxMs: obterDuracaoIntroMs(spdSponsor)
         };
+        console.log('[caminhos_futebol][preview] sponsor configurado: ' + mockConfig.sponsor.frase);
     }
 
-    // Aplicar cores do sponsor (se existirem) ou cores padrao
+    // 4. Aplicar cores do sponsor (se existirem) ou cores padrao
     var cores = mergeColorsFromSpd(CONFIG, spdSponsor);
     aplicarCores(cores);
     
-    var dados = processarDadosMock(partidas);
+    // 5. Processar dados com teamsMap vazio (preview não tem D_FOOTBALL_TEAMS)
+    console.log('[caminhos_futebol][preview] processando ' + partidas.length + ' partidas');
+    var dados = processarDadosMock(partidas, teamsMap);
     iniciarTemplate(dados, mockConfig, getPreviewLoader());
 }
 
