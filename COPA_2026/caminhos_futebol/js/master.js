@@ -404,6 +404,11 @@ function esconderIntro(onDone) {
 
 // ====== INICIAR TEMPLATE — intro via D_SPD.DURACAO + conteudo 5s ou 10s sem intro ======
 function iniciarTemplate(dados, config, loader) {
+    // ✅ EBHTML: Avisar que o template carregou com sucesso IMEDIATAMENTE
+    // (ANTES do vídeo de intro, para registrar na playlist)
+    loader.loaded();
+    console.log('[caminhos_futebol] loader.loaded() chamado — template registrado na playlist');
+    
     var sponsor = config && config.sponsor;
     var introUrl = sponsor && sponsor.intro ? sponsor.intro : (sponsor && sponsor.FILE_IMAGE1 ? sponsor.FILE_IMAGE1 : null);
     if (!introUrl && sponsor && sponsor.logo && sponsor.logo.indexOf('.mp4') !== -1) {
@@ -430,12 +435,6 @@ function iniciarTemplate(dados, config, loader) {
 }
 
 function iniciarTemplateSemIntro(dados, config, loader, introMs) {
-    
-    // ✅ EBHTML: Avisar que o template carregou com sucesso IMEDIATAMENTE
-    // (antes de qualquer animação ou renderização)
-    loader.loaded();
-    console.log('[caminhos_futebol] loader.loaded() chamado — template registrado na playlist');
-    
     // DEBUG: Verifica estrutura dos dados recebidos
     var chaves = Object.keys(dados);
     console.log('[DEBUG iniciarTemplateSemIntro] chaves dos dados:', chaves);
