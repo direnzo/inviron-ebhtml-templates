@@ -25,6 +25,9 @@ var MOCK_DATA = {
         COLOR2:      '#006400',   // corEscura (verde escuro)
         COLOR3:      '#FFFFFF'    // corClara (branco)
     },
+    /* --- D_FOOTBALL_TEAMS: Vazio no mock (times já vêm com nomes)
+           No ambiente real, será usado para traduzir IDs → PT-BR --- */
+    D_FOOTBALL_TEAMS: [],
     partidas: [
 
         // ══════════════════════════════════════════════════

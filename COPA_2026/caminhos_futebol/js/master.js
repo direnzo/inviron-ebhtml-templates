@@ -239,7 +239,23 @@ window.onload = function() {
             partidas = [];
         }
         
-        var dados = processarDadosMock(partidas);
+        // Cria teamsMap do D_FOOTBALL_TEAMS (mock)
+        var teamsMap = {};
+        if (MOCK_DATA.D_FOOTBALL_TEAMS && MOCK_DATA.D_FOOTBALL_TEAMS.length > 0) {
+            for (var i = 0; i < MOCK_DATA.D_FOOTBALL_TEAMS.length; i++) {
+                var time = MOCK_DATA.D_FOOTBALL_TEAMS[i];
+                if (time.TITULO && time.TEXTO2) {
+                    teamsMap[time.TITULO] = {
+                        nome: time.TEXTO2,
+                        codigo: time.TEXTO3 || '',
+                        bandeira: time.FOTO1 || ''
+                    };
+                }
+            }
+            console.log('[Mock] D_FOOTBALL_TEAMS: ' + Object.keys(teamsMap).length + ' times mapeados');
+        }
+        
+        var dados = processarDadosMock(partidas, teamsMap);
         var spdSponsor = MOCK_DATA.D_SPD || null;
         var mockConfig = {
             sponsor: montarSponsorConfig(spdSponsor) || (MOCK_DATA.config && MOCK_DATA.config.sponsor) || null
@@ -289,36 +305,128 @@ window.onload = function() {
                     }
                 }
 
-                // Monta config com sponsor e duracao (compativel com aplicarSponsor)
-                var runConfig = {
-                    sponsor: montarSponsorConfig(spdSponsor)
-                };
+                // ✅ OBRIGATÓRIO: Buscar D_FOOTBALL_TEAMS para traduzir nomes PT-BR
+                buscarTodosOsTimesDeUmaVez(function(teamsMap) {
+                    // Monta config com sponsor e duracao (compativel com aplicarSponsor)
+                    var runConfig = {
+                        sponsor: montarSponsorConfig(spdSponsor)
+                    };
 
-                aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
-                var dados = processarDadosMock(partidas);
-                iniciarTemplate(dados, runConfig, loader);
+                    aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
+                    var dados = processarDadosMock(partidas, teamsMap);
+                    iniciarTemplate(dados, runConfig, loader);
+                });
             });
         });
     }
 };
 
 // ──────────────────────────────────────────────────
-//  PROCESSAR DADOS — array de partidas (mock e producao)
+//  BUSCAR TODOS OS TIMES DO D_FOOTBALL_TEAMS
+//  Retorna mapa: { teamId: { nome, bandeira, codigo } }
 // ──────────────────────────────────────────────────
-function processarDadosMock(partidas) {
+function buscarTodosOsTimesDeUmaVez(callback) {
+    var xhr = new XMLHttpRequest();
+    var url = '/content/data/D_FOOTBALL_TEAMS?amount=0';
+    
+    console.log('[caminhos_futebol] Buscando todos os times do D_FOOTBALL_TEAMS...');
+    
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState !== 4) { return; }
+        
+        if (xhr.status === 200 || xhr.status === 0) {
+            try {
+                var parser = new DOMParser();
+                var xmlDoc = parser.parseFromString(xhr.responseText, 'text/xml');
+                var items = xmlDoc.getElementsByTagName('ITEM');
+                
+                var teamsMap = {};
+                
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    var getTag = function(tagName) {
+                        var el = item.getElementsByTagName(tagName)[0];
+                        return el ? el.textContent : '';
+                    };
+                    
+                    var teamId = getTag('TITULO');
+                    var nome = getTag('TEXTO2');
+                    var codigo = getTag('TEXTO3');
+                    var bandeira = getTag('FOTO1');
+                    
+                    if (teamId && nome) {
+                        teamsMap[teamId] = {
+                            nome: nome,
+                            codigo: codigo,
+                            bandeira: bandeira
+                        };
+                    }
+                }
+                
+                console.log('[caminhos_futebol] D_FOOTBALL_TEAMS: ' + Object.keys(teamsMap).length + ' times mapeados');
+                callback(teamsMap);
+                
+            } catch (e) {
+                console.error('[caminhos_futebol] Erro ao parsear D_FOOTBALL_TEAMS:', e);
+                callback({});
+            }
+        } else {
+            console.error('[caminhos_futebol] Erro HTTP ao buscar D_FOOTBALL_TEAMS:', xhr.status);
+            callback({});
+        }
+    };
+    
+    xhr.onerror = function() {
+        console.error('[caminhos_futebol] Erro de rede ao buscar D_FOOTBALL_TEAMS');
+        callback({});
+    };
+    
+    xhr.send();
+}
+
+// ──────────────────────────────────────────────────
+//  PROCESSAR DADOS — array de partidas (mock e producao)
+//  teamsMap: { teamId: { nome, bandeira, codigo } }
+// ──────────────────────────────────────────────────
+function processarDadosMock(partidas, teamsMap) {
+    teamsMap = teamsMap || {};
     var dados = {};
+    
     for (var i = 0; i < partidas.length; i++) {
         var p     = partidas[i];
         var fase  = p.CATEGORY  || '';
         var pos   = p.SUBTITULO || '';
         var chave = fase + '_' + pos;
+        
+        // IDs dos times (podem ser números ou strings)
+        var teamIdCasa = p.TITULO || '';
+        var teamIdVis  = p.TITULO2 || '';
+        
+        // Traduzir IDs para nomes PT-BR se disponível no teamsMap
+        var timeCasa = teamIdCasa;
+        var timeVis  = teamIdVis;
+        var flagCasa = p.FOTO || '';
+        var flagVis  = p.FOTO2 || '';
+        
+        // Se teamId é número (string numérica), buscar no teamsMap
+        if (teamsMap[teamIdCasa]) {
+            timeCasa = teamsMap[teamIdCasa].nome;
+            flagCasa = teamsMap[teamIdCasa].bandeira || flagCasa;
+        }
+        
+        if (teamsMap[teamIdVis]) {
+            timeVis = teamsMap[teamIdVis].nome;
+            flagVis = teamsMap[teamIdVis].bandeira || flagVis;
+        }
+        
         dados[chave] = {
             fase:          fase,
             posicao:       parseInt(pos, 10),
-            timeCasa:      p.TITULO     || '',
-            timeVisitante: p.TITULO2    || '',
-            flagCasa:      p.FOTO       || '',
-            flagVisitante: p.FOTO2      || '',
+            timeCasa:      timeCasa,
+            timeVisitante: timeVis,
+            flagCasa:      flagCasa,
+            flagVisitante: flagVis,
             golsCasa:      p.TEXTO      || '',
             golsVisitante: p.TEXTO2     || '',
             status:        p.SUBTITULO3 || 'NS',

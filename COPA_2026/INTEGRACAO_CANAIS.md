@@ -9,8 +9,8 @@ Resumo de como cada template utiliza os canais de dados do EdgeContents CMS.
 | Template | D_SPD | D_FOOTBALL | D_FOOTBALL_TEAMS | D_FOOTBALL_STANDINGS |
 |----------|-------|------------|------------------|----------------------|
 | **placar_futebol** | ✅ `amount=0`<br>Separa TYPE=10 e CONFIG=1 | ✅ `f_titulo={fixtureId}`<br>Filtrado por partida | ✅ `amount=0`<br>XMLHttpRequest | ❌ Não usa |
-| **tabela_futebol** | ✅ `amount=0`<br>Busca CONFIG=1 | ❌ Usa para buscar jogos<br>`amount=0` XMLHttpRequest | ✅ `amount=0`<br>XMLHttpRequest | ✅ `amount=0`<br>XMLHttpRequest |
-| **caminhos_futebol** | ✅ `amount=0`<br>Busca CONFIG=1 | ✅ Sem filtro<br>TEXTO3 contém JSON array | ❌ Não usa | ❌ Não usa |
+| **tabela_futebol** | ✅ `amount=0`<br>Busca CONFIG=1 | ✅ `amount=0`<br>XMLHttpRequest | ✅ `amount=0`<br>XMLHttpRequest | ✅ `amount=0`<br>XMLHttpRequest |
+| **caminhos_futebol** | ✅ `amount=0`<br>Busca CONFIG=1 | ✅ Sem filtro<br>TEXTO3 contém JSON array | ✅ `amount=0`<br>XMLHttpRequest<br>**OBRIGATÓRIO** para PT-BR | ❌ Não usa |
 
 ---
 
@@ -123,6 +123,9 @@ Resumo de como cada template utiliza os canais de dados do EdgeContents CMS.
    
 2. D_SPD (amount=0)
    └─ Busca CONFIG=1 (patrocinador)
+   
+3. D_FOOTBALL_TEAMS (amount=0 via XMLHttpRequest)
+   └─ **OBRIGATÓRIO**: Mapeia IDs → nomes PT-BR + bandeiras
 ```
 
 ### **Campos Utilizados:**
@@ -134,10 +137,10 @@ Resumo de como cada template utiliza os canais de dados do EdgeContents CMS.
     {
       "CATEGORY": "R32",
       "SUBTITULO": "1",
-      "TITULO": "BRA",
-      "TITULO2": "ARG",
-      "FOTO": "url_bandeira_bra",
-      "FOTO2": "url_bandeira_arg",
+      "TITULO": "6",          // ← ID do time (ex: 6 = Brasil)
+      "TITULO2": "10",        // ← ID do time (ex: 10 = Argentina)
+      "FOTO": "",             // Vazio (usar D_FOOTBALL_TEAMS)
+      "FOTO2": "",            // Vazio (usar D_FOOTBALL_TEAMS)
       "TEXTO": "2",
       "TEXTO2": "1",
       "SUBTITULO3": "FT",
@@ -145,6 +148,14 @@ Resumo de como cada template utiliza os canais de dados do EdgeContents CMS.
     }
   ]
   ```
+
+#### **D_FOOTBALL_TEAMS**
+- `TITULO` = team ID (da API-Football)
+- `TEXTO2` = nome do time em PT-BR
+- `FOTO1` = URL da bandeira (HTTP)
+- `TEXTO3` = código do time (ex: BRA)
+
+**⚠️ CRÍTICO:** D_FOOTBALL_TEAMS é **OBRIGATÓRIO** para traduzir os IDs dos times em PT-BR e obter as bandeiras corretas.
 
 #### **D_SPD (CONFIG=1 - Patrocinador)**
 - Mesmos campos do placar_futebol

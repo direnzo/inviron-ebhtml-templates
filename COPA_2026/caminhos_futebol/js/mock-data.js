@@ -43,6 +43,8 @@ var MOCK_DATA = {
         COLOR2:      '#006400',   // corEscura (verde escuro)
         COLOR3:      '#FFFFFF'    // corClara (branco)
     },
+    /* --- D_FOOTBALL_TEAMS: Mapeamento times (vazio para pré-torneio) --- */
+    D_FOOTBALL_TEAMS: [],
     partidas: [
 
         // ══════════════════════════════════════════════════
