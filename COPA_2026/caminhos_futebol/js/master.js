@@ -128,6 +128,113 @@ var CONFIG = {
     corClara:    '#FFFFFF'   // cor de texto e bordas
 };
 
+/* ====================================================
+   MAPA DE FASES DO CAMPEONATO → PT-BR
+   Traduções de fases/rodadas comuns
+   ==================================================== */
+var FASE_LABEL = {
+    // Fases principais em inglês
+    'group stage':                'Fase de Grupos',
+    'preliminary round':          'Fase Preliminar',
+    'qualification round':        'Fase de Qualificação',
+    'qualifiers':                 'Eliminatórias',
+    'round of 32':                '1/32 de Final',
+    '1/32-finals':                '1/32 de Final',
+    'round of 16':                'Oitavas de Final',
+    '1/16-finals':                'Oitavas de Final',
+    'round of 8':                 'Quartas de Final',
+    'quarter-finals':             'Quartas de Final',
+    'quarter-final':              'Quartas de Final',
+    'quarterfinals':              'Quartas de Final',
+    'semi-finals':                'Semifinais',
+    'semi-final':                 'Semifinal',
+    'semifinals':                 'Semifinais',
+    'final':                      'Final',
+    '3rd place':                  'Disputa de 3º Lugar',
+    '3rd place final':            'Disputa de 3º Lugar',
+    'third place':                'Disputa de 3º Lugar',
+    // Entradas em português (API pode retornar já traduzido)
+    'play-offs':                  'Play-offs',
+    'fase de grupos':             'Fase de Grupos',
+    'fase preliminar':            'Fase Preliminar',
+    'fase de qualificação':       'Fase de Qualificação',
+    '1/32 de final':              '1/32 de Final',
+    '1/16 de final':              '1/16 de Final',
+    'oitavas de final':           'Oitavas de Final',
+    'quartas de final':           'Quartas de Final',
+    'semifinal':                  'Semifinal',
+    'semifinais':                 'Semifinais',
+    'disputa de 3º lugar':        'Disputa de 3º Lugar',
+    'regular season':             'Temporada Regular',
+    'matchday 1':                 'Rodada 1',
+    'matchday 2':                 'Rodada 2',
+    'matchday 3':                 'Rodada 3',
+    'round 1':                    'Rodada 1',
+    'round 2':                    'Rodada 2',
+    'round 3':                    'Rodada 3'
+};
+
+/**
+ * Traduz fase/rodada do campeonato para PT-BR.
+ * Tenta match exato por chave em minúsculas; se não encontrar, devolve o original.
+ * Também expande padrões numéricos dinâmicos como "Matchday 12", "Round 15".
+ */
+function traduzirFase(texto) {
+    if (!texto) { return ''; }
+    var chave = texto.toLowerCase().trim();
+
+    // Lookup direto
+    if (FASE_LABEL[chave]) {
+        return FASE_LABEL[chave];
+    }
+
+    // Padrões dinâmicos: "Matchday N", "Round N"
+    var mMatchday = chave.match(/^matchday\s+(\d+)$/);
+    if (mMatchday) { return 'Rodada ' + mMatchday[1]; }
+
+    var mRound = chave.match(/^round\s+(\d+)$/);
+    if (mRound) { return 'Rodada ' + mRound[1]; }
+
+    var mQual = chave.match(/^(\d+)(?:st|nd|rd|th)\s+qualifying round$/);
+    if (mQual) { return mQual[1] + 'ª Fase de Qualificação'; }
+
+    var mLeague = chave.match(/^league\s+stage\s*[-–]\s*(\d+)$/);
+    if (mLeague) { return 'Fase de Liga — Rodada ' + mLeague[1]; }
+
+    var mLeg = chave.match(/^(\d+)(?:st|nd|rd|th)\s+leg$/);
+    if (mLeg) { return mLeg[1] + 'ª Mão'; }
+
+    // Sem tradução — devolve o original sem alteração
+    return texto;
+}
+
+/* ====================================================
+   SANITIZA NOMES DE TORNEIOS (remove palavras proibidas)
+   Substitui termos proibidos por equivalentes permitidos
+   ==================================================== */
+function sanitizarNomeTorneio(texto) {
+    if (!texto) { return ''; }
+    
+    var substituicoes = [
+        { proibido: /COPA DO MUNDO/gi, permitido: 'O MUNDO EM CAMPO' },
+        { proibido: /WORLD CUP/gi, permitido: 'O MUNDO EM CAMPO' },
+        { proibido: /FIFA 2026/gi, permitido: 'O MUNDO EM CAMPO 2026' },
+        { proibido: /FIFA WORLD CUP/gi, permitido: 'O MUNDO EM CAMPO' },
+        { proibido: /COPA 2026/gi, permitido: 'O MUNDO EM CAMPO 2026' },
+        { proibido: /FIFA/gi, permitido: '' }
+    ];
+    
+    var resultado = texto;
+    for (var i = 0; i < substituicoes.length; i++) {
+        resultado = resultado.replace(substituicoes[i].proibido, substituicoes[i].permitido);
+    }
+    
+    // Limpar espaços extras
+    resultado = resultado.replace(/\s+/g, ' ').trim();
+    
+    return resultado;
+}
+
 function hexToRgba(hex, alpha) {
     var r = parseInt(hex.slice(1, 3), 16);
     var g = parseInt(hex.slice(3, 5), 16);

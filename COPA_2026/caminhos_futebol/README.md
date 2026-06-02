@@ -80,6 +80,38 @@ O template suporta dados de patrocinador via `D_SPD` (CONFIG='1'):
 
 ---
 
+## Funções de Tradução e Sanitização
+
+O template inclui funções para processar nomes de torneios e fases que venham dos dados:
+
+### traduzirFase(texto)
+Traduz nomes de fases/rodadas do inglês para PT-BR:
+- **Lookup direto**: "quarter-finals" → "Quartas de Final"
+- **Padrões dinâmicos**: "Matchday 12" → "Rodada 12", "Round 15" → "Rodada 15"
+- Se não encontrar tradução, retorna o texto original sem modificação
+
+```javascript
+traduzirFase('quarter-finals')  // → "Quartas de Final"
+traduzirFase('Matchday 5')      // → "Rodada 5"
+traduzirFase('Round of 16')     // → "Oitavas de Final"
+```
+
+### sanitizarNomeTorneio(texto)
+Remove termos proibidos de direitos autorais e substitui por equivalentes:
+- "Copa do Mundo" → "O Mundo em Campo"
+- "World Cup" → "O Mundo em Campo"
+- "FIFA 2026" → "O Mundo em Campo 2026"
+- "FIFA" → (removido)
+
+```javascript
+sanitizarNomeTorneio('Copa do Mundo FIFA 2026')  // → "O Mundo em Campo 2026"
+sanitizarNomeTorneio('FIFA World Cup')           // → "O Mundo em Campo"
+```
+
+**Nota:** Estas funções estão disponíveis mas não são aplicadas automaticamente. Use-as ao processar dados externos que possam conter termos protegidos ou nomes em inglês.
+
+---
+
 ## Formato dos dados (EdgeContents / Mock)
 
 O template consome um dataset chamado **`D_COPA`** com uma linha por partida.
