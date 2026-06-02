@@ -143,17 +143,25 @@ function aplicarCores(cfg) {
     s.setProperty('--cor-texto',        cfg.corClara);
 }
 
-/* Mescla cores do D_SPD (TEXTO7/TEXTO8/TEXTO9) com defaults do CONFIG
-   Suporta objeto plano (mock: spd.TEXTO7) ou item EdgeContents (spd.value()) */
+/* Mescla cores do D_SPD (COLOR1/COLOR2/COLOR3) com defaults do CONFIG
+   Suporta objeto plano (mock) ou item EdgeContents (spd.value()) */
 function mergeColorsFromSpd(defaults, spd) {
     if (!spd) { return defaults; }
-    var destaque = (spd.TEXTO7) || (spd.value && spd.value('TEXTO7') && spd.value('TEXTO7').value) || '';
-    var escura   = (spd.TEXTO8) || (spd.value && spd.value('TEXTO8') && spd.value('TEXTO8').value) || '';
-    var clara    = (spd.TEXTO9) || (spd.value && spd.value('TEXTO9') && spd.value('TEXTO9').value) || '';
+    
+    // COLOR1 = corDestaque, COLOR2 = corEscura, COLOR3 = corClara
+    var cor1 = obterValorSpd(spd, 'COLOR1');
+    var cor2 = obterValorSpd(spd, 'COLOR2');
+    var cor3 = obterValorSpd(spd, 'COLOR3');
+    
+    // Adicionar '#' se não tiver
+    if (cor1 && cor1.indexOf('#') !== 0) { cor1 = '#' + cor1; }
+    if (cor2 && cor2.indexOf('#') !== 0) { cor2 = '#' + cor2; }
+    if (cor3 && cor3.indexOf('#') !== 0) { cor3 = '#' + cor3; }
+    
     return {
-        corDestaque: destaque || defaults.corDestaque,
-        corEscura:   escura   || defaults.corEscura,
-        corClara:    clara    || defaults.corClara
+        corDestaque: cor1 || defaults.corDestaque,
+        corEscura:   cor2 || defaults.corEscura,
+        corClara:    cor3 || defaults.corClara
     };
 }
 
@@ -166,9 +174,32 @@ function obterValorSpd(spd, campo) {
     return spd[campo] || (spd.value && spd.value(campo) && spd.value(campo).value) || '';
 }
 
+/**
+ * Obtem duracao maxima da intro (video/imagem do patrocinador).
+ * REGRA: Se TEXT2 existir no D_SPD CONFIG=1, usar como tempo de corte do video.
+ *        Se TEXT2 nao existir ou for vazio, retorna 0 (sem limite - video roda ate o fim).
+ * @param {Object} spd - Item D_SPD CONFIG=1
+ * @returns {number} Duracao em milissegundos (0 = sem limite)
+ */
 function obterDuracaoIntroMs(spd) {
-    var seg = parseInt(obterValorSpd(spd, 'DURACAO'), 10);
-    return (seg > 0) ? seg * 1000 : 0;
+    if (!spd) { 
+        console.log('[caminhos_futebol] obterDuracaoIntroMs: sem sponsor, duracao=0');
+        return 0; 
+    }
+    
+    // Tentar TEXT2 primeiro (novo padrao - tempo de corte do video)
+    var text2 = obterValorSpd(spd, 'TEXT2');
+    if (text2 && text2.trim() !== '') {
+        var segText2 = parseInt(text2, 10);
+        if (segText2 > 0) {
+            console.log('[caminhos_futebol] obterDuracaoIntroMs: TEXT2=' + text2 + ' seg → cortar video em ' + (segText2 * 1000) + 'ms');
+            return segText2 * 1000;
+        }
+    }
+    
+    // Se TEXT2 nao existir, retornar 0 (sem limite - video roda ate o fim)
+    console.log('[caminhos_futebol] obterDuracaoIntroMs: TEXT2 vazio ou invalido → video sem corte (duracao=0, ate ended)');
+    return 0;
 }
 
 function montarSponsorConfig(spdSponsor) {
@@ -399,12 +430,19 @@ function iniciarTemplate(dados, config, loader) {
 }
 
 function iniciarTemplateSemIntro(dados, config, loader, introMs) {
-        // DEBUG: Verifica estrutura dos dados recebidos
-        var chaves = Object.keys(dados);
-        console.log('[DEBUG iniciarTemplateSemIntro] chaves dos dados:', chaves);
-        if (chaves.length > 0) {
-            console.log('[DEBUG iniciarTemplateSemIntro] exemplo de dado:', chaves[0], dados[chaves[0]]);
-        }
+    
+    // ✅ EBHTML: Avisar que o template carregou com sucesso IMEDIATAMENTE
+    // (antes de qualquer animação ou renderização)
+    loader.loaded();
+    console.log('[caminhos_futebol] loader.loaded() chamado — template registrado na playlist');
+    
+    // DEBUG: Verifica estrutura dos dados recebidos
+    var chaves = Object.keys(dados);
+    console.log('[DEBUG iniciarTemplateSemIntro] chaves dos dados:', chaves);
+    if (chaves.length > 0) {
+        console.log('[DEBUG iniciarTemplateSemIntro] exemplo de dado:', chaves[0], dados[chaves[0]]);
+    }
+    
     renderizarBracket(dados);
     marcarBrasil();
     marcarCampeao(dados);
@@ -455,7 +493,7 @@ function iniciarTemplateSemIntro(dados, config, loader, introMs) {
     if (wrapper) {
         wrapper.style.opacity = '1';
     }
-    loader.loaded();
+    
     setTimeout(function() {
         loader.finished();
     }, restante);

@@ -50,6 +50,34 @@ npm run build
 
 ---
 
+## Dados do Patrocinador (D_SPD)
+
+O template suporta dados de patrocinador via `D_SPD` (CONFIG='1'):
+
+| Campo | Descrição |
+|-------|-----------|
+| `FILE_IMAGE1` | Vídeo ou imagem de intro do patrocinador |
+| `IMAGE_LOGO` | Logo do patrocinador (exibido no rodapé) |
+| `TEXT1` | Texto/título do patrocinador |
+| `TEXT2` | **Duração do vídeo/imagem** (em segundos) |
+| `COLOR1` | Cor de destaque (ex: `#FBBF24` ou `FBBF24`) |
+| `COLOR2` | Cor escura/fundo (ex: `#006400`) |
+| `COLOR3` | Cor clara/texto (ex: `#FFFFFF`) |
+
+**Controle de duração de vídeo/imagem (TEXT2):**
+- Se TEXT2 tem valor (ex: `5`): vídeo é **cortado** após 5 segundos
+- Se TEXT2 vazio: vídeo roda **até o fim** (evento `ended`)
+- Imagens: TEXT2 ou **5 s padrão** (DURACAO_IMAGEM_PADRAO_MS)
+
+**Modo Preview (Extranet):**
+- Extrai COLOR1/2/3, FILE_IMAGE1, IMAGE_LOGO, TEXT1, TEXT2 do formulário
+- Aplica cores dinâmicas via `mergeColorsFromSpd()`
+- Suporta intro de vídeo/imagem com controle de duração
+
+**IMPORTANTE:** Campo DURACAO foi DEPRECIADO. Use TEXT2.
+
+---
+
 ## Formato dos dados (EdgeContents / Mock)
 
 O template consome um dataset chamado **`D_COPA`** com uma linha por partida.
