@@ -857,6 +857,14 @@ function playerView() {
 
 /* --- Renderiza grupo: tabela + jogos + sponsor + playlist --- */
 function renderizarGrupo(grupo, spdSponsor, loader, duracao) {
+    
+    // ❌ Validar dados ANTES de chamar loader.loaded()
+    if (!grupo || !grupo.times || grupo.times.length === 0) {
+        console.error('[tabela_futebol] sem dados para exibir');
+        // ❌ ERRO: NÃO chamar loader.loaded() — apenas finished()
+        loader.finished();
+        return;
+    }
 
     // ✅ EBHTML: Avisar que o template carregou com sucesso IMEDIATAMENTE
     // (antes de qualquer animação ou intro de vídeo)
