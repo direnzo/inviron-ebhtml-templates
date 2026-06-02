@@ -778,6 +778,9 @@ function playerView() {
 }
 
 window.onload = function() {
+    // Aplica cores padrão imediatamente (antes de carregar dados)
+    aplicarCores(CONFIG);
+    
     if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
         var mockLoader = {
             loaded:   function() { console.log('[Mock] loaded'); },
