@@ -52,6 +52,62 @@ var STATUS_LABEL = {
     'LIVE': 'Ao vivo'
 };
 
+/* ====================================================
+   MAPA DE FASES DO CAMPEONATO → PT-BR
+   Traduções de fases/rodadas comuns
+   ==================================================== */
+var FASE_LABEL_TRADUCAO = {
+    'group stage':     'Fase de Grupos',
+    'round of 32':     '1/32 de Final',
+    'round of 16':     'Oitavas de Final',
+    'quarter-finals':  'Quartas de Final',
+    'semi-finals':     'Semifinais',
+    'final':           'Final',
+    '3rd place':       'Disputa de 3º Lugar',
+    'oitavas de final': 'Oitavas de Final',
+    'quartas de final': 'Quartas de Final',
+    'semifinais':      'Semifinais',
+    'matchday 1':      'Rodada 1',
+    'round 1':         'Rodada 1'
+};
+
+/**
+ * Traduz fase/rodada do campeonato para PT-BR.
+ */
+function traduzirFase(texto) {
+    if (!texto) { return ''; }
+    var chave = texto.toLowerCase().trim();
+    if (FASE_LABEL_TRADUCAO[chave]) {
+        return FASE_LABEL_TRADUCAO[chave];
+    }
+    var mMatchday = chave.match(/^matchday\s+(\d+)$/);
+    if (mMatchday) { return 'Rodada ' + mMatchday[1]; }
+    var mRound = chave.match(/^round\s+(\d+)$/);
+    if (mRound) { return 'Rodada ' + mRound[1]; }
+    return texto;
+}
+
+/**
+ * Sanitiza nomes de torneios (remove palavras proibidas).
+ */
+function sanitizarNomeTorneio(texto) {
+    if (!texto) { return ''; }
+    var substituicoes = [
+        { proibido: /COPA DO MUNDO/gi, permitido: 'O MUNDO EM CAMPO' },
+        { proibido: /WORLD CUP/gi, permitido: 'O MUNDO EM CAMPO' },
+        { proibido: /FIFA 2026/gi, permitido: 'O MUNDO EM CAMPO 2026' },
+        { proibido: /FIFA WORLD CUP/gi, permitido: 'O MUNDO EM CAMPO' },
+        { proibido: /COPA 2026/gi, permitido: 'O MUNDO EM CAMPO 2026' },
+        { proibido: /FIFA/gi, permitido: '' }
+    ];
+    var resultado = texto;
+    for (var i = 0; i < substituicoes.length; i++) {
+        resultado = resultado.replace(substituicoes[i].proibido, substituicoes[i].permitido);
+    }
+    resultado = resultado.replace(/\s+/g, ' ').trim();
+    return resultado;
+}
+
 function hexToRgba(hex, alpha) {
     var r = parseInt(hex.slice(1, 3), 16);
     var g = parseInt(hex.slice(3, 5), 16);
@@ -69,13 +125,21 @@ function aplicarCores(cfg) {
 
 function mergeColorsFromSpd(defaults, spd) {
     if (!spd) { return defaults; }
-    var destaque = obterValorSpd(spd, 'TEXTO7');
-    var escura   = obterValorSpd(spd, 'TEXTO8');
-    var clara    = obterValorSpd(spd, 'TEXTO9');
+    
+    // COLOR1 = corDestaque, COLOR2 = corEscura, COLOR3 = corClara
+    var cor1 = obterValorSpd(spd, 'COLOR1');
+    var cor2 = obterValorSpd(spd, 'COLOR2');
+    var cor3 = obterValorSpd(spd, 'COLOR3');
+    
+    // Adicionar '#' se não tiver
+    if (cor1 && cor1.indexOf('#') !== 0) { cor1 = '#' + cor1; }
+    if (cor2 && cor2.indexOf('#') !== 0) { cor2 = '#' + cor2; }
+    if (cor3 && cor3.indexOf('#') !== 0) { cor3 = '#' + cor3; }
+    
     return {
-        corDestaque: destaque || defaults.corDestaque,
-        corEscura:   escura   || defaults.corEscura,
-        corClara:    clara    || defaults.corClara
+        corDestaque: cor1 || defaults.corDestaque,
+        corEscura:   cor2 || defaults.corEscura,
+        corClara:    cor3 || defaults.corClara
     };
 }
 
@@ -84,9 +148,24 @@ function obterValorSpd(spd, campo) {
     return spd[campo] || (spd.value && spd.value(campo) && spd.value(campo).value) || '';
 }
 
+/**
+ * Obtém duração máxima da intro (vídeo/imagem do patrocinador).
+ * REGRA: Se TEXT2 existir no D_SPD CONFIG=1, usar como tempo de corte do vídeo.
+ *        Se TEXT2 não existir ou for vazio, retorna 0 (sem limite - vídeo roda até o fim).
+ * @param {Object} spd - Registro D_SPD CONFIG=1 (plano ou EdgeContents)
+ * @returns {number} Duração em ms (0 = sem limite)
+ */
 function obterDuracaoIntroMs(spd) {
-    var seg = parseInt(obterValorSpd(spd, 'DURACAO'), 10);
-    return (seg > 0) ? seg * 1000 : 0;
+    var text2 = obterValorSpd(spd, 'TEXT2');
+    var seg = parseInt(text2, 10);
+    
+    if (seg > 0) {
+        console.log('[segundafase_futebol] TEXT2=' + seg + ' seg → cortar vídeo em ' + (seg * 1000) + 'ms');
+        return seg * 1000;
+    }
+    
+    console.log('[segundafase_futebol] TEXT2 vazio → vídeo sem corte (roda até ended)');
+    return 0;
 }
 
 function montarSponsorConfig(spdSponsor) {
@@ -110,21 +189,109 @@ function parsearDatahora(s) {
     };
 }
 
-function processarDadosMock(partidas) {
+// ──────────────────────────────────────────────────
+//  BUSCAR TODOS OS TIMES DO D_FOOTBALL_TEAMS
+//  Retorna mapa: { teamId: { nome, bandeira, codigo } }
+// ──────────────────────────────────────────────────
+function buscarTodosOsTimesDeUmaVez(callback) {
+    var xhr = new XMLHttpRequest();
+    var url = '/content/data/D_FOOTBALL_TEAMS?amount=0';
+    
+    console.log('[segundafase_futebol] Buscando todos os times do D_FOOTBALL_TEAMS...');
+    
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState !== 4) { return; }
+        
+        if (xhr.status === 200 || xhr.status === 0) {
+            try {
+                var parser = new DOMParser();
+                var xmlDoc = parser.parseFromString(xhr.responseText, 'text/xml');
+                var items = xmlDoc.getElementsByTagName('ITEM');
+                
+                var teamsMap = {};
+                
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    var getTag = function(tagName) {
+                        var el = item.getElementsByTagName(tagName)[0];
+                        return el ? el.textContent : '';
+                    };
+                    
+                    var teamId = getTag('TITULO');
+                    var nome = getTag('TEXTO2');
+                    var codigo = getTag('TEXTO3');
+                    var bandeira = getTag('FOTO1');
+                    
+                    if (teamId && nome) {
+                        teamsMap[teamId] = {
+                            nome: nome,
+                            codigo: codigo,
+                            bandeira: bandeira
+                        };
+                    }
+                }
+                
+                console.log('[segundafase_futebol] D_FOOTBALL_TEAMS: ' + Object.keys(teamsMap).length + ' times mapeados');
+                callback(teamsMap);
+                
+            } catch (e) {
+                console.error('[segundafase_futebol] Erro ao parsear D_FOOTBALL_TEAMS:', e);
+                callback({});
+            }
+        } else {
+            console.error('[segundafase_futebol] Erro HTTP ao buscar D_FOOTBALL_TEAMS:', xhr.status);
+            callback({});
+        }
+    };
+    
+    xhr.onerror = function() {
+        console.error('[segundafase_futebol] Erro de rede ao buscar D_FOOTBALL_TEAMS');
+        callback({});
+    };
+    
+    xhr.send();
+}
+
+function processarDadosMock(partidas, teamsMap) {
+    teamsMap = teamsMap || {};
     var dados = {};
+    
     for (var i = 0; i < partidas.length; i++) {
         var p  = partidas[i];
         var fase  = p.CATEGORY  || '';
         var pos   = p.SUBTITULO || '';
         var k     = fase + '_' + pos;
         var dh    = parsearDatahora(p.SUBTITULO2 || '');
+        
+        // IDs dos times (podem ser números ou strings)
+        var teamIdCasa = p.TITULO || '';
+        var teamIdVis  = p.TITULO2 || '';
+        
+        // Traduzir IDs para nomes PT-BR se disponível no teamsMap
+        var timeCasa = teamIdCasa;
+        var timeVis  = teamIdVis;
+        var flagCasa = p.FOTO || '';
+        var flagVis  = p.FOTO2 || '';
+        
+        // Se teamId é número (string numérica), buscar no teamsMap
+        if (teamsMap[teamIdCasa]) {
+            timeCasa = teamsMap[teamIdCasa].nome;
+            flagCasa = teamsMap[teamIdCasa].bandeira || flagCasa;
+        }
+        
+        if (teamsMap[teamIdVis]) {
+            timeVis = teamsMap[teamIdVis].nome;
+            flagVis = teamsMap[teamIdVis].bandeira || flagVis;
+        }
+        
         dados[k] = {
             fase:          fase,
             posicao:       parseInt(pos, 10),
-            timeCasa:      p.TITULO     || '',
-            timeVisitante: p.TITULO2    || '',
-            flagCasa:      p.FOTO       || '',
-            flagVisitante: p.FOTO2      || '',
+            timeCasa:      timeCasa,
+            timeVisitante: timeVis,
+            flagCasa:      flagCasa,
+            flagVisitante: flagVis,
             golsCasa:      p.TEXTO      || '',
             golsVisitante: p.TEXTO2     || '',
             status:        (p.SUBTITULO3 || 'NS').toUpperCase(),
@@ -305,8 +472,8 @@ function destinoChave(chave) {
     if (f === 'R16')    { return 'Os vencedores destes jogos avançam para as Quartas de Final'; }
     if (f === 'QF')     { return 'Os vencedores destes jogos avançam para as Semifinais'; }
     if (f === 'SF')     { return 'Os vencedores vão à Final · Os perdedores disputam o 3º lugar'; }
-    if (f === 'FINAL')  { return 'A partida que define o campeão da Copa do Mundo 2026'; }
-    if (f === 'BRONZE') { return 'A partida que define o 3º colocado da Copa do Mundo 2026'; }
+    if (f === 'FINAL')  { return 'A partida que define o campeão do Mundo 2026'; }
+    if (f === 'BRONZE') { return 'A partida que define o 3º colocado do Mundo 2026'; }
     return '';
 }
 
@@ -481,7 +648,6 @@ function renderizarChave(chave, dadosMap, config, loader) {
 
     if (main) { main.style.opacity = '1'; }
 
-    loader.loaded();
     console.log('[segundafase_futebol] chave fase=' + chave.fase +
                 ' idx=' + chave.idx + '/' + chave.total +
                 ' jogos=' + chave.partidas.length);
@@ -494,10 +660,15 @@ function iniciarExibicao(dadosMap, config, loader) {
 
     if (ordem.length === 0) {
         console.error('[segundafase_futebol] sem chaves para exibir');
-        loader.loaded();
-        setTimeout(function() { loader.finished(); }, DURACAO_PADRAO_MS);
+        // ❌ ERRO: NÃO chamar loader.loaded() — apenas finished()
+        loader.finished();
         return;
     }
+    
+    // ✅ EBHTML: Avisar que o template carregou com sucesso IMEDIATAMENTE
+    // (ANTES do vídeo de intro, para registrar na playlist)
+    loader.loaded();
+    console.log('[segundafase_futebol] loader.loaded() chamado — template registrado na playlist');
 
     var idx   = obterIndiceChaveAtual(ordem.length);
     var chave = ordem[idx];
@@ -607,22 +778,54 @@ function playerView() {
 }
 
 window.onload = function() {
+    // Aplica cores padrão imediatamente (antes de carregar dados)
+    aplicarCores(CONFIG);
+    
     if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
         var mockLoader = {
             loaded:   function() { console.log('[Mock] loaded'); },
             finished: function() { console.log('[Mock] finished'); }
         };
-        var dfJson = MOCK_DATA.D_FOOTBALL && MOCK_DATA.D_FOOTBALL.TEXTO3;
+        
+        // Aceita D_FOOTBALL.TEXTO3 (formato real) ou partidas direto (fallback)
         var partidas;
-        try { partidas = JSON.parse(dfJson || '[]'); } catch (e) { partidas = []; }
+        if (MOCK_DATA.D_FOOTBALL && MOCK_DATA.D_FOOTBALL.TEXTO3) {
+            try { 
+                partidas = JSON.parse(MOCK_DATA.D_FOOTBALL.TEXTO3); 
+            } catch (e) { 
+                console.error('[Mock] Erro ao parsear D_FOOTBALL.TEXTO3:', e);
+                partidas = []; 
+            }
+        } else if (MOCK_DATA.partidas) {
+            partidas = MOCK_DATA.partidas;
+        } else {
+            partidas = [];
+        }
+        
+        // Cria teamsMap do D_FOOTBALL_TEAMS (mock)
+        var teamsMap = {};
+        if (MOCK_DATA.D_FOOTBALL_TEAMS && MOCK_DATA.D_FOOTBALL_TEAMS.length > 0) {
+            for (var i = 0; i < MOCK_DATA.D_FOOTBALL_TEAMS.length; i++) {
+                var time = MOCK_DATA.D_FOOTBALL_TEAMS[i];
+                if (time.TITULO && time.TEXTO2) {
+                    teamsMap[time.TITULO] = {
+                        nome: time.TEXTO2,
+                        codigo: time.TEXTO3 || '',
+                        bandeira: time.FOTO1 || ''
+                    };
+                }
+            }
+            console.log('[Mock] D_FOOTBALL_TEAMS: ' + Object.keys(teamsMap).length + ' times mapeados');
+        }
+        
         var spdSponsor = MOCK_DATA.D_SPD || null;
         var config = { sponsor: montarSponsorConfig(spdSponsor) };
         aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
-        iniciarExibicao(processarDadosMock(partidas), config, mockLoader);
+        iniciarExibicao(processarDadosMock(partidas, teamsMap), config, mockLoader);
     } else {
         ebhtml.create2({}, function(loader) {
             loader.addData('D_FOOTBALL', false);
-            loader.addData('D_SPD',      false);
+            loader.addData('D_SPD', false, 'amount=0');  // Busca TODOS os registros (incluindo CONFIG=1)
             loader.autoloaded    = false;
             loader.nodataiserror = false;
 
@@ -647,6 +850,7 @@ window.onload = function() {
                     return;
                 }
 
+                // Extrai patrocinador e cores do D_SPD (CONFIG='1')
                 var spdSponsor = null;
                 var spdLista = loader.datalist('D_SPD');
                 if (spdLista) {
@@ -660,9 +864,12 @@ window.onload = function() {
                     }
                 }
 
-                var config = { sponsor: montarSponsorConfig(spdSponsor) };
-                aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
-                iniciarExibicao(processarDadosMock(partidas), config, loader);
+                // ✅ OBRIGATÓRIO: Buscar D_FOOTBALL_TEAMS para traduzir nomes PT-BR
+                buscarTodosOsTimesDeUmaVez(function(teamsMap) {
+                    var config = { sponsor: montarSponsorConfig(spdSponsor) };
+                    aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
+                    iniciarExibicao(processarDadosMock(partidas, teamsMap), config, loader);
+                });
             });
         });
     }

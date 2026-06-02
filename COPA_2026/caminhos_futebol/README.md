@@ -50,6 +50,68 @@ npm run build
 
 ---
 
+## Dados do Patrocinador (D_SPD)
+
+O template suporta dados de patrocinador via `D_SPD` (CONFIG='1'):
+
+| Campo | Descrição |
+|-------|-----------|
+| `FILE_IMAGE1` | Vídeo ou imagem de intro do patrocinador |
+| `IMAGE_LOGO` | Logo do patrocinador (exibido no rodapé) |
+| `TEXT1` | Texto/título do patrocinador |
+| `TEXT2` | **Duração do vídeo/imagem** (em segundos) |
+| `COLOR1` | Cor de destaque (ex: `#FBBF24` ou `FBBF24`) |
+| `COLOR2` | Cor escura/fundo (ex: `#006400`) |
+| `COLOR3` | Cor clara/texto (ex: `#FFFFFF`) |
+
+**Controle de duração de vídeo/imagem (TEXT2):**
+- Se TEXT2 tem valor (ex: `5`): vídeo é **cortado** após 5 segundos
+- Se TEXT2 vazio: vídeo roda **até o fim** (evento `ended`)
+- Imagens: TEXT2 ou **5 s padrão** (DURACAO_IMAGEM_PADRAO_MS)
+
+**Modo Preview (Extranet):**
+- Extrai partidas do **D_FOOTBALL.TEXTO3** (JSON stringificado)
+- Extrai sponsor: COLOR1/2/3, FILE_IMAGE1, IMAGE_LOGO, TEXT1, TEXT2
+- Aplica cores dinâmicas via `mergeColorsFromSpd()`
+- Suporta intro de vídeo/imagem com controle de duração
+- **teamsMap vazio**: preview não acessa D_FOOTBALL_TEAMS (nomes vêm direto do TEXTO3)
+
+**IMPORTANTE:** Campo DURACAO foi DEPRECIADO. Use TEXT2.
+
+---
+
+## Funções de Tradução e Sanitização
+
+O template inclui funções para processar nomes de torneios e fases que venham dos dados:
+
+### traduzirFase(texto)
+Traduz nomes de fases/rodadas do inglês para PT-BR:
+- **Lookup direto**: "quarter-finals" → "Quartas de Final"
+- **Padrões dinâmicos**: "Matchday 12" → "Rodada 12", "Round 15" → "Rodada 15"
+- Se não encontrar tradução, retorna o texto original sem modificação
+
+```javascript
+traduzirFase('quarter-finals')  // → "Quartas de Final"
+traduzirFase('Matchday 5')      // → "Rodada 5"
+traduzirFase('Round of 16')     // → "Oitavas de Final"
+```
+
+### sanitizarNomeTorneio(texto)
+Remove termos proibidos de direitos autorais e substitui por equivalentes:
+- "Copa do Mundo" → "O Mundo em Campo"
+- "World Cup" → "O Mundo em Campo"
+- "FIFA 2026" → "O Mundo em Campo 2026"
+- "FIFA" → (removido)
+
+```javascript
+sanitizarNomeTorneio('Copa do Mundo FIFA 2026')  // → "O Mundo em Campo 2026"
+sanitizarNomeTorneio('FIFA World Cup')           // → "O Mundo em Campo"
+```
+
+**Nota:** Estas funções estão disponíveis mas não são aplicadas automaticamente. Use-as ao processar dados externos que possam conter termos protegidos ou nomes em inglês.
+
+---
+
 ## Formato dos dados (EdgeContents / Mock)
 
 O template consome um dataset chamado **`D_COPA`** com uma linha por partida.

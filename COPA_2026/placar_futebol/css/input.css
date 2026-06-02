@@ -44,8 +44,8 @@
     --cor-grad-to:        rgba(0, 0, 0, 0.80);
 }
 
-header                 { background-color: var(--cor-fundo-painel); border-bottom-color: var(--cor-borda); }
-footer                 { background-color: var(--cor-fundo-painel); border-top-color:    var(--cor-borda); }
+header                 { background-color: var(--cor-fundo-painel); border-bottom-color: var(--cor-destaque); }
+footer                 { background-color: var(--cor-fundo-painel); border-top-color:    var(--cor-destaque); }
 #gameAreaInner         { background-color: var(--cor-fundo-area); }
 #gradientOverlay       { background: linear-gradient(to bottom, var(--cor-grad-from), var(--cor-grad-mid), var(--cor-grad-to)); }
 #torneio               { color: var(--cor-texto); }
@@ -76,9 +76,9 @@ footer                 { background-color: var(--cor-fundo-painel); border-top-c
 /* Body background */
 body                    { background-color: #052e16 }    /* bg-green-950 */
 
-/* Bordas do header/footer */
-header                  { border-bottom-color: #eab308 } /* border-yellow-500 */
-footer                  { border-top-color:    #eab308 } /* border-yellow-500 */
+/* Bordas do header/footer — usa var(--cor-destaque) definida dinamicamente */
+/* header { border-bottom-color: #eab308 } */
+/* footer { border-top-color:    #eab308 } */
 
 /* Texto branco e variantes */
 .text-white             { color: #ffffff }

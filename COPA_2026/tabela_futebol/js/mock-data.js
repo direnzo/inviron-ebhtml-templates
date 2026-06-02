@@ -2,13 +2,14 @@
  * mock-data.js - Tabela Copa 2026
  *
  * Estrutura espelha os dados reais do EdgeContents:
- *   D_SPD      → patrocinador (CONFIG='1')
- *   D_FOOTBALL → campo TEXTO2 contém JSON com todos os grupos
+ *   D_SPD (array) → CONFIG=0 (projeto) + CONFIG=1 (patrocinador)
+ *                   Associados por SPECIALPROJECTS (mesmo ID)
+ *   D_FOOTBALL_STANDINGS → campo TEXTO2 contém JSON com classificação
  *
  * Para habilitar: descomente <script src="js/mock-data.js"> no HTML
  * Para produção:  comente o <script> do mock-data no HTML
  *
- * Tempo: D_SPD.DURACAO (segundos) na intro + tabela 5s fixo; sem intro = 10s.
+ * Tempo: D_SPD[CONFIG=1].DURACAO (segundos) na intro + tabela 5s fixo; sem intro = 10s.
  * Teste fallback: remova DURACAO (video ate ended / imagem 5s).
  */
 var MOCK_DATA = {
@@ -17,23 +18,37 @@ var MOCK_DATA = {
         duration: 10000
     },
 
-    /* --- Simula registro D_SPD (item com CONFIG='1') --- */
-    D_SPD: {
-        CONFIG:      '1',
-        TEXT1:       'Apoio:',
-        IMAGE_LOGO:  'img/logo_sponsor.png',
-        FILE_IMAGE1: 'img/sponsor.mp4',
-        DURACAO:     '8',         // segundos da intro (omitir para fallback: video ate ended / imagem 5s)
-        TEXTO7:      '#FBBF24',   // corDestaque
-        TEXTO8:      '#006400',   // corEscura
-        TEXTO9:      '#FFFFFF'    // corClara
-    },
+    /* --- Simula registros D_SPD (associados por SPECIALPROJECTS) --- */
+    D_SPD: [
+        // CONFIG=0: Dados do projeto/template
+        {
+            CONFIG:          '0',
+            SPECIALPROJECTS: 'COPA2026_TABELA',  // ID único que associa CONFIG=0 e CONFIG=1
+            TEXTO1:          'O Mundo em campo 2026',
+            TEXTO2:          'Classificação - Fase de Grupos',
+            TEXTO3:          '',
+            TEXTO4:          '',
+            TEXTO5:          ''
+        },
+        // CONFIG=1: Dados do patrocinador
+        {
+            CONFIG:          '1',
+            SPECIALPROJECTS: 'COPA2026_TABELA',  // Mesmo ID para associar
+            TEXT1:           'APOIO',
+            IMAGE_LOGO:      'img/logo_sponsor.png',
+            FILE_IMAGE1:     'img/sponsor.mp4',
+            DURACAO:         '8',         // segundos da intro (omitir para fallback: video ate ended / imagem 5s)
+            COLOR1:          'FBBF24',    // corDestaque (sem #, adicionado automaticamente)
+            COLOR2:          '006400',    // corEscura
+            COLOR3:          'FFFFFF'     // corClara
+        }
+    ],
 
     /* --- Simula registro D_FOOTBALL ---
          TEXTO2: em produção chega como string JSON; aqui é objeto JS
          master.js o usa diretamente (mock) ou via JSON.parse (produção)    --- */
     D_FOOTBALL: {
-        TITULO: 'Copa do Mundo FIFA 2026',
+        TITULO: 'O Mundo em campo 2026',
         TEXTO2: {
             grupos: [
         {

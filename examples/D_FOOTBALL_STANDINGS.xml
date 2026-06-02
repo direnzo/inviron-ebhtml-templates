@@ -1,0 +1,49 @@
+<EBDATA
+ AMOUNT="1"
+ QI_ORDER="RANDOM"
+>
+<ITEM>
+<CATEGORY><![CDATA[Copa do Mundo]]></CATEGORY>
+<CATEGORY_FILE><![CDATA[]]></CATEGORY_FILE>
+<CATEGORY_ID><![CDATA[]]></CATEGORY_ID>
+<CATEGORY_SYS><![CDATA[]]></CATEGORY_SYS>
+<CATEGORY_TITLE><![CDATA[]]></CATEGORY_TITLE>
+<CITY><![CDATA[]]></CITY>
+<CSOURCE><![CDATA[]]></CSOURCE>
+<CSOURCE_LOGO><![CDATA[]]></CSOURCE_LOGO>
+<CSOURCE_SYS><![CDATA[]]></CSOURCE_SYS>
+<DATE><![CDATA[2026-05-27 17:31:13]]></DATE>
+<DT_BEGIN><![CDATA[2026-05-21 15:08:45]]></DT_BEGIN>
+<DT_CREATE><![CDATA[2026-05-27 17:44:26]]></DT_CREATE>
+<DT_END><![CDATA[2026-07-19 23:59:59]]></DT_END>
+<DT_UPDATE><![CDATA[2026-05-27 17:44:26]]></DT_UPDATE>
+<EDITORIA><![CDATA[]]></EDITORIA>
+<EDITORIA_ID><![CDATA[]]></EDITORIA_ID>
+<FOTO><![CDATA[]]></FOTO>
+<FOTO1><![CDATA[]]></FOTO1>
+<FOTO2><![CDATA[]]></FOTO2>
+<FOTO3><![CDATA[]]></FOTO3>
+<FOTO4><![CDATA[]]></FOTO4>
+<FOTO5><![CDATA[]]></FOTO5>
+<ID><![CDATA[13]]></ID>
+<LOCAL><![CDATA[1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,19,22,23,24,25,26,27,28,29,30,31,32,33,34,37,39,41,42,43,44,45,46,47,48,50,51,52,53,54,55]]></LOCAL>
+<ORDER><![CDATA[]]></ORDER>
+<PRICE><![CDATA[]]></PRICE>
+<PRICE1><![CDATA[]]></PRICE1>
+<SCHEDULE><![CDATA[]]></SCHEDULE>
+<SELO1><![CDATA[]]></SELO1>
+<SELO2><![CDATA[]]></SELO2>
+<SELO3><![CDATA[]]></SELO3>
+<SELO4><![CDATA[]]></SELO4>
+<SELO5><![CDATA[]]></SELO5>
+<SOURCE><![CDATA[football-standings]]></SOURCE>
+<TEXTO><![CDATA[2026]]></TEXTO>
+<TEXTO1><![CDATA[2026]]></TEXTO1>
+<TEXTO2><![CDATA[[{"rank":1,"team":{"id":17,"name":"South Korea","code":"KOR","logo":"https:\/\/media.api-sports.io\/football\/teams\/17.png"},"points":0,"goalsDiff":0,"group":"Ranking of third-placed teams","form":null,"status":"same","description":"Promotion - World Cup (Play Offs)","all":{"played":0,"win":0,"draw":0,"lose":0,"goals":{"for":0,"against":0}},"home":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"away":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"update":"2026-05-26T00:00:00+00:00"},{"rank":2,"team":{"id":1569,"name":"Qatar","code":"QAT","logo":"https:\/\/media.api-sports.io\/football\/teams\/1569.png"},"points":0,"goalsDiff":0,"group":"Ranking of third-placed teams","form":null,"status":"same","description":"Promotion - World Cup (Play Offs)","all":{"played":0,"win":0,"draw":0,"lose":0,"goals":{"for":0,"against":0}},"home":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"away":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"update":"2026-05-26T00:00:00+00:00"},{"rank":3,"team":{"id":2386,"name":"Haiti","code":"HAI","logo":"https:\/\/media.api-sports.io\/football\/teams\/2386.png"},"points":0,"goalsDiff":0,"group":"Ranking of third-placed teams","form":null,"status":"same","description":"Promotion - World Cup (Play Offs)","all":{"played":0,"win":0,"draw":0,"lose":0,"goals":{"for":0,"against":0}},"home":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"away":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"update":"2026-05-26T00:00:00+00:00"},{"rank":4,"team":{"id":20,"name":"Australia","code":"AUS","logo":"https:\/\/media.api-sports.io\/football\/teams\/20.png"},"points":0,"goalsDiff":0,"group":"Ranking of third-placed teams","form":null,"status":"same","description":"Promotion - World Cup (Play Offs)","all":{"played":0,"win":0,"draw":0,"lose":0,"goals":{"for":0,"against":0}},"home":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"away":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"update":"2026-05-26T00:00:00+00:00"},{"rank":5,"team":{"id":1501,"name":"Ivory Coast","code":"IVO","logo":"https:\/\/media.api-sports.io\/football\/teams\/1501.png"},"points":0,"goalsDiff":0,"group":"Ranking of third-placed teams","form":null,"status":"same","description":"Promotion - World Cup (Play Offs)","all":{"played":0,"win":0,"draw":0,"lose":0,"goals":{"for":0,"against":0}},"home":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"away":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"update":"2026-05-26T00:00:00+00:00"},{"rank":6,"team":{"id":5,"name":"Sweden","code":"SWE","logo":"https:\/\/media.api-sports.io\/football\/teams\/5.png"},"points":0,"goalsDiff":0,"group":"Ranking of third-placed teams","form":null,"status":"same","description":"Promotion - World Cup (Play Offs)","all":{"played":0,"win":0,"draw":0,"lose":0,"goals":{"for":0,"against":0}},"home":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"away":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"update":"2026-05-26T00:00:00+00:00"},{"rank":7,"team":{"id":22,"name":"Iran","code":"IRA","logo":"https:\/\/media.api-sports.io\/football\/teams\/22.png"},"points":0,"goalsDiff":0,"group":"Ranking of third-placed teams","form":null,"status":"same","description":"Promotion - World Cup (Play Offs)","all":{"played":0,"win":0,"draw":0,"lose":0,"goals":{"for":0,"against":0}},"home":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"away":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"update":"2026-05-26T00:00:00+00:00"},{"rank":8,"team":{"id":23,"name":"Saudi Arabia","code":"SAU","logo":"https:\/\/media.api-sports.io\/football\/teams\/23.png"},"points":0,"goalsDiff":0,"group":"Ranking of third-placed teams","form":null,"status":"same","description":"Promotion - World Cup (Play Offs)","all":{"played":0,"win":0,"draw":0,"lose":0,"goals":{"for":0,"against":0}},"home":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"away":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"update":"2026-05-26T00:00:00+00:00"},{"rank":9,"team":{"id":1567,"name":"Iraq","code":"IRA","logo":"https:\/\/media.api-sports.io\/football\/teams\/1567.png"},"points":0,"goalsDiff":0,"group":"Ranking of third-placed teams","form":null,"status":"same","description":null,"all":{"played":0,"win":0,"draw":0,"lose":0,"goals":{"for":0,"against":0}},"home":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"away":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"update":"2026-05-26T00:00:00+00:00"},{"rank":10,"team":{"id":775,"name":"Austria","code":"AUS","logo":"https:\/\/media.api-sports.io\/football\/teams\/775.png"},"points":0,"goalsDiff":0,"group":"Ranking of third-placed teams","form":null,"status":"same","description":null,"all":{"played":0,"win":0,"draw":0,"lose":0,"goals":{"for":0,"against":0}},"home":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"away":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"update":"2026-05-26T00:00:00+00:00"},{"rank":11,"team":{"id":1568,"name":"Uzbekistan","code":"UZB","logo":"https:\/\/media.api-sports.io\/football\/teams\/1568.png"},"points":0,"goalsDiff":0,"group":"Ranking of third-placed teams","form":null,"status":"same","description":null,"all":{"played":0,"win":0,"draw":0,"lose":0,"goals":{"for":0,"against":0}},"home":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"away":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"update":"2026-05-26T00:00:00+00:00"},{"rank":12,"team":{"id":1504,"name":"Ghana","code":"GHA","logo":"https:\/\/media.api-sports.io\/football\/teams\/1504.png"},"points":0,"goalsDiff":0,"group":"Ranking of third-placed teams","form":null,"status":"same","description":null,"all":{"played":0,"win":0,"draw":0,"lose":0,"goals":{"for":0,"against":0}},"home":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"away":{"played":null,"win":null,"draw":null,"lose":null,"goals":{"for":null,"against":null}},"update":"2026-05-26T00:00:00+00:00"}]]]></TEXTO2>
+<TEXTO3><![CDATA[Ranking of third-placed teams]]></TEXTO3>
+<TEXTO4><![CDATA[]]></TEXTO4>
+<TEXTO5><![CDATA[]]></TEXTO5>
+<TITULO><![CDATA[1]]></TITULO>
+<_ACTIVE><![CDATA[1]]></_ACTIVE>
+</ITEM>
+</EBDATA>

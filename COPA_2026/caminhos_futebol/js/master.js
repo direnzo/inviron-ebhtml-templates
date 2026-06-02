@@ -128,6 +128,113 @@ var CONFIG = {
     corClara:    '#FFFFFF'   // cor de texto e bordas
 };
 
+/* ====================================================
+   MAPA DE FASES DO CAMPEONATO → PT-BR
+   Traduções de fases/rodadas comuns
+   ==================================================== */
+var FASE_LABEL = {
+    // Fases principais em inglês
+    'group stage':                'Fase de Grupos',
+    'preliminary round':          'Fase Preliminar',
+    'qualification round':        'Fase de Qualificação',
+    'qualifiers':                 'Eliminatórias',
+    'round of 32':                '1/32 de Final',
+    '1/32-finals':                '1/32 de Final',
+    'round of 16':                'Oitavas de Final',
+    '1/16-finals':                'Oitavas de Final',
+    'round of 8':                 'Quartas de Final',
+    'quarter-finals':             'Quartas de Final',
+    'quarter-final':              'Quartas de Final',
+    'quarterfinals':              'Quartas de Final',
+    'semi-finals':                'Semifinais',
+    'semi-final':                 'Semifinal',
+    'semifinals':                 'Semifinais',
+    'final':                      'Final',
+    '3rd place':                  'Disputa de 3º Lugar',
+    '3rd place final':            'Disputa de 3º Lugar',
+    'third place':                'Disputa de 3º Lugar',
+    // Entradas em português (API pode retornar já traduzido)
+    'play-offs':                  'Play-offs',
+    'fase de grupos':             'Fase de Grupos',
+    'fase preliminar':            'Fase Preliminar',
+    'fase de qualificação':       'Fase de Qualificação',
+    '1/32 de final':              '1/32 de Final',
+    '1/16 de final':              '1/16 de Final',
+    'oitavas de final':           'Oitavas de Final',
+    'quartas de final':           'Quartas de Final',
+    'semifinal':                  'Semifinal',
+    'semifinais':                 'Semifinais',
+    'disputa de 3º lugar':        'Disputa de 3º Lugar',
+    'regular season':             'Temporada Regular',
+    'matchday 1':                 'Rodada 1',
+    'matchday 2':                 'Rodada 2',
+    'matchday 3':                 'Rodada 3',
+    'round 1':                    'Rodada 1',
+    'round 2':                    'Rodada 2',
+    'round 3':                    'Rodada 3'
+};
+
+/**
+ * Traduz fase/rodada do campeonato para PT-BR.
+ * Tenta match exato por chave em minúsculas; se não encontrar, devolve o original.
+ * Também expande padrões numéricos dinâmicos como "Matchday 12", "Round 15".
+ */
+function traduzirFase(texto) {
+    if (!texto) { return ''; }
+    var chave = texto.toLowerCase().trim();
+
+    // Lookup direto
+    if (FASE_LABEL[chave]) {
+        return FASE_LABEL[chave];
+    }
+
+    // Padrões dinâmicos: "Matchday N", "Round N"
+    var mMatchday = chave.match(/^matchday\s+(\d+)$/);
+    if (mMatchday) { return 'Rodada ' + mMatchday[1]; }
+
+    var mRound = chave.match(/^round\s+(\d+)$/);
+    if (mRound) { return 'Rodada ' + mRound[1]; }
+
+    var mQual = chave.match(/^(\d+)(?:st|nd|rd|th)\s+qualifying round$/);
+    if (mQual) { return mQual[1] + 'ª Fase de Qualificação'; }
+
+    var mLeague = chave.match(/^league\s+stage\s*[-–]\s*(\d+)$/);
+    if (mLeague) { return 'Fase de Liga — Rodada ' + mLeague[1]; }
+
+    var mLeg = chave.match(/^(\d+)(?:st|nd|rd|th)\s+leg$/);
+    if (mLeg) { return mLeg[1] + 'ª Mão'; }
+
+    // Sem tradução — devolve o original sem alteração
+    return texto;
+}
+
+/* ====================================================
+   SANITIZA NOMES DE TORNEIOS (remove palavras proibidas)
+   Substitui termos proibidos por equivalentes permitidos
+   ==================================================== */
+function sanitizarNomeTorneio(texto) {
+    if (!texto) { return ''; }
+    
+    var substituicoes = [
+        { proibido: /COPA DO MUNDO/gi, permitido: 'O MUNDO EM CAMPO' },
+        { proibido: /WORLD CUP/gi, permitido: 'O MUNDO EM CAMPO' },
+        { proibido: /FIFA 2026/gi, permitido: 'O MUNDO EM CAMPO 2026' },
+        { proibido: /FIFA WORLD CUP/gi, permitido: 'O MUNDO EM CAMPO' },
+        { proibido: /COPA 2026/gi, permitido: 'O MUNDO EM CAMPO 2026' },
+        { proibido: /FIFA/gi, permitido: '' }
+    ];
+    
+    var resultado = texto;
+    for (var i = 0; i < substituicoes.length; i++) {
+        resultado = resultado.replace(substituicoes[i].proibido, substituicoes[i].permitido);
+    }
+    
+    // Limpar espaços extras
+    resultado = resultado.replace(/\s+/g, ' ').trim();
+    
+    return resultado;
+}
+
 function hexToRgba(hex, alpha) {
     var r = parseInt(hex.slice(1, 3), 16);
     var g = parseInt(hex.slice(3, 5), 16);
@@ -143,17 +250,25 @@ function aplicarCores(cfg) {
     s.setProperty('--cor-texto',        cfg.corClara);
 }
 
-/* Mescla cores do D_SPD (TEXTO7/TEXTO8/TEXTO9) com defaults do CONFIG
-   Suporta objeto plano (mock: spd.TEXTO7) ou item EdgeContents (spd.value()) */
+/* Mescla cores do D_SPD (COLOR1/COLOR2/COLOR3) com defaults do CONFIG
+   Suporta objeto plano (mock) ou item EdgeContents (spd.value()) */
 function mergeColorsFromSpd(defaults, spd) {
     if (!spd) { return defaults; }
-    var destaque = (spd.TEXTO7) || (spd.value && spd.value('TEXTO7') && spd.value('TEXTO7').value) || '';
-    var escura   = (spd.TEXTO8) || (spd.value && spd.value('TEXTO8') && spd.value('TEXTO8').value) || '';
-    var clara    = (spd.TEXTO9) || (spd.value && spd.value('TEXTO9') && spd.value('TEXTO9').value) || '';
+    
+    // COLOR1 = corDestaque, COLOR2 = corEscura, COLOR3 = corClara
+    var cor1 = obterValorSpd(spd, 'COLOR1');
+    var cor2 = obterValorSpd(spd, 'COLOR2');
+    var cor3 = obterValorSpd(spd, 'COLOR3');
+    
+    // Adicionar '#' se não tiver
+    if (cor1 && cor1.indexOf('#') !== 0) { cor1 = '#' + cor1; }
+    if (cor2 && cor2.indexOf('#') !== 0) { cor2 = '#' + cor2; }
+    if (cor3 && cor3.indexOf('#') !== 0) { cor3 = '#' + cor3; }
+    
     return {
-        corDestaque: destaque || defaults.corDestaque,
-        corEscura:   escura   || defaults.corEscura,
-        corClara:    clara    || defaults.corClara
+        corDestaque: cor1 || defaults.corDestaque,
+        corEscura:   cor2 || defaults.corEscura,
+        corClara:    cor3 || defaults.corClara
     };
 }
 
@@ -166,9 +281,32 @@ function obterValorSpd(spd, campo) {
     return spd[campo] || (spd.value && spd.value(campo) && spd.value(campo).value) || '';
 }
 
+/**
+ * Obtem duracao maxima da intro (video/imagem do patrocinador).
+ * REGRA: Se TEXT2 existir no D_SPD CONFIG=1, usar como tempo de corte do video.
+ *        Se TEXT2 nao existir ou for vazio, retorna 0 (sem limite - video roda ate o fim).
+ * @param {Object} spd - Item D_SPD CONFIG=1
+ * @returns {number} Duracao em milissegundos (0 = sem limite)
+ */
 function obterDuracaoIntroMs(spd) {
-    var seg = parseInt(obterValorSpd(spd, 'DURACAO'), 10);
-    return (seg > 0) ? seg * 1000 : 0;
+    if (!spd) { 
+        console.log('[caminhos_futebol] obterDuracaoIntroMs: sem sponsor, duracao=0');
+        return 0; 
+    }
+    
+    // Tentar TEXT2 primeiro (novo padrao - tempo de corte do video)
+    var text2 = obterValorSpd(spd, 'TEXT2');
+    if (text2 && text2.trim() !== '') {
+        var segText2 = parseInt(text2, 10);
+        if (segText2 > 0) {
+            console.log('[caminhos_futebol] obterDuracaoIntroMs: TEXT2=' + text2 + ' seg → cortar video em ' + (segText2 * 1000) + 'ms');
+            return segText2 * 1000;
+        }
+    }
+    
+    // Se TEXT2 nao existir, retornar 0 (sem limite - video roda ate o fim)
+    console.log('[caminhos_futebol] obterDuracaoIntroMs: TEXT2 vazio ou invalido → video sem corte (duracao=0, ate ended)');
+    return 0;
 }
 
 function montarSponsorConfig(spdSponsor) {
@@ -191,10 +329,40 @@ window.onload = function() {
             loaded:   function() { console.log('[Mock] loaded'); },
             finished: function() { console.log('[Mock] finished'); }
         };
-        var dfJson = MOCK_DATA.D_FOOTBALL && MOCK_DATA.D_FOOTBALL.TEXTO3;
+        
+        // Aceita D_FOOTBALL.TEXTO3 (formato real) ou partidas direto (fallback)
         var partidas;
-        try { partidas = JSON.parse(dfJson || '[]'); } catch (e) { partidas = []; }
-        var dados = processarDadosMock(partidas);
+        if (MOCK_DATA.D_FOOTBALL && MOCK_DATA.D_FOOTBALL.TEXTO3) {
+            try { 
+                partidas = JSON.parse(MOCK_DATA.D_FOOTBALL.TEXTO3); 
+            } catch (e) { 
+                console.error('[Mock] Erro ao parsear D_FOOTBALL.TEXTO3:', e);
+                partidas = []; 
+            }
+        } else if (MOCK_DATA.partidas) {
+            // Fallback: aceita array direto (mais conveniente para testes)
+            partidas = MOCK_DATA.partidas;
+        } else {
+            partidas = [];
+        }
+        
+        // Cria teamsMap do D_FOOTBALL_TEAMS (mock)
+        var teamsMap = {};
+        if (MOCK_DATA.D_FOOTBALL_TEAMS && MOCK_DATA.D_FOOTBALL_TEAMS.length > 0) {
+            for (var i = 0; i < MOCK_DATA.D_FOOTBALL_TEAMS.length; i++) {
+                var time = MOCK_DATA.D_FOOTBALL_TEAMS[i];
+                if (time.TITULO && time.TEXTO2) {
+                    teamsMap[time.TITULO] = {
+                        nome: time.TEXTO2,
+                        codigo: time.TEXTO3 || '',
+                        bandeira: time.FOTO1 || ''
+                    };
+                }
+            }
+            console.log('[Mock] D_FOOTBALL_TEAMS: ' + Object.keys(teamsMap).length + ' times mapeados');
+        }
+        
+        var dados = processarDadosMock(partidas, teamsMap);
         var spdSponsor = MOCK_DATA.D_SPD || null;
         var mockConfig = {
             sponsor: montarSponsorConfig(spdSponsor) || (MOCK_DATA.config && MOCK_DATA.config.sponsor) || null
@@ -204,7 +372,7 @@ window.onload = function() {
     } else {
         ebhtml.create2({}, function(loader) {
             loader.addData('D_FOOTBALL', false);
-            loader.addData('D_SPD',      false);
+            loader.addData('D_SPD', false, 'amount=0');  // Busca TODOS os registros (incluindo CONFIG=1)
             loader.autoloaded    = false;
             loader.nodataiserror = false;
 
@@ -244,36 +412,128 @@ window.onload = function() {
                     }
                 }
 
-                // Monta config com sponsor e duracao (compativel com aplicarSponsor)
-                var runConfig = {
-                    sponsor: montarSponsorConfig(spdSponsor)
-                };
+                // ✅ OBRIGATÓRIO: Buscar D_FOOTBALL_TEAMS para traduzir nomes PT-BR
+                buscarTodosOsTimesDeUmaVez(function(teamsMap) {
+                    // Monta config com sponsor e duracao (compativel com aplicarSponsor)
+                    var runConfig = {
+                        sponsor: montarSponsorConfig(spdSponsor)
+                    };
 
-                aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
-                var dados = processarDadosMock(partidas);
-                iniciarTemplate(dados, runConfig, loader);
+                    aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
+                    var dados = processarDadosMock(partidas, teamsMap);
+                    iniciarTemplate(dados, runConfig, loader);
+                });
             });
         });
     }
 };
 
 // ──────────────────────────────────────────────────
-//  PROCESSAR DADOS — array de partidas (mock e producao)
+//  BUSCAR TODOS OS TIMES DO D_FOOTBALL_TEAMS
+//  Retorna mapa: { teamId: { nome, bandeira, codigo } }
 // ──────────────────────────────────────────────────
-function processarDadosMock(partidas) {
+function buscarTodosOsTimesDeUmaVez(callback) {
+    var xhr = new XMLHttpRequest();
+    var url = '/content/data/D_FOOTBALL_TEAMS?amount=0';
+    
+    console.log('[caminhos_futebol] Buscando todos os times do D_FOOTBALL_TEAMS...');
+    
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState !== 4) { return; }
+        
+        if (xhr.status === 200 || xhr.status === 0) {
+            try {
+                var parser = new DOMParser();
+                var xmlDoc = parser.parseFromString(xhr.responseText, 'text/xml');
+                var items = xmlDoc.getElementsByTagName('ITEM');
+                
+                var teamsMap = {};
+                
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    var getTag = function(tagName) {
+                        var el = item.getElementsByTagName(tagName)[0];
+                        return el ? el.textContent : '';
+                    };
+                    
+                    var teamId = getTag('TITULO');
+                    var nome = getTag('TEXTO2');
+                    var codigo = getTag('TEXTO3');
+                    var bandeira = getTag('FOTO1');
+                    
+                    if (teamId && nome) {
+                        teamsMap[teamId] = {
+                            nome: nome,
+                            codigo: codigo,
+                            bandeira: bandeira
+                        };
+                    }
+                }
+                
+                console.log('[caminhos_futebol] D_FOOTBALL_TEAMS: ' + Object.keys(teamsMap).length + ' times mapeados');
+                callback(teamsMap);
+                
+            } catch (e) {
+                console.error('[caminhos_futebol] Erro ao parsear D_FOOTBALL_TEAMS:', e);
+                callback({});
+            }
+        } else {
+            console.error('[caminhos_futebol] Erro HTTP ao buscar D_FOOTBALL_TEAMS:', xhr.status);
+            callback({});
+        }
+    };
+    
+    xhr.onerror = function() {
+        console.error('[caminhos_futebol] Erro de rede ao buscar D_FOOTBALL_TEAMS');
+        callback({});
+    };
+    
+    xhr.send();
+}
+
+// ──────────────────────────────────────────────────
+//  PROCESSAR DADOS — array de partidas (mock e producao)
+//  teamsMap: { teamId: { nome, bandeira, codigo } }
+// ──────────────────────────────────────────────────
+function processarDadosMock(partidas, teamsMap) {
+    teamsMap = teamsMap || {};
     var dados = {};
+    
     for (var i = 0; i < partidas.length; i++) {
         var p     = partidas[i];
         var fase  = p.CATEGORY  || '';
         var pos   = p.SUBTITULO || '';
         var chave = fase + '_' + pos;
+        
+        // IDs dos times (podem ser números ou strings)
+        var teamIdCasa = p.TITULO || '';
+        var teamIdVis  = p.TITULO2 || '';
+        
+        // Traduzir IDs para nomes PT-BR se disponível no teamsMap
+        var timeCasa = teamIdCasa;
+        var timeVis  = teamIdVis;
+        var flagCasa = p.FOTO || '';
+        var flagVis  = p.FOTO2 || '';
+        
+        // Se teamId é número (string numérica), buscar no teamsMap
+        if (teamsMap[teamIdCasa]) {
+            timeCasa = teamsMap[teamIdCasa].nome;
+            flagCasa = teamsMap[teamIdCasa].bandeira || flagCasa;
+        }
+        
+        if (teamsMap[teamIdVis]) {
+            timeVis = teamsMap[teamIdVis].nome;
+            flagVis = teamsMap[teamIdVis].bandeira || flagVis;
+        }
+        
         dados[chave] = {
             fase:          fase,
             posicao:       parseInt(pos, 10),
-            timeCasa:      p.TITULO     || '',
-            timeVisitante: p.TITULO2    || '',
-            flagCasa:      p.FOTO       || '',
-            flagVisitante: p.FOTO2      || '',
+            timeCasa:      timeCasa,
+            timeVisitante: timeVis,
+            flagCasa:      flagCasa,
+            flagVisitante: flagVis,
             golsCasa:      p.TEXTO      || '',
             golsVisitante: p.TEXTO2     || '',
             status:        p.SUBTITULO3 || 'NS',
@@ -373,6 +633,20 @@ function esconderIntro(onDone) {
 
 // ====== INICIAR TEMPLATE — intro via D_SPD.DURACAO + conteudo 5s ou 10s sem intro ======
 function iniciarTemplate(dados, config, loader) {
+    // ❌ Validar dados ANTES de chamar loader.loaded()
+    var chaves = Object.keys(dados);
+    if (chaves.length === 0) {
+        console.error('[caminhos_futebol] sem dados para exibir');
+        // ❌ ERRO: NÃO chamar loader.loaded() — apenas finished()
+        loader.finished();
+        return;
+    }
+    
+    // ✅ EBHTML: Avisar que o template carregou com sucesso IMEDIATAMENTE
+    // (ANTES do vídeo de intro, para registrar na playlist)
+    loader.loaded();
+    console.log('[caminhos_futebol] loader.loaded() chamado — template registrado na playlist');
+    
     var sponsor = config && config.sponsor;
     var introUrl = sponsor && sponsor.intro ? sponsor.intro : (sponsor && sponsor.FILE_IMAGE1 ? sponsor.FILE_IMAGE1 : null);
     if (!introUrl && sponsor && sponsor.logo && sponsor.logo.indexOf('.mp4') !== -1) {
@@ -399,12 +673,13 @@ function iniciarTemplate(dados, config, loader) {
 }
 
 function iniciarTemplateSemIntro(dados, config, loader, introMs) {
-        // DEBUG: Verifica estrutura dos dados recebidos
-        var chaves = Object.keys(dados);
-        console.log('[DEBUG iniciarTemplateSemIntro] chaves dos dados:', chaves);
-        if (chaves.length > 0) {
-            console.log('[DEBUG iniciarTemplateSemIntro] exemplo de dado:', chaves[0], dados[chaves[0]]);
-        }
+    // DEBUG: Verifica estrutura dos dados recebidos
+    var chaves = Object.keys(dados);
+    console.log('[DEBUG iniciarTemplateSemIntro] chaves dos dados:', chaves);
+    if (chaves.length > 0) {
+        console.log('[DEBUG iniciarTemplateSemIntro] exemplo de dado:', chaves[0], dados[chaves[0]]);
+    }
+    
     renderizarBracket(dados);
     marcarBrasil();
     marcarCampeao(dados);
@@ -455,7 +730,7 @@ function iniciarTemplateSemIntro(dados, config, loader, introMs) {
     if (wrapper) {
         wrapper.style.opacity = '1';
     }
-    loader.loaded();
+    
     setTimeout(function() {
         loader.finished();
     }, restante);
@@ -629,7 +904,8 @@ function preencherLinha(linha, nome, flagUrl, gols) {
     var spanNome  = linha.querySelector('.tname');
     var spanScore = linha.querySelector('.score');
 
-    var nomeValido = nome && nome !== 'TBD';
+    // ✅ Aceita qualquer nome que venha dos dados (inclusive "Vencedor de...", "Perdedor de...")
+    var nomeValido = nome && nome.length > 0;
 
     if (imgFlag) {
         if (flagUrl && nomeValido) {

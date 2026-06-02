@@ -5,7 +5,14 @@ Plano para Unificação Modular dos Templates “caminhos_futebol” e “segund
 ## 1. Objetivo
 Unificar os dois templates em um só, com uma flag em D_SPD para alternar entre os modos de exibição (brackets/cards), mantendo suporte a cor e patrocinador para ambos.
 
+**Requisito crítico:** O modo "brackets" deve obrigatoriamente replicar o layout visual do "caminhos_futebol", incluindo:
+- Grid fixo de colunas por fase (IDs fixos para cada card)
+- Preenchimento dos cards via SLOT_MAP
+- Desenho dos brackets/linhas via SVG (bracket-draw.js)
+- Animações e destaques idênticos ao original
+
 ---
+
 
 ## 2. Estrutura de Arquivos
 
@@ -13,11 +20,12 @@ COPA_2026/segundafase_futebol/
 │
 ├── js/
 │   ├── utils.js         // Funções utilitárias (parse, cor, patrocinador, helpers DOM)
-│   ├── brackets.js      // Lógica do modo chaveamento (brackets)
+│   ├── brackets.js      // Lógica do modo chaveamento (brackets) — usa grid fixo, SLOT_MAP e SVG
 │   ├── cards.js         // Lógica do modo cards grandes
 │   └── master.js        // Carregamento, controle de modo, integração
+│   └── bracket-draw.js  // (importado do caminhos_futebol) — obrigatório para desenhar as linhas
 │
-├── index.html           // Ordem dos scripts: utils → brackets → cards → master
+├── index.html           // Estrutura de colunas e IDs igual ao caminhos_futebol; scripts: utils → bracket-draw → brackets → cards → master
 ├── css/
 ├── img/
 └── README.md            // Documentação do template unificado
@@ -51,25 +59,24 @@ window.Utils = {
 
 ---
 
+
 ## 5. Organização dos Objetos Globais
 
 - Brackets: Brackets.render(loader, config)
+    - No modo brackets, renderiza todos os cards do grid fixo (SLOT_MAP), chama renderizarBracket, e executa BracketDraw.init() para desenhar as linhas SVG.
+    - Não cria cards dinamicamente: sempre preenche os slots fixos do grid.
 - Cards: Cards.render(loader, config)
 - Utils: centraliza acesso a D_SPD e manipulação visual padrão
 
 ---
 
+
 ## 6. Padrão de Uso nos Modos
 
-var d_spd = loader.data('D_SPD');
-var corFundo = Utils.getCorFundo(d_spd);
-var corTexto = Utils.getCorTexto(d_spd);
-var patrocinadorNome = Utils.getPatrocinadorNome(d_spd);
-var patrocinadorLogo = Utils.getPatrocinadorLogo(d_spd);
-
-Utils.aplicaCor(document.body, corFundo);
-Utils.aplicaCorTexto(document.body, corTexto);
-Utils.aplicaPatrocinador(document.getElementById('patrocinador'), patrocinadorNome, patrocinadorLogo);
+No modo brackets:
+- Preencher todos os slots do grid fixo (SLOT_MAP) com os dados recebidos
+- Chamar BracketDraw.init() após renderizar os cards para desenhar as linhas
+- Garantir que o HTML siga a estrutura de colunas e IDs do caminhos_futebol
 
 ---
 
@@ -93,9 +100,11 @@ window.onload = function() {
 
 ---
 
+
 ## 8. Checklist de Verificação
 
 - Alternar a flag MODO em D_SPD alterna corretamente entre os modos
+- O modo brackets exibe o grid completo, com linhas SVG conectando os cards, igual ao caminhos_futebol
 - Cor e patrocinador são aplicados em ambos os modos, sempre via utilitários
 - Não há duplicidade de funções
 - Testes em todos os dispositivos e formatos de tela
@@ -103,10 +112,12 @@ window.onload = function() {
 
 ---
 
+
 ## 9. Padronizações Gerais
 
 - Campos D_SPD sempre em maiúsculas, sem acento
 - Funções globais encapsuladas em objetos
 - Acesso a dados e manipulação visual sempre via utilitários
+- O modo brackets deve sempre usar grid fixo, IDs padronizados e SVG para linhas
 - Comentários breves e diretos
 - Exemplos de configuração no README

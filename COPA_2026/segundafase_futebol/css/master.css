@@ -758,10 +758,6 @@ video {
   border-color: rgb(234 179 8 / var(--tw-border-opacity, 1));
 }
 
-.border-yellow-500\/80 {
-  border-color: rgb(234 179 8 / 0.8);
-}
-
 .bg-\[\#0a0f1e\] {
   --tw-bg-opacity: 1;
   background-color: rgb(10 15 30 / var(--tw-bg-opacity, 1));
@@ -1245,6 +1241,27 @@ video {
   /* -webkit-line-clamp: 2; */
   /* -webkit-box-orient: vertical; */
   /* overflow: hidden; */
+}
+
+/* ─────────────────────────────────────────────
+   HEADER E FOOTER — Cores dinâmicas via CSS vars
+   ───────────────────────────────────────────── */
+
+#headerBar {
+  border-bottom-width: 0.35vmin;
+  border-bottom-style: solid;
+  border-bottom-color: var(--cor-destaque);
+}
+
+#headerFase {
+  color: var(--cor-destaque);
+}
+
+#sponsorFooter {
+  border-top-width: 0.35vmin;
+  border-top-style: solid;
+  border-top-color: var(--cor-destaque);
+  opacity: 0.8;
 }
 
 /* ─────────────────────────────────────────────
