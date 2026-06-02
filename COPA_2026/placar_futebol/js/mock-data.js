@@ -3,11 +3,15 @@
  * O mundo em campo 2026
  *
  * Para usar: descomente <script src="js/mock-data.js"></script> no HTML
- * Para trocar cen�rio: altere a vari�vel `cenario` abaixo
- * Para produ��o: comente o <script> do mock-data no HTML
+ * Para trocar cenário: altere a variável `cenario` abaixo
+ * Para produção: comente o <script> do mock-data no HTML
  *
- * Tempo: D_SPD.DURACAO (segundos) na intro + placar 5s fixo; sem intro = 10s.
- * Teste fallback: remova DURACAO do item CONFIG=1 (video ate ended / imagem 5s).
+ * Tempo de Vídeo de Patrocinador (D_SPD CONFIG='1'):
+ *   - Se TEXT2 tiver valor (ex: '5'), vídeo será CORTADO após 5 segundos
+ *   - Se TEXT2 estiver vazio ou não existir, vídeo roda ATÉ O FIM (sem corte)
+ *   - Imagens sempre 5s fixo (DURACAO_IMAGEM_PADRAO_MS)
+ *
+ * Tempo Total: intro + placar 5s fixo; sem intro = 10s.
  *
  * -- FASE DE GRUPOS -----------------------------------------------
  *   'copa2026_grupo_br_pre'      BRA x SRB | NS       | Grupo G Rodada 1
@@ -25,8 +29,9 @@
  *
  * -- QUARTAS DE FINAL ---------------------------------------------
  *   'copa2026_qf_pre'            BRA x ING | NS       | Quartas de Final
- *   'copa2026_qf_et'             BRA x ING | ET 105'+3| 1-1 (prorroga��o)
- *   'copa2026_qf_pen'            BRA x ING | PEN      | 1-1 (pen 5-4)
+ *   'copa2026_qf_et'             BRA x ING | ET 105'+3| 1-1 (prorrogação)
+ *   'copa2026_qf_pen'            BRA x ING | PEN      | 1-1 (pênaltis em andamento, sem placar final)
+ *   'copa2026_qf_pen_ft'         BRA x ING | FT       | 1-1 (pen 5-4, finalizado)
  *
  * -- SEMIFINAIS ---------------------------------------------------
  *   'copa2026_semi_pre'          ARG x POR | NS       | Semifinal
@@ -66,6 +71,7 @@ var CENARIOS_LISTA = [
     'copa2026_qf_pre',
     'copa2026_qf_et',
     'copa2026_qf_pen',
+    'copa2026_qf_pen_ft',
     'copa2026_semi_pre',
     'copa2026_semi_2h',
     'copa2026_semi_ft',
@@ -107,7 +113,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRRS_G', TEXT1: 'Brasil', TEXT2: 'Sérvia', TEXT3: '', TEXT4: '',    TEXT5: '',  TEXT6: '',  TEXT7: '', TEXT8: '', TEXT9: '',   TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', TEXT2: '', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -121,12 +127,13 @@ var CENARIOS = {
             CATEGORY:   'O mundo em campo 2026',
             DATE:       '2026-06-14 15:00:00',
             TEXTO:      'WC26_BRRS_G',
+            TEXTO2:     '{"response":[{"fixture":{"id":1489407,"date":"2026-06-14T15:00:00-03:00","status":{"short":"1H","long":"First Half","elapsed":23},"venue":{"name":"AT&T Stadium","city":"Arlington"}},"league":{"id":1,"name":"World Cup","round":"Group Stage - 1","season":2026},"teams":{"home":{"id":6,"name":"Brazil","logo":"https://media.api-sports.io/football/teams/6.png"},"away":{"id":21,"name":"Serbia","logo":"https://media.api-sports.io/football/teams/21.png"}},"goals":{"home":1,"away":0},"score":{"halftime":{"home":null,"away":null},"fulltime":{"home":null,"away":null},"extratime":{"home":null,"away":null},"penalty":{"home":null,"away":null}}}]}',
             FOTO:       'https://flagcdn.com/256x192/br.png',
             FOTO2:      'https://flagcdn.com/256x192/rs.png'
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRRS_G', TEXT1: 'Brasil', TEXT2: 'Sérvia', TEXT3: '', TEXT4: '1H',  TEXT5: '1',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '23',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', TEXT2: '5', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -145,7 +152,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRRS_G', TEXT1: 'Brasil', TEXT2: 'Sérvia', TEXT3: '', TEXT4: 'HT',  TEXT5: '2',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '45',  TEXT10: '3' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -164,7 +171,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRRS_G', TEXT1: 'Brasil', TEXT2: 'Sérvia', TEXT3: '', TEXT4: '2H',  TEXT5: '3',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '67',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -178,12 +185,13 @@ var CENARIOS = {
             CATEGORY:   'O mundo em campo 2026',
             DATE:       '2026-06-14 15:00:00',
             TEXTO:      'WC26_BRRS_G',
+            TEXTO2:     '{"response":[{"fixture":{"id":1489407,"date":"2026-06-14T15:00:00-03:00","status":{"short":"FT","long":"Match Finished","elapsed":90},"venue":{"name":"AT&T Stadium","city":"Arlington"}},"league":{"id":1,"name":"World Cup","round":"Group Stage - 1","season":2026},"teams":{"home":{"id":6,"name":"Brazil","logo":"https://media.api-sports.io/football/teams/6.png"},"away":{"id":21,"name":"Serbia","logo":"https://media.api-sports.io/football/teams/21.png"}},"goals":{"home":3,"away":0},"score":{"halftime":{"home":2,"away":0},"fulltime":{"home":3,"away":0},"extratime":{"home":null,"away":null},"penalty":{"home":null,"away":null}}}]}',
             FOTO:       'https://flagcdn.com/256x192/br.png',
             FOTO2:      'https://flagcdn.com/256x192/rs.png'
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRRS_G', TEXT1: 'Brasil', TEXT2: 'Sérvia', TEXT3: '', TEXT4: 'FT',  TEXT5: '3',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -206,7 +214,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_ESFR_G', TEXT1: 'Espanha', TEXT2: 'Fran�a', TEXT3: '', TEXT4: '2H',  TEXT5: '1',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '78',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -229,7 +237,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_ARUY_G', TEXT1: 'Argentina', TEXT2: 'Uruguai', TEXT3: '', TEXT4: 'FT',  TEXT5: '2',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -252,7 +260,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRMX_R16', TEXT1: 'Brasil', TEXT2: 'M�xico', TEXT3: '', TEXT4: '',    TEXT5: '',   TEXT6: '',   TEXT7: '', TEXT8: '', TEXT9: '',    TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -271,7 +279,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRMX_R16', TEXT1: 'Brasil', TEXT2: 'M�xico', TEXT3: '', TEXT4: '2H',  TEXT5: '1',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '72',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -290,7 +298,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRMX_R16', TEXT1: 'Brasil', TEXT2: 'M�xico', TEXT3: '', TEXT4: 'FT',  TEXT5: '2',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -313,7 +321,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRENG_QF', TEXT1: 'Brasil', TEXT2: 'Inglaterra', TEXT3: '', TEXT4: '',    TEXT5: '',   TEXT6: '',   TEXT7: '', TEXT8: '', TEXT9: '',    TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -332,7 +340,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRENG_QF', TEXT1: 'Brasil', TEXT2: 'Inglaterra', TEXT3: '', TEXT4: 'ET',  TEXT5: '1',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '105', TEXT10: '3' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -346,12 +354,33 @@ var CENARIOS = {
             CATEGORY:   'O mundo em campo 2026',
             DATE:       '2026-07-08 19:00:00',
             TEXTO:      'WC26_BRENG_QF',
+            TEXTO2:     '{"response":[{"fixture":{"id":1489420,"date":"2026-07-08T19:00:00-03:00","status":{"short":"PEN","long":"Penalty In Progress","elapsed":120},"venue":{"name":"MetLife Stadium","city":"New York"}},"league":{"id":1,"name":"World Cup","round":"Quarter-finals","season":2026},"teams":{"home":{"id":6,"name":"Brazil","logo":"https://media.api-sports.io/football/teams/6.png"},"away":{"id":10,"name":"England","logo":"https://media.api-sports.io/football/teams/10.png"}},"goals":{"home":1,"away":1},"score":{"halftime":{"home":0,"away":0},"fulltime":{"home":1,"away":1},"extratime":{"home":1,"away":1},"penalty":{"home":null,"away":null}}}]}',
             FOTO:       'https://flagcdn.com/256x192/br.png',
             FOTO2:      'https://flagcdn.com/256x192/gb-eng.png'
         }],
         D_SPD: [
-            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRENG_QF', TEXT1: 'Brasil', TEXT2: 'Inglaterra', TEXT3: '', TEXT4: 'PEN', TEXT5: '1',  TEXT6: '1',  TEXT7: '5', TEXT8: '4', TEXT9: '120', TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRENG_QF', TEXT1: 'Brasil', TEXT2: 'Inglaterra', TEXT3: '', TEXT4: 'PEN', TEXT5: '1',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '120', TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
+        ]
+    },
+
+    copa2026_qf_pen_ft: {
+        D_FOOTBALL: [{
+            TITULO:     'Brasil',
+            TITULO2:    'Inglaterra',
+            SUBTITULO:  'MetLife Stadium',
+            SUBTITULO2: 'Quarter-Finals',
+            SUBTITULO3: 'FT_PEN',
+            CATEGORY:   'O mundo em campo 2026',
+            DATE:       '2026-07-08 19:00:00',
+            TEXTO:      'WC26_BRENG_QF',
+            TEXTO2:     '{"response":[{"fixture":{"id":1489420,"date":"2026-07-08T19:00:00-03:00","status":{"short":"FT","long":"Match Finished After Penalties","elapsed":120},"venue":{"name":"MetLife Stadium","city":"New York"}},"league":{"id":1,"name":"World Cup","round":"Quarter-finals","season":2026},"teams":{"home":{"id":6,"name":"Brazil","logo":"https://media.api-sports.io/football/teams/6.png"},"away":{"id":10,"name":"England","logo":"https://media.api-sports.io/football/teams/10.png"}},"goals":{"home":1,"away":1},"score":{"halftime":{"home":0,"away":0},"fulltime":{"home":1,"away":1},"extratime":{"home":1,"away":1},"penalty":{"home":5,"away":4}}}]}',
+            FOTO:       'https://flagcdn.com/256x192/br.png',
+            FOTO2:      'https://flagcdn.com/256x192/gb-eng.png'
+        }],
+        D_SPD: [
+            { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRENG_QF', TEXT1: 'Brasil', TEXT2: 'Inglaterra', TEXT3: '', TEXT4: 'FT', TEXT5: '1',  TEXT6: '1',  TEXT7: '5', TEXT8: '4', TEXT9: '120', TEXT10: '' },
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -374,7 +403,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_ARPT_SF', TEXT1: 'Argentina', TEXT2: 'Portugal', TEXT3: '', TEXT4: '',    TEXT5: '',   TEXT6: '',   TEXT7: '', TEXT8: '', TEXT9: '',    TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -393,7 +422,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_ARPT_SF', TEXT1: 'Argentina', TEXT2: 'Portugal', TEXT3: '', TEXT4: '2H',  TEXT5: '2',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '82',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -412,7 +441,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_ARPT_SF', TEXT1: 'Argentina', TEXT2: 'Portugal', TEXT3: '', TEXT4: 'FT',  TEXT5: '3',  TEXT6: '2',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -435,7 +464,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRDE_SF', TEXT1: 'Brasil', TEXT2: 'Alemanha', TEXT3: '', TEXT4: '1H',  TEXT5: '4',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '43',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -454,7 +483,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRDE_SF', TEXT1: 'Brasil', TEXT2: 'Alemanha', TEXT3: '', TEXT4: '2H',  TEXT5: '7',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '5' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -473,7 +502,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRDE_SF', TEXT1: 'Brasil', TEXT2: 'Alemanha', TEXT3: '', TEXT4: 'FT',  TEXT5: '7',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -496,7 +525,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_FRMA_3P', TEXT1: 'Fran�a', TEXT2: 'Marrocos', TEXT3: '', TEXT4: '',    TEXT5: '',   TEXT6: '',   TEXT7: '', TEXT8: '', TEXT9: '',    TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -515,7 +544,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_FRMA_3P', TEXT1: 'Fran�a', TEXT2: 'Marrocos', TEXT3: '', TEXT4: 'FT',  TEXT5: '2',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -538,7 +567,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: '',    TEXT5: '',   TEXT6: '',   TEXT7: '', TEXT8: '', TEXT9: '',    TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -557,7 +586,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: '1H',  TEXT5: '1',  TEXT6: '0',  TEXT7: '', TEXT8: '', TEXT9: '38',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -576,7 +605,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: '2H',  TEXT5: '2',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '82',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -595,7 +624,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: 'ET',  TEXT5: '2',  TEXT6: '2',  TEXT7: '', TEXT8: '', TEXT9: '109', TEXT10: '2' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -614,7 +643,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: 'PEN', TEXT5: '2',  TEXT6: '2',  TEXT7: '4', TEXT8: '2', TEXT9: '120', TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     },
 
@@ -633,7 +662,7 @@ var CENARIOS = {
         }],
         D_SPD: [
             { CONFIG: '0', TYPE: '10', TITLE: 'WC26_BRAR_F', TEXT1: 'Brasil', TEXT2: 'Argentina', TEXT3: '', TEXT4: 'FT',  TEXT5: '3',  TEXT6: '1',  TEXT7: '', TEXT8: '', TEXT9: '90',  TEXT10: '' },
-            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', TEXTO7: '#FBBF24', TEXTO8: '#006400', TEXTO9: '#FFFFFF' }
+            { CONFIG: '1', TEXT1: 'Apoio:', IMAGE_LOGO: 'img/logo_sponsor.png', FILE_IMAGE1: 'img/sponsor.mp4', DURACAO: '8', COLOR1: '#FBBF24', COLOR2: '#006400', COLOR3: '#FFFFFF' }
         ]
     }
 

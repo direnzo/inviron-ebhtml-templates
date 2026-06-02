@@ -160,9 +160,50 @@ function traduzirFase(texto) {
     var mLeg = chave.match(/^(\d+)(?:st|nd|rd|th)\s+leg$/);
     if (mLeg) { return mLeg[1] + 'ª Mão'; }
 
+    // Padrões de fase com número: "Group Stage - N", "Play-offs - N", etc.
+    var mGroupStage = chave.match(/^groups?\s+stage\s*[-–]\s*(\d+)$/);
+    if (mGroupStage) { return 'Fase de Grupos — Rodada ' + mGroupStage[1]; }
+
+    var mPlayoffs = chave.match(/^play-?offs?\s*[-–]\s*(\d+)$/);
+    if (mPlayoffs) { return 'Play-offs — Rodada ' + mPlayoffs[1]; }
+
+    var mQualStage = chave.match(/^qualifying\s+round\s*[-–]\s*(\d+)$/);
+    if (mQualStage) { return 'Fase de Qualificação — Rodada ' + mQualStage[1]; }
+
     // Sem tradução — devolve o original sem alteração
     return texto;
 }
+
+/* ====================================================
+   SANITIZA NOMES DE TORNEIOS (remove palavras proibidas)
+   Substitui termos proibidos por equivalentes permitidos
+   ==================================================== */
+function sanitizarNomeTorneio(texto) {
+    if (!texto) { return ''; }
+    
+    var textoUpper = texto.toUpperCase();
+    
+    // Lista de substituições (case-insensitive)
+    var substituicoes = [
+        { proibido: /COPA DO MUNDO/gi, permitido: 'O MUNDO EM CAMPO' },
+        { proibido: /WORLD CUP/gi, permitido: 'O MUNDO EM CAMPO' },
+        { proibido: /FIFA 2026/gi, permitido: 'O MUNDO EM CAMPO 2026' },
+        { proibido: /FIFA WORLD CUP/gi, permitido: 'O MUNDO EM CAMPO' },
+        { proibido: /COPA 2026/gi, permitido: 'O MUNDO EM CAMPO 2026' },
+        { proibido: /FIFA/gi, permitido: '' }
+    ];
+    
+    var resultado = texto;
+    for (var i = 0; i < substituicoes.length; i++) {
+        resultado = resultado.replace(substituicoes[i].proibido, substituicoes[i].permitido);
+    }
+    
+    // Limpar espaços extras
+    resultado = resultado.replace(/\s+/g, ' ').trim();
+    
+    return resultado;
+}
+
 var SVG_ESCUDO = [
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" width="100%" height="100%">',
     '<path d="M50 8 L90 22 L90 65 Q90 100 50 114 Q10 100 10 65 L10 22 Z"',
@@ -186,14 +227,121 @@ var DURACAO_SEM_INTRO_MS     = 10000;
 var DURACAO_CONTEUDO_MS      = 5000;
 var DURACAO_IMAGEM_PADRAO_MS = 5000;
 
+/**
+ * Obtem duracao maxima da intro (video/imagem do patrocinador).
+ * REGRA: Se TEXT2 existir no D_SPD CONFIG=1, usar como tempo de corte do video.
+ *        Se TEXT2 nao existir ou for vazio, retorna 0 (sem limite - video roda ate o fim).
+ * @param {Object} spd - Item D_SPD CONFIG=1
+ * @returns {number} Duracao em milissegundos (0 = sem limite)
+ */
 function obterDuracaoIntroMs(spd) {
-    if (!spd) { return 0; }
-    var seg = parseInt(obterValor(spd, 'DURACAO'), 10);
-    return (seg > 0) ? seg * 1000 : 0;
+    if (!spd) { 
+        console.log('[placar_futebol] obterDuracaoIntroMs: sem sponsor, duracao=0');
+        return 0; 
+    }
+    
+    // Tentar TEXT2 primeiro (novo padrao - tempo de corte do video)
+    var text2 = obterValor(spd, 'TEXT2');
+    if (text2 && text2.trim() !== '') {
+        var segText2 = parseInt(text2, 10);
+        if (segText2 > 0) {
+            console.log('[placar_futebol] obterDuracaoIntroMs: TEXT2=' + text2 + ' seg → cortar video em ' + (segText2 * 1000) + 'ms');
+            return segText2 * 1000;
+        }
+    }
+    
+    // Se TEXT2 nao existir, retornar 0 (sem limite - video roda ate o fim)
+    console.log('[placar_futebol] obterDuracaoIntroMs: TEXT2 vazio ou invalido → video sem corte (duracao=0, ate ended)');
+    return 0;
 }
 
 /* chave localStorage para rotação de partidas (padrão master_2) */
 var LS_KEY_PARTIDA = 'placar_futebol_partida_idx';
+
+/* ====================================================
+   BUSCA TODOS OS TIMES DO D_FOOTBALL_TEAMS
+   Retorna mapa: { teamId: { nome, bandeira, codigo } }
+   ==================================================== */
+function buscarTodosOsTimesDeUmaVez(callback) {
+    var xhr = new XMLHttpRequest();
+    var url = '/content/data/D_FOOTBALL_TEAMS?amount=0';
+    
+    console.log('[placar_futebol] Buscando todos os times do D_FOOTBALL_TEAMS...');
+    
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState !== 4) { return; }
+        
+        if (xhr.status === 200 || xhr.status === 0) {
+            try {
+                var parser = new DOMParser();
+                var xmlDoc = parser.parseFromString(xhr.responseText, 'text/xml');
+                var items = xmlDoc.getElementsByTagName('ITEM');
+                
+                var teamsMap = {};
+                
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    var getTag = function(tagName) {
+                        var el = item.getElementsByTagName(tagName)[0];
+                        return el ? el.textContent : '';
+                    };
+                    
+                    var teamId = getTag('TITULO');
+                    var nome = getTag('TEXTO2');
+                    var codigo = getTag('TEXTO3');
+                    var bandeira = getTag('FOTO1');
+                    
+                    if (teamId && nome) {
+                        teamsMap[teamId] = {
+                            nome: nome,
+                            codigo: codigo,
+                            bandeira: bandeira
+                        };
+                    }
+                }
+                
+                console.log('[placar_futebol] D_FOOTBALL_TEAMS: ' + Object.keys(teamsMap).length + ' times mapeados');
+                callback(teamsMap);
+                
+            } catch (e) {
+                console.error('[placar_futebol] Erro ao parsear D_FOOTBALL_TEAMS:', e);
+                callback({});
+            }
+        } else {
+            console.error('[placar_futebol] Erro HTTP ao buscar D_FOOTBALL_TEAMS:', xhr.status);
+            callback({});
+        }
+    };
+    
+    xhr.onerror = function() {
+        console.error('[placar_futebol] Erro de rede ao buscar D_FOOTBALL_TEAMS');
+        callback({});
+    };
+    
+    xhr.send();
+}
+
+
+/* ====================================================
+   HELPERS - Extração de valores do D_SPD
+   ==================================================== */
+
+/**
+ * Extrai valor de campo do D_SPD (suporta mock e EdgeContents)
+ * @param {Object} spd - Item do D_SPD
+ * @param {string} campo - Nome do campo
+ * @returns {string} Valor do campo ou string vazia
+ */
+function obterValorSpd(spd, campo) {
+    if (!spd) { return ''; }
+    return spd[campo] || (spd.value && spd.value(campo) && spd.value(campo).value) || '';
+}
+
+function obterDuracaoIntroMs(spd) {
+    var seg = parseInt(obterValorSpd(spd, 'DURACAO'), 10);
+    return (seg > 0) ? seg * 1000 : 0;
+}
 
 
 /* Converte HEX para rgba com opacidade */
@@ -219,16 +367,24 @@ function aplicarCores(cfg) {
     s.setProperty('--cor-grad-to',       hexToRgba(cfg.corEscura,   0.80));
 }
 
-/* --- Mescla cores do D_SPD (TEXTO7/TEXTO8/TEXTO9) com defaults do CONFIG --- */
+/* --- Mescla cores do D_SPD (COLOR1/COLOR2/COLOR3) com defaults do CONFIG --- */
 function mergeColorsFromSpd(defaults, spd) {
     if (!spd) { return defaults; }
-    var destaque = obterValor(spd, 'TEXTO7') || '';
-    var escura   = obterValor(spd, 'TEXTO8') || '';
-    var clara    = obterValor(spd, 'TEXTO9') || '';
+    
+    // COLOR1 = corDestaque, COLOR2 = corEscura, COLOR3 = corClara
+    var cor1 = obterValorSpd(spd, 'COLOR1');
+    var cor2 = obterValorSpd(spd, 'COLOR2');
+    var cor3 = obterValorSpd(spd, 'COLOR3');
+    
+    // Adicionar '#' se não tiver
+    if (cor1 && cor1.indexOf('#') !== 0) { cor1 = '#' + cor1; }
+    if (cor2 && cor2.indexOf('#') !== 0) { cor2 = '#' + cor2; }
+    if (cor3 && cor3.indexOf('#') !== 0) { cor3 = '#' + cor3; }
+    
     return {
-        corDestaque: destaque || defaults.corDestaque,
-        corEscura:   escura   || defaults.corEscura,
-        corClara:    clara    || defaults.corClara
+        corDestaque: cor1 || defaults.corDestaque,
+        corEscura:   cor2 || defaults.corEscura,
+        corClara:    cor3 || defaults.corClara
     };
 }
 
@@ -248,14 +404,17 @@ function playerView() {
             mockLoader.finished();
             return;
         }
-        // Separa jogos (CONFIG=0) e patrocinador (CONFIG=1)
+        // Separa jogos (TYPE=10) e patrocinador (CONFIG=1)
         var jogos = [];
         var spdSponsor = null;
         for (var i = 0; i < lista.count(); i++) {
             var item = lista.get(i);
-            if (obterValor(item, 'CONFIG') === '1') {
+            var cfg = obterValor(item, 'CONFIG');
+            var tipo = obterValor(item, 'TYPE');
+            
+            if (cfg === '1') {
                 spdSponsor = item;
-            } else if (obterValor(item, 'TYPE') === '10') {
+            } else if (tipo === '10') {
                 jogos.push(item);
             }
         }
@@ -279,15 +438,17 @@ function playerView() {
             return;
         }
         aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
-        processarDados(spdData, spdSponsor, footballData, mockLoader);
+        // Mock: criar teamsMap vazio (nomes já vêm do mock-data)
+        var mockTeamsMap = {};
+        processarDados(spdData, spdSponsor, footballData, mockLoader, mockTeamsMap);
         return;
     }
 
     // EdgeContents real
     ebhtml.create2({}, function(loader) {
-        // Carrega TODOS os itens TYPE=10 (jogos + patrocinador) de uma vez.
+        // Carrega TODOS os itens de D_SPD de uma vez (jogos TYPE=10 + patrocinador CONFIG=1)
         // A rotação é feita client-side via localStorage (padrão master_2).
-        loader.addData('D_SPD', false, 'amount=0&f_type=10');
+        loader.addData('D_SPD', false, 'amount=0');
         loader.autoloaded = false;
         loader.nodataiserror = false;
 
@@ -300,23 +461,29 @@ function playerView() {
                 return;
             }
 
-            // Separa jogos (CONFIG=0) e patrocinador (CONFIG=1)
+            // Separa jogos (TYPE=10) e patrocinador (CONFIG=1)
             var jogos = [];
             var spdSponsor = null;
             for (var i = 0; i < lista.count(); i++) {
                 var item = lista.get(i);
-                if (obterValor(item, 'CONFIG') === '1') {
+                var cfg = obterValor(item, 'CONFIG');
+                var tipo = obterValor(item, 'TYPE');
+                
+                if (cfg === '1') {
                     spdSponsor = item;
-                } else if (obterValor(item, 'TYPE') === '10') {
+                    console.log('[placar_futebol] Patrocinador encontrado (CONFIG=1)');
+                } else if (tipo === '10') {
                     jogos.push(item);
                 }
             }
 
             if (jogos.length === 0) {
-                console.log('[placar_futebol] Nenhum jogo encontrado em D_SPD');
+                console.log('[placar_futebol] Nenhum jogo (TYPE=10) encontrado em D_SPD');
                 loader.finished();
                 return;
             }
+            
+            console.log('[placar_futebol] Encontrados ' + jogos.length + ' jogo(s) TYPE=10');
 
             // Rotação via localStorage (mesmo padrão do master_2)
             var idx = parseInt(localStorage.getItem(LS_KEY_PARTIDA), 10);
@@ -339,25 +506,29 @@ function playerView() {
                 return;
             }
 
-            // Segunda fase: D_FOOTBALL filtrado pelo ID da partida
-            ebhtml.create2({}, function(loader2) {
-                loader2.addData('D_FOOTBALL', false, 'f_texto=' + partidaId);
-                loader2.autoloaded = false;
-                loader2.nodataiserror = false;
+            // Segunda fase: buscar D_FOOTBALL_TEAMS (todos os times) e D_FOOTBALL (jogo específico)
+            buscarTodosOsTimesDeUmaVez(function(teamsMap) {
+                
+                // Terceira fase: D_FOOTBALL filtrado pelo ID da partida
+                ebhtml.create2({}, function(loader2) {
+                    loader2.addData('D_FOOTBALL', false, 'F_TITULO=' + partidaId);
+                    loader2.autoloaded = false;
+                    loader2.nodataiserror = false;
 
-                loader2.load(function() {
-                    var footballData = loader2.data('D_FOOTBALL');
+                    loader2.load(function() {
+                        var footballData = loader2.data('D_FOOTBALL');
 
-                    if (!footballData) {
-                        console.log('[placar_futebol] D_FOOTBALL sem dados para ID=' + partidaId);
-                        loader.finished();
-                        return;
-                    }
+                        if (!footballData) {
+                            console.log('[placar_futebol] D_FOOTBALL sem dados para ID=' + partidaId);
+                            loader.finished();
+                            return;
+                        }
 
-                    console.log('[placar_futebol] D_FOOTBALL TEXTO:', obterValor(footballData, 'TEXTO'));
+                        console.log('[placar_futebol] D_FOOTBALL TEXTO:', obterValor(footballData, 'TEXTO'));
 
-                    aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
-                    processarDados(spdData, spdSponsor, footballData, loader);
+                        aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
+                        processarDados(spdData, spdSponsor, footballData, loader, teamsMap);
+                    });
                 });
             });
         });
@@ -367,32 +538,139 @@ function playerView() {
 /* ====================================================
    PROCESSA OS DADOS E RENDERIZA
    spdData, spdSponsor, footballData já resolvidos;
-   loader (D_SPD) controla a playlist.
+   loader (D_SPD) controla a playlist; teamsMap contém nomes PT-BR.
    ==================================================== */
-function processarDados(spdData, spdSponsor, footballData, loader) {
+function processarDados(spdData, spdSponsor, footballData, loader, teamsMap) {
 
-    var statusBase = obterValor(footballData, 'SUBTITULO3');
-    var estado     = determinarEstado(statusBase, spdData);
+    // Parse do JSON do D_FOOTBALL.TEXTO2 para extrair dados da API-Football
+    var footballJson = obterValor(footballData, 'TEXTO2');
+    var fixtureData = null;
+    var homeTeamId = null;
+    var awayTeamId = null;
+    var homeTeamName = '[Time Casa]';
+    var awayTeamName = '[Time Visitante]';
+    var homeTeamLogo = '';
+    var awayTeamLogo = '';
+    var venue = obterValor(footballData, 'SUBTITULO') || '';
+    var round = obterValor(footballData, 'SUBTITULO2') || '';
+    
+    // Variáveis de placar (extraídas do JSON ou fallback do D_SPD)
+    var statusFromJson = null;
+    var goalsHome = null;
+    var goalsAway = null;
+    var penaltyHome = null;
+    var penaltyAway = null;
+    var elapsedTime = null;
+    
+    if (footballJson) {
+        try {
+            var parsed = JSON.parse(footballJson);
+            if (parsed.response && parsed.response.length > 0) {
+                fixtureData = parsed.response[0];
+                
+                // Extrair IDs dos times
+                homeTeamId = fixtureData.teams.home.id;
+                awayTeamId = fixtureData.teams.away.id;
+                
+                // Buscar nomes PT-BR no D_FOOTBALL_TEAMS
+                if (teamsMap[homeTeamId]) {
+                    homeTeamName = teamsMap[homeTeamId].nome;
+                    homeTeamLogo = teamsMap[homeTeamId].bandeira || fixtureData.teams.home.logo;
+                } else {
+                    console.error('[placar_futebol] ERRO CRITICO: Time ID=' + homeTeamId + ' NAO encontrado no D_FOOTBALL_TEAMS!');
+                    homeTeamName = '[Time ' + homeTeamId + ']';
+                    homeTeamLogo = fixtureData.teams.home.logo;
+                }
+                
+                if (teamsMap[awayTeamId]) {
+                    awayTeamName = teamsMap[awayTeamId].nome;
+                    awayTeamLogo = teamsMap[awayTeamId].bandeira || fixtureData.teams.away.logo;
+                } else {
+                    console.error('[placar_futebol] ERRO CRITICO: Time ID=' + awayTeamId + ' NAO encontrado no D_FOOTBALL_TEAMS!');
+                    awayTeamName = '[Time ' + awayTeamId + ']';
+                    awayTeamLogo = fixtureData.teams.away.logo;
+                }
+                
+                // Extrair estádio e rodada do JSON (se disponível)
+                if (fixtureData.fixture.venue && fixtureData.fixture.venue.name) {
+                    venue = fixtureData.fixture.venue.name;
+                }
+                if (fixtureData.league && fixtureData.league.round) {
+                    round = fixtureData.league.round;
+                }
+                
+                // Extrair STATUS do jogo
+                if (fixtureData.fixture && fixtureData.fixture.status && fixtureData.fixture.status.short) {
+                    statusFromJson = fixtureData.fixture.status.short;
+                }
+                
+                // Extrair PLACAR ATUAL (goals.home / goals.away)
+                if (fixtureData.goals) {
+                    goalsHome = fixtureData.goals.home;
+                    goalsAway = fixtureData.goals.away;
+                }
+                
+                // Extrair PLACAR DE PÊNALTIS (score.penalty)
+                // IMPORTANTE: Só mostrar pênaltis quando o jogo estiver ENCERRADO (FT_PEN, AET)
+                // Durante status PEN (pênaltis em andamento), os valores ainda estão sendo definidos
+                var statusUpper = (statusFromJson || '').toUpperCase();
+                var jogoEncerrado = (statusUpper === 'FT' || statusUpper === 'AET' || statusUpper === 'FT_PEN' || 
+                                     statusUpper === 'ABD' || statusUpper === 'AWD' || statusUpper === 'WO');
+                
+                if (fixtureData.score && fixtureData.score.penalty && jogoEncerrado) {
+                    penaltyHome = fixtureData.score.penalty.home;
+                    penaltyAway = fixtureData.score.penalty.away;
+                    console.log('[placar_futebol] Pênaltis finais: ' + penaltyHome + 'x' + penaltyAway);
+                }
+                
+                // Extrair TEMPO DECORRIDO (fixture.status.elapsed)
+                if (fixtureData.fixture && fixtureData.fixture.status && fixtureData.fixture.status.elapsed !== null) {
+                    elapsedTime = fixtureData.fixture.status.elapsed;
+                }
+                
+                console.log('[placar_futebol] JSON parsed: status=' + statusFromJson 
+                    + ' | goals=' + goalsHome + 'x' + goalsAway 
+                    + ' | pen=' + penaltyHome + 'x' + penaltyAway
+                    + ' | elapsed=' + elapsedTime + 'min');
+            }
+        } catch (e) {
+            console.error('[placar_futebol] Erro ao parsear JSON do D_FOOTBALL.TEXTO2:', e);
+        }
+    }
 
+    // Status: prioridade JSON > D_SPD > D_FOOTBALL.SUBTITULO3
+    var statusFinal = statusFromJson || (spdData ? obterValor(spdData, 'TEXT4') : null) || obterValor(footballData, 'SUBTITULO3');
+    var estado = determinarEstado(statusFinal, null);
     var dtFormatada = formatarDataHora(obterValor(footballData, 'DATE'));
 
+    // Nome do torneio: prioridade JSON.league.name > D_FOOTBALL.CATEGORY
+    var nomeTorneio = obterValor(footballData, 'CATEGORY');
+    if (fixtureData && fixtureData.league && fixtureData.league.name) {
+        nomeTorneio = fixtureData.league.name;
+    }
+    // Sanitizar nome do torneio (remover palavras proibidas)
+    nomeTorneio = sanitizarNomeTorneio(nomeTorneio);
+
     var dados = {
-        time1:      obterValor(footballData, 'TITULO'),
-        time2:      obterValor(footballData, 'TITULO2'),
-        estadio:    obterValor(footballData, 'SUBTITULO'),
-        rodada:     traduzirFase(obterValor(footballData, 'SUBTITULO2')),
-        torneio:    obterValor(footballData, 'CATEGORY'),
+        time1:      homeTeamName,
+        time2:      awayTeamName,
+        estadio:    venue,
+        rodada:     traduzirFase(round),
+        torneio:    nomeTorneio,
         hora:       dtFormatada.hora,
         data:       dtFormatada.data,
-        foto1:      obterValor(footballData, 'FOTO'),
-        foto2:      obterValor(footballData, 'FOTO2'),
+        foto1:      homeTeamLogo,
+        foto2:      awayTeamLogo,
         estado:     estado,
-        statusRaw:  (spdData ? obterValor(spdData, 'TEXT4') : statusBase).toUpperCase().trim(),
-        gols1:      spdData ? obterValor(spdData, 'TEXT5') : '0',
-        gols2:      spdData ? obterValor(spdData, 'TEXT6') : '0',
-        pen1:       spdData ? obterValor(spdData, 'TEXT7') : '',
-        pen2:       spdData ? obterValor(spdData, 'TEXT8') : '',
-        tempo:      spdData ? obterValor(spdData, 'TEXT9') : '',
+        statusRaw:  statusFinal.toUpperCase().trim(),
+        // Gols: prioridade JSON > D_SPD > '0'
+        gols1:      goalsHome !== null ? String(goalsHome) : (spdData ? obterValor(spdData, 'TEXT5') : '0'),
+        gols2:      goalsAway !== null ? String(goalsAway) : (spdData ? obterValor(spdData, 'TEXT6') : '0'),
+        // Pênaltis: prioridade JSON > D_SPD > ''
+        pen1:       penaltyHome !== null ? String(penaltyHome) : (spdData ? obterValor(spdData, 'TEXT7') : ''),
+        pen2:       penaltyAway !== null ? String(penaltyAway) : (spdData ? obterValor(spdData, 'TEXT8') : ''),
+        // Tempo: prioridade JSON > D_SPD > ''
+        tempo:      elapsedTime !== null ? String(elapsedTime) : (spdData ? obterValor(spdData, 'TEXT9') : ''),
         tempoExtra: spdData ? obterValor(spdData, 'TEXT10') : '',
         patroFrase:  spdSponsor ? obterValor(spdSponsor, 'TEXT1') : '',
         patroLogo:   spdSponsor ? obterValor(spdSponsor, 'IMAGE_LOGO') : '',
@@ -548,6 +826,11 @@ function obterValor(item, campo) {
    ==================================================== */
 function renderizarTemplate(dados, loader) {
 
+    // ✅ EBHTML: Avisar que o template carregou com sucesso IMEDIATAMENTE
+    // (antes de qualquer animação ou intro de vídeo)
+    loader.loaded();
+    console.log('[placar_futebol] loader.loaded() chamado — template registrado na playlist');
+
     // --- Textos sempre visíveis ---
     document.querySelector('#time1Nome').innerHTML   = dados.time1;
     document.querySelector('#time2Nome').innerHTML   = dados.time2;
@@ -682,8 +965,6 @@ function renderizarTemplate(dados, loader) {
 
             var gradEl = document.querySelector('#gradientOverlay');
             if (gradEl) { gradEl.classList.remove('opacity-0'); gradEl.classList.add('opacity-50'); }
-
-            loader.loaded();
 
             var placarMs = dados.introMedia ? DURACAO_CONTEUDO_MS : DURACAO_SEM_INTRO_MS;
             console.log('[placar_futebol] intro=' + introActualMs + 'ms placar=' + placarMs + 'ms total=' + (introActualMs + placarMs) + 'ms');
