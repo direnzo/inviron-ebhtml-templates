@@ -322,12 +322,6 @@ function agruparPorFase(dadosMap) {
             });
         }
     }
-    console.log('[segundafase_futebol] agruparPorFase: grupos criados:', Object.keys(grupos));
-    for (k in grupos) {
-        if (grupos.hasOwnProperty(k)) {
-            console.log('[segundafase_futebol] Fase ' + k + ': ' + grupos[k].length + ' partidas');
-        }
-    }
     return grupos;
 }
 
@@ -447,16 +441,13 @@ function tamanhoChaveDaFase(fase) {
 }
 
 function montarOrdemChaves(grupos) {
-    console.log('[segundafase_futebol] montarOrdemChaves: iniciando com FASES_ORDEM:', FASES_ORDEM);
     var ordem = [];
     for (var i = 0; i < FASES_ORDEM.length; i++) {
         var fase = FASES_ORDEM[i];
         var partidas = grupos[fase] || [];
-        console.log('[segundafase_futebol] Fase ' + fase + ': ' + partidas.length + ' partidas');
         if (partidas.length === 0) { continue; }
         var tamanho = tamanhoChaveDaFase(fase);
         var total = Math.ceil(partidas.length / tamanho);
-        console.log('[segundafase_futebol] Fase ' + fase + ': tamanho=' + tamanho + ', total chaves=' + total);
         for (var k = 0; k < total; k++) {
             ordem.push({
                 fase:    fase,
@@ -466,7 +457,6 @@ function montarOrdemChaves(grupos) {
             });
         }
     }
-    console.log('[segundafase_futebol] montarOrdemChaves: total chaves criadas:', ordem.length);
     return ordem;
 }
 
@@ -788,12 +778,7 @@ function playerView() {
 }
 
 window.onload = function() {
-    console.log('[segundafase_futebol] window.onload INICIADO');
-    console.log('[segundafase_futebol] MOCK_DATA existe?', typeof MOCK_DATA !== 'undefined');
-    console.log('[segundafase_futebol] MOCK_DATA.enabled?', (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled));
-    
     if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
-        console.log('[segundafase_futebol] MODO MOCK ATIVADO');
         var mockLoader = {
             loaded:   function() { console.log('[Mock] loaded'); },
             finished: function() { console.log('[Mock] finished'); }
@@ -814,8 +799,6 @@ window.onload = function() {
             partidas = [];
         }
         
-        console.log('[Mock] Partidas parseadas: ' + partidas.length);
-        
         // Cria teamsMap do D_FOOTBALL_TEAMS (mock)
         var teamsMap = {};
         if (MOCK_DATA.D_FOOTBALL_TEAMS && MOCK_DATA.D_FOOTBALL_TEAMS.length > 0) {
@@ -835,12 +818,7 @@ window.onload = function() {
         var spdSponsor = MOCK_DATA.D_SPD || null;
         var config = { sponsor: montarSponsorConfig(spdSponsor) };
         aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
-        
-        var dadosMap = processarDadosMock(partidas, teamsMap);
-        console.log('[Mock] dadosMap keys: ' + Object.keys(dadosMap).length);
-        console.log('[Mock] dadosMap:', dadosMap);
-        
-        iniciarExibicao(dadosMap, config, mockLoader);
+        iniciarExibicao(processarDadosMock(partidas, teamsMap), config, mockLoader);
     } else {
         ebhtml.create2({}, function(loader) {
             loader.addData('D_FOOTBALL', false);
