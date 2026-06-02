@@ -825,6 +825,14 @@ function obterValor(item, campo) {
    RENDERIZA O TEMPLATE
    ==================================================== */
 function renderizarTemplate(dados, loader) {
+    
+    // ❌ Validar dados ANTES de chamar loader.loaded()
+    if (!dados || !dados.time1 || !dados.time2) {
+        console.error('[placar_futebol] sem dados para exibir');
+        // ❌ ERRO: NÃO chamar loader.loaded() — apenas finished()
+        loader.finished();
+        return;
+    }
 
     // ✅ EBHTML: Avisar que o template carregou com sucesso IMEDIATAMENTE
     // (antes de qualquer animação ou intro de vídeo)
