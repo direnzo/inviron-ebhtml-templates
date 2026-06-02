@@ -633,6 +633,15 @@ function esconderIntro(onDone) {
 
 // ====== INICIAR TEMPLATE — intro via D_SPD.DURACAO + conteudo 5s ou 10s sem intro ======
 function iniciarTemplate(dados, config, loader) {
+    // ❌ Validar dados ANTES de chamar loader.loaded()
+    var chaves = Object.keys(dados);
+    if (chaves.length === 0) {
+        console.error('[caminhos_futebol] sem dados para exibir');
+        // ❌ ERRO: NÃO chamar loader.loaded() — apenas finished()
+        loader.finished();
+        return;
+    }
+    
     // ✅ EBHTML: Avisar que o template carregou com sucesso IMEDIATAMENTE
     // (ANTES do vídeo de intro, para registrar na playlist)
     loader.loaded();
