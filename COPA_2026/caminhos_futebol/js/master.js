@@ -235,7 +235,7 @@ window.onload = function() {
     } else {
         ebhtml.create2({}, function(loader) {
             loader.addData('D_FOOTBALL', false);
-            loader.addData('D_SPD',      false);
+            loader.addData('D_SPD', false, 'amount=0');  // Busca TODOS os registros (incluindo CONFIG=1)
             loader.autoloaded    = false;
             loader.nodataiserror = false;
 
