@@ -119,7 +119,7 @@ window.onload = function () {
         row.className = 'flex items-center justify-between py-[0.9vh]' + (ultimo ? '' : ' border-b-4 border-dotted border-white/10');
 
         var spanNome = document.createElement('span');
-        spanNome.className = 'flex items-center gap-[0.4em] text-white/75 w-[50%]';
+        spanNome.className = 'flex items-center gap-[0.4em] text-white/75 w-full';
         spanNome.innerHTML = (ICONES[id] || '') + nome;
 
         var spanSeta = document.createElement('span');
@@ -143,7 +143,7 @@ window.onload = function () {
         row.className = 'flex items-center gap-4 justify-between py-[0.9vh]' + (ultimo ? '' : ' border-b-4 border-dotted border-white/10');
 
         var spanNome = document.createElement('span');
-        spanNome.className = 'flex items-center gap-[0.4em] text-white/75 w-[38%]';
+        spanNome.className = 'flex items-center gap-[0.4em] text-white/75 w-full';
         spanNome.innerHTML = (ICONES[id] || '') + nome;
 
         var spanSeta = document.createElement('span');
@@ -156,7 +156,7 @@ window.onload = function () {
 
         var spanPerc = document.createElement('span');
         spanPerc.id = 'perc-' + id;
-        spanPerc.className = 'font-montserrat-bold w-[22%] text-right';
+        spanPerc.className = 'font-montserrat-bold w-[22%] text-right text-[75%]';
 
         row.appendChild(spanNome);
         row.appendChild(spanSeta);
