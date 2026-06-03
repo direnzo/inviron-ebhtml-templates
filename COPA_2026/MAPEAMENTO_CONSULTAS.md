@@ -65,7 +65,7 @@ if (spdata.TITLE === 'STANDINGS') {
   - Se `TITLE = ID numérico` → consultar `D_FOOTBALL`
 - **Campos utilizados**:
   - `TITLE` = "STANDINGS" ou ID da partida
-  - `TEXT3` = Nome do grupo (ex: "Group A", usado quando TITLE="STANDINGS")
+  - `TEXT3` = ID ou identificador (campo não confiável - ignorar no fluxo STANDINGS)
 
 #### 1.3. D_FOOTBALL_TEAMS (Dados dos times - OBRIGATÓRIO)
 - **Método**: `loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + teamId)`
@@ -143,16 +143,18 @@ if (spdata.TITLE === 'STANDINGS') {
   - `partidaJson->fixture->venue->name` = Nome do estádio
 
 #### 1.5. D_FOOTBALL_STANDINGS (condicional - quando TITLE = "STANDINGS")
-- **Método**: `loader.addData('D_FOOTBALL_STANDINGS', false, 'f_texto3=' + spdataText3)`
-- **Filtro**: `f_texto3={spdataText3}` (nome do grupo obtido de `D_SPD.TEXT3`)
+- **Método**: `loader.addData('D_FOOTBALL_STANDINGS', false, 'amount=0')`
+- **Filtro**: `amount=0` (busca todos os grupos de uma vez)
 - **Condição**: Usado quando `D_SPD.TITLE = "STANDINGS"`
-- **Objetivo**: Obter classificação do grupo específico
-- **Exemplo**: `D_FOOTBALL_STANDINGS?f_texto3=Group A` (onde "Group A" é o nome do grupo)
-- **IMPORTANTE**: ❌ NÃO usar `f_titulo` - todos os registros têm TITULO=1. ✅ Usar `f_texto3` com o nome do grupo.
+- **Objetivo**: Obter todos os grupos e usar rotação automática do loader
+- **Exemplo**: `D_FOOTBALL_STANDINGS?amount=0` (retorna 12-13 grupos)
+- **IMPORTANTE**: ✅ Usar `amount=0` + rotação automática. ❌ Campo TEXT3 do D_SPD não é confiável para filtro direto.
 - **Campos utilizados** (especificação oficial):
   - `CATEGORY` = Nome da liga
-  - `TEXTO3` = Nome do grupo (ex: "Group A")
+  - `TEXTO3` = Nome do grupo (ex: "Group A", "Group B", etc.)
+  - `TITULO` = Sempre "1" em todos os grupos (não usar para filtro)
   - `TEXTO2` = JSON array com classificação completa
+- **Rotação**: Loader retorna próximo grupo automaticamente a cada reload
   - Estrutura do JSON:
     ```json
     [
@@ -190,15 +192,15 @@ if (spdata.TITLE === 'STANDINGS') {
 - **Campos utilizados**: Mesmos do placar_futebol (COLOR1/2/3, TEXT1/2, FILE_IMAGE1, IMAGE_LOGO)
 
 #### 2.2. D_FOOTBALL_STANDINGS
-- **Método**: `loader.addData('D_FOOTBALL_STANDINGS', false)`
-- **Filtro**: Nenhum (rotação automática entre grupos)
-- **Objetivo**: Obter classificação do próximo grupo
-- **Rotação**: Automática pelo loader (a cada reload busca próximo grupo)
+- **Método**: `loader.addData('D_FOOTBALL_STANDINGS', false, 'amount=0')`
+- **Filtro**: `amount=0` (busca todos os grupos)
+- **Objetivo**: Obter todos os grupos e usar rotação automática do loader
+- **Rotação**: Automática pelo loader (a cada reload busca próximo grupo da lista)
 - **Campos utilizados**:
   - `CATEGORY` = Nome da liga
-  - `TEXTO3` = Nome do grupo (ex: "Group A") - usado como filtro f_texto3
+  - `TEXTO3` = Nome do grupo (ex: "Group A", "Group B", "Ranking of third-placed teams")
   - `TEXTO2` = JSON array com classificação completa
-  - `TITULO` = Sempre "1" (não usar para filtros)
+  - `TITULO` = Sempre "1" em todos os grupos (não usar para filtros)
 
 #### 2.3. D_FOOTBALL_TEAMS (OBRIGATÓRIO)
 - **Método**: `loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + teamId)`
@@ -310,7 +312,7 @@ loader.addData('D_SPD', false, 'f_config=1&f_specialproject=spdataXXX');
 loader.addData('D_SPD', false, 'f_config=0&f_type=10');
 loader.addData('D_FOOTBALL', false, 'f_titulo=1489371');
 loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=6');
-loader.addData('D_FOOTBALL_STANDINGS', false, 'f_texto3=Group A');
+loader.addData('D_FOOTBALL_STANDINGS', false, 'amount=0'); // Rotação automática
 
 // ❌ ERRADO - Não usar XMLHttpRequest
 var xhr = new XMLHttpRequest();
@@ -329,13 +331,11 @@ loader.addData('D_SPD', false, 'f_config=0'); // falta f_type=10
 - `f_titulo={ID}` → Busca registro específico por ID
   - Para `D_FOOTBALL`: ID da partida (ex: `f_titulo=1489371`)
   - Para `D_FOOTBALL_TEAMS`: ID do time (ex: `f_titulo=6`)
-- `f_texto3={NomeGrupo}` → Busca grupo específico por nome
-  - Para `D_FOOTBALL_STANDINGS`: Nome do grupo (ex: `f_texto3=Group A`)
 - `f_tipo=10` → Busca apenas TYPE=10 (obsoleto, usar `f_type`)
 
-#### `amount=0` (usar apenas quando necessário):
+#### `amount=0` (casos específicos):
+- ✅ **D_FOOTBALL_STANDINGS** → **RECOMENDADO** - busca todos os grupos para rotação automática
 - ❌ **D_FOOTBALL_TEAMS** → **NUNCA usar** - sempre filtrar por ID (`f_titulo={teamId}`)
-- ⚠️ `D_FOOTBALL_STANDINGS` → evitar; sem filtro já rotaciona grupos automaticamente
 - ⚠️ `D_FOOTBALL` → evitar; usar filtros específicos (`f_titulo={ID}`)
 - ⚠️ `D_SPD` → evitar; usar `f_config=1` ou `f_config=0` (rotação automática)
 
@@ -386,12 +386,13 @@ if (partidaId.toUpperCase() === 'STANDINGS') {
 
 **Se `TITLE === "STANDINGS"` (Fluxo de Classificação):**
 ```javascript
-// 3a. Consultar classificação usando D_SPD.TEXT3 (nome do grupo)
-var standings = loader.data('D_FOOTBALL_STANDINGS', false, 'f_texto3=' + spdata.TEXT3);
+// 3a. Consultar todos os grupos com amount=0 (rotação automática)
+var standings = loader.data('D_FOOTBALL_STANDINGS');
+// Nota: amount=0 já configurado no addData(), loader retorna próximo grupo automaticamente
 
 // 3b. Extrair dados
 var liga = standings.CATEGORY;
-var nomeGrupo = standings.TEXTO3;
+var nomeGrupo = standings.TEXTO3; // Ex: "Group A", "Group B", etc.
 var grupoJson = JSON.parse(standings.TEXTO2);
 
 // 3c. Para cada time no grupo
@@ -472,8 +473,8 @@ localStorage.setItem('idx', idx + 1);
 
 | Template | D_SPD Config=1 | D_SPD Config=0 | D_FOOTBALL | D_FOOTBALL_TEAMS | D_FOOTBALL_STANDINGS |
 |----------|----------------|----------------|------------|------------------|----------------------|
-| **placar_futebol** | `f_config=1&`<br>`f_specialproject` | `f_config=0&`<br>`f_type=10` | Condicional<br>`f_titulo={ID}`<br>Campos: TEXTO2, TEXTO4, TEXTO5 | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | Condicional<br>se TITLE="STANDINGS"<br>`f_texto3={TEXT3}` |
-| **tabela_futebol** | `f_config=1&`<br>`f_specialproject` | ❌ | Sem filtro<br>Próximos jogos | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | Sem filtro<br>Rotação automática |
+| **placar_futebol** | `f_config=1&`<br>`f_specialproject` | `f_config=0&`<br>`f_type=10` | Condicional<br>`f_titulo={ID}`<br>Campos: TEXTO2, TEXTO4, TEXTO5 | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | Condicional<br>se TITLE="STANDINGS"<br>`amount=0` (rotação) |
+| **tabela_futebol** | `f_config=1&`<br>`f_specialproject` | ❌ | Sem filtro<br>Próximos jogos | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | `amount=0`<br>Rotação automática |
 | **caminhos_futebol** | `f_config=1&`<br>`f_specialproject` | ❌ | Sem filtro<br>TEXTO3 (JSON) | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | ❌ |
 | **segundafase_futebol** | `f_config=1&`<br>`f_specialproject` | ❌ | Sem filtro<br>TEXTO3 (JSON) | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | ❌ |
 

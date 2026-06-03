@@ -118,24 +118,32 @@
 
 ### 4. D_FOOTBALL_STANDINGS ⚠️ → ✅
 
-#### ❌ Teste 1: Filtro incorreto (f_titulo)
+#### ❌ Teste 1: Filtro por ID (f_titulo)
 **URL**: `http://127.0.0.1:13199/CONTENT/DATA/D_FOOTBALL_STANDINGS?f_titulo=12`
 **Resultado**: `<EBDATA AMOUNT="0">` (vazio)
 
-**Motivo**: Todos os registros têm `TITULO=1`, então `f_titulo` não funciona para filtrar grupos.
+**Motivo**: Todos os registros têm `TITULO=1`, então `f_titulo` não funciona para filtrar grupos específicos.
 
 ---
 
-#### ✅ Teste 2: Filtro correto (f_texto3 - nome do grupo)
+#### ✅ Teste 2: Filtro por nome (f_texto3)
 **URLs testadas**:
 - `http://127.0.0.1:13199/CONTENT/DATA/D_FOOTBALL_STANDINGS?f_texto3=Group A` → Group A ✅
 - `http://127.0.0.1:13199/CONTENT/DATA/D_FOOTBALL_STANDINGS?f_texto3=Group B` → Group B ✅
 - `http://127.0.0.1:13199/CONTENT/DATA/D_FOOTBALL_STANDINGS?f_texto3=Group J` → Group J ✅
 
+**Resultado**: Funciona, mas requer nome exato do grupo (frágil para mudanças de fase).
+
+---
+
+#### ✅ Teste 3: Buscar todos (amount=0) - **SOLUÇÃO ADOTADA**
+**URL**: `http://127.0.0.1:13199/CONTENT/DATA/D_FOOTBALL_STANDINGS?amount=0`
+**Resultado**: Retorna **13 grupos** de uma vez (Groups A-L + "Ranking of third-placed teams") ✅
+
 **Campos validados**:
 - `CATEGORY` = "Copa do Mundo" ✅
-- `TEXTO3` = "Group A" / "Group B" / "Group J" (nome do grupo) ✅
-- `TITULO` = "1" (sempre 1 - não usar para filtros) ✅
+- `TEXTO3` = "Group A" / "Group B" / "Group J" / "Ranking of third-placed teams" (nome do grupo) ✅
+- `TITULO` = "1" (sempre 1 em todos os grupos - não usar para filtros) ✅
 - `TEXTO2` = JSON array com classificação ✅
 
 **Estrutura JSON (TEXTO2)**:
@@ -157,31 +165,37 @@
 ]
 ```
 
-**Conclusão**: Filtro correto é `f_texto3={NomeGrupo}`, não `f_titulo`.
+**Conclusão**: Solução adotada é `amount=0` com rotação automática.
 
 ---
 
-## 📝 Correções Aplicadas na Documentação
+## 📝 Solução Final Documentada
 
-### Antes (incorreto):
+### Opção A: Rotação Automática (ADOTADA)
 ```javascript
-// ❌ ERRADO
-loader.addData('D_FOOTBALL_STANDINGS', false, 'f_titulo=' + spdataText3);
-// Exemplo: D_FOOTBALL_STANDINGS?f_titulo=12
+// ✅ SOLUÇÃO FINAL - Busca todos os grupos com amount=0
+loader.addData('D_FOOTBALL_STANDINGS', false, 'amount=0');
+
+loader.load(function() {
+    // Loader retorna próximo grupo automaticamente a cada reload
+    var standings = loader.data('D_FOOTBALL_STANDINGS');
+    var nomeGrupo = standings.TEXTO3; // "Group A", "Group B", etc.
+    var grupoJson = JSON.parse(standings.TEXTO2);
+    
+    // Processar classificação do grupo...
+});
 ```
 
-### Depois (correto):
-```javascript
-// ✅ CORRETO
-loader.addData('D_FOOTBALL_STANDINGS', false, 'f_texto3=' + spdataText3);
-// Exemplo: D_FOOTBALL_STANDINGS?f_texto3=Group A
-```
+### Vantagens da Solução:
+- ✅ Simples e robusta
+- ✅ Uma única requisição HTTP para todos os grupos (13 grupos)
+- ✅ Não depende de TEXT3 do D_SPD (campo não confiável)
+- ✅ Funciona em qualquer fase do campeonato
+- ✅ Loader gerencia rotação automaticamente
 
-### Implicação:
-- `D_SPD.TEXT3` deve conter o **nome do grupo** (ex: "Group A"), não um ID numérico
-- Todos os templates que usam classificação precisam ajustar:
-  - Fluxo STANDINGS: usar `f_texto3={D_SPD.TEXT3}`
-  - Backend deve preencher TEXT3 com "Group A", "Group B", etc.
+### Alternativas Descartadas:
+- ❌ `f_titulo={ID}`: Todos os grupos têm TITULO=1 (não funciona)
+- ❌ `f_texto3={nome}`: Requer mapeamento hard-coded, frágil para outras fases
 
 ---
 
@@ -193,9 +207,11 @@ loader.addData('D_FOOTBALL_STANDINGS', false, 'f_texto3=' + spdataText3);
 - [x] D_FOOTBALL.TEXTO2 contém JSON completo da API-Football
 - [x] D_FOOTBALL_TEAMS com f_titulo={teamId} retorna dados do time
 - [x] D_FOOTBALL_TEAMS.FOTO contém bandeira (também em SELO1/FOTO1)
-- [x] D_FOOTBALL_STANDINGS com f_texto3={NomeGrupo} retorna classificação
+- [x] D_FOOTBALL_STANDINGS com amount=0 retorna todos os grupos (13 grupos)
+- [x] D_FOOTBALL_STANDINGS com f_texto3={NomeGrupo} retorna grupo específico
 - [x] D_FOOTBALL_STANDINGS.TEXTO3 contém nome do grupo
 - [x] D_FOOTBALL_STANDINGS.TITULO sempre "1" (não filtrar por este campo)
+- [x] Rotação automática funciona corretamente com amount=0
 
 ---
 
@@ -207,7 +223,7 @@ Agora que a documentação está validada, implementar as correções nos templa
 1. **placar_futebol/js/master.js**
    - Substituir XMLHttpRequest por loader.addData()
    - Remover localStorage (rotação automática)
-   - Implementar fluxo STANDINGS com f_texto3
+   - Implementar fluxo STANDINGS com amount=0 (rotação automática)
    - Adicionar filtros corretos (f_type=10, f_specialproject)
 
 2. **tabela_futebol/js/master.js**
