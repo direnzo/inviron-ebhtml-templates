@@ -129,6 +129,98 @@ var CONFIG = {
 };
 
 /* ====================================================
+   SVG INJECTION VIA XHR (compatível com WebKit legado)
+   Injeta SVG inline no DOM (evita problema de <img src="*.svg">)
+   ==================================================== */
+function carregarSvgInline(containerEl, src, onSuccess, onError) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', src, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState !== 4) { return; }
+        
+        if (xhr.status === 200 || xhr.status === 0) {
+            try {
+                var svgEl = containerEl.querySelector('svg');
+                if (svgEl) { svgEl.parentNode.removeChild(svgEl); }
+                containerEl.innerHTML = xhr.responseText;
+                var svg = containerEl.querySelector('svg');
+                
+                if (svg) {
+                    svg.style.width = '100%';
+                    svg.style.height = '100%';
+                    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                    console.log('[caminhos_futebol] ✅ SVG injetado: ' + src);
+                    if (onSuccess) { onSuccess(); }
+                } else {
+                    console.error('[caminhos_futebol] Arquivo não contém SVG válido: ' + src);
+                    if (onError) { onError(); }
+                }
+            } catch (e) {
+                console.error('[caminhos_futebol] Erro ao injetar SVG:', e);
+                if (onError) { onError(); }
+            }
+        } else {
+            console.error('[caminhos_futebol] HTTP ' + xhr.status + ' ao carregar SVG: ' + src);
+            if (onError) { onError(); }
+        }
+    };
+    
+    xhr.onerror = function() {
+        console.error('[caminhos_futebol] Erro de rede ao carregar SVG: ' + src);
+        if (onError) { onError(); }
+    };
+    
+    xhr.send();
+}
+
+/* ====================================================
+   MAPEAMENTO DE BANDEIRAS SVG (48 times Copa 2026)
+   Códigos 3 letras → filename SVG (sem path)
+   ==================================================== */
+function mapearCodigoParaSVG(code) {
+    if (!code) return null;
+    
+    var map = {
+        // CONCACAF (16 times)
+        'USA': 'us', 'MEX': 'mx', 'CAN': 'ca', 'CRC': 'cr',
+        'JAM': 'jm', 'PAN': 'pa', 'HON': 'hn', 'SLV': 'sv',
+        'TRI': 'tt', 'CUW': 'cw', 'GUA': 'gt', 'HAI': 'ht',
+        'NCA': 'ni', 'SUR': 'sr', 'MTQ': 'mq', 'GUY': 'gy',
+        
+        // CONMEBOL (10 times)
+        'BRA': 'br', 'ARG': 'ar', 'URU': 'uy', 'COL': 'co',
+        'CHI': 'cl', 'ECU': 'ec', 'PAR': 'py', 'PER': 'pe',
+        'BOL': 'bo', 'VEN': 've',
+        
+        // UEFA (16 times)
+        'GER': 'de', 'FRA': 'fr', 'ENG': 'gb-eng', 'ESP': 'es',
+        'BEL': 'be', 'NED': 'nl', 'HOL': 'nl', 'ITA': 'it', 'POR': 'pt',
+        'CRO': 'hr', 'SUI': 'ch', 'DEN': 'dk', 'POL': 'pl',
+        'AUT': 'at', 'SWE': 'se', 'UKR': 'ua', 'WAL': 'gb-wls',
+        
+        // CAF (4 times)
+        'SEN': 'sn', 'MOR': 'ma', 'MAR': 'ma', 'TUN': 'tn', 'NGA': 'ng',
+        
+        // AFC (2 times)
+        'JPN': 'jp', 'KOR': 'kr'
+    };
+    
+    return map[code.toUpperCase()] || null;
+}
+
+/* ====================================================
+   RETORNA BANDEIRA SVG LOCAL + FALLBACK PNG
+   ==================================================== */
+function obterBandeiraSVG(teamCode, fallbackUrl) {
+    var svgCode = mapearCodigoParaSVG(teamCode);
+    
+    return {
+        bandeira: svgCode ? ('img/flags/' + svgCode + '.svg') : null,
+        bandeiraFallback: fallbackUrl || null
+    };
+}
+
+/* ====================================================
    MAPA DE FASES DO CAMPEONATO → PT-BR
    Traduções de fases/rodadas comuns
    ==================================================== */
