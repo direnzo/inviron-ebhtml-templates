@@ -38,10 +38,11 @@ Documento de referência para entender como cada template consulta os canais de 
   - `TEXT6` = Gols visitante
   - `TEXT9` = Tempo decorrido
 
-#### 1.3. D_FOOTBALL_TEAMS (Todos os times)
+#### 1.3. D_FOOTBALL_TEAMS (Todos os times - OPCIONAL)
 - **Método**: `loader.addData('D_FOOTBALL_TEAMS', false, 'amount=0')`
 - **Filtro**: `amount=0` (busca TODOS os times - necessário para lookup)
 - **Objetivo**: Mapear ID do time → nome PT-BR + bandeira
+- **Observação**: **OPCIONAL para placar_futebol** - o JSON do `D_FOOTBALL.TEXTO2` já contém nomes e logos dos times. Usar apenas se preferir nomes traduzidos em PT-BR do canal.
 - **Campos utilizados**:
   - `TITULO` = ID do time (API-Football)
   - `TEXTO2` = Nome em PT-BR
@@ -53,13 +54,69 @@ Documento de referência para entender como cada template consulta os canais de 
 - **Filtro**: `f_titulo={partidaId}` (jogo específico)
 - **Valor do filtro**: Obtido de `D_SPD.TITLE` (f_config=0)
 - **Condição**: Usado quando `D_SPD.TITLE` contém um ID numérico
-- **Campos utilizados**:
-  - `TITULO` = Fixture ID
-  - `TEXTO2` = JSON completo da API-Football
-  - `SUBTITULO` = Estádio
-  - `SUBTITULO2` = Rodada
-  - `CATEGORY` = Nome do torneio
-  - `DATE` = Data/hora da partida
+- **Exemplo de consulta**: `D_FOOTBALL?f_titulo=1489371`
+- **Campo crítico**: `TEXTO2` = JSON completo da API-Football com todos os dados do confronto
+- **Estrutura do JSON** (campo `TEXTO2`):
+  ```json
+  {
+    "response": [
+      {
+        "fixture": {
+          "id": 1489371,
+          "date": "2026-06-13T19:00:00-03:00",
+          "venue": {
+            "id": null,
+            "city": null,
+            "name": "MetLife Stadium"
+          },
+          "status": {
+            "long": "Not Started",
+            "short": "NS",
+            "elapsed": null
+          },
+          "timezone": "America/Sao_Paulo"
+        },
+        "league": {
+          "id": 1,
+          "name": "World Cup",
+          "country": "World",
+          "round": "Group Stage - 1",
+          "season": 2026
+        },
+        "teams": {
+          "home": {
+            "id": 6,
+            "name": "Brazil",
+            "logo": "https://media.api-sports.io/football/teams/6.png",
+            "winner": null
+          },
+          "away": {
+            "id": 31,
+            "name": "Morocco",
+            "logo": "https://media.api-sports.io/football/teams/31.png",
+            "winner": null
+          }
+        },
+        "goals": {
+          "home": null,
+          "away": null
+        },
+        "score": {
+          "halftime": { "home": null, "away": null },
+          "fulltime": { "home": null, "away": null },
+          "extratime": { "home": null, "away": null },
+          "penalty": { "home": null, "away": null }
+        }
+      }
+    ]
+  }
+  ```
+- **Outros campos utilizados**:
+  - `TITULO` = Fixture ID (mesmo valor do filtro)
+  - `SUBTITULO` = Estádio (redundante, já está no JSON)
+  - `SUBTITULO2` = Rodada (redundante, já está no JSON)
+  - `CATEGORY` = Nome do torneio (redundante, já está no JSON)
+  - `DATE` = Data/hora da partida (redundante, já está no JSON)
 
 #### 1.5. D_FOOTBALL_STANDINGS (condicional - quando TITLE = "STANDINGS")
 - **Método**: `loader.addData('D_FOOTBALL_STANDINGS', false)`
@@ -222,6 +279,12 @@ xhr.open('GET', '/content/data/D_FOOTBALL_TEAMS?amount=0', true);
 
 **Formato no XML:**
 ```xml
+<!-- Exemplo 1: ID de confronto -->
+<TITLE>
+<![CDATA[ 1489371 ]]>
+</TITLE>
+
+<!-- Exemplo 2: Classificação -->
 <TITLE>
 <![CDATA[ STANDINGS ]]>
 </TITLE>
@@ -235,14 +298,17 @@ if (partidaId.toUpperCase() === 'STANDINGS') {
     // Consultar D_FOOTBALL_STANDINGS (rotação automática)
     loader.addData('D_FOOTBALL_STANDINGS', false);
 } else {
-    // Consultar D_FOOTBALL com filtro
+    // Consultar D_FOOTBALL com filtro usando o ID do TITLE
+    // Exemplo: D_FOOTBALL?f_titulo=1489371
     loader.addData('D_FOOTBALL', false, 'f_titulo=' + partidaId);
 }
 ```
 
 **Valores possíveis:**
 - `"STANDINGS"` (CDATA, qualquer case) → Consultar classificação
-- `"1234567"` (ID numérico) → Consultar jogo específico
+- `"1489371"` (ID numérico do confronto) → Consultar jogo específico via `f_titulo={ID}`
+
+**Importante**: O ID retornado no `D_SPD.TITLE` é usado como parâmetro de filtro (`f_titulo`) para trazer o resultado exato do confronto desejado no `D_FOOTBALL`.
 
 ### 4. Ordem de Consultas Recomendada
 
@@ -250,10 +316,28 @@ Para templates que exibem confrontos/classificação:
 
 1. **D_SPD** (`f_config=1`) → Patrocinador/cores
 2. **D_SPD** (`f_config=0`) → Confronto/classificação atual (rotação automática)
-3. **D_FOOTBALL_TEAMS** (`amount=0`) → Lookup de times
+3. **D_FOOTBALL_TEAMS** (`amount=0`) → Lookup de times (opcional, se precisar nomes PT-BR)
 4. **Condicional**:
    - Se `TITLE = "STANDINGS"` → **D_FOOTBALL_STANDINGS**
    - Se `TITLE = ID` → **D_FOOTBALL** (`f_titulo={ID}`)
+
+**Exemplo de processamento do JSON:**
+```javascript
+// Após carregar D_FOOTBALL
+var footballData = loader.data('D_FOOTBALL');
+var jsonStr = obterValor(footballData, 'TEXTO2');
+var apiData = JSON.parse(jsonStr);
+
+// Acessar dados do confronto
+var fixture = apiData.response[0];
+var homeTeam = fixture.teams.home;    // { id: 6, name: "Brazil", logo: "..." }
+var awayTeam = fixture.teams.away;    // { id: 31, name: "Morocco", logo: "..." }
+var goalsHome = fixture.goals.home;    // null (jogo não iniciado) ou número
+var goalsAway = fixture.goals.away;
+var status = fixture.fixture.status.short; // "NS", "1H", "HT", "2H", "FT", etc
+var venue = fixture.fixture.venue.name;    // "MetLife Stadium"
+var round = fixture.league.round;          // "Group Stage - 1"
+```
 
 ### 5. Rotação Automática pelo Loader
 
@@ -283,10 +367,10 @@ localStorage.setItem('idx', idx + 1);
 
 | Template | D_SPD Config=1 | D_SPD Config=0 | D_FOOTBALL | D_FOOTBALL_TEAMS | D_FOOTBALL_STANDINGS |
 |----------|----------------|----------------|------------|------------------|----------------------|
-| **placar_futebol** | `f_config=1`<br>Sponsor | `f_config=0`<br>Confronto atual | Condicional<br>`f_titulo={ID}` | `amount=0`<br>Lookup | Condicional<br>se TITLE="STANDINGS" |
-| **tabela_futebol** | `f_config=1`<br>Sponsor | ❌ | `amount=0`<br>Próximos jogos | `amount=0`<br>Lookup | Sem filtro<br>Grupo atual |
-| **caminhos_futebol** | `f_config=1`<br>Sponsor | ❌ | Sem filtro<br>TEXTO3 (JSON) | `amount=0`<br>Lookup | ❌ |
-| **segundafase_futebol** | `f_config=1`<br>Sponsor | ❌ | Sem filtro<br>TEXTO3 (JSON) | `amount=0`<br>Lookup | ❌ |
+| **placar_futebol** | `f_config=1`<br>Sponsor | `f_config=0`<br>Confronto atual | Condicional<br>`f_titulo={ID}`<br>JSON em TEXTO2 | Opcional<br>`amount=0`<br>Nomes PT-BR | Condicional<br>se TITLE="STANDINGS" |
+| **tabela_futebol** | `f_config=1`<br>Sponsor | ❌ | Sem filtro<br>Próximos jogos | `amount=0`<br>Lookup obrigatório | Sem filtro<br>Grupo atual |
+| **caminhos_futebol** | `f_config=1`<br>Sponsor | ❌ | Sem filtro<br>TEXTO3 (JSON) | `amount=0`<br>Lookup obrigatório | ❌ |
+| **segundafase_futebol** | `f_config=1`<br>Sponsor | ❌ | Sem filtro<br>TEXTO3 (JSON) | `amount=0`<br>Lookup obrigatório | ❌ |
 
 ---
 
