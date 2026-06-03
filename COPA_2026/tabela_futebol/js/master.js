@@ -299,14 +299,70 @@ function mapearCodigoPais(code) {
 }
 
 /**
+ * Mapeia código 3 letras para SVG filename (48 times Copa 2026)
+ * Retorna nome do arquivo SVG (sem path) ou null se não encontrado
+ */
+function mapearCodigoParaSVG(code) {
+    if (!code) return null;
+    
+    var map = {
+        // CONCACAF (16 times)
+        'USA': 'us', 'MEX': 'mx', 'CAN': 'ca', 'CRC': 'cr',
+        'JAM': 'jm', 'PAN': 'pa', 'HON': 'hn', 'SLV': 'sv',
+        'TRI': 'tt', 'CUW': 'cw', 'GUA': 'gt', 'HAI': 'ht',
+        'NCA': 'ni', 'SUR': 'sr', 'MTQ': 'mq', 'GUY': 'gy',
+        
+        // CONMEBOL (10 times)
+        'BRA': 'br', 'ARG': 'ar', 'URU': 'uy', 'COL': 'co',
+        'CHI': 'cl', 'ECU': 'ec', 'PAR': 'py', 'PER': 'pe',
+        'BOL': 'bo', 'VEN': 've',
+        
+        // UEFA (16 times)
+        'GER': 'de', 'FRA': 'fr', 'ENG': 'gb-eng', 'ESP': 'es',
+        'BEL': 'be', 'NED': 'nl', 'HOL': 'nl', 'ITA': 'it', 'POR': 'pt',
+        'CRO': 'hr', 'SUI': 'ch', 'DEN': 'dk', 'POL': 'pl',
+        'AUT': 'at', 'SWE': 'se', 'UKR': 'ua', 'WAL': 'gb-wls',
+        
+        // CAF (4 times)
+        'SEN': 'sn', 'MOR': 'ma', 'MAR': 'ma', 'TUN': 'tn', 'NGA': 'ng',
+        
+        // AFC (2 times)
+        'JPN': 'jp', 'KOR': 'kr'
+    };
+    
+    return map[code.toUpperCase()] || null;
+}
+
+/**
+ * Retorna path SVG local ou PNG fallback para bandeira do time
+ * @param {string} teamCode - Código 3 letras do time (ex: "BRA", "MOR")
+ * @param {string} fallbackUrl - URL PNG da API (fallback)
+ * @returns {object} {bandeira: 'img/flags/br.svg', bandeiraFallback: 'http://...'}
+ */
+function obterBandeiraSVG(teamCode, fallbackUrl) {
+    var svgCode = mapearCodigoParaSVG(teamCode);
+    
+    return {
+        bandeira: svgCode ? ('img/flags/' + svgCode + '.svg') : null,
+        bandeiraFallback: fallbackUrl || null
+    };
+}
+
+/**
  * Converte URL de logo da API para caminho de bandeira SVG local
  * Ex: "https://...teams/17.png" + "KOR" -> "img/flags/kr.svg"
+ */
+/**
+ * Converte logo/URL da API para bandeira SVG local (48 times Copa 2026)
+ * @param {string} logoUrl - URL PNG da API (fallback)
+ * @param {string} countryCode - Código 3 letras (ex: "BRA", "MOR")
+ * @returns {string} Path SVG local ou URL fallback
  */
 function converterLogoParaBandeira(logoUrl, countryCode) {
     if (!countryCode) return logoUrl; // fallback para URL da API
     
-    var codigoISO = mapearCodigoPais(countryCode);
-    return codigoISO ? 'img/flags/' + codigoISO + '.svg' : logoUrl;
+    var bandeiras = obterBandeiraSVG(countryCode, logoUrl);
+    return bandeiras.bandeira || bandeiras.bandeiraFallback || logoUrl;
 }
 
 /**
@@ -677,7 +733,7 @@ function parseDataBrasileira(dataBr) {
 /**
  * Extrai registro de patrocinador do D_SPD (CONFIG='1')
  * O patrocinador é aplicado GLOBALMENTE em todos os grupos.
- * SPECIALPROJECTS é apenas um ID administrativo, não limita a exibição.
+ * SPECIALPROJECT é extraído dinamicamente do XML retornado.
  * @returns {Object|null} Item do patrocinador ou null
  */
 function extrairSponsor(loader) {
@@ -692,14 +748,60 @@ function extrairSponsor(loader) {
         var item = spdLista.get(i);
         var cfg = obterValorSpd(item, 'CONFIG');
         if (cfg === '1') {
-            var specialProjectId = obterValorSpd(item, 'SPECIALPROJECTS');
-            console.log('[tabela_futebol] D_SPD: patrocinador encontrado (SPECIALPROJECTS=' + specialProjectId + ')');
+            var specialProjectId = obterValorSpd(item, 'SPECIALPROJECT');
+            console.log('[tabela_futebol] D_SPD: patrocinador encontrado (SPECIALPROJECT=' + specialProjectId + ')');
+            console.log('[tabela_futebol] SPECIALPROJECT extraído dinamicamente do XML: ' + specialProjectId);
             return item;
         }
     }
     
     console.log('[tabela_futebol] D_SPD: nenhum patrocinador (CONFIG=1) encontrado');
     return null;
+}
+
+/**
+ * Busca dados de um time específico no D_FOOTBALL_TEAMS
+ * @param {string} teamId - ID do time (ex: "6")
+ * @param {object} loader - Instância do ebhtml loader
+ * @param {function} callback - callback(timeData) onde timeData = {id, nome, codigo, bandeira, bandeiraFallback}
+ */
+function buscarTime(teamId, loader, callback) {
+    if (!teamId || !loader || !callback) {
+        console.error('[tabela_futebol] buscarTime: parametros invalidos');
+        callback(null);
+        return;
+    }
+    
+    loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + teamId);
+    
+    loader.load(function() {
+        var time = loader.data('D_FOOTBALL_TEAMS');
+        
+        if (!time) {
+            console.error('[tabela_futebol] D_FOOTBALL_TEAMS sem dados para ID=' + teamId);
+            callback(null);
+            return;
+        }
+        
+        var timeNome = obterValorSpd(time, 'TEXTO2');  // Nome PT-BR
+        var timeCodigo = obterValorSpd(time, 'TEXTO3');  // Código 3 letras
+        var fotoPng = obterValorSpd(time, 'FOTO');  // PNG da API (fallback)
+        
+        // Mapear para SVG local ou usar fallback PNG
+        var bandeiras = obterBandeiraSVG(timeCodigo, fotoPng);
+        
+        var timeData = {
+            id: teamId,
+            nome: timeNome || ('[Time ' + teamId + ']'),
+            codigo: timeCodigo || '???',
+            bandeira: bandeiras.bandeira,  // SVG local
+            bandeiraFallback: bandeiras.bandeiraFallback  // PNG fallback
+        };
+        
+        console.log('[tabela_futebol] Time ID=' + teamId + ': ' + timeData.nome + ' (' + timeData.codigo + ') → SVG: ' + (bandeiras.bandeira ? 'OK' : 'N/A'));
+        
+        callback(timeData);
+    });
 }
 
 /* ====================================================
