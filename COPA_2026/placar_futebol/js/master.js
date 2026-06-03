@@ -506,31 +506,86 @@ function playerView() {
                 return;
             }
 
-            // Segunda fase: buscar D_FOOTBALL_TEAMS (todos os times) e D_FOOTBALL (jogo específico)
-            buscarTodosOsTimesDeUmaVez(function(teamsMap) {
+            // ✅ CORREÇÃO: Verificar se TITLE = "standings" para decidir qual canal consultar
+            if (partidaId.toLowerCase() === 'standings') {
+                console.log('[placar_futebol] TITLE="standings" detectado — consultando D_FOOTBALL_STANDINGS');
                 
-                // Terceira fase: D_FOOTBALL filtrado pelo ID da partida
-                ebhtml.create2({}, function(loader2) {
-                    loader2.addData('D_FOOTBALL', false, 'F_TITULO=' + partidaId);
-                    loader2.autoloaded = false;
-                    loader2.nodataiserror = false;
-
-                    loader2.load(function() {
-                        var footballData = loader2.data('D_FOOTBALL');
-
-                        if (!footballData) {
-                            console.log('[placar_futebol] D_FOOTBALL sem dados para ID=' + partidaId);
+                // Segunda fase: buscar D_FOOTBALL_TEAMS (todos os times)
+                buscarTodosOsTimesDeUmaVez(function(teamsMap) {
+                    // Terceira fase: buscar D_FOOTBALL_STANDINGS via XMLHttpRequest
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', '/content/data/D_FOOTBALL_STANDINGS?amount=0', true);
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState !== 4) { return; }
+                        
+                        if (xhr.status !== 200 && xhr.status !== 0) {
+                            console.error('[placar_futebol] ERRO: HTTP ' + xhr.status + ' ao buscar D_FOOTBALL_STANDINGS');
                             loader.finished();
                             return;
                         }
+                        
+                        try {
+                            var parser = new DOMParser();
+                            var xmlDoc = parser.parseFromString(xhr.responseText, 'text/xml');
+                            var items = xmlDoc.getElementsByTagName('ITEM');
+                            
+                            if (items.length === 0) {
+                                console.error('[placar_futebol] ERRO: Sem dados D_FOOTBALL_STANDINGS');
+                                loader.finished();
+                                return;
+                            }
+                            
+                            console.log('[placar_futebol] D_FOOTBALL_STANDINGS retornou ' + items.length + ' ITEMs');
+                            
+                            // TODO: Implementar renderização de standings
+                            // Por enquanto, apenas loga e finaliza
+                            console.warn('[placar_futebol] Renderização de standings ainda não implementada');
+                            loader.finished();
+                            
+                        } catch (e) {
+                            console.error('[placar_futebol] ERRO ao processar D_FOOTBALL_STANDINGS:', e);
+                            loader.finished();
+                        }
+                    };
+                    
+                    xhr.onerror = function() {
+                        console.error('[placar_futebol] ERRO de rede ao buscar D_FOOTBALL_STANDINGS');
+                        loader.finished();
+                    };
+                    
+                    xhr.send();
+                });
+                
+            } else {
+                // Fluxo normal: TITLE contém ID do jogo
+                console.log('[placar_futebol] TITLE=' + partidaId + ' — consultando D_FOOTBALL');
+                
+                // Segunda fase: buscar D_FOOTBALL_TEAMS (todos os times) e D_FOOTBALL (jogo específico)
+                buscarTodosOsTimesDeUmaVez(function(teamsMap) {
+                    
+                    // Terceira fase: D_FOOTBALL filtrado pelo ID da partida
+                    ebhtml.create2({}, function(loader2) {
+                        loader2.addData('D_FOOTBALL', false, 'F_TITULO=' + partidaId);
+                        loader2.autoloaded = false;
+                        loader2.nodataiserror = false;
 
-                        console.log('[placar_futebol] D_FOOTBALL TEXTO:', obterValor(footballData, 'TEXTO'));
+                        loader2.load(function() {
+                            var footballData = loader2.data('D_FOOTBALL');
 
-                        aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
-                        processarDados(spdData, spdSponsor, footballData, loader, teamsMap);
+                            if (!footballData) {
+                                console.log('[placar_futebol] D_FOOTBALL sem dados para ID=' + partidaId);
+                                loader.finished();
+                                return;
+                            }
+
+                            console.log('[placar_futebol] D_FOOTBALL TEXTO:', obterValor(footballData, 'TEXTO'));
+
+                            aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
+                            processarDados(spdData, spdSponsor, footballData, loader, teamsMap);
+                        });
                     });
                 });
-            });
+            }
         });
     });
 }

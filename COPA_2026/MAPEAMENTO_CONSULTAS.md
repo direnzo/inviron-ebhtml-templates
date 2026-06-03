@@ -40,10 +40,11 @@ Documento de referência para entender como cada template consulta os canais de 
   - `FOTO1` = URL da bandeira
   - `TEXTO3` = Código do time (ex: BRA)
 
-#### 1.3. D_FOOTBALL
+#### 1.3. D_FOOTBALL (condicional)
 - **Método**: `loader.addData('D_FOOTBALL', false, 'F_TITULO=' + partidaId)`
 - **Filtro**: `F_TITULO={partidaId}` (jogo específico)
 - **Valor do filtro**: Obtido de `D_SPD.TITLE` (TYPE=10)
+- **Condição**: Usado quando `D_SPD.TITLE` contém um ID numérico
 - **Campos utilizados**:
   - `TITULO` = Fixture ID
   - `TEXTO2` = JSON completo da API-Football
@@ -51,6 +52,16 @@ Documento de referência para entender como cada template consulta os canais de 
   - `SUBTITULO2` = Rodada
   - `CATEGORY` = Nome do torneio
   - `DATE` = Data/hora da partida
+
+#### 1.4. D_FOOTBALL_STANDINGS (condicional)
+- **Método**: XMLHttpRequest
+- **URL**: `/content/data/D_FOOTBALL_STANDINGS?amount=0`
+- **Filtro**: `amount=0` (busca TODOS os registros)
+- **Condição**: Usado quando `D_SPD.TITLE === "standings"` ✅
+- **Objetivo**: Obter classificação dos grupos
+- **Campos utilizados**:
+  - `TEXTO2` = JSON array com classificação
+- **Status**: ✅ Lógica de consulta implementada (renderização pendente)
 
 ---
 
@@ -187,7 +198,7 @@ Documento de referência para entender como cada template consulta os canais de 
 2. **Quando TITLE = "standings"**:
    - Indica que deve consultar dados de classificação
    - Deve buscar `D_FOOTBALL_STANDINGS`
-   - **IMPORTANTE**: Este caso ainda não está implementado nos templates atuais
+   - **Status**: ✅ Implementado no `placar_futebol` (renderização pendente)
 
 ### Sobre o uso de XMLHttpRequest:
 
@@ -196,17 +207,13 @@ Todos os templates usam XMLHttpRequest para buscar canais secundários porque:
 - XMLHttpRequest permite usar `amount=0` diretamente na URL
 - Necessário para carregar TODOS os times, jogos e classificações
 
-### Problema identificado:
-
-**CRITICAL**: Nenhum template atualmente verifica se `D_SPD.TITLE === "standings"` para decidir entre `D_FOOTBALL` ou `D_FOOTBALL_STANDINGS`. Esta lógica precisa ser implementada.
-
 ---
 
 ## Resumo Rápido
 
 | Template | D_SPD | D_FOOTBALL | D_FOOTBALL_TEAMS | D_FOOTBALL_STANDINGS |
 |----------|-------|------------|------------------|----------------------|
-| **placar_futebol** | amount=0<br>CONFIG=1 + TYPE=10 | Filtrado<br>F_TITULO={ID} | XMLHttpRequest<br>amount=0 | ❌ Não usa |
+| **placar_futebol** | amount=0<br>CONFIG=1 + TYPE=10 | Condicional<br>F_TITULO={ID} | XMLHttpRequest<br>amount=0 | ✅ Condicional<br>quando TITLE="standings" |
 | **tabela_futebol** | amount=0<br>CONFIG=1 | XMLHttpRequest<br>amount=0 | XMLHttpRequest<br>amount=0 | XMLHttpRequest<br>amount=0 |
 | **caminhos_futebol** | amount=0<br>CONFIG=1 | Sem filtro<br>TEXTO3 (JSON) | XMLHttpRequest<br>amount=0 | ❌ Não usa |
 | **segundafase_futebol** | amount=0<br>CONFIG=1 | Sem filtro<br>TEXTO3 (JSON) | XMLHttpRequest<br>amount=0 | ❌ Não usa |
