@@ -38,16 +38,18 @@ Documento de referência para entender como cada template consulta os canais de 
   - `TEXT6` = Gols visitante
   - `TEXT9` = Tempo decorrido
 
-#### 1.3. D_FOOTBALL_TEAMS (Todos os times - OPCIONAL)
-- **Método**: `loader.addData('D_FOOTBALL_TEAMS', false, 'amount=0')`
-- **Filtro**: `amount=0` (busca TODOS os times - necessário para lookup)
-- **Objetivo**: Mapear ID do time → nome PT-BR + bandeira
-- **Observação**: **OPCIONAL para placar_futebol** - o JSON do `D_FOOTBALL.TEXTO2` já contém nomes e logos dos times. Usar apenas se preferir nomes traduzidos em PT-BR do canal.
+#### 1.3. D_FOOTBALL_TEAMS (Dados dos times - OBRIGATÓRIO)
+- **Método**: `loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + teamId)`
+- **Filtro**: `f_titulo={teamId}` (time específico por ID)
+- **Objetivo**: Obter dados corretos do time (bandeira, nome traduzido, abreviação)
+- **Exemplo**: `D_FOOTBALL_TEAMS?f_titulo=6` (Brasil)
+- **Importante**: **NÃO usar `amount=0`** - consultar cada time individualmente com seu ID
 - **Campos utilizados**:
-  - `TITULO` = ID do time (API-Football)
-  - `TEXTO2` = Nome em PT-BR
-  - `FOTO1` = URL da bandeira
-  - `TEXTO3` = Código do time (ex: BRA)
+  - `FOTO` = Bandeira do time (PNG/SVG)
+  - `TEXTO2` = Nome traduzido em PT-BR
+  - `TEXTO3` = Nome abreviado (3 letras, ex: BRA)
+  - `TITULO` = ID do time (mesmo do filtro)
+- **Fluxo**: Após obter IDs dos times do `D_FOOTBALL.TEXTO2` (JSON), consultar `D_FOOTBALL_TEAMS` para cada time (casa e visitante)
 
 #### 1.4. D_FOOTBALL (condicional - quando TITLE ≠ "STANDINGS")
 - **Método**: `loader.addData('D_FOOTBALL', false, 'f_titulo=' + partidaId)`
@@ -161,11 +163,15 @@ Documento de referência para entender como cada template consulta os canais de 
     ]
     ```
 
-#### 2.3. D_FOOTBALL_TEAMS
-- **Método**: `loader.addData('D_FOOTBALL_TEAMS', false, 'amount=0')`
-- **Filtro**: `amount=0` (busca TODOS os times - necessário para lookup)
-- **Objetivo**: Mapear ID do time → nome PT-BR + bandeira
-- **Campos utilizados**: Mesmos do placar_futebol
+#### 2.3. D_FOOTBALL_TEAMS (OBRIGATÓRIO)
+- **Método**: `loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + teamId)`
+- **Filtro**: `f_titulo={teamId}` (time específico por ID)
+- **Objetivo**: Obter bandeira, nome traduzido e abreviação corretos
+- **Exemplo**: `D_FOOTBALL_TEAMS?f_titulo=6`
+- **Campos utilizados**:
+  - `FOTO` = Bandeira do time
+  - `TEXTO2` = Nome traduzido PT-BR
+  - `TEXTO3` = Nome abreviado (3 letras)
 
 #### 2.4. D_FOOTBALL (Próximos jogos)
 - **Método**: `loader.addData('D_FOOTBALL', false)` ou com filtro específico
@@ -212,11 +218,15 @@ Documento de referência para entender como cada template consulta os canais de 
 - **Objetivo**: Obter configurações de intro/sponsor
 - **Campos utilizados**: Mesmos do placar_futebol
 
-#### 3.3. D_FOOTBALL_TEAMS
-- **Método**: `loader.addData('D_FOOTBALL_TEAMS', false, 'amount=0')`
-- **Filtro**: `amount=0` (busca TODOS os times - necessário para lookup)
-- **Objetivo**: **OBRIGATÓRIO** - Traduzir IDs dos times (TITULO/TITULO2) para nomes PT-BR + bandeiras
-- **Campos utilizados**: Mesmos do placar_futebol
+#### 3.3. D_FOOTBALL_TEAMS (OBRIGATÓRIO)
+- **Método**: `loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + teamId)`
+- **Filtro**: `f_titulo={teamId}` (time específico por ID)
+- **Objetivo**: Traduzir IDs dos times (TITULO/TITULO2) do bracket para dados corretos
+- **Exemplo**: `D_FOOTBALL_TEAMS?f_titulo=6`
+- **Campos utilizados**:
+  - `FOTO` = Bandeira do time
+  - `TEXTO2` = Nome traduzido PT-BR
+  - `TEXTO3` = Nome abreviado (3 letras)
 
 ---
 
@@ -237,11 +247,15 @@ Documento de referência para entender como cada template consulta os canais de 
 - **Objetivo**: Obter configurações de intro/sponsor
 - **Campos utilizados**: Mesmos do placar_futebol
 
-#### 4.3. D_FOOTBALL_TEAMS
-- **Método**: `loader.addData('D_FOOTBALL_TEAMS', false, 'amount=0')`
-- **Filtro**: `amount=0` (busca TODOS os times - necessário para lookup)
-- **Objetivo**: **OBRIGATÓRIO** - Traduzir IDs dos times para nomes PT-BR + bandeiras
-- **Campos utilizados**: Mesmos do placar_futebol
+#### 4.3. D_FOOTBALL_TEAMS (OBRIGATÓRIO)
+- **Método**: `loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + teamId)`
+- **Filtro**: `f_titulo={teamId}` (time específico por ID)
+- **Objetivo**: Traduzir IDs dos times para dados corretos (bandeira, nome, abreviação)
+- **Exemplo**: `D_FOOTBALL_TEAMS?f_titulo=6`
+- **Campos utilizados**:
+  - `FOTO` = Bandeira do time
+  - `TEXTO2` = Nome traduzido PT-BR
+  - `TEXTO3` = Nome abreviado (3 letras)
 
 ---
 
@@ -253,8 +267,8 @@ Documento de referência para entender como cada template consulta os canais de 
 ```javascript
 // ✅ CORRETO
 loader.addData('D_SPD', false, 'f_config=1');
-loader.addData('D_FOOTBALL', false, 'f_titulo=1234567');
-loader.addData('D_FOOTBALL_TEAMS', false, 'amount=0');
+loader.addData('D_FOOTBALL', false, 'f_titulo=1489371');
+loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=6'); // ID do time
 
 // ❌ ERRADO
 var xhr = new XMLHttpRequest();
@@ -266,14 +280,18 @@ xhr.open('GET', '/content/data/D_FOOTBALL_TEAMS?amount=0', true);
 #### Filtros específicos (preferencial):
 - `f_config=1` → Busca apenas projeto especial (CONFIG=1)
 - `f_config=0` → Busca apenas confrontos (CONFIG=0)
-- `f_titulo={ID}` → Busca jogo específico por ID
+- `f_titulo={ID}` → Busca registro específico por ID
+  - Para `D_FOOTBALL`: ID da partida (ex: `f_titulo=1489371`)
+  - Para `D_FOOTBALL_TEAMS`: ID do time (ex: `f_titulo=6`)
 - `f_tipo=10` → Busca apenas TYPE=10 (se necessário)
 
 #### `amount=0` (usar apenas quando necessário):
-- ✅ `D_FOOTBALL_TEAMS` → necessário para lookup completo de todos os times
+- ❌ **D_FOOTBALL_TEAMS** → **NUNCA usar** - sempre filtrar por ID (`f_titulo={teamId}`)
 - ⚠️ `D_FOOTBALL_STANDINGS` → evitar; sem filtro já rotaciona grupos automaticamente
 - ⚠️ `D_FOOTBALL` → evitar; usar filtros específicos (`f_titulo={ID}`)
 - ⚠️ `D_SPD` → evitar; usar `f_config=1` ou `f_config=0` (rotação automática)
+
+**Resumo**: `amount=0` raramente é necessário. Priorize filtros específicos.
 
 ### 3. Campo TITLE do D_SPD (f_config=0)
 
@@ -316,27 +334,52 @@ Para templates que exibem confrontos/classificação:
 
 1. **D_SPD** (`f_config=1`) → Patrocinador/cores
 2. **D_SPD** (`f_config=0`) → Confronto/classificação atual (rotação automática)
-3. **D_FOOTBALL_TEAMS** (`amount=0`) → Lookup de times (opcional, se precisar nomes PT-BR)
-4. **Condicional**:
+3. **Condicional**:
    - Se `TITLE = "STANDINGS"` → **D_FOOTBALL_STANDINGS**
    - Se `TITLE = ID` → **D_FOOTBALL** (`f_titulo={ID}`)
+4. **D_FOOTBALL_TEAMS** (`f_titulo={teamId}`) → **OBRIGATÓRIO** para cada time do confronto
 
-**Exemplo de processamento do JSON:**
+**Exemplo de processamento completo:**
 ```javascript
-// Após carregar D_FOOTBALL
+// 1. Carregar D_FOOTBALL
 var footballData = loader.data('D_FOOTBALL');
 var jsonStr = obterValor(footballData, 'TEXTO2');
 var apiData = JSON.parse(jsonStr);
-
-// Acessar dados do confronto
 var fixture = apiData.response[0];
-var homeTeam = fixture.teams.home;    // { id: 6, name: "Brazil", logo: "..." }
-var awayTeam = fixture.teams.away;    // { id: 31, name: "Morocco", logo: "..." }
-var goalsHome = fixture.goals.home;    // null (jogo não iniciado) ou número
-var goalsAway = fixture.goals.away;
-var status = fixture.fixture.status.short; // "NS", "1H", "HT", "2H", "FT", etc
-var venue = fixture.fixture.venue.name;    // "MetLife Stadium"
-var round = fixture.league.round;          // "Group Stage - 1"
+
+// 2. Extrair IDs dos times
+var homeTeamId = fixture.teams.home.id;    // ex: 6 (Brasil)
+var awayTeamId = fixture.teams.away.id;    // ex: 31 (Marrocos)
+
+// 3. Consultar D_FOOTBALL_TEAMS para time da casa
+ebhtml.create2({}, function(loaderHome) {
+    loaderHome.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + homeTeamId);
+    loaderHome.load(function() {
+        var homeTeamData = loaderHome.data('D_FOOTBALL_TEAMS');
+        var homeBandeira = obterValor(homeTeamData, 'FOTO');
+        var homeNome = obterValor(homeTeamData, 'TEXTO2');
+        var homeAbrev = obterValor(homeTeamData, 'TEXTO3');
+        
+        // 4. Consultar D_FOOTBALL_TEAMS para time visitante
+        ebhtml.create2({}, function(loaderAway) {
+            loaderAway.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + awayTeamId);
+            loaderAway.load(function() {
+                var awayTeamData = loaderAway.data('D_FOOTBALL_TEAMS');
+                var awayBandeira = obterValor(awayTeamData, 'FOTO');
+                var awayNome = obterValor(awayTeamData, 'TEXTO2');
+                var awayAbrev = obterValor(awayTeamData, 'TEXTO3');
+                
+                // 5. Renderizar com dados completos
+                renderizarPlacar({
+                    casa: { nome: homeNome, bandeira: homeBandeira, abrev: homeAbrev },
+                    visitante: { nome: awayNome, bandeira: awayBandeira, abrev: awayAbrev },
+                    gols: { casa: fixture.goals.home, visitante: fixture.goals.away },
+                    status: fixture.fixture.status.short
+                });
+            });
+        });
+    });
+});
 ```
 
 ### 5. Rotação Automática pelo Loader
@@ -367,10 +410,10 @@ localStorage.setItem('idx', idx + 1);
 
 | Template | D_SPD Config=1 | D_SPD Config=0 | D_FOOTBALL | D_FOOTBALL_TEAMS | D_FOOTBALL_STANDINGS |
 |----------|----------------|----------------|------------|------------------|----------------------|
-| **placar_futebol** | `f_config=1`<br>Sponsor | `f_config=0`<br>Confronto atual | Condicional<br>`f_titulo={ID}`<br>JSON em TEXTO2 | Opcional<br>`amount=0`<br>Nomes PT-BR | Condicional<br>se TITLE="STANDINGS" |
-| **tabela_futebol** | `f_config=1`<br>Sponsor | ❌ | Sem filtro<br>Próximos jogos | `amount=0`<br>Lookup obrigatório | Sem filtro<br>Grupo atual |
-| **caminhos_futebol** | `f_config=1`<br>Sponsor | ❌ | Sem filtro<br>TEXTO3 (JSON) | `amount=0`<br>Lookup obrigatório | ❌ |
-| **segundafase_futebol** | `f_config=1`<br>Sponsor | ❌ | Sem filtro<br>TEXTO3 (JSON) | `amount=0`<br>Lookup obrigatório | ❌ |
+| **placar_futebol** | `f_config=1`<br>Sponsor | `f_config=0`<br>Confronto atual | Condicional<br>`f_titulo={ID}`<br>JSON em TEXTO2 | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | Condicional<br>se TITLE="STANDINGS" |
+| **tabela_futebol** | `f_config=1`<br>Sponsor | ❌ | Sem filtro<br>Próximos jogos | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | Sem filtro<br>Grupo atual |
+| **caminhos_futebol** | `f_config=1`<br>Sponsor | ❌ | Sem filtro<br>TEXTO3 (JSON) | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | ❌ |
+| **segundafase_futebol** | `f_config=1`<br>Sponsor | ❌ | Sem filtro<br>TEXTO3 (JSON) | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | ❌ |
 
 ---
 
