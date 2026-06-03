@@ -5,6 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Placar Futebol</title>
+    
+    <!-- 
+      ⚙️ CONFIGURAÇÃO DO PROJETO ESPECIAL:
+      Alterar o valor de SPECIAL_PROJECT_ID em js/master.js (linha ~221)
+      para corresponder ao ID do cliente no EdgeContents CMS
+      
+      Opções:
+      1. FILTRO ESPECÍFICO: SPECIAL_PROJECT_ID = '17'
+         → Busca apenas o projeto com ID 17 (f_specialproject=17)
+         → Use quando quiser exibir apenas UM projeto específico
+      
+      2. SEM FILTRO: SPECIAL_PROJECT_ID = ''
+         → Busca qualquer projeto (rotação livre entre múltiplos projetos)
+         → Use quando quiser rotacionar entre vários projetos
+      
+      IMPORTANTE: O valor real do SPECIALPROJECT é extraído do XML
+      retornado e usado para identificar qual projeto está ativo.
+    -->
+    
     <link rel="stylesheet" href="css/master.css">
     <!-- <script src="js/mock-data.js"></script> -->
     <script src="js/ebhtml.js"></script>
@@ -24,7 +43,7 @@
 
 <body class="relative w-full h-screen overflow-hidden
              bg-green-950
-             text-[3.2vmin]
+             text-[4.2vmin]
              superbanner:text-[5vmin]
              empena:text-[11vmin]">
 
@@ -41,7 +60,7 @@
         <!-- ════════════════════════════════════
              HEADER: Torneio · Rodada
              ════════════════════════════════════ -->
-        <header class="flex-none flex items-center justify-center gap-[1.5%]
+        <header class="flex-none flex flex-wrap items-center justify-center gap-[1.5%]
                         py-[1.5%] px-[5%]
                         ultrawide:py-[1vh]
                         superbanner:py-[0.8vh]
@@ -73,7 +92,7 @@
                              w-full text-center leading-tight"></span>
 
                     <div id="logo1Container" class="relative flex-shrink-0 w-full h-[46vh] portrait:h-[20vh] portrait:w-[20vh] portrait:flex-none">
-                        <div id="logo1Clip" class="flex items-center justify-center landscape:size-full">
+                        <div id="logo1Clip" class="flex items-center justify-center landscape:size-full drop-shadow-lg">
                             <img id="logo1" src="" alt="" class="w-full h-full object-contain">
                         </div>
                         <!-- <svg class="hexagon-border absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -132,7 +151,7 @@
                              w-full text-center leading-tight"></span>
 
                     <div id="logo2Container" class="relative flex-shrink-0 w-full h-[46vh] portrait:h-[20vh] portrait:w-[20vh] portrait:flex-none">
-                        <div id="logo2Clip" class="flex items-center justify-center landscape:size-full">
+                        <div id="logo2Clip" class="flex items-center justify-center landscape:size-full drop-shadow-lg">
                             <img id="logo2" src="" alt="" class="w-full h-full object-contain">
                         </div>
                         <!-- <svg class="hexagon-border absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">

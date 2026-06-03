@@ -11,7 +11,10 @@ Documento de referência para entender como cada template consulta os canais de 
 ### Origem dos dados principais:
 
 1. **Dados dos jogos**: `D_SPD?f_config=0&f_type=10`
-2. **Configurações visuais**: `D_SPD?f_config=1&f_specialproject=spdata<SPECIALPROJECT>`
+2. **Configurações visuais**: `D_SPD?f_config=1&f_specialproject={ID}`
+   - **Exemplo**: `D_SPD?f_config=1&f_specialproject=17` (busca projeto ID 17)
+   - **Sem filtro**: `D_SPD?f_config=1` (busca qualquer projeto, rotação livre)
+   - **⚠️ IMPORTANTE**: Filtro usa **apenas o ID** (ex: `17`), **SEM prefixo** `spdata`
 
 ### Fluxo de decisão principal:
 
@@ -28,6 +31,7 @@ if (spdata.TITLE === 'STANDINGS') {
 
 | Campo Backend | Canal/Campo | Descrição |
 |---------------|-------------|-----------|
+| `specialProject` | `config<SPECIALPROJECT>` | **ID do projeto** (ex: "17") - **DINÂMICO** |
 | `corPrimaria` | `config<COLOR1>` | Cor primária do projeto |
 | `corSecundaria` | `config<COLOR2>` | Cor secundária |
 | `corTexto` | `config<COLOR3>` | Cor do texto |
@@ -36,6 +40,8 @@ if (spdata.TITLE === 'STANDINGS') {
 | `vinheta` | `config<FILE_IMAGE1>` | Vídeo/imagem de intro |
 | `duracaoVinheta` | `config<TEXT2>` | Duração em segundos |
 
+**IMPORTANTE**: O campo `SPECIALPROJECT` é **extraído do XML retornado** e identifica qual projeto está ativo. Se houver rotação entre projetos, esse valor muda automaticamente.
+
 ---
 
 ## 1. PLACAR_FUTEBOL (Placar Ao Vivo)
@@ -43,17 +49,38 @@ if (spdata.TITLE === 'STANDINGS') {
 ### Ordem de consultas:
 
 #### 1.1. D_SPD (Patrocinador)
-- **Método**: `loader.addData('D_SPD', false, 'f_config=1&f_specialproject=spdata' + specialProjectId)`
-- **Filtro**: `f_config=1&f_specialproject=spdata{SPECIALPROJECT}` (projeto especial específico)
-- **Objetivo**: Obter configurações de intro/sponsor
+- **Método**: `loader.addData('D_SPD', false, 'f_config=1&f_specialproject=' + specialProjectId)` OU `loader.addData('D_SPD', false, 'f_config=1')` (sem filtro)
+- **Filtro**: 
+  - **Com filtro específico**: `f_config=1&f_specialproject={ID}` → busca apenas um projeto (ex: `f_specialproject=17`)
+  - **Sem filtro**: `f_config=1` → busca qualquer projeto (rotação livre)
+- **Objetivo**: Obter configurações de intro/sponsor do projeto ativo
+- **⚠️ IMPORTANTE - Campo SPECIALPROJECT é dinâmico**:
+  - O XML retornado contém `<SPECIALPROJECT>{ID}</SPECIALPROJECT>` com o valor do projeto ativo
+  - Este valor deve ser **extraído e usado** para identificar qual projeto está sendo exibido
+  - Se o loader rotacionar e trouxer outro SPECIALPROJECT, toda a cadeia de dados muda (cores, logo, intro, etc.)
+  - **Fluxo correto**:
+    1. Consultar D_SPD config=1 (com ou sem filtro)
+    2. Extrair `SPECIALPROJECT` do XML retornado: `obterValor(spdSponsor, 'SPECIALPROJECT')`
+    3. Usar esse valor para logs e validação
+    4. Se houver rotação, o próximo reload pode trazer outro SPECIALPROJECT
+- **⚠️ CRÍTICO**: Estes campos são **OPCIONAIS mas importantes** para a exibição do patrocinador:
+  - Se `FILE_IMAGE1` existir → exibe vídeo/imagem de intro (vinheta) antes do placar
+  - Se `IMAGE_LOGO` e/ou `TEXT1` existirem → exibe rodapé com logo e frase do sponsor
+  - Se `TEXT2` existir → duração da vinheta (em segundos, usado para cortar vídeo)
+  - Se `COLOR1/2/3` existirem → customiza cores do template
 - **Campos utilizados**:
-  - `COLOR1` = Cor primária do projeto
-  - `COLOR2` = Cor secundária
-  - `COLOR3` = Cor do texto
-  - `TEXT1` = Título/frase sponsor
-  - `TEXT2` = Duração da vinheta (segundos)
-  - `FILE_IMAGE1` = Vídeo/imagem de intro (vinheta)
-  - `IMAGE_LOGO` = Logo do sponsor
+  - `SPECIALPROJECT` = ID do projeto (ex: "17") - **CRÍTICO para identificação**
+  - `COLOR1` = Cor primária do projeto (opcional)
+  - `COLOR2` = Cor secundária (opcional)
+  - `COLOR3` = Cor do texto (opcional)
+  - `TEXT1` = Título/frase sponsor (opcional - exibe no rodapé se presente)
+  - `TEXT2` = Duração da vinheta em segundos (opcional - corta vídeo no tempo especificado)
+  - `FILE_IMAGE1` = Vídeo/imagem de intro - vinheta (opcional - se presente, exibe antes do placar)
+  - `IMAGE_LOGO` = Logo do sponsor (opcional - exibe no rodapé se presente)
+- **Comportamento**:
+  - Se **todos os campos vazios ou query sem resultados** → template exibe SEM patrocinador (10s duração)
+  - Se **FILE_IMAGE1 presente** → exibe intro + placar (duração: TEXT2 + 5s fixos)
+  - Se **IMAGE_LOGO ou TEXT1 presentes** → exibe rodapé com patrocinador
 
 #### 1.2. D_SPD (Confrontos)
 - **Método**: `loader.addData('D_SPD', false, 'f_config=0&f_type=10')`
@@ -186,8 +213,8 @@ if (spdata.TITLE === 'STANDINGS') {
 ### Ordem de consultas:
 
 #### 2.1. D_SPD (Patrocinador)
-- **Método**: `loader.addData('D_SPD', false, 'f_config=1&f_specialproject=spdata' + specialProjectId)`
-- **Filtro**: `f_config=1&f_specialproject=spdata{SPECIALPROJECT}`
+- **Método**: `loader.addData('D_SPD', false, 'f_config=1&f_specialproject=' + specialProjectId)`
+- **Filtro**: `f_config=1&f_specialproject={ID}` (ex: `f_specialproject=17`)
 - **Objetivo**: Obter configurações de intro/sponsor
 - **Campos utilizados**: Mesmos do placar_futebol (COLOR1/2/3, TEXT1/2, FILE_IMAGE1, IMAGE_LOGO)
 
@@ -253,8 +280,8 @@ if (spdata.TITLE === 'STANDINGS') {
   ```
 
 #### 3.2. D_SPD (Patrocinador)
-- **Método**: `loader.addData('D_SPD', false, 'f_config=1&f_specialproject=spdata' + specialProjectId)`
-- **Filtro**: `f_config=1&f_specialproject=spdata{SPECIALPROJECT}`
+- **Método**: `loader.addData('D_SPD', false, 'f_config=1&f_specialproject=' + specialProjectId)`
+- **Filtro**: `f_config=1&f_specialproject={ID}` (ex: `f_specialproject=17`)
 - **Objetivo**: Obter configurações de intro/sponsor
 - **Campos utilizados**: Mesmos do placar_futebol (COLOR1/2/3, TEXT1/2, FILE_IMAGE1, IMAGE_LOGO)
 
@@ -283,8 +310,8 @@ if (spdata.TITLE === 'STANDINGS') {
 - **Observação**: Rotação de chaves feita por lógica interna do template
 
 #### 4.2. D_SPD (Patrocinador)
-- **Método**: `loader.addData('D_SPD', false, 'f_config=1&f_specialproject=spdata' + specialProjectId)`
-- **Filtro**: `f_config=1&f_specialproject=spdata{SPECIALPROJECT}`
+- **Método**: `loader.addData('D_SPD', false, 'f_config=1&f_specialproject=' + specialProjectId)`
+- **Filtro**: `f_config=1&f_specialproject={ID}` (ex: `f_specialproject=17`)
 - **Objetivo**: Obter configurações de intro/sponsor
 - **Campos utilizados**: Mesmos do placar_futebol (COLOR1/2/3, TEXT1/2, FILE_IMAGE1, IMAGE_LOGO)
 
@@ -308,7 +335,7 @@ if (spdata.TITLE === 'STANDINGS') {
 **SEMPRE use `loader.addData()`** - nunca XMLHttpRequest direto:
 ```javascript
 // ✅ CORRETO - Especificação oficial
-loader.addData('D_SPD', false, 'f_config=1&f_specialproject=spdataXXX');
+loader.addData('D_SPD', false, 'f_config=1&f_specialproject=17');
 loader.addData('D_SPD', false, 'f_config=0&f_type=10');
 loader.addData('D_FOOTBALL', false, 'f_titulo=1489371');
 loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=6');
@@ -326,12 +353,14 @@ loader.addData('D_SPD', false, 'f_config=0'); // falta f_type=10
 ### 2. Uso de Filtros
 
 #### Filtros específicos (preferencial):
-- `f_config=1&f_specialproject=spdata{ID}` → Busca projeto especial específico
+- `f_config=1&f_specialproject={ID}` → Busca projeto especial específico (ex: `f_specialproject=17`)
 - `f_config=0&f_type=10` → Busca apenas confrontos (TYPE=10)
 - `f_titulo={ID}` → Busca registro específico por ID
   - Para `D_FOOTBALL`: ID da partida (ex: `f_titulo=1489371`)
   - Para `D_FOOTBALL_TEAMS`: ID do time (ex: `f_titulo=6`)
 - `f_tipo=10` → Busca apenas TYPE=10 (obsoleto, usar `f_type`)
+
+**⚠️ IMPORTANTE**: O filtro `f_specialproject` usa **apenas o ID numérico** (ex: `17`), **NÃO use prefixo** `spdata` (ex: `spdata17`).
 
 #### `amount=0` (casos específicos):
 - ✅ **D_FOOTBALL_STANDINGS** → **RECOMENDADO** - busca todos os grupos para rotação automática
@@ -391,9 +420,9 @@ var standings = loader.data('D_FOOTBALL_STANDINGS');
 // Nota: amount=0 já configurado no addData(), loader retorna próximo grupo automaticamente
 
 // 3b. Extrair dados
-var liga = standings.CATEGORY;
-var nomeGrupo = standings.TEXTO3; // Ex: "Group A", "Group B", etc.
-var grupoJson = JSON.parse(standings.TEXTO2);
+var liga = obterValor(standings, 'CATEGORY');
+var nomeGrupo = obterValor(standings, 'TEXTO3'); // Ex: "Group A", "Group B", etc.
+var grupoJson = JSON.parse(obterValor(standings, 'TEXTO2'));
 
 // 3c. Para cada time no grupo
 for (var i = 0; i < grupoJson.length; i++) {
@@ -401,23 +430,23 @@ for (var i = 0; i < grupoJson.length; i++) {
     
     // 4. Consultar D_FOOTBALL_TEAMS
     var time = loader.data('D_FOOTBALL_TEAMS', false, 'f_titulo=' + teamId);
-    var timeNome = time.TEXTO2;
-    var timeAbreviacao = time.TEXTO3;
-    var timeEscudo = time.FOTO;
+    var timeNome = obterValor(time, 'TEXTO2');
+    var timeAbreviacao = obterValor(time, 'TEXTO3');
+    var timeEscudo = obterValor(time, 'FOTO');
 }
 ```
 
 **Se `TITLE !== "STANDINGS"` (Fluxo de Partida):**
 ```javascript
 // 3a. Consultar partida usando D_SPD.TITLE
-var partida = loader.data('D_FOOTBALL', false, 'f_titulo=' + spdata.TITLE);
+var partida = loader.data('D_FOOTBALL', false, 'f_titulo=' + obterValor(spdata, 'TITLE'));
 
 // 3b. Extrair campos gerais
-var data = partida.DATE;
-var liga = partida.CATEGORY;
-var rodada = partida.TEXTO4;
-var status = partida.TEXTO5;
-var partidaJson = JSON.parse(partida.TEXTO2);
+var data = obterValor(partida, 'DATE');
+var liga = obterValor(partida, 'CATEGORY');
+var rodada = obterValor(partida, 'TEXTO4');
+var status = obterValor(partida, 'TEXTO5');
+var partidaJson = JSON.parse(obterValor(partida, 'TEXTO2'));
 
 // 3c. Extrair IDs dos times
 var homeTeamId = partidaJson.response[0].teams.home.id;
@@ -425,15 +454,15 @@ var awayTeamId = partidaJson.response[0].teams.away.id;
 
 // 4a. Consultar time da casa
 var time1 = loader.data('D_FOOTBALL_TEAMS', false, 'f_titulo=' + homeTeamId);
-var time1Nome = time1.TEXTO2;
-var time1Abreviacao = time1.TEXTO3;
-var time1Escudo = time1.FOTO;
+var time1Nome = obterValor(time1, 'TEXTO2');
+var time1Abreviacao = obterValor(time1, 'TEXTO3');
+var time1Escudo = obterValor(time1, 'FOTO');
 
 // 4b. Consultar time visitante
 var time2 = loader.data('D_FOOTBALL_TEAMS', false, 'f_titulo=' + awayTeamId);
-var time2Nome = time2.TEXTO2;
-var time2Abreviacao = time2.TEXTO3;
-var time2Escudo = time2.FOTO;
+var time2Nome = obterValor(time2, 'TEXTO2');
+var time2Abreviacao = obterValor(time2, 'TEXTO3');
+var time2Escudo = obterValor(time2, 'FOTO');
 
 // 5. Extrair placar e status avançado
 var gols1 = partidaJson.response[0].goals.home;
@@ -443,6 +472,21 @@ var penaltis2 = partidaJson.response[0].score.penalties.away;
 var tempoPartida = partidaJson.response[0].fixture.status.elapsed;
 var tempoExtra = partidaJson.response[0].fixture.status.extra;
 var estadio = partidaJson.response[0].fixture.venue.name;
+```
+
+**Extrair SPECIALPROJECT (para identificação do projeto ativo):**
+```javascript
+// Após consultar D_SPD config=1
+var spdSponsor = loader.data('D_SPD');
+if (spdSponsor) {
+    var specialProjectAtivo = obterValor(spdSponsor, 'SPECIALPROJECT');
+    console.log('Projeto ativo: ' + specialProjectAtivo);
+    
+    // Validar se corresponde ao esperado (opcional)
+    if (specialProjectAtivo !== SPECIAL_PROJECT_ID_ESPERADO) {
+        console.warn('Projeto diferente detectado!');
+    }
+}
 ```
 
 ### 5. Rotação Automática pelo Loader
@@ -473,29 +517,242 @@ localStorage.setItem('idx', idx + 1);
 
 | Template | D_SPD Config=1 | D_SPD Config=0 | D_FOOTBALL | D_FOOTBALL_TEAMS | D_FOOTBALL_STANDINGS |
 |----------|----------------|----------------|------------|------------------|----------------------|
-| **placar_futebol** | `f_config=1&`<br>`f_specialproject` | `f_config=0&`<br>`f_type=10` | Condicional<br>`f_titulo={ID}`<br>Campos: TEXTO2, TEXTO4, TEXTO5 | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | Condicional<br>se TITLE="STANDINGS"<br>`amount=0` (rotação) |
-| **tabela_futebol** | `f_config=1&`<br>`f_specialproject` | ❌ | Sem filtro<br>Próximos jogos | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | `amount=0`<br>Rotação automática |
-| **caminhos_futebol** | `f_config=1&`<br>`f_specialproject` | ❌ | Sem filtro<br>TEXTO3 (JSON) | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | ❌ |
-| **segundafase_futebol** | `f_config=1&`<br>`f_specialproject` | ❌ | Sem filtro<br>TEXTO3 (JSON) | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | ❌ |
+| **placar_futebol** | `f_config=1&`<br>`f_specialproject={ID}`<br>(ex: `17`) | `f_config=0&`<br>`f_type=10` | Condicional<br>`f_titulo={ID}`<br>Campos: TEXTO2, TEXTO4, TEXTO5 | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | Condicional<br>se TITLE="STANDINGS"<br>`amount=0` (rotação) |
+| **tabela_futebol** | `f_config=1&`<br>`f_specialproject={ID}`<br>(ex: `17`) | ❌ | Sem filtro<br>Próximos jogos | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | `amount=0`<br>Rotação automática |
+| **caminhos_futebol** | `f_config=1&`<br>`f_specialproject={ID}`<br>(ex: `17`) | ❌ | Sem filtro<br>TEXTO3 (JSON) | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | ❌ |
+| **segundafase_futebol** | `f_config=1&`<br>`f_specialproject={ID}`<br>(ex: `17`) | ❌ | Sem filtro<br>TEXTO3 (JSON) | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | ❌ |
+
+**Nota**: `{ID}` representa apenas o número (ex: `17`), **sem prefixo** `spdata`.
+
+---
+
+## 6. Sistema de Bandeiras SVG (IMPLEMENTADO)
+
+### 6.1. Problema com PNG (baixa qualidade)
+
+As bandeiras retornadas pela API-Football são **PNG de baixa resolução** (geralmente 50-100px). Em telas grandes de Digital Signage, ficam pixelizadas.
+
+### 6.2. Solução: SVG de Alta Qualidade
+
+**Diretório**: `img/flags/` (cada template)
+
+**Mapeamento**: 48 seleções da Copa 2026 → códigos de 2 letras (ISO) para SVG:
+
+```javascript
+// Função de mapeamento (em master.js)
+function mapearCodigoParaSVG(code) {
+    var map = {
+        // CONCACAF (16 times)
+        'USA': 'us', 'MEX': 'mx', 'CAN': 'ca', 'CRC': 'cr',
+        'JAM': 'jm', 'PAN': 'pa', 'HON': 'hn', 'SLV': 'sv',
+        'TRI': 'tt', 'CUW': 'cw', 'GUA': 'gt', 'HAI': 'ht',
+        'NCA': 'ni', 'SUR': 'sr', 'MTQ': 'mq', 'GUY': 'gy',
+        
+        // CONMEBOL (10 times)
+        'BRA': 'br', 'ARG': 'ar', 'URU': 'uy', 'COL': 'co',
+        'CHI': 'cl', 'ECU': 'ec', 'PAR': 'py', 'PER': 'pe',
+        'BOL': 'bo', 'VEN': 've',
+        
+        // UEFA (16 times)
+        'GER': 'de', 'FRA': 'fr', 'ENG': 'gb-eng', 'ESP': 'es',
+        'BEL': 'be', 'NED': 'nl', 'ITA': 'it', 'POR': 'pt',
+        'CRO': 'hr', 'SUI': 'ch', 'DEN': 'dk', 'POL': 'pl',
+        'AUT': 'at', 'SWE': 'se', 'UKR': 'ua', 'WAL': 'gb-wls',
+        
+        // CAF (4 times)
+        'SEN': 'sn', 'MOR': 'ma', 'TUN': 'tn', 'NGA': 'ng',
+        
+        // AFC (2 times)
+        'JPN': 'jp', 'KOR': 'kr'
+    };
+    
+    return map[code.toUpperCase()] || null;
+}
+```
+
+**Retorno com fallback:**
+```javascript
+function obterBandeiraSVG(teamCode, fallbackUrl) {
+    var svgCode = mapearCodigoParaSVG(teamCode);
+    
+    return {
+        bandeira: svgCode ? ('img/flags/' + svgCode + '.svg') : null,
+        bandeiraFallback: fallbackUrl  // PNG da API
+    };
+}
+```
+
+### 6.3. SVG Injection (WebKit Legacy Compatibility)
+
+**Problema**: `<img src="*.svg">` **não funciona** em WebKit legado (Android 7, Chrome 51-64)
+
+**Solução**: Carregar SVG via **XMLHttpRequest** e injetar inline no DOM
+
+```javascript
+// Função de injection (em master.js)
+function carregarSvgInline(containerEl, src, onSuccess, onError) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', src, true);
+    xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 400) {
+            var svgContent = xhr.responseText;
+            
+            // Injetar SVG no container
+            containerEl.innerHTML = svgContent;
+            
+            // Acessar elemento <svg> e ajustar propriedades
+            var svgEl = containerEl.querySelector('svg');
+            if (svgEl) {
+                svgEl.setAttribute('width', '100%');
+                svgEl.setAttribute('height', '100%');
+                svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+            }
+            
+            console.log('[placar_futebol] ✅ SVG injetado: ' + src);
+            if (onSuccess) { onSuccess(); }
+        } else {
+            console.error('[placar_futebol] Erro ao carregar SVG: ' + src);
+            if (onError) { onError(); }
+        }
+    };
+    xhr.onerror = function() {
+        console.error('[placar_futebol] Erro de rede ao carregar SVG: ' + src);
+        if (onError) { onError(); }
+    };
+    xhr.send();
+}
+```
+
+**Uso no carregamento de escudos:**
+```javascript
+function carregarEscudo(imgEl, wrapperEl, url, fallbackUrl) {
+    // Se é SVG local, usar injection
+    if (url && url.indexOf('.svg') > -1 && url.indexOf('http') === -1) {
+        carregarSvgInline(wrapperEl, url, function() {
+            // Sucesso - ocultar <img>
+            imgEl.style.display = 'none';
+        }, function() {
+            // Erro - usar fallback PNG
+            if (fallbackUrl) {
+                carregarImagemExterna(imgEl, fallbackUrl);
+            }
+        });
+    } else {
+        // URL externa (PNG) - usar <img> normal
+        carregarImagemExterna(imgEl, url || fallbackUrl);
+    }
+}
+```
+
+### 6.4. Estrutura HTML Requerida
+
+Para SVG injection funcionar, cada escudo precisa de um **wrapper div**:
+
+```html
+<!-- Escudo Time Casa -->
+<div id="logo1Clip" class="...">
+    <!-- SVG será injetado AQUI via innerHTML -->
+    <img id="logo1" src="" alt="Logo Time 1" class="hidden">
+</div>
+
+<!-- Escudo Time Visitante -->
+<div id="logo2Clip" class="...">
+    <!-- SVG será injetado AQUI via innerHTML -->
+    <img id="logo2" src="" alt="Logo Time 2" class="hidden">
+</div>
+```
+
+**Importante:**
+- Wrapper (`logo1Clip`) recebe o SVG inline
+- `<img>` permanece oculto quando SVG é injetado
+- Se SVG falhar, `<img>` exibe o fallback PNG
+
+### 6.5. Fluxo Completo
+
+```javascript
+// 1. Consultar D_FOOTBALL_TEAMS para obter código do time
+var time = loader.data('D_FOOTBALL_TEAMS', false, 'f_titulo=' + teamId);
+var timeNome = obterValor(time, 'TEXTO2');     // "Brasil"
+var timeCodigo = obterValor(time, 'TEXTO3');   // "BRA"
+var fotoPng = obterValor(time, 'FOTO');        // PNG da API (fallback)
+
+// 2. Mapear código para SVG
+var bandeiras = obterBandeiraSVG(timeCodigo, fotoPng);
+// bandeiras.bandeira = "img/flags/br.svg"
+// bandeiras.bandeiraFallback = "http://127.0.0.1:13199/FILES/127729"
+
+// 3. Retornar objeto completo do time
+var timeObj = {
+    id: teamId,
+    nome: timeNome,
+    codigo: timeCodigo,
+    bandeira: bandeiras.bandeira,           // SVG local
+    bandeiraFallback: bandeiras.bandeiraFallback  // PNG fallback
+};
+
+// 4. Carregar escudo com injection
+var imgEl = document.querySelector('#logo1');
+var wrapperEl = document.querySelector('#logo1Clip');
+carregarEscudo(imgEl, wrapperEl, timeObj.bandeira, timeObj.bandeiraFallback);
+```
+
+### 6.6. Benefícios
+
+- ✅ **Qualidade superior**: SVG escala perfeitamente em qualquer resolução
+- ✅ **Compatibilidade**: Fallback automático para PNG se SVG não existir
+- ✅ **WebKit legacy**: XMLHttpRequest funciona em Android 7+ (Chrome 51-64)
+- ✅ **Manutenção**: Fácil adicionar novos times ao mapeamento
 
 ---
 
 ## Status de Implementação
 
-| Template | Consultas Corretas | Observações |
-|----------|-------------------|-------------|
-| **placar_futebol** | ❌ Desatualizado | Precisa implementar especificação oficial (filtros, f_type=10, TEXT3 para STANDINGS) |
-| **tabela_futebol** | ❌ Desatualizado | Precisa implementar especificação oficial (f_specialproject, campos corretos) |
-| **caminhos_futebol** | ❌ Desatualizado | Precisa implementar especificação oficial (f_specialproject) |
-| **segundafase_futebol** | ❌ Desatualizado | Precisa implementar especificação oficial (f_specialproject) |
+| Template | Consultas Corretas | Bandeiras SVG | Mock Atualizado | Observações |
+|----------|-------------------|---------------|-----------------|-------------|
+| **placar_futebol** | ⚠️ Em teste | ✅ Implementado | ✅ Atualizado | Refatorado completo com loader.addData(), SPECIALPROJECT dinâmico, SVG injection, mock coerente |
+| **tabela_futebol** | ❌ Desatualizado | ❌ Pendente | ❌ Pendente | Precisa implementar especificação oficial (f_specialproject, campos corretos, SVG) |
+| **caminhos_futebol** | ❌ Desatualizado | ❌ Pendente | ❌ Pendente | Precisa implementar especificação oficial (f_specialproject, SVG) |
+| **segundafase_futebol** | ❌ Desatualizado | ❌ Pendente | ❌ Pendente | Precisa implementar especificação oficial (f_specialproject, SVG) |
 
 ### Próximos passos:
 
 1. ✅ Documentação atualizada com especificação oficial do backend
-2. ⚠️ Implementar nos templates:
-   - Trocar XMLHttpRequest por `loader.addData()`
-   - Usar `f_config=0&f_type=10` para jogos
-   - Usar `f_config=1&f_specialproject=spdata{ID}` para config
-   - Implementar fluxo de STANDINGS com `TEXT3`
-   - Usar campos oficiais: TEXTO4 (rodada), TEXTO5 (status)
-   - Extrair dados corretos do JSON: penalties, elapsed, extra, venue
+2. ✅ Documentação de bandeiras SVG (mapeamento, injection, fallback)
+3. ⚠️ placar_futebol: **aguardando testes locais**
+   - ✅ Trocar XMLHttpRequest por `loader.addData()`
+   - ✅ Usar `f_config=0&f_type=10` para jogos
+   - ✅ Usar `f_config=1&f_specialproject={ID}` para config
+   - ✅ Extração dinâmica de SPECIALPROJECT do XML
+   - ✅ Implementar fluxo de STANDINGS com stub
+   - ✅ Usar campos oficiais: TEXTO4 (rodada), TEXTO5 (status)
+   - ✅ Extrair dados corretos do JSON: penalties, elapsed, extra, venue
+   - ✅ Sistema de bandeiras SVG com 48 seleções
+   - ✅ SVG injection via XMLHttpRequest (compatível WebKit legacy)
+   - ✅ Fallback automático para PNG
+   - ✅ Mock data com estrutura idêntica aos dados reais
+   - ✅ Mesmo fluxo de código entre mock e produção
+4. ⚠️ Implementar nos demais templates (tabela, caminhos, segundafase)
+
+### Melhorias Implementadas (placar_futebol):
+
+#### A. Extração Dinâmica de SPECIALPROJECT
+- Campo `SPECIALPROJECT` agora é **extraído do XML retornado** (não hardcoded)
+- Permite rotação automática entre projetos
+- Identificação correta do projeto ativo em logs
+
+#### B. Sistema de Bandeiras SVG
+- **48 seleções da Copa 2026** mapeadas (CONCACAF, CONMEBOL, UEFA, CAF, AFC)
+- **SVG de alta qualidade** substituem PNG pixelizado da API
+- **SVG Injection via XHR** para compatibilidade com WebKit legado (Android 7+)
+- **Fallback automático** para PNG se SVG não existir
+- **Wrapper div** (`logo1Clip`, `logo2Clip`) para receber SVG inline
+
+#### C. Mock Data Coerente
+- Estrutura **100% idêntica** aos dados reais do EdgeContents
+- Mock Loader simula `ebhtml.create2()` com métodos `addData()`, `data()`, `loaded()`, `finished()`
+- **Mesmo fluxo de código** para mock e produção (apenas fonte de dados muda)
+- 4 cenários completos: pré-jogo, 1º tempo, tempo normal, pênaltis
+- Facilita desenvolvimento e testes sem dependência do servidor
+
+### Branch Git:
+- `fix/template-copa2026-consulta-dados` (commits locais, ainda não enviados ao remoto)
