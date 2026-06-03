@@ -871,11 +871,22 @@ function playerView() {
                         console.log('[tabela_futebol] D_FOOTBALL_STANDINGS retornou ' + items.length + ' ITEMs');
                         
                         // Iterar sobre TODOS os <ITEM> e concatenar os JSON arrays
+                        // IMPORTANTE: Deduplicar grupos (backend pode retornar duplicados)
                         var standingsData = [];
+                        var gruposProcessados = {}; // Track para evitar duplicação
+                        
                         for (var i = 0; i < items.length; i++) {
                             var item = items[i];
+                            var texto3Tag = item.getElementsByTagName('TEXTO3')[0];
+                            var nomeGrupo = texto3Tag ? texto3Tag.textContent.trim() : '';
                             var texto2Tag = item.getElementsByTagName('TEXTO2')[0];
                             var jsonStr = texto2Tag ? texto2Tag.textContent : '[]';
+                            
+                            // Pular se já processamos este grupo
+                            if (nomeGrupo && gruposProcessados[nomeGrupo]) {
+                                console.log('[tabela_futebol] ITEM[' + i + '] Grupo "' + nomeGrupo + '" DUPLICADO - ignorando');
+                                continue;
+                            }
                             
                             try {
                                 var itemData = JSON.parse(jsonStr);
@@ -884,7 +895,12 @@ function playerView() {
                                     var itemDataFiltrado = itemData.filter(function(entry) {
                                         return entry.group && entry.group.indexOf('Ranking') === -1;
                                     });
-                                    standingsData = standingsData.concat(itemDataFiltrado);
+                                    
+                                    if (itemDataFiltrado.length > 0) {
+                                        standingsData = standingsData.concat(itemDataFiltrado);
+                                        gruposProcessados[nomeGrupo] = true;
+                                        console.log('[tabela_futebol] ITEM[' + i + '] Grupo "' + nomeGrupo + '" processado (' + itemDataFiltrado.length + ' times)');
+                                    }
                                 }
                             } catch (e) {
                                 console.warn('[tabela_futebol] ITEM[' + i + '] JSON parse error:', e);
