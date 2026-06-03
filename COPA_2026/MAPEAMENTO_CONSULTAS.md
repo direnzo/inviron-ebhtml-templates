@@ -24,8 +24,8 @@ Documento de referência para entender como cada template consulta os canais de 
 #### 1.2. D_SPD (Confrontos)
 - **Método**: `loader.addData('D_SPD', false, 'f_config=0')`
 - **Filtro**: `f_config=0` (busca dados dos confrontos)
-- **Objetivo**: Obter lista de jogos/classificações a exibir
-- **Rotação**: Client-side via localStorage (sequencial)
+- **Objetivo**: Obter dados do confronto/classificação atual
+- **Rotação**: Automática pelo loader (a cada reload busca próximo item)
 - **Campo crítico**: `TITLE` determina qual canal consultar:
   - Se `TITLE = "STANDINGS"` (CDATA, maiúsculo) → consultar `D_FOOTBALL_STANDINGS`
   - Se `TITLE = ID numérico` → consultar `D_FOOTBALL` com filtro
@@ -62,10 +62,11 @@ Documento de referência para entender como cada template consulta os canais de 
   - `DATE` = Data/hora da partida
 
 #### 1.5. D_FOOTBALL_STANDINGS (condicional - quando TITLE = "STANDINGS")
-- **Método**: `loader.addData('D_FOOTBALL_STANDINGS', false, 'amount=0')`
-- **Filtro**: `amount=0` (busca TODOS os grupos)
+- **Método**: `loader.addData('D_FOOTBALL_STANDINGS', false)`
+- **Filtro**: Nenhum (rotação automática de grupos)
 - **Condição**: Usado quando `D_SPD.TITLE = "STANDINGS"` (CDATA, maiúsculo)
-- **Objetivo**: Obter classificação dos grupos
+- **Objetivo**: Obter classificação do grupo atual
+- **Rotação**: Automática pelo loader (a cada reload busca próximo grupo)
 - **Campos utilizados**:
   - `TEXTO2` = JSON array com classificação
 - **Status**: ⚠️ Pendente implementação
@@ -83,10 +84,10 @@ Documento de referência para entender como cada template consulta os canais de 
 - **Campos utilizados**: Mesmos do placar_futebol (COLOR1/2/3, TEXT1/2, FILE_IMAGE1, IMAGE_LOGO)
 
 #### 2.2. D_FOOTBALL_STANDINGS
-- **Método**: `loader.addData('D_FOOTBALL_STANDINGS', false, 'amount=0')`
-- **Filtro**: `amount=0` (busca TODOS os grupos - necessário para rotação)
-- **Objetivo**: Obter classificação de todos os grupos
-- **Rotação**: Client-side via localStorage (sequencial por grupo)
+- **Método**: `loader.addData('D_FOOTBALL_STANDINGS', false)`
+- **Filtro**: Nenhum (busca próximo grupo automaticamente)
+- **Objetivo**: Obter classificação do grupo atual
+- **Rotação**: Automática pelo loader (a cada reload busca próximo grupo)
 - **Campos utilizados**:
   - `TEXTO2` = JSON array com classificação completa
   - Estrutura JSON:
@@ -102,7 +103,6 @@ Documento de referência para entender como cada template consulta os canais de 
       }
     ]
     ```
-- **Observação**: Filtra grupos que contenham "Ranking" (remove tabelas auxiliares)
 
 #### 2.3. D_FOOTBALL_TEAMS
 - **Método**: `loader.addData('D_FOOTBALL_TEAMS', false, 'amount=0')`
@@ -111,10 +111,10 @@ Documento de referência para entender como cada template consulta os canais de 
 - **Campos utilizados**: Mesmos do placar_futebol
 
 #### 2.4. D_FOOTBALL (Próximos jogos)
-- **Método**: `loader.addData('D_FOOTBALL', false, 'amount=0')`
-- **Filtro**: `amount=0` (busca TODOS os jogos do torneio)
-- **Objetivo**: Exibir próximos jogos do grupo selecionado
-- **Filtragem**: Client-side por grupo após carregar todos os jogos
+- **Método**: `loader.addData('D_FOOTBALL', false)` ou com filtro específico
+- **Filtro**: Sem filtro (rotação automática) ou filtrado por grupo/rodada
+- **Objetivo**: Exibir próximos jogos relacionados ao grupo atual
+- **Observação**: Pode usar filtros como `f_category={grupo}` se disponível
 - **Campos utilizados**:
   - `TITULO` = Fixture ID
   - `TEXTO2` = JSON da partida
@@ -172,7 +172,7 @@ Documento de referência para entender como cada template consulta os canais de 
 - **Filtro**: Nenhum (busca primeiro registro)
 - **Campo crítico**: `TEXTO3` = JSON array com TODAS as partidas
 - **Estrutura do JSON**: Mesma do caminhos_futebol
-- **Rotação**: Client-side via localStorage (sequencial por chave)
+- **Observação**: Rotação de chaves feita por lógica interna do template
 
 #### 4.2. D_SPD (Patrocinador)
 - **Método**: `loader.addData('D_SPD', false, 'f_config=1')`
@@ -213,10 +213,10 @@ xhr.open('GET', '/content/data/D_FOOTBALL_TEAMS?amount=0', true);
 - `f_tipo=10` → Busca apenas TYPE=10 (se necessário)
 
 #### `amount=0` (usar apenas quando necessário):
-- ✅ `D_FOOTBALL_TEAMS` → necessário para lookup de todos os times
-- ✅ `D_FOOTBALL_STANDINGS` → necessário para carregar todos os grupos
-- ⚠️ `D_FOOTBALL` → evitar; usar filtros específicos quando possível
-- ⚠️ `D_SPD` → evitar; usar `f_config=1` ou `f_config=0`
+- ✅ `D_FOOTBALL_TEAMS` → necessário para lookup completo de todos os times
+- ⚠️ `D_FOOTBALL_STANDINGS` → evitar; sem filtro já rotaciona grupos automaticamente
+- ⚠️ `D_FOOTBALL` → evitar; usar filtros específicos (`f_titulo={ID}`)
+- ⚠️ `D_SPD` → evitar; usar `f_config=1` ou `f_config=0` (rotação automática)
 
 ### 3. Campo TITLE do D_SPD (f_config=0)
 
@@ -232,8 +232,8 @@ xhr.open('GET', '/content/data/D_FOOTBALL_TEAMS?amount=0', true);
 var partidaId = obterValor(spdData, 'TITLE').trim();
 
 if (partidaId.toUpperCase() === 'STANDINGS') {
-    // Consultar D_FOOTBALL_STANDINGS
-    loader.addData('D_FOOTBALL_STANDINGS', false, 'amount=0');
+    // Consultar D_FOOTBALL_STANDINGS (rotação automática)
+    loader.addData('D_FOOTBALL_STANDINGS', false);
 } else {
     // Consultar D_FOOTBALL com filtro
     loader.addData('D_FOOTBALL', false, 'f_titulo=' + partidaId);
@@ -249,28 +249,33 @@ if (partidaId.toUpperCase() === 'STANDINGS') {
 Para templates que exibem confrontos/classificação:
 
 1. **D_SPD** (`f_config=1`) → Patrocinador/cores
-2. **D_SPD** (`f_config=0`) → Lista de confrontos (rotação client-side)
+2. **D_SPD** (`f_config=0`) → Confronto/classificação atual (rotação automática)
 3. **D_FOOTBALL_TEAMS** (`amount=0`) → Lookup de times
 4. **Condicional**:
-   - Se `TITLE = "STANDINGS"` → **D_FOOTBALL_STANDINGS** (`amount=0`)
+   - Se `TITLE = "STANDINGS"` → **D_FOOTBALL_STANDINGS**
    - Se `TITLE = ID` → **D_FOOTBALL** (`f_titulo={ID}`)
 
-### 5. Rotação Client-Side
+### 5. Rotação Automática pelo Loader
 
-Templates que exibem múltiplos itens devem usar localStorage:
+**IMPORTANTE**: A rotação é gerenciada automaticamente pelo loader do EdgeContents.
+
+- **Não usar localStorage** para controle de rotação
+- A cada `loader.load()`, o sistema retorna automaticamente o próximo item da sequência
+- Filtros server-side garantem que apenas dados relevantes sejam carregados
+- Template deve apenas processar o dado retornado, sem gerenciar índices
 
 ```javascript
-// Exemplo: rotação de jogos
-var idx = parseInt(localStorage.getItem('placar_futebol_idx'), 10);
-if (isNaN(idx) || idx >= total) { idx = 0; }
-var itemAtual = lista[idx];
-localStorage.setItem('placar_futebol_idx', idx + 1);
-```
+// ✅ CORRETO - loader gerencia rotação
+loader.addData('D_SPD', false, 'f_config=0');
+loader.load(function() {
+    var confronto = loader.data('D_SPD'); // Próximo item automaticamente
+    processarConfonto(confronto);
+});
 
-**Quando usar:**
-- `placar_futebol` → rotação entre jogos (D_SPD f_config=0)
-- `tabela_futebol` → rotação entre grupos (D_FOOTBALL_STANDINGS)
-- `segundafase_futebol` → rotação entre chaves (D_FOOTBALL.TEXTO3)
+// ❌ ERRADO - não gerenciar rotação manualmente
+var idx = parseInt(localStorage.getItem('idx'), 10);
+localStorage.setItem('idx', idx + 1);
+```
 
 ---
 
@@ -278,8 +283,8 @@ localStorage.setItem('placar_futebol_idx', idx + 1);
 
 | Template | D_SPD Config=1 | D_SPD Config=0 | D_FOOTBALL | D_FOOTBALL_TEAMS | D_FOOTBALL_STANDINGS |
 |----------|----------------|----------------|------------|------------------|----------------------|
-| **placar_futebol** | `f_config=1`<br>Sponsor | `f_config=0`<br>Confrontos | Condicional<br>`f_titulo={ID}` | `amount=0`<br>Lookup | Condicional<br>se TITLE="STANDINGS" |
-| **tabela_futebol** | `f_config=1`<br>Sponsor | ❌ | `amount=0`<br>Próximos jogos | `amount=0`<br>Lookup | `amount=0`<br>Todos os grupos |
+| **placar_futebol** | `f_config=1`<br>Sponsor | `f_config=0`<br>Confronto atual | Condicional<br>`f_titulo={ID}` | `amount=0`<br>Lookup | Condicional<br>se TITLE="STANDINGS" |
+| **tabela_futebol** | `f_config=1`<br>Sponsor | ❌ | `amount=0`<br>Próximos jogos | `amount=0`<br>Lookup | Sem filtro<br>Grupo atual |
 | **caminhos_futebol** | `f_config=1`<br>Sponsor | ❌ | Sem filtro<br>TEXTO3 (JSON) | `amount=0`<br>Lookup | ❌ |
 | **segundafase_futebol** | `f_config=1`<br>Sponsor | ❌ | Sem filtro<br>TEXTO3 (JSON) | `amount=0`<br>Lookup | ❌ |
 
