@@ -6,37 +6,66 @@ Documento de referência para entender como cada template consulta os canais de 
 
 ---
 
+## ⚠️ ESPECIFICAÇÃO OFICIAL (Backend)
+
+### Origem dos dados principais:
+
+1. **Dados dos jogos**: `D_SPD?f_config=0&f_type=10`
+2. **Configurações visuais**: `D_SPD?f_config=1&f_specialproject=spdata<SPECIALPROJECT>`
+
+### Fluxo de decisão principal:
+
+```javascript
+// Verificar campo TITLE do D_SPD
+if (spdata.TITLE === 'STANDINGS') {
+    // Fluxo de classificação
+} else {
+    // Fluxo de partida (TITLE contém ID da partida)
+}
+```
+
+### Mapeamento de campos (Config):
+
+| Campo Backend | Canal/Campo | Descrição |
+|---------------|-------------|-----------|
+| `corPrimaria` | `config<COLOR1>` | Cor primária do projeto |
+| `corSecundaria` | `config<COLOR2>` | Cor secundária |
+| `corTexto` | `config<COLOR3>` | Cor do texto |
+| `texto` | `config<TEXT1>` | Título/frase do sponsor |
+| `logo` | `config<IMAGE_LOGO>` | Logo do sponsor |
+| `vinheta` | `config<FILE_IMAGE1>` | Vídeo/imagem de intro |
+| `duracaoVinheta` | `config<TEXT2>` | Duração em segundos |
+
+---
+
 ## 1. PLACAR_FUTEBOL (Placar Ao Vivo)
 
 ### Ordem de consultas:
 
 #### 1.1. D_SPD (Patrocinador)
-- **Método**: `loader.addData('D_SPD', false, 'f_config=1')`
-- **Filtro**: `f_config=1` (busca APENAS dados do projeto especial)
+- **Método**: `loader.addData('D_SPD', false, 'f_config=1&f_specialproject=spdata' + specialProjectId)`
+- **Filtro**: `f_config=1&f_specialproject=spdata{SPECIALPROJECT}` (projeto especial específico)
 - **Objetivo**: Obter configurações de intro/sponsor
 - **Campos utilizados**:
-  - `COLOR1`, `COLOR2`, `COLOR3` = Cores do projeto
+  - `COLOR1` = Cor primária do projeto
+  - `COLOR2` = Cor secundária
+  - `COLOR3` = Cor do texto
   - `TEXT1` = Título/frase sponsor
-  - `TEXT2` = Duração em segundos
-  - `FILE_IMAGE1` = Vídeo/imagem de intro
+  - `TEXT2` = Duração da vinheta (segundos)
+  - `FILE_IMAGE1` = Vídeo/imagem de intro (vinheta)
   - `IMAGE_LOGO` = Logo do sponsor
 
 #### 1.2. D_SPD (Confrontos)
-- **Método**: `loader.addData('D_SPD', false, 'f_config=0')`
-- **Filtro**: `f_config=0` (busca dados dos confrontos)
+- **Método**: `loader.addData('D_SPD', false, 'f_config=0&f_type=10')`
+- **Filtro**: `f_config=0&f_type=10` (busca jogos TYPE=10)
 - **Objetivo**: Obter dados do confronto/classificação atual
 - **Rotação**: Automática pelo loader (a cada reload busca próximo item)
 - **Campo crítico**: `TITLE` determina qual canal consultar:
-  - Se `TITLE = "STANDINGS"` (CDATA, maiúsculo) → consultar `D_FOOTBALL_STANDINGS`
-  - Se `TITLE = ID numérico` → consultar `D_FOOTBALL` com filtro
-- **Campos utilizados (confrontos)**:
+  - Se `TITLE = "STANDINGS"` → consultar `D_FOOTBALL_STANDINGS`
+  - Se `TITLE = ID numérico` → consultar `D_FOOTBALL`
+- **Campos utilizados**:
   - `TITLE` = "STANDINGS" ou ID da partida
-  - `TEXT1` = Nome time casa (opcional, pode vir de D_FOOTBALL)
-  - `TEXT2` = Nome time visitante (opcional)
-  - `TEXT4` = Status (1H, 2H, FT, etc)
-  - `TEXT5` = Gols casa
-  - `TEXT6` = Gols visitante
-  - `TEXT9` = Tempo decorrido
+  - `TEXT3` = Nome do grupo (ex: "Group A", usado quando TITLE="STANDINGS")
 
 #### 1.3. D_FOOTBALL_TEAMS (Dados dos times - OBRIGATÓRIO)
 - **Método**: `loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + teamId)`
@@ -45,7 +74,7 @@ Documento de referência para entender como cada template consulta os canais de 
 - **Exemplo**: `D_FOOTBALL_TEAMS?f_titulo=6` (Brasil)
 - **Importante**: **NÃO usar `amount=0`** - consultar cada time individualmente com seu ID
 - **Campos utilizados**:
-  - `FOTO` = Bandeira do time (PNG/SVG)
+  - `FOTO` = Bandeira do time (PNG/SVG) - também disponível em SELO1 e FOTO1
   - `TEXTO2` = Nome traduzido em PT-BR
   - `TEXTO3` = Nome abreviado (3 letras, ex: BRA)
   - `TITULO` = ID do time (mesmo do filtro)
@@ -54,10 +83,15 @@ Documento de referência para entender como cada template consulta os canais de 
 #### 1.4. D_FOOTBALL (condicional - quando TITLE ≠ "STANDINGS")
 - **Método**: `loader.addData('D_FOOTBALL', false, 'f_titulo=' + partidaId)`
 - **Filtro**: `f_titulo={partidaId}` (jogo específico)
-- **Valor do filtro**: Obtido de `D_SPD.TITLE` (f_config=0)
+- **Valor do filtro**: Obtido de `D_SPD.TITLE`
 - **Condição**: Usado quando `D_SPD.TITLE` contém um ID numérico
 - **Exemplo de consulta**: `D_FOOTBALL?f_titulo=1489371`
-- **Campo crítico**: `TEXTO2` = JSON completo da API-Football com todos os dados do confronto
+- **Campos utilizados** (especificação oficial):
+  - `DATE` = Data/hora da partida
+  - `CATEGORY` = Nome da liga
+  - `TEXTO4` = Rodada
+  - `TEXTO5` = Status da partida
+  - `TEXTO2` = JSON completo da API-Football (campo crítico)
 - **Estrutura do JSON** (campo `TEXTO2`):
   ```json
   {
@@ -67,37 +101,21 @@ Documento de referência para entender como cada template consulta os canais de 
           "id": 1489371,
           "date": "2026-06-13T19:00:00-03:00",
           "venue": {
-            "id": null,
-            "city": null,
             "name": "MetLife Stadium"
           },
           "status": {
-            "long": "Not Started",
             "short": "NS",
-            "elapsed": null
-          },
-          "timezone": "America/Sao_Paulo"
+            "elapsed": null,
+            "extra": null
+          }
         },
         "league": {
-          "id": 1,
           "name": "World Cup",
-          "country": "World",
-          "round": "Group Stage - 1",
-          "season": 2026
+          "round": "Group Stage - 1"
         },
         "teams": {
-          "home": {
-            "id": 6,
-            "name": "Brazil",
-            "logo": "https://media.api-sports.io/football/teams/6.png",
-            "winner": null
-          },
-          "away": {
-            "id": 31,
-            "name": "Morocco",
-            "logo": "https://media.api-sports.io/football/teams/31.png",
-            "winner": null
-          }
+          "home": { "id": 6, "name": "Brazil", "logo": "..." },
+          "away": { "id": 31, "name": "Morocco", "logo": "..." }
         },
         "goals": {
           "home": null,
@@ -113,22 +131,51 @@ Documento de referência para entender como cada template consulta os canais de 
     ]
   }
   ```
-- **Outros campos utilizados**:
-  - `TITULO` = Fixture ID (mesmo valor do filtro)
-  - `SUBTITULO` = Estádio (redundante, já está no JSON)
-  - `SUBTITULO2` = Rodada (redundante, já está no JSON)
-  - `CATEGORY` = Nome do torneio (redundante, já está no JSON)
-  - `DATE` = Data/hora da partida (redundante, já está no JSON)
+- **Campos extraídos do JSON** (especificação oficial):
+  - `partidaJson->teams->home->id` = ID time casa (usar para consultar D_FOOTBALL_TEAMS)
+  - `partidaJson->teams->away->id` = ID time visitante (usar para consultar D_FOOTBALL_TEAMS)
+  - `partidaJson->goals->home` = Gols time casa
+  - `partidaJson->goals->away` = Gols time visitante
+  - `partidaJson->score->penalties->home` = Pênaltis time casa
+  - `partidaJson->score->penalties->away` = Pênaltis time visitante
+  - `partidaJson->fixture->status->elapsed` = Tempo decorrido
+  - `partidaJson->fixture->status->extra` = Tempo extra
+  - `partidaJson->fixture->venue->name` = Nome do estádio
 
 #### 1.5. D_FOOTBALL_STANDINGS (condicional - quando TITLE = "STANDINGS")
-- **Método**: `loader.addData('D_FOOTBALL_STANDINGS', false)`
-- **Filtro**: Nenhum (rotação automática de grupos)
-- **Condição**: Usado quando `D_SPD.TITLE = "STANDINGS"` (CDATA, maiúsculo)
-- **Objetivo**: Obter classificação do grupo atual
-- **Rotação**: Automática pelo loader (a cada reload busca próximo grupo)
-- **Campos utilizados**:
-  - `TEXTO2` = JSON array com classificação
-- **Status**: ⚠️ Pendente implementação
+- **Método**: `loader.addData('D_FOOTBALL_STANDINGS', false, 'f_texto3=' + spdataText3)`
+- **Filtro**: `f_texto3={spdataText3}` (nome do grupo obtido de `D_SPD.TEXT3`)
+- **Condição**: Usado quando `D_SPD.TITLE = "STANDINGS"`
+- **Objetivo**: Obter classificação do grupo específico
+- **Exemplo**: `D_FOOTBALL_STANDINGS?f_texto3=Group A` (onde "Group A" é o nome do grupo)
+- **IMPORTANTE**: ❌ NÃO usar `f_titulo` - todos os registros têm TITULO=1. ✅ Usar `f_texto3` com o nome do grupo.
+- **Campos utilizados** (especificação oficial):
+  - `CATEGORY` = Nome da liga
+  - `TEXTO3` = Nome do grupo (ex: "Group A")
+  - `TEXTO2` = JSON array com classificação completa
+  - Estrutura do JSON:
+    ```json
+    [
+      {
+        "rank": 1,
+        "team": { 
+          "id": 6, 
+          "name": "Brazil", 
+          "logo": "..." 
+        },
+        "points": 9,
+        "goalsDiff": 5,
+        "group": "Group A",
+        "all": { 
+          "played": 3, 
+          "win": 3, 
+          "draw": 0, 
+          "lose": 0 
+        }
+      }
+    ]
+    ```
+- **Fluxo**: Para cada time no JSON (`grupoJson->team->id`), consultar `D_FOOTBALL_TEAMS`
 
 ---
 
@@ -137,31 +184,21 @@ Documento de referência para entender como cada template consulta os canais de 
 ### Ordem de consultas:
 
 #### 2.1. D_SPD (Patrocinador)
-- **Método**: `loader.addData('D_SPD', false, 'f_config=1')`
-- **Filtro**: `f_config=1` (busca APENAS dados do projeto especial)
+- **Método**: `loader.addData('D_SPD', false, 'f_config=1&f_specialproject=spdata' + specialProjectId)`
+- **Filtro**: `f_config=1&f_specialproject=spdata{SPECIALPROJECT}`
 - **Objetivo**: Obter configurações de intro/sponsor
 - **Campos utilizados**: Mesmos do placar_futebol (COLOR1/2/3, TEXT1/2, FILE_IMAGE1, IMAGE_LOGO)
 
 #### 2.2. D_FOOTBALL_STANDINGS
 - **Método**: `loader.addData('D_FOOTBALL_STANDINGS', false)`
-- **Filtro**: Nenhum (busca próximo grupo automaticamente)
-- **Objetivo**: Obter classificação do grupo atual
+- **Filtro**: Nenhum (rotação automática entre grupos)
+- **Objetivo**: Obter classificação do próximo grupo
 - **Rotação**: Automática pelo loader (a cada reload busca próximo grupo)
 - **Campos utilizados**:
+  - `CATEGORY` = Nome da liga
+  - `TEXTO3` = Nome do grupo (ex: "Group A") - usado como filtro f_texto3
   - `TEXTO2` = JSON array com classificação completa
-  - Estrutura JSON:
-    ```json
-    [
-      {
-        "rank": 1,
-        "team": { "id": 6, "name": "Brazil", "logo": "..." },
-        "points": 9,
-        "goalsDiff": 5,
-        "group": "Group A",
-        "all": { "played": 3, "win": 3, "draw": 0, "lose": 0 }
-      }
-    ]
-    ```
+  - `TITULO` = Sempre "1" (não usar para filtros)
 
 #### 2.3. D_FOOTBALL_TEAMS (OBRIGATÓRIO)
 - **Método**: `loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + teamId)`
@@ -169,9 +206,10 @@ Documento de referência para entender como cada template consulta os canais de 
 - **Objetivo**: Obter bandeira, nome traduzido e abreviação corretos
 - **Exemplo**: `D_FOOTBALL_TEAMS?f_titulo=6`
 - **Campos utilizados**:
-  - `FOTO` = Bandeira do time
+  - `FOTO` = Bandeira do time (também em SELO1/FOTO1)
   - `TEXTO2` = Nome traduzido PT-BR
   - `TEXTO3` = Nome abreviado (3 letras)
+  - `TITULO` = ID do time
 
 #### 2.4. D_FOOTBALL (Próximos jogos)
 - **Método**: `loader.addData('D_FOOTBALL', false)` ou com filtro específico
@@ -213,10 +251,10 @@ Documento de referência para entender como cada template consulta os canais de 
   ```
 
 #### 3.2. D_SPD (Patrocinador)
-- **Método**: `loader.addData('D_SPD', false, 'f_config=1')`
-- **Filtro**: `f_config=1` (busca APENAS dados do projeto especial)
+- **Método**: `loader.addData('D_SPD', false, 'f_config=1&f_specialproject=spdata' + specialProjectId)`
+- **Filtro**: `f_config=1&f_specialproject=spdata{SPECIALPROJECT}`
 - **Objetivo**: Obter configurações de intro/sponsor
-- **Campos utilizados**: Mesmos do placar_futebol
+- **Campos utilizados**: Mesmos do placar_futebol (COLOR1/2/3, TEXT1/2, FILE_IMAGE1, IMAGE_LOGO)
 
 #### 3.3. D_FOOTBALL_TEAMS (OBRIGATÓRIO)
 - **Método**: `loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + teamId)`
@@ -224,9 +262,10 @@ Documento de referência para entender como cada template consulta os canais de 
 - **Objetivo**: Traduzir IDs dos times (TITULO/TITULO2) do bracket para dados corretos
 - **Exemplo**: `D_FOOTBALL_TEAMS?f_titulo=6`
 - **Campos utilizados**:
-  - `FOTO` = Bandeira do time
+  - `FOTO` = Bandeira do time (também em SELO1/FOTO1)
   - `TEXTO2` = Nome traduzido PT-BR
   - `TEXTO3` = Nome abreviado (3 letras)
+  - `TITULO` = ID do time
 
 ---
 
@@ -242,10 +281,10 @@ Documento de referência para entender como cada template consulta os canais de 
 - **Observação**: Rotação de chaves feita por lógica interna do template
 
 #### 4.2. D_SPD (Patrocinador)
-- **Método**: `loader.addData('D_SPD', false, 'f_config=1')`
-- **Filtro**: `f_config=1` (busca APENAS dados do projeto especial)
+- **Método**: `loader.addData('D_SPD', false, 'f_config=1&f_specialproject=spdata' + specialProjectId)`
+- **Filtro**: `f_config=1&f_specialproject=spdata{SPECIALPROJECT}`
 - **Objetivo**: Obter configurações de intro/sponsor
-- **Campos utilizados**: Mesmos do placar_futebol
+- **Campos utilizados**: Mesmos do placar_futebol (COLOR1/2/3, TEXT1/2, FILE_IMAGE1, IMAGE_LOGO)
 
 #### 4.3. D_FOOTBALL_TEAMS (OBRIGATÓRIO)
 - **Método**: `loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + teamId)`
@@ -253,9 +292,10 @@ Documento de referência para entender como cada template consulta os canais de 
 - **Objetivo**: Traduzir IDs dos times para dados corretos (bandeira, nome, abreviação)
 - **Exemplo**: `D_FOOTBALL_TEAMS?f_titulo=6`
 - **Campos utilizados**:
-  - `FOTO` = Bandeira do time
+  - `FOTO` = Bandeira do time (também em SELO1/FOTO1)
   - `TEXTO2` = Nome traduzido PT-BR
   - `TEXTO3` = Nome abreviado (3 letras)
+  - `TITULO` = ID do time
 
 ---
 
@@ -265,25 +305,33 @@ Documento de referência para entender como cada template consulta os canais de 
 
 **SEMPRE use `loader.addData()`** - nunca XMLHttpRequest direto:
 ```javascript
-// ✅ CORRETO
-loader.addData('D_SPD', false, 'f_config=1');
+// ✅ CORRETO - Especificação oficial
+loader.addData('D_SPD', false, 'f_config=1&f_specialproject=spdataXXX');
+loader.addData('D_SPD', false, 'f_config=0&f_type=10');
 loader.addData('D_FOOTBALL', false, 'f_titulo=1489371');
-loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=6'); // ID do time
+loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=6');
+loader.addData('D_FOOTBALL_STANDINGS', false, 'f_texto3=Group A');
 
-// ❌ ERRADO
+// ❌ ERRADO - Não usar XMLHttpRequest
 var xhr = new XMLHttpRequest();
 xhr.open('GET', '/content/data/D_FOOTBALL_TEAMS?amount=0', true);
+
+// ❌ ERRADO - Filtros incorretos
+loader.addData('D_SPD', false, 'f_config=1'); // falta f_specialproject
+loader.addData('D_SPD', false, 'f_config=0'); // falta f_type=10
 ```
 
 ### 2. Uso de Filtros
 
 #### Filtros específicos (preferencial):
-- `f_config=1` → Busca apenas projeto especial (CONFIG=1)
-- `f_config=0` → Busca apenas confrontos (CONFIG=0)
+- `f_config=1&f_specialproject=spdata{ID}` → Busca projeto especial específico
+- `f_config=0&f_type=10` → Busca apenas confrontos (TYPE=10)
 - `f_titulo={ID}` → Busca registro específico por ID
   - Para `D_FOOTBALL`: ID da partida (ex: `f_titulo=1489371`)
   - Para `D_FOOTBALL_TEAMS`: ID do time (ex: `f_titulo=6`)
-- `f_tipo=10` → Busca apenas TYPE=10 (se necessário)
+- `f_texto3={NomeGrupo}` → Busca grupo específico por nome
+  - Para `D_FOOTBALL_STANDINGS`: Nome do grupo (ex: `f_texto3=Group A`)
+- `f_tipo=10` → Busca apenas TYPE=10 (obsoleto, usar `f_type`)
 
 #### `amount=0` (usar apenas quando necessário):
 - ❌ **D_FOOTBALL_TEAMS** → **NUNCA usar** - sempre filtrar por ID (`f_titulo={teamId}`)
@@ -328,58 +376,72 @@ if (partidaId.toUpperCase() === 'STANDINGS') {
 
 **Importante**: O ID retornado no `D_SPD.TITLE` é usado como parâmetro de filtro (`f_titulo`) para trazer o resultado exato do confronto desejado no `D_FOOTBALL`.
 
-### 4. Ordem de Consultas Recomendada
+### 4. Ordem de Consultas Recomendada (Especificação Oficial)
 
-Para templates que exibem confrontos/classificação:
+#### Fluxo completo:
 
-1. **D_SPD** (`f_config=1`) → Patrocinador/cores
-2. **D_SPD** (`f_config=0`) → Confronto/classificação atual (rotação automática)
-3. **Condicional**:
-   - Se `TITLE = "STANDINGS"` → **D_FOOTBALL_STANDINGS**
-   - Se `TITLE = ID` → **D_FOOTBALL** (`f_titulo={ID}`)
-4. **D_FOOTBALL_TEAMS** (`f_titulo={teamId}`) → **OBRIGATÓRIO** para cada time do confronto
+1. **D_SPD** (`f_config=1&f_specialproject=spdata{ID}`) → Configurações visuais
+2. **D_SPD** (`f_config=0&f_type=10`) → Dados do jogo/classificação
+3. **Decisão condicional** baseada em `D_SPD.TITLE`:
 
-**Exemplo de processamento completo:**
+**Se `TITLE === "STANDINGS"` (Fluxo de Classificação):**
 ```javascript
-// 1. Carregar D_FOOTBALL
-var footballData = loader.data('D_FOOTBALL');
-var jsonStr = obterValor(footballData, 'TEXTO2');
-var apiData = JSON.parse(jsonStr);
-var fixture = apiData.response[0];
+// 3a. Consultar classificação usando D_SPD.TEXT3 (nome do grupo)
+var standings = loader.data('D_FOOTBALL_STANDINGS', false, 'f_texto3=' + spdata.TEXT3);
 
-// 2. Extrair IDs dos times
-var homeTeamId = fixture.teams.home.id;    // ex: 6 (Brasil)
-var awayTeamId = fixture.teams.away.id;    // ex: 31 (Marrocos)
+// 3b. Extrair dados
+var liga = standings.CATEGORY;
+var nomeGrupo = standings.TEXTO3;
+var grupoJson = JSON.parse(standings.TEXTO2);
 
-// 3. Consultar D_FOOTBALL_TEAMS para time da casa
-ebhtml.create2({}, function(loaderHome) {
-    loaderHome.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + homeTeamId);
-    loaderHome.load(function() {
-        var homeTeamData = loaderHome.data('D_FOOTBALL_TEAMS');
-        var homeBandeira = obterValor(homeTeamData, 'FOTO');
-        var homeNome = obterValor(homeTeamData, 'TEXTO2');
-        var homeAbrev = obterValor(homeTeamData, 'TEXTO3');
-        
-        // 4. Consultar D_FOOTBALL_TEAMS para time visitante
-        ebhtml.create2({}, function(loaderAway) {
-            loaderAway.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + awayTeamId);
-            loaderAway.load(function() {
-                var awayTeamData = loaderAway.data('D_FOOTBALL_TEAMS');
-                var awayBandeira = obterValor(awayTeamData, 'FOTO');
-                var awayNome = obterValor(awayTeamData, 'TEXTO2');
-                var awayAbrev = obterValor(awayTeamData, 'TEXTO3');
-                
-                // 5. Renderizar com dados completos
-                renderizarPlacar({
-                    casa: { nome: homeNome, bandeira: homeBandeira, abrev: homeAbrev },
-                    visitante: { nome: awayNome, bandeira: awayBandeira, abrev: awayAbrev },
-                    gols: { casa: fixture.goals.home, visitante: fixture.goals.away },
-                    status: fixture.fixture.status.short
-                });
-            });
-        });
-    });
-});
+// 3c. Para cada time no grupo
+for (var i = 0; i < grupoJson.length; i++) {
+    var teamId = grupoJson[i].team.id;
+    
+    // 4. Consultar D_FOOTBALL_TEAMS
+    var time = loader.data('D_FOOTBALL_TEAMS', false, 'f_titulo=' + teamId);
+    var timeNome = time.TEXTO2;
+    var timeAbreviacao = time.TEXTO3;
+    var timeEscudo = time.FOTO;
+}
+```
+
+**Se `TITLE !== "STANDINGS"` (Fluxo de Partida):**
+```javascript
+// 3a. Consultar partida usando D_SPD.TITLE
+var partida = loader.data('D_FOOTBALL', false, 'f_titulo=' + spdata.TITLE);
+
+// 3b. Extrair campos gerais
+var data = partida.DATE;
+var liga = partida.CATEGORY;
+var rodada = partida.TEXTO4;
+var status = partida.TEXTO5;
+var partidaJson = JSON.parse(partida.TEXTO2);
+
+// 3c. Extrair IDs dos times
+var homeTeamId = partidaJson.response[0].teams.home.id;
+var awayTeamId = partidaJson.response[0].teams.away.id;
+
+// 4a. Consultar time da casa
+var time1 = loader.data('D_FOOTBALL_TEAMS', false, 'f_titulo=' + homeTeamId);
+var time1Nome = time1.TEXTO2;
+var time1Abreviacao = time1.TEXTO3;
+var time1Escudo = time1.FOTO;
+
+// 4b. Consultar time visitante
+var time2 = loader.data('D_FOOTBALL_TEAMS', false, 'f_titulo=' + awayTeamId);
+var time2Nome = time2.TEXTO2;
+var time2Abreviacao = time2.TEXTO3;
+var time2Escudo = time2.FOTO;
+
+// 5. Extrair placar e status avançado
+var gols1 = partidaJson.response[0].goals.home;
+var gols2 = partidaJson.response[0].goals.away;
+var penaltis1 = partidaJson.response[0].score.penalties.home;
+var penaltis2 = partidaJson.response[0].score.penalties.away;
+var tempoPartida = partidaJson.response[0].fixture.status.elapsed;
+var tempoExtra = partidaJson.response[0].fixture.status.extra;
+var estadio = partidaJson.response[0].fixture.venue.name;
 ```
 
 ### 5. Rotação Automática pelo Loader
@@ -410,10 +472,10 @@ localStorage.setItem('idx', idx + 1);
 
 | Template | D_SPD Config=1 | D_SPD Config=0 | D_FOOTBALL | D_FOOTBALL_TEAMS | D_FOOTBALL_STANDINGS |
 |----------|----------------|----------------|------------|------------------|----------------------|
-| **placar_futebol** | `f_config=1`<br>Sponsor | `f_config=0`<br>Confronto atual | Condicional<br>`f_titulo={ID}`<br>JSON em TEXTO2 | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | Condicional<br>se TITLE="STANDINGS" |
-| **tabela_futebol** | `f_config=1`<br>Sponsor | ❌ | Sem filtro<br>Próximos jogos | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | Sem filtro<br>Grupo atual |
-| **caminhos_futebol** | `f_config=1`<br>Sponsor | ❌ | Sem filtro<br>TEXTO3 (JSON) | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | ❌ |
-| **segundafase_futebol** | `f_config=1`<br>Sponsor | ❌ | Sem filtro<br>TEXTO3 (JSON) | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | ❌ |
+| **placar_futebol** | `f_config=1&`<br>`f_specialproject` | `f_config=0&`<br>`f_type=10` | Condicional<br>`f_titulo={ID}`<br>Campos: TEXTO2, TEXTO4, TEXTO5 | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | Condicional<br>se TITLE="STANDINGS"<br>`f_texto3={TEXT3}` |
+| **tabela_futebol** | `f_config=1&`<br>`f_specialproject` | ❌ | Sem filtro<br>Próximos jogos | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | Sem filtro<br>Rotação automática |
+| **caminhos_futebol** | `f_config=1&`<br>`f_specialproject` | ❌ | Sem filtro<br>TEXTO3 (JSON) | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | ❌ |
+| **segundafase_futebol** | `f_config=1&`<br>`f_specialproject` | ❌ | Sem filtro<br>TEXTO3 (JSON) | **OBRIGATÓRIO**<br>`f_titulo={teamId}`<br>Por time | ❌ |
 
 ---
 
@@ -421,7 +483,18 @@ localStorage.setItem('idx', idx + 1);
 
 | Template | Consultas Corretas | Observações |
 |----------|-------------------|-------------|
-| **placar_futebol** | ⚠️ Parcial | Precisa trocar XMLHttpRequest por loader.addData |
-| **tabela_futebol** | ⚠️ Parcial | Precisa trocar XMLHttpRequest por loader.addData |
-| **caminhos_futebol** | ⚠️ Parcial | Precisa trocar XMLHttpRequest por loader.addData |
-| **segundafase_futebol** | ⚠️ Parcial | Precisa trocar XMLHttpRequest por loader.addData |
+| **placar_futebol** | ❌ Desatualizado | Precisa implementar especificação oficial (filtros, f_type=10, TEXT3 para STANDINGS) |
+| **tabela_futebol** | ❌ Desatualizado | Precisa implementar especificação oficial (f_specialproject, campos corretos) |
+| **caminhos_futebol** | ❌ Desatualizado | Precisa implementar especificação oficial (f_specialproject) |
+| **segundafase_futebol** | ❌ Desatualizado | Precisa implementar especificação oficial (f_specialproject) |
+
+### Próximos passos:
+
+1. ✅ Documentação atualizada com especificação oficial do backend
+2. ⚠️ Implementar nos templates:
+   - Trocar XMLHttpRequest por `loader.addData()`
+   - Usar `f_config=0&f_type=10` para jogos
+   - Usar `f_config=1&f_specialproject=spdata{ID}` para config
+   - Implementar fluxo de STANDINGS com `TEXT3`
+   - Usar campos oficiais: TEXTO4 (rodada), TEXTO5 (status)
+   - Extrair dados corretos do JSON: penalties, elapsed, extra, venue
