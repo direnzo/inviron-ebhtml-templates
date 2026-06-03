@@ -129,6 +129,98 @@ var CONFIG = {
 };
 
 /* ====================================================
+   SVG INJECTION VIA XHR (compatível com WebKit legado)
+   Injeta SVG inline no DOM (evita problema de <img src="*.svg">)
+   ==================================================== */
+function carregarSvgInline(containerEl, src, onSuccess, onError) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', src, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState !== 4) { return; }
+        
+        if (xhr.status === 200 || xhr.status === 0) {
+            try {
+                var svgEl = containerEl.querySelector('svg');
+                if (svgEl) { svgEl.parentNode.removeChild(svgEl); }
+                containerEl.innerHTML = xhr.responseText;
+                var svg = containerEl.querySelector('svg');
+                
+                if (svg) {
+                    svg.style.width = '100%';
+                    svg.style.height = '100%';
+                    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                    console.log('[caminhos_futebol] ✅ SVG injetado: ' + src);
+                    if (onSuccess) { onSuccess(); }
+                } else {
+                    console.error('[caminhos_futebol] Arquivo não contém SVG válido: ' + src);
+                    if (onError) { onError(); }
+                }
+            } catch (e) {
+                console.error('[caminhos_futebol] Erro ao injetar SVG:', e);
+                if (onError) { onError(); }
+            }
+        } else {
+            console.error('[caminhos_futebol] HTTP ' + xhr.status + ' ao carregar SVG: ' + src);
+            if (onError) { onError(); }
+        }
+    };
+    
+    xhr.onerror = function() {
+        console.error('[caminhos_futebol] Erro de rede ao carregar SVG: ' + src);
+        if (onError) { onError(); }
+    };
+    
+    xhr.send();
+}
+
+/* ====================================================
+   MAPEAMENTO DE BANDEIRAS SVG (48 times Copa 2026)
+   Códigos 3 letras → filename SVG (sem path)
+   ==================================================== */
+function mapearCodigoParaSVG(code) {
+    if (!code) return null;
+    
+    var map = {
+        // CONCACAF (16 times)
+        'USA': 'us', 'MEX': 'mx', 'CAN': 'ca', 'CRC': 'cr',
+        'JAM': 'jm', 'PAN': 'pa', 'HON': 'hn', 'SLV': 'sv',
+        'TRI': 'tt', 'CUW': 'cw', 'GUA': 'gt', 'HAI': 'ht',
+        'NCA': 'ni', 'SUR': 'sr', 'MTQ': 'mq', 'GUY': 'gy',
+        
+        // CONMEBOL (10 times)
+        'BRA': 'br', 'ARG': 'ar', 'URU': 'uy', 'COL': 'co',
+        'CHI': 'cl', 'ECU': 'ec', 'PAR': 'py', 'PER': 'pe',
+        'BOL': 'bo', 'VEN': 've',
+        
+        // UEFA (16 times)
+        'GER': 'de', 'FRA': 'fr', 'ENG': 'gb-eng', 'ESP': 'es',
+        'BEL': 'be', 'NED': 'nl', 'HOL': 'nl', 'ITA': 'it', 'POR': 'pt',
+        'CRO': 'hr', 'SUI': 'ch', 'DEN': 'dk', 'POL': 'pl',
+        'AUT': 'at', 'SWE': 'se', 'UKR': 'ua', 'WAL': 'gb-wls',
+        
+        // CAF (4 times)
+        'SEN': 'sn', 'MOR': 'ma', 'MAR': 'ma', 'TUN': 'tn', 'NGA': 'ng',
+        
+        // AFC (2 times)
+        'JPN': 'jp', 'KOR': 'kr'
+    };
+    
+    return map[code.toUpperCase()] || null;
+}
+
+/* ====================================================
+   RETORNA BANDEIRA SVG LOCAL + FALLBACK PNG
+   ==================================================== */
+function obterBandeiraSVG(teamCode, fallbackUrl) {
+    var svgCode = mapearCodigoParaSVG(teamCode);
+    
+    return {
+        bandeira: svgCode ? ('img/flags/' + svgCode + '.svg') : null,
+        bandeiraFallback: fallbackUrl || null
+    };
+}
+
+/* ====================================================
    MAPA DE FASES DO CAMPEONATO → PT-BR
    Traduções de fases/rodadas comuns
    ==================================================== */
@@ -235,6 +327,73 @@ function sanitizarNomeTorneio(texto) {
     return resultado;
 }
 
+/* ====================================================
+   HELPER: Obter valor de campo (Mock ou EdgeContents)
+   ==================================================== */
+function obterValor(item, campo) {
+    if (!item) { return ''; }
+
+    // Mock: objeto JS puro com propriedades diretas
+    if (Object.prototype.hasOwnProperty.call(item, campo)) {
+        return String(item[campo] !== null ? item[campo] : '').trim();
+    }
+
+    // EdgeContents: item.value('CAMPO').value
+    if (typeof item.value === 'function') {
+        try {
+            var v = item.value(campo);
+            return v ? String(v.value !== null ? v.value : '').trim() : '';
+        } catch (e) {
+            return '';
+        }
+    }
+
+    return '';
+}
+
+/* ====================================================
+   BUSCAR TIME INDIVIDUAL - D_FOOTBALL_TEAMS
+   Consulta com loader.addData() (padrão oficial)
+   ==================================================== */
+function buscarTime(teamId, loader, callback) {
+    if (!teamId || !loader || !callback) {
+        console.error('[caminhos_futebol] buscarTime: parâmetros inválidos');
+        callback(null);
+        return;
+    }
+    
+    loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + teamId);
+    
+    loader.load(function() {
+        var time = loader.data('D_FOOTBALL_TEAMS');
+        
+        if (!time) {
+            console.error('[caminhos_futebol] D_FOOTBALL_TEAMS sem dados para ID=' + teamId);
+            callback(null);
+            return;
+        }
+        
+        var timeNome = obterValor(time, 'TEXTO2');  // Nome PT-BR
+        var timeCodigo = obterValor(time, 'TEXTO3');  // Código 3 letras
+        var fotoPng = obterValor(time, 'FOTO');  // PNG da API (fallback)
+        
+        // Mapear para SVG local ou usar fallback PNG
+        var bandeiras = obterBandeiraSVG(timeCodigo, fotoPng);
+        
+        var timeData = {
+            id: teamId,
+            nome: timeNome || ('[Time ' + teamId + ']'),
+            codigo: timeCodigo || '???',
+            bandeira: bandeiras.bandeira,  // SVG local
+            bandeiraFallback: bandeiras.bandeiraFallback  // PNG fallback
+        };
+        
+        console.log('[caminhos_futebol] Time ID=' + teamId + ': ' + timeData.nome + ' (' + timeData.codigo + ') → SVG: ' + (bandeiras.bandeira ? 'OK' : 'N/A'));
+        
+        callback(timeData);
+    });
+}
+
 function hexToRgba(hex, alpha) {
     var r = parseInt(hex.slice(1, 3), 16);
     var g = parseInt(hex.slice(3, 5), 16);
@@ -277,8 +436,7 @@ var DURACAO_CONTEUDO_MS      = 5000;
 var DURACAO_IMAGEM_PADRAO_MS = 5000;
 
 function obterValorSpd(spd, campo) {
-    if (!spd) { return ''; }
-    return spd[campo] || (spd.value && spd.value(campo) && spd.value(campo).value) || '';
+    return obterValor(spd, campo);
 }
 
 /**
@@ -372,7 +530,8 @@ window.onload = function() {
     } else {
         ebhtml.create2({}, function(loader) {
             loader.addData('D_FOOTBALL', false);
-            loader.addData('D_SPD', false, 'amount=0');  // Busca TODOS os registros (incluindo CONFIG=1)
+            loader.addData('D_SPD', false, 'f_config=1');  // Patrocinador (CONFIG=1)
+            loader.addData('D_FOOTBALL_TEAMS', false, 'amount=0');  // Todos os times de uma vez
             loader.autoloaded    = false;
             loader.nodataiserror = false;
 
@@ -383,7 +542,7 @@ window.onload = function() {
                     loader.finished();
                     return;
                 }
-                var jsonStr = (dfReg.value('TEXTO3') && dfReg.value('TEXTO3').value) || '';
+                var jsonStr = obterValor(dfReg, 'TEXTO3');
                 if (!jsonStr) {
                     console.error('[caminhos_futebol] D_FOOTBALL.TEXTO3 vazio');
                     loader.finished();
@@ -398,99 +557,55 @@ window.onload = function() {
                     return;
                 }
 
-                // Extrai patrocinador e cores do D_SPD (CONFIG='1')
-                var spdSponsor = null;
-                var spdLista = loader.datalist('D_SPD');
-                if (spdLista) {
-                    for (var i = 0; i < spdLista.count(); i++) {
-                        var item = spdLista.get(i);
-                        var cfgField = item.value && item.value('CONFIG');
-                        if (cfgField && cfgField.value === '1') {
-                            spdSponsor = item;
-                            break;
-                        }
-                    }
+                // Extrai patrocinador e SPECIALPROJECT dinâmico do D_SPD (CONFIG='1')
+                var spdSponsor = loader.data('D_SPD');
+                if (spdSponsor) {
+                    var specialProjectAtivo = obterValor(spdSponsor, 'SPECIALPROJECT');
+                    console.log('[caminhos_futebol] D_SPD patrocinador encontrado (CONFIG=1)');
+                    console.log('[caminhos_futebol] SPECIALPROJECT extraído dinamicamente: ' + specialProjectAtivo);
+                } else {
+                    console.log('[caminhos_futebol] D_SPD patrocinador não encontrado (CONFIG=1)');
                 }
 
-                // ✅ OBRIGATÓRIO: Buscar D_FOOTBALL_TEAMS para traduzir nomes PT-BR
-                buscarTodosOsTimesDeUmaVez(function(teamsMap) {
-                    // Monta config com sponsor e duracao (compativel com aplicarSponsor)
-                    var runConfig = {
-                        sponsor: montarSponsorConfig(spdSponsor)
-                    };
+                // Buscar todos os times do D_FOOTBALL_TEAMS (loader já carregou com amount=0)
+                var teamsMap = {};
+                var teamsLista = loader.datalist('D_FOOTBALL_TEAMS');
+                if (teamsLista) {
+                    for (var i = 0; i < teamsLista.count(); i++) {
+                        var time = teamsLista.get(i);
+                        var teamId = obterValor(time, 'TITULO');
+                        var nome = obterValor(time, 'TEXTO2');
+                        var codigo = obterValor(time, 'TEXTO3');
+                        var fotoPng = obterValor(time, 'FOTO');
+                        
+                        if (teamId && nome) {
+                            // Mapear para SVG local
+                            var bandeiras = obterBandeiraSVG(codigo, fotoPng);
+                            
+                            teamsMap[teamId] = {
+                                nome: nome,
+                                codigo: codigo,
+                                bandeira: bandeiras.bandeira || bandeiras.bandeiraFallback
+                            };
+                        }
+                    }
+                    console.log('[caminhos_futebol] D_FOOTBALL_TEAMS: ' + Object.keys(teamsMap).length + ' times mapeados');
+                } else {
+                    console.warn('[caminhos_futebol] D_FOOTBALL_TEAMS sem dados');
+                }
 
-                    aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
-                    var dados = processarDadosMock(partidas, teamsMap);
-                    iniciarTemplate(dados, runConfig, loader);
-                });
+                // Monta config com sponsor e duracao (compatível com aplicarSponsor)
+                var runConfig = {
+                    sponsor: montarSponsorConfig(spdSponsor)
+                };
+
+                aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
+                var dados = processarDadosMock(partidas, teamsMap);
+                iniciarTemplate(dados, runConfig, loader);
             });
         });
     }
 };
-
-// ──────────────────────────────────────────────────
-//  BUSCAR TODOS OS TIMES DO D_FOOTBALL_TEAMS
-//  Retorna mapa: { teamId: { nome, bandeira, codigo } }
-// ──────────────────────────────────────────────────
-function buscarTodosOsTimesDeUmaVez(callback) {
-    var xhr = new XMLHttpRequest();
-    var url = '/content/data/D_FOOTBALL_TEAMS?amount=0';
-    
-    console.log('[caminhos_futebol] Buscando todos os times do D_FOOTBALL_TEAMS...');
-    
-    xhr.open('GET', url, true);
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState !== 4) { return; }
-        
-        if (xhr.status === 200 || xhr.status === 0) {
-            try {
-                var parser = new DOMParser();
-                var xmlDoc = parser.parseFromString(xhr.responseText, 'text/xml');
-                var items = xmlDoc.getElementsByTagName('ITEM');
-                
-                var teamsMap = {};
-                
-                for (var i = 0; i < items.length; i++) {
-                    var item = items[i];
-                    var getTag = function(tagName) {
-                        var el = item.getElementsByTagName(tagName)[0];
-                        return el ? el.textContent : '';
-                    };
-                    
-                    var teamId = getTag('TITULO');
-                    var nome = getTag('TEXTO2');
-                    var codigo = getTag('TEXTO3');
-                    var bandeira = getTag('FOTO1');
-                    
-                    if (teamId && nome) {
-                        teamsMap[teamId] = {
-                            nome: nome,
-                            codigo: codigo,
-                            bandeira: bandeira
-                        };
-                    }
-                }
-                
-                console.log('[caminhos_futebol] D_FOOTBALL_TEAMS: ' + Object.keys(teamsMap).length + ' times mapeados');
-                callback(teamsMap);
-                
-            } catch (e) {
-                console.error('[caminhos_futebol] Erro ao parsear D_FOOTBALL_TEAMS:', e);
-                callback({});
-            }
-        } else {
-            console.error('[caminhos_futebol] Erro HTTP ao buscar D_FOOTBALL_TEAMS:', xhr.status);
-            callback({});
-        }
-    };
-    
-    xhr.onerror = function() {
-        console.error('[caminhos_futebol] Erro de rede ao buscar D_FOOTBALL_TEAMS');
-        callback({});
-    };
-    
-    xhr.send();
-}
 
 // ──────────────────────────────────────────────────
 //  PROCESSAR DADOS — array de partidas (mock e producao)

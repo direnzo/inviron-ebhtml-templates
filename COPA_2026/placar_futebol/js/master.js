@@ -204,6 +204,126 @@ function sanitizarNomeTorneio(texto) {
     return resultado;
 }
 
+/* ====================================================
+   SVG INJECTION VIA XHR (compatível com WebKit legado)
+   Injeta SVG inline no DOM (evita problema de <img src="*.svg">)
+   ==================================================== */
+function carregarSvgInline(containerEl, src, onSuccess, onError) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', src, true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState !== 4) { return; }
+        
+        if (xhr.status === 200 || xhr.status === 0) {
+            try {
+                // Remover SVG antigo se existir
+                var svgEl = containerEl.querySelector('svg');
+                if (svgEl) { svgEl.parentNode.removeChild(svgEl); }
+                
+                // Injetar novo SVG
+                containerEl.innerHTML = xhr.responseText;
+                var svg = containerEl.querySelector('svg');
+                
+                if (svg) {
+                    svg.style.width = '100%';
+                    svg.style.height = '100%';
+                    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                    console.log('[placar_futebol] ✅ SVG injetado: ' + src);
+                    if (onSuccess) { onSuccess(); }
+                } else {
+                    console.error('[placar_futebol] Arquivo não contém SVG válido: ' + src);
+                    if (onError) { onError(); }
+                }
+            } catch (e) {
+                console.error('[placar_futebol] Erro ao injetar SVG:', e);
+                if (onError) { onError(); }
+            }
+        } else {
+            console.error('[placar_futebol] HTTP ' + xhr.status + ' ao carregar SVG: ' + src);
+            if (onError) { onError(); }
+        }
+    };
+    
+    xhr.onerror = function() {
+        console.error('[placar_futebol] Erro de rede ao carregar SVG: ' + src);
+        if (onError) { onError(); }
+    };
+    
+    xhr.send();
+}
+
+/* ====================================================
+   MAPEAMENTO DE BANDEIRAS SVG (Copa 2026 - 48 Times)
+   Mapeia códigos de 3 letras (TEXTO3) para arquivos SVG locais
+   ==================================================== */
+function mapearCodigoParaSVG(code) {
+    if (!code) { return null; }
+    
+    var mapa = {
+        // CONCACAF (16 times)
+        'USA': 'us',   'MEX': 'mx',   'CAN': 'ca',   'PAN': 'pa',
+        
+        // CONMEBOL (6 times)
+        'ARG': 'ar',   'BRA': 'br',   'URU': 'uy',   'ECU': 'ec',
+        'COL': 'co',   'PAR': 'py',
+        
+        // UEFA (16 times)
+        'ENG': 'gb-eng', 'FRA': 'fr',   'ESP': 'es',   'POR': 'pt',
+        'GER': 'de',   'NED': 'nl',   'BEL': 'be',   'CRO': 'hr',
+        'SCO': 'gb-sct', 'SUI': 'ch',   'AUT': 'at',   'CZE': 'cz',
+        'CZR': 'cz',   'SWE': 'se',   'NOR': 'no',   'TUR': 'tr',
+        
+        // CAF (9 times)
+        'MAR': 'ma',   'MOR': 'ma',   'SEN': 'sn',   'TUN': 'tn',
+        'EGY': 'eg',   'GHA': 'gh',   'ALG': 'dz',   'DZA': 'dz',
+        'SOU': 'za',   'RSA': 'za',   'ZAF': 'za',   'SAF': 'za',
+        
+        // AFC (8 times)
+        'JPN': 'jp',   'KOR': 'kr',   'AUS': 'au',   'IRN': 'ir',
+        'IRA': 'ir',   'SAU': 'sa',   'KSA': 'sa',   'QAT': 'qa',
+        'IRQ': 'iq',   'JOR': 'jo',   'UZB': 'uz',
+        
+        // Outros
+        'NZL': 'nz',   'HAI': 'ht',   'HTI': 'ht',   'CUW': 'cw',
+        'CPV': 'cv',   'CAP': 'cv',   'COD': 'cd',   'BIH': 'ba',
+        'CIV': 'ci',   'CHI': 'ci'
+    };
+    
+    var upper = code.toUpperCase();
+    var codigo = mapa[upper];
+    
+    if (!codigo) {
+        // Fallback: tenta primeiras 2 letras minúsculas
+        codigo = code.toLowerCase().substring(0, 2);
+    }
+    
+    return codigo;
+}
+
+/**
+ * Obtém caminho da bandeira SVG de alta qualidade
+ * @param {string} teamCode - Código de 3 letras do time (ex: "BRA", "MOR")
+ * @param {string} fallbackUrl - URL PNG de fallback (opcional)
+ * @returns {string} Caminho do SVG local ou fallback
+ */
+function obterBandeiraSVG(teamCode, fallbackUrl) {
+    if (!teamCode) {
+        console.warn('[placar_futebol] obterBandeiraSVG: código vazio, usando fallback');
+        return fallbackUrl || 'img/flags/br.svg'; // fallback padrão
+    }
+    
+    var codigoSVG = mapearCodigoParaSVG(teamCode);
+    
+    if (codigoSVG) {
+        var caminhoSVG = 'img/flags/' + codigoSVG + '.svg';
+        console.log('[placar_futebol] Bandeira SVG: ' + teamCode + ' → ' + caminhoSVG);
+        return caminhoSVG;
+    }
+    
+    console.warn('[placar_futebol] ⚠️ Bandeira não mapeada: ' + teamCode + ' (usando fallback)');
+    return fallbackUrl || 'img/flags/br.svg';
+}
+
 var SVG_ESCUDO = [
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" width="100%" height="100%">',
     '<path d="M50 8 L90 22 L90 65 Q90 100 50 114 Q10 100 10 65 L10 22 Z"',
@@ -212,6 +332,21 @@ var SVG_ESCUDO = [
     ' fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>',
     '</svg>'
 ].join('');
+
+/* ====================================================
+   CONFIGURAÇÃO DO PROJETO ESPECIAL
+   ⚠️ ALTERAR CONFORME CLIENTE
+   
+   IMPORTANTE: Este valor é usado como FILTRO inicial na consulta.
+   Após a consulta, o valor real do SPECIALPROJECT é extraído
+   do XML retornado e usado para identificar qual projeto está ativo.
+   
+   Se quiser buscar QUALQUER projeto (sem filtro), use string vazia: ''
+   Exemplo: 
+     - SPECIAL_PROJECT_ID = '17' → busca apenas projeto com ID 17
+     - SPECIAL_PROJECT_ID = ''   → busca qualquer projeto (rotação livre)
+   ==================================================== */
+var SPECIAL_PROJECT_ID = '17'; // ⚠️ Alterar conforme cliente OU deixar vazio para qualquer
 
 /* ====================================================
    CONFIG — 3 cores primárias do template
@@ -255,71 +390,44 @@ function obterDuracaoIntroMs(spd) {
     return 0;
 }
 
-/* chave localStorage para rotação de partidas (padrão master_2) */
-var LS_KEY_PARTIDA = 'placar_futebol_partida_idx';
-
 /* ====================================================
-   BUSCA TODOS OS TIMES DO D_FOOTBALL_TEAMS
-   Retorna mapa: { teamId: { nome, bandeira, codigo } }
+   HELPER: Busca time individual no D_FOOTBALL_TEAMS
+   Usa loader.addData() com filtro f_titulo={teamId}
+   Callback: function(timeData) recebe objeto com campos do time
    ==================================================== */
-function buscarTodosOsTimesDeUmaVez(callback) {
-    var xhr = new XMLHttpRequest();
-    var url = '/content/data/D_FOOTBALL_TEAMS?amount=0';
+function buscarTime(teamId, loader, callback) {
+    /**
+     * Consulta D_FOOTBALL_TEAMS com filtro f_titulo={teamId}
+     * Filtro: f_titulo={teamId} - busca time específico por ID
+     * Campos retornados: FOTO (bandeira), TEXTO2 (nome PT-BR), TEXTO3 (código 3 letras)
+     */
+    console.log('[placar_futebol] Carregando time: f_titulo=' + teamId);
     
-    console.log('[placar_futebol] Buscando todos os times do D_FOOTBALL_TEAMS...');
-    
-    xhr.open('GET', url, true);
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState !== 4) { return; }
+    loader.addData('D_FOOTBALL_TEAMS', false, 'f_titulo=' + teamId);
+    loader.load(function() {
+        var timeData = loader.data('D_FOOTBALL_TEAMS');
         
-        if (xhr.status === 200 || xhr.status === 0) {
-            try {
-                var parser = new DOMParser();
-                var xmlDoc = parser.parseFromString(xhr.responseText, 'text/xml');
-                var items = xmlDoc.getElementsByTagName('ITEM');
-                
-                var teamsMap = {};
-                
-                for (var i = 0; i < items.length; i++) {
-                    var item = items[i];
-                    var getTag = function(tagName) {
-                        var el = item.getElementsByTagName(tagName)[0];
-                        return el ? el.textContent : '';
-                    };
-                    
-                    var teamId = getTag('TITULO');
-                    var nome = getTag('TEXTO2');
-                    var codigo = getTag('TEXTO3');
-                    var bandeira = getTag('FOTO1');
-                    
-                    if (teamId && nome) {
-                        teamsMap[teamId] = {
-                            nome: nome,
-                            codigo: codigo,
-                            bandeira: bandeira
-                        };
-                    }
-                }
-                
-                console.log('[placar_futebol] D_FOOTBALL_TEAMS: ' + Object.keys(teamsMap).length + ' times mapeados');
-                callback(teamsMap);
-                
-            } catch (e) {
-                console.error('[placar_futebol] Erro ao parsear D_FOOTBALL_TEAMS:', e);
-                callback({});
-            }
-        } else {
-            console.error('[placar_futebol] Erro HTTP ao buscar D_FOOTBALL_TEAMS:', xhr.status);
-            callback({});
+        if (!timeData) {
+            console.error('[placar_futebol] ERRO: Time ID=' + teamId + ' não encontrado');
+            callback(null);
+            return;
         }
-    };
-    
-    xhr.onerror = function() {
-        console.error('[placar_futebol] Erro de rede ao buscar D_FOOTBALL_TEAMS');
-        callback({});
-    };
-    
-    xhr.send();
+        
+        var teamCode = obterValor(timeData, 'TEXTO3');
+        var teamNome = obterValor(timeData, 'TEXTO2');
+        var fallbackUrl = obterValor(timeData, 'FOTO');
+        
+        var timeObj = {
+            id: teamId,
+            nome: teamNome,
+            codigo: teamCode,
+            bandeira: obterBandeiraSVG(teamCode, fallbackUrl), // SVG de alta qualidade
+            bandeiraFallback: fallbackUrl // URL PNG de fallback (caso SVG não exista)
+        };
+        
+        console.log('[placar_futebol] Time carregado: ' + timeObj.nome + ' (' + timeObj.codigo + ') | Bandeira: ' + timeObj.bandeira + ' | Fallback: ' + (fallbackUrl ? fallbackUrl.substring(0, 40) + '...' : 'nenhum'));
+        callback(timeObj);
+    });
 }
 
 
@@ -360,7 +468,7 @@ function aplicarCores(cfg) {
     s.setProperty('--cor-fundo-area',    hexToRgba(cfg.corEscura,   0.40));
     s.setProperty('--cor-borda',         hexToRgba(cfg.corClara,    0.10));
     s.setProperty('--cor-texto',         cfg.corClara);
-    s.setProperty('--cor-texto-sec',     hexToRgba(cfg.corClara,    0.50));
+    s.setProperty('--cor-texto-sec',     hexToRgba(cfg.corClara,    0.90));
     s.setProperty('--cor-texto-ter',     hexToRgba(cfg.corClara,    0.98));
     s.setProperty('--cor-grad-from',     hexToRgba(cfg.corEscura,   0.90));
     s.setProperty('--cor-grad-mid',      hexToRgba(cfg.corEscura,   0.90));
@@ -396,161 +504,335 @@ function mergeColorsFromSpd(defaults, spd) {
    ==================================================== */
 function playerView() {
     if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
-        // Loader mock
-        var mockLoader = MOCK_DATA.getMockLoader();
-        var lista = mockLoader.datalist('D_SPD');
-        if (!lista || lista.count() === 0) {
-            console.log('[placar_futebol][mock] D_SPD vazio — skip');
-            mockLoader.finished();
-            return;
-        }
-        // Separa jogos (TYPE=10) e patrocinador (CONFIG=1)
-        var jogos = [];
-        var spdSponsor = null;
-        for (var i = 0; i < lista.count(); i++) {
-            var item = lista.get(i);
-            var cfg = obterValor(item, 'CONFIG');
-            var tipo = obterValor(item, 'TYPE');
+        console.log('[placar_futebol] ========= MODO MOCK ATIVADO =========');
+        console.log('[placar_futebol] Cenário: ' + cenario);
+        
+        // Mock Loader que simula ebhtml API
+        var mockLoader = {
+            _dataCache: {},
             
-            if (cfg === '1') {
-                spdSponsor = item;
-            } else if (tipo === '10') {
-                jogos.push(item);
+            addData: function(channel, autoload, filter) {
+                console.log('[mock] addData: ' + channel + ' | filtro: ' + filter);
+                // Armazena configuração para consulta posterior
+                this._dataCache[channel] = {filter: filter || '', data: null};
+            },
+            
+            load: function(callback) {
+                // Simula carregamento assíncrono
+                setTimeout(function() {
+                    callback();
+                }, 10);
+            },
+            
+            data: function(channel, autoload, filter) {
+                // Simula consulta de dados
+                if (channel === 'D_SPD') {
+                    var f = filter || this._dataCache[channel].filter;
+                    if (f.indexOf('f_config=1') >= 0) {
+                        return MOCK_DATA.spdSponsor;
+                    } else if (f.indexOf('f_config=0') >= 0) {
+                        return MOCK_DATA.spdData;
+                    }
+                } else if (channel === 'D_FOOTBALL') {
+                    return MOCK_DATA.footballData;
+                } else if (channel === 'D_FOOTBALL_TEAMS') {
+                    var teamIdMatch = (filter || '').match(/f_titulo=(\d+)/);
+                    if (teamIdMatch) {
+                        var teamId = teamIdMatch[1];
+                        return MOCK_DATA.teams[teamId] || null;
+                    }
+                }
+                return null;
+            },
+            
+            loaded: function() {
+                console.log('[mock] loaded()');
+            },
+            
+            finished: function() {
+                console.log('[mock] finished()');
             }
-        }
-        if (jogos.length === 0) {
-            console.log('[placar_futebol][mock] Nenhum jogo encontrado em D_SPD');
-            mockLoader.finished();
-            return;
-        }
-        var idx = 0;
-        var spdData = jogos[idx];
-        var partidaId = obterValor(spdData, 'TITLE').trim();
-        if (!partidaId) {
-            console.log('[placar_futebol][mock] TITLE vazio — skip');
-            mockLoader.finished();
-            return;
-        }
-        var footballData = mockLoader.data('D_FOOTBALL');
-        if (!footballData) {
-            console.log('[placar_futebol][mock] D_FOOTBALL sem dados para ID=' + partidaId);
-            mockLoader.finished();
-            return;
-        }
-        aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
-        // Mock: criar teamsMap vazio (nomes já vêm do mock-data)
-        var mockTeamsMap = {};
-        processarDados(spdData, spdSponsor, footballData, mockLoader, mockTeamsMap);
+        };
+        
+        // Executar mesmo fluxo do código de produção
+        console.log('[placar_futebol] === INÍCIO DO CARREGAMENTO (MOCK) ===');
+        
+        mockLoader.addData('D_SPD', false, 'f_config=1&f_specialproject=17');
+        mockLoader.addData('D_SPD', false, 'f_config=0&f_type=10');
+        mockLoader.addData('D_FOOTBALL', false);
+        mockLoader.addData('D_FOOTBALL_TEAMS', false);
+        
+        mockLoader.load(function() {
+            var spdSponsor = mockLoader.data('D_SPD', false, 'f_config=1&f_specialproject=17');
+            var spdData = mockLoader.data('D_SPD', false, 'f_config=0&f_type=10');
+            
+            if (!spdData || !spdData.TITLE) {
+                console.error('[placar_futebol][mock] D_SPD sem TITLE');
+                mockLoader.finished();
+                return;
+            }
+            
+            var partidaId = spdData.TITLE.trim();
+            console.log('[placar_futebol][mock] D_SPD.TITLE = "' + partidaId + '"');
+            
+            // Aplicar cores do patrocinador
+            aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
+            
+            // Buscar partida
+            if (partidaId.toUpperCase() === 'STANDINGS') {
+                console.log('[placar_futebol][mock] STANDINGS não implementado no mock');
+                mockLoader.finished();
+                return;
+            }
+            
+            console.log('[placar_futebol][mock] FLUXO PARTIDA detectado (ID=' + partidaId + ')');
+            carregarPartida(partidaId, spdData, spdSponsor, mockLoader);
+        });
+        
         return;
     }
 
     // EdgeContents real
     ebhtml.create2({}, function(loader) {
-        // Carrega TODOS os itens de D_SPD de uma vez (jogos TYPE=10 + patrocinador CONFIG=1)
-        // A rotação é feita client-side via localStorage (padrão master_2).
-        loader.addData('D_SPD', false, 'amount=0');
+        /**
+         * FLUXO OFICIAL DE CONSULTAS (conforme MAPEAMENTO_CONSULTAS.md):
+         * 1. D_SPD (Patrocinador) - f_config=1&f_specialproject=spdataXXX
+         * 2. D_SPD (Jogo/Classificação) - f_config=0&f_type=10
+         * 3. Decisão condicional baseada em D_SPD.TITLE:
+         *    - Se TITLE === "STANDINGS" → D_FOOTBALL_STANDINGS (amount=0)
+         *    - Se TITLE === ID numérico → D_FOOTBALL (f_titulo={ID}) + D_FOOTBALL_TEAMS (2x)
+         */
+        
+        console.log('[placar_futebol] === INÍCIO DO CARREGAMENTO ===');
+        
+        /* ===== CONSULTA 1: D_SPD (Patrocinador) ===== */
+        var filtroSponsor = 'f_config=1';
+        if (SPECIAL_PROJECT_ID && SPECIAL_PROJECT_ID !== '') {
+            filtroSponsor += '&f_specialproject=' + SPECIAL_PROJECT_ID;
+            console.log('[placar_futebol] [1/4] Carregando patrocinador: ' + filtroSponsor);
+        } else {
+            console.log('[placar_futebol] [1/4] Carregando patrocinador: f_config=1 (sem filtro - qualquer projeto)');
+        }
+        
+        loader.addData('D_SPD', false, filtroSponsor);
         loader.autoloaded = false;
         loader.nodataiserror = false;
 
         loader.load(function() {
-
-            var lista = loader.datalist('D_SPD');
-            if (!lista || lista.count() === 0) {
-                console.log('[placar_futebol] D_SPD vazio — skip');
-                loader.finished();
-                return;
-            }
-
-            // Separa jogos (TYPE=10) e patrocinador (CONFIG=1)
-            var jogos = [];
-            var spdSponsor = null;
-            for (var i = 0; i < lista.count(); i++) {
-                var item = lista.get(i);
-                var cfg = obterValor(item, 'CONFIG');
-                var tipo = obterValor(item, 'TYPE');
+            var spdSponsor = loader.data('D_SPD');
+            
+            // Extrair SPECIALPROJECT do XML retornado (valor dinâmico)
+            var specialProjectAtivo = null;
+            if (spdSponsor) {
+                specialProjectAtivo = obterValor(spdSponsor, 'SPECIALPROJECT');
+                console.log('[placar_futebol] ✅ Patrocinador carregado | SPECIALPROJECT=' + specialProjectAtivo);
+                console.log('[placar_futebol] Frase: ' + obterValor(spdSponsor, 'TEXT1'));
+                console.log('[placar_futebol] Cores: ' + obterValor(spdSponsor, 'COLOR1') + '/' + 
+                    obterValor(spdSponsor, 'COLOR2') + '/' + obterValor(spdSponsor, 'COLOR3'));
+                console.log('[placar_futebol] Intro: ' + obterValor(spdSponsor, 'FILE_IMAGE1'));
+                console.log('[placar_futebol] Logo: ' + obterValor(spdSponsor, 'IMAGE_LOGO'));
+                console.log('[placar_futebol] Duração: ' + obterValor(spdSponsor, 'TEXT2') + 's');
                 
-                if (cfg === '1') {
-                    spdSponsor = item;
-                    console.log('[placar_futebol] Patrocinador encontrado (CONFIG=1)');
-                } else if (tipo === '10') {
-                    jogos.push(item);
+                // Validar se corresponde ao filtro (se houver filtro)
+                if (SPECIAL_PROJECT_ID && SPECIAL_PROJECT_ID !== '' && specialProjectAtivo !== SPECIAL_PROJECT_ID) {
+                    console.warn('[placar_futebol] ⚠️ ATENÇÃO: SPECIALPROJECT retornado (' + specialProjectAtivo + 
+                        ') difere do filtro configurado (' + SPECIAL_PROJECT_ID + ')');
+                }
+            } else {
+                console.log('[placar_futebol] ❌ Sem patrocinador (CONFIG=1)');
+                if (SPECIAL_PROJECT_ID && SPECIAL_PROJECT_ID !== '') {
+                    console.warn('[placar_futebol] ⚠️ Filtro configurado: SPECIAL_PROJECT_ID=' + SPECIAL_PROJECT_ID);
+                    console.warn('[placar_futebol] ⚠️ Verifique se existe projeto com f_specialproject=' + SPECIAL_PROJECT_ID);
                 }
             }
-
-            if (jogos.length === 0) {
-                console.log('[placar_futebol] Nenhum jogo (TYPE=10) encontrado em D_SPD');
-                loader.finished();
-                return;
-            }
             
-            console.log('[placar_futebol] Encontrados ' + jogos.length + ' jogo(s) TYPE=10');
-
-            // Rotação via localStorage (mesmo padrão do master_2)
-            var idx = parseInt(localStorage.getItem(LS_KEY_PARTIDA), 10);
-            if (isNaN(idx) || idx >= jogos.length) {
-                idx = 0;
-            }
-            var spdData = jogos[idx];
-
-            // Avança o índice para a próxima exibição
-            localStorage.setItem(LS_KEY_PARTIDA, idx + 1);
-            console.log('[placar_futebol] localStorage idx=' + idx + '/' + jogos.length);
-
-            var partidaId = obterValor(spdData, 'TITLE').trim();
-            console.log('[placar_futebol] D_SPD: TITLE=' + partidaId
-                + ' | Times: ' + obterValor(spdData, 'TEXT1') + ' x ' + obterValor(spdData, 'TEXT2'));
-
-            if (!partidaId) {
-                console.log('[placar_futebol] TITLE vazio — skip');
-                loader.finished();
-                return;
-            }
-
-            // Segunda fase: buscar D_FOOTBALL_TEAMS (todos os times) e D_FOOTBALL (jogo específico)
-            buscarTodosOsTimesDeUmaVez(function(teamsMap) {
+            /* ===== CONSULTA 2: D_SPD (Jogo/Classificação) ===== */
+            console.log('[placar_futebol] [2/4] Carregando jogo atual: f_config=0&f_type=10');
+            loader.addData('D_SPD', false, 'f_config=0&f_type=10');
+            
+            loader.load(function() {
+                var spdData = loader.data('D_SPD');
                 
-                // Terceira fase: D_FOOTBALL filtrado pelo ID da partida
-                ebhtml.create2({}, function(loader2) {
-                    loader2.addData('D_FOOTBALL', false, 'F_TITULO=' + partidaId);
-                    loader2.autoloaded = false;
-                    loader2.nodataiserror = false;
-
-                    loader2.load(function() {
-                        var footballData = loader2.data('D_FOOTBALL');
-
-                        if (!footballData) {
-                            console.log('[placar_futebol] D_FOOTBALL sem dados para ID=' + partidaId);
-                            loader.finished();
-                            return;
-                        }
-
-                        console.log('[placar_futebol] D_FOOTBALL TEXTO:', obterValor(footballData, 'TEXTO'));
-
-                        aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
-                        processarDados(spdData, spdSponsor, footballData, loader, teamsMap);
-                    });
-                });
+                if (!spdData) {
+                    console.log('[placar_futebol] D_SPD sem dados (TYPE=10) — skip');
+                    loader.finished();
+                    return;
+                }
+                
+                var partidaId = obterValor(spdData, 'TITLE').trim();
+                console.log('[placar_futebol] D_SPD.TITLE = "' + partidaId + '"');
+                
+                if (!partidaId) {
+                    console.log('[placar_futebol] TITLE vazio — skip');
+                    loader.finished();
+                    return;
+                }
+                
+                /* ===== DECISÃO CONDICIONAL: STANDINGS vs PARTIDA ===== */
+                if (partidaId.toUpperCase() === 'STANDINGS') {
+                    console.log('[placar_futebol] [3/4] FLUXO STANDINGS detectado');
+                    carregarStandings(spdData, spdSponsor, loader);
+                } else {
+                    console.log('[placar_futebol] [3/4] FLUXO PARTIDA detectado (ID=' + partidaId + ')');
+                    carregarPartida(partidaId, spdData, spdSponsor, loader);
+                }
             });
         });
     });
 }
 
 /* ====================================================
+   CARREGA DADOS DE PARTIDA (TITLE ≠ "STANDINGS")
+   Fluxo: D_FOOTBALL → extrai IDs times → D_FOOTBALL_TEAMS (2x) → processarDados()
+   ==================================================== */
+function carregarPartida(partidaId, spdData, spdSponsor, loader) {
+    /**
+     * Consulta D_FOOTBALL com filtro f_titulo={partidaId}
+     * Filtro: f_titulo={partidaId} - ID da partida obtido do D_SPD.TITLE
+     * Campos: DATE, CATEGORY, TEXTO2 (JSON), TEXTO4 (rodada), TEXTO5 (status)
+     */
+    console.log('[placar_futebol] Carregando partida: f_titulo=' + partidaId);
+    loader.addData('D_FOOTBALL', false, 'f_titulo=' + partidaId);
+    
+    loader.load(function() {
+        var footballData = loader.data('D_FOOTBALL');
+        
+        if (!footballData) {
+            console.log('[placar_futebol] D_FOOTBALL sem dados para ID=' + partidaId);
+            loader.finished();
+            return;
+        }
+        
+        console.log('[placar_futebol] D_FOOTBALL carregado | Rodada: ' + obterValor(footballData, 'TEXTO4'));
+        
+        // Extrair IDs dos times do JSON
+        var footballJson = obterValor(footballData, 'TEXTO2');
+        var homeTeamId = null;
+        var awayTeamId = null;
+        
+        if (footballJson) {
+            try {
+                var parsed = JSON.parse(footballJson);
+                if (parsed.response && parsed.response.length > 0) {
+                    homeTeamId = parsed.response[0].teams.home.id;
+                    awayTeamId = parsed.response[0].teams.away.id;
+                    console.log('[placar_futebol] Times extraídos do JSON: home=' + homeTeamId + ', away=' + awayTeamId);
+                }
+            } catch (e) {
+                console.error('[placar_futebol] Erro ao parsear JSON:', e);
+            }
+        }
+        
+        if (!homeTeamId || !awayTeamId) {
+            console.error('[placar_futebol] ERRO: IDs dos times não encontrados no JSON');
+            loader.finished();
+            return;
+        }
+        
+        /* ===== CONSULTA TIMES (sequencial) ===== */
+        console.log('[placar_futebol] [4/4] Carregando times...');
+        
+        buscarTime(homeTeamId, loader, function(timeHome) {
+            if (!timeHome) {
+                console.error('[placar_futebol] ERRO: Time casa não encontrado (ID=' + homeTeamId + ')');
+                loader.finished();
+                return;
+            }
+            
+            buscarTime(awayTeamId, loader, function(timeAway) {
+                if (!timeAway) {
+                    console.error('[placar_futebol] ERRO: Time visitante não encontrado (ID=' + awayTeamId + ')');
+                    loader.finished();
+                    return;
+                }
+                
+                console.log('[placar_futebol] === DADOS COMPLETOS ===');
+                console.log('[placar_futebol] ' + timeHome.nome + ' x ' + timeAway.nome);
+                
+                aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
+                processarDados(spdData, spdSponsor, footballData, loader, timeHome, timeAway);
+            });
+        });
+    });
+}
+
+/* ====================================================
+   CARREGA DADOS DE CLASSIFICAÇÃO (TITLE = "STANDINGS")
+   Fluxo: D_FOOTBALL_STANDINGS → extrai IDs times → D_FOOTBALL_TEAMS (N x) → renderizar
+   ==================================================== */
+function carregarStandings(spdData, spdSponsor, loader) {
+    /**
+     * Consulta D_FOOTBALL_STANDINGS com amount=0
+     * Filtro: amount=0 - busca todos os grupos (rotação automática pelo loader)
+     * Campos: CATEGORY, TEXTO3 (nome grupo), TEXTO2 (JSON array), TITULO (sempre "1")
+     */
+    console.log('[placar_futebol] Carregando standings: amount=0');
+    loader.addData('D_FOOTBALL_STANDINGS', false, 'amount=0');
+    
+    loader.load(function() {
+        var standings = loader.data('D_FOOTBALL_STANDINGS');
+        
+        if (!standings) {
+            console.log('[placar_futebol] D_FOOTBALL_STANDINGS sem dados');
+            loader.finished();
+            return;
+        }
+        
+        var nomeGrupo = obterValor(standings, 'TEXTO3');
+        var liga = obterValor(standings, 'CATEGORY');
+        console.log('[placar_futebol] Classificação: ' + nomeGrupo + ' | ' + liga);
+        
+        // Parse do JSON
+        var grupoJson = null;
+        try {
+            grupoJson = JSON.parse(obterValor(standings, 'TEXTO2'));
+        } catch (e) {
+            console.error('[placar_futebol] Erro ao parsear JSON do grupo:', e);
+            loader.finished();
+            return;
+        }
+        
+        if (!grupoJson || grupoJson.length === 0) {
+            console.log('[placar_futebol] Grupo vazio');
+            loader.finished();
+            return;
+        }
+        
+        console.log('[placar_futebol] [4/4] Grupo tem ' + grupoJson.length + ' times');
+        console.warn('[placar_futebol] TODO: Implementar renderização de standings');
+        console.warn('[placar_futebol] Por enquanto, apenas finaliza o template');
+        
+        // TODO: Buscar dados de cada time e renderizar tabela
+        // Por enquanto, apenas aplica cores e finaliza
+        aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
+        loader.loaded();
+        
+        setTimeout(function() {
+            loader.finished();
+        }, 5000);
+    });
+}
+
+/* ====================================================
    PROCESSA OS DADOS E RENDERIZA
    spdData, spdSponsor, footballData já resolvidos;
-   loader (D_SPD) controla a playlist; teamsMap contém nomes PT-BR.
+   timeHome, timeAway: objetos com {id, nome, codigo, bandeira}
+   loader (D_SPD) controla a playlist
    ==================================================== */
-function processarDados(spdData, spdSponsor, footballData, loader, teamsMap) {
+function processarDados(spdData, spdSponsor, footballData, loader, timeHome, timeAway) {
 
     // Parse do JSON do D_FOOTBALL.TEXTO2 para extrair dados da API-Football
     var footballJson = obterValor(footballData, 'TEXTO2');
     var fixtureData = null;
-    var homeTeamId = null;
-    var awayTeamId = null;
-    var homeTeamName = '[Time Casa]';
-    var awayTeamName = '[Time Visitante]';
-    var homeTeamLogo = '';
-    var awayTeamLogo = '';
+    
+    // Dados dos times já foram buscados (via buscarTime)
+    var homeTeamName = timeHome.nome;
+    var awayTeamName = timeAway.nome;
+    var homeTeamLogo = timeHome.bandeira;
+    var awayTeamLogo = timeAway.bandeira;
+    var homeTeamFallback = timeHome.bandeiraFallback || '';
+    var awayTeamFallback = timeAway.bandeiraFallback || '';
+    
     var venue = obterValor(footballData, 'SUBTITULO') || '';
     var round = obterValor(footballData, 'SUBTITULO2') || '';
     
@@ -567,29 +849,6 @@ function processarDados(spdData, spdSponsor, footballData, loader, teamsMap) {
             var parsed = JSON.parse(footballJson);
             if (parsed.response && parsed.response.length > 0) {
                 fixtureData = parsed.response[0];
-                
-                // Extrair IDs dos times
-                homeTeamId = fixtureData.teams.home.id;
-                awayTeamId = fixtureData.teams.away.id;
-                
-                // Buscar nomes PT-BR no D_FOOTBALL_TEAMS
-                if (teamsMap[homeTeamId]) {
-                    homeTeamName = teamsMap[homeTeamId].nome;
-                    homeTeamLogo = teamsMap[homeTeamId].bandeira || fixtureData.teams.home.logo;
-                } else {
-                    console.error('[placar_futebol] ERRO CRITICO: Time ID=' + homeTeamId + ' NAO encontrado no D_FOOTBALL_TEAMS!');
-                    homeTeamName = '[Time ' + homeTeamId + ']';
-                    homeTeamLogo = fixtureData.teams.home.logo;
-                }
-                
-                if (teamsMap[awayTeamId]) {
-                    awayTeamName = teamsMap[awayTeamId].nome;
-                    awayTeamLogo = teamsMap[awayTeamId].bandeira || fixtureData.teams.away.logo;
-                } else {
-                    console.error('[placar_futebol] ERRO CRITICO: Time ID=' + awayTeamId + ' NAO encontrado no D_FOOTBALL_TEAMS!');
-                    awayTeamName = '[Time ' + awayTeamId + ']';
-                    awayTeamLogo = fixtureData.teams.away.logo;
-                }
                 
                 // Extrair estádio e rodada do JSON (se disponível)
                 if (fixtureData.fixture.venue && fixtureData.fixture.venue.name) {
@@ -661,6 +920,8 @@ function processarDados(spdData, spdSponsor, footballData, loader, teamsMap) {
         data:       dtFormatada.data,
         foto1:      homeTeamLogo,
         foto2:      awayTeamLogo,
+        foto1Fallback: homeTeamFallback, // PNG fallback para time 1
+        foto2Fallback: awayTeamFallback, // PNG fallback para time 2
         estado:     estado,
         statusRaw:  statusFinal.toUpperCase().trim(),
         // Gols: prioridade JSON > D_SPD > '0'
@@ -682,6 +943,23 @@ function processarDados(spdData, spdSponsor, footballData, loader, teamsMap) {
         + ' | ' + dados.torneio
         + ' | Estado: ' + dados.estado + ' (' + dados.statusRaw + ')'
         + ' | Placar: ' + dados.gols1 + 'x' + dados.gols2);
+    
+    // Log de patrocinador
+    if (dados.introMedia || dados.patroLogo || dados.patroFrase) {
+        console.log('[placar_futebol] 🎬 PATROCINADOR ATIVO:');
+        if (dados.introMedia) {
+            console.log('[placar_futebol]   - Intro: ' + dados.introMedia.substring(0, 50) + '...');
+            console.log('[placar_futebol]   - Duração intro: ' + dados.introDuracaoMs + 'ms');
+        }
+        if (dados.patroLogo) {
+            console.log('[placar_futebol]   - Logo: ' + dados.patroLogo.substring(0, 50) + '...');
+        }
+        if (dados.patroFrase) {
+            console.log('[placar_futebol]   - Frase: ' + dados.patroFrase);
+        }
+    } else {
+        console.log('[placar_futebol] ⚠️ SEM PATROCINADOR (campos vazios ou spdSponsor null)');
+    }
 
     renderizarTemplate(dados, loader);
 }
@@ -826,6 +1104,10 @@ function obterValor(item, campo) {
    ==================================================== */
 function renderizarTemplate(dados, loader) {
     
+    console.log('[placar_futebol] === RENDERIZANDO TEMPLATE ===');
+    console.log('[placar_futebol] Time 1: ' + dados.time1 + ' | SVG: ' + dados.foto1 + ' | Fallback: ' + (dados.foto1Fallback ? dados.foto1Fallback.substring(0, 40) + '...' : 'nenhum'));
+    console.log('[placar_futebol] Time 2: ' + dados.time2 + ' | SVG: ' + dados.foto2 + ' | Fallback: ' + (dados.foto2Fallback ? dados.foto2Fallback.substring(0, 40) + '...' : 'nenhum'));
+    
     // ❌ Validar dados ANTES de chamar loader.loaded()
     if (!dados || !dados.time1 || !dados.time2) {
         console.error('[placar_futebol] sem dados para exibir');
@@ -927,8 +1209,8 @@ function renderizarTemplate(dados, loader) {
     // --- Escudos ---
     var logo1          = document.querySelector('#logo1');
     var logo2          = document.querySelector('#logo2');
-    var logo1Container = document.querySelector('#logo1Container');
-    var logo2Container = document.querySelector('#logo2Container');
+    var logo1Clip      = document.querySelector('#logo1Clip'); // wrapper interno
+    var logo2Clip      = document.querySelector('#logo2Clip'); // wrapper interno
 
     var escudosProntos = false;
     var introFeita     = !dados.introMedia; // sem intro = já concluída
@@ -996,17 +1278,73 @@ function renderizarTemplate(dados, loader) {
         }
     }
 
-    function carregarEscudo(imgEl, containerEl, url) {
-        if (!url) {
-            containerEl.innerHTML = SVG_ESCUDO;
-            onEscudoPronto();
+    function carregarEscudo(imgEl, wrapperEl, url, fallbackUrl) {
+        console.log('[placar_futebol] carregarEscudo: URL=' + url);
+        
+        if (!url || url === '') {
+            console.warn('[placar_futebol] URL vazia, tentando fallback...');
+            if (fallbackUrl && fallbackUrl !== '') {
+                console.log('[placar_futebol] Usando fallbackUrl: ' + fallbackUrl.substring(0, 50) + '...');
+                carregarImagemExterna(imgEl, fallbackUrl);
+            } else {
+                console.warn('[placar_futebol] Sem fallback, usando SVG_ESCUDO');
+                imgEl.style.display = 'none';
+                var svgDiv = document.createElement('div');
+                svgDiv.innerHTML = SVG_ESCUDO;
+                svgDiv.className = 'w-full h-full';
+                wrapperEl.appendChild(svgDiv);
+                onEscudoPronto();
+            }
             return;
         }
+        
+        // Verificar se é SVG local
+        var isSVGLocal = url.indexOf('img/flags/') === 0 && url.indexOf('.svg') > 0;
+        
+        if (isSVGLocal) {
+            console.log('[placar_futebol] SVG local detectado, usando injection: ' + url);
+            // Ocultar <img> e usar SVG injection
+            imgEl.style.display = 'none';
+            
+            carregarSvgInline(wrapperEl, url, function() {
+                // SVG injetado com sucesso
+                onEscudoPronto();
+            }, function() {
+                // Erro ao injetar SVG - tentar fallback PNG
+                if (fallbackUrl && fallbackUrl !== '') {
+                    console.log('[placar_futebol] SVG injection falhou, tentando fallback PNG: ' + fallbackUrl.substring(0, 50) + '...');
+                    imgEl.style.display = ''; // Mostrar <img> novamente
+                    carregarImagemExterna(imgEl, fallbackUrl);
+                } else {
+                    console.warn('[placar_futebol] Sem fallback PNG, usando SVG_ESCUDO');
+                    var svgDiv = document.createElement('div');
+                    svgDiv.innerHTML = SVG_ESCUDO;
+                    svgDiv.className = 'w-full h-full';
+                    wrapperEl.appendChild(svgDiv);
+                    onEscudoPronto();
+                }
+            });
+        } else {
+            // URL externa (PNG da API) - usar <img>
+            console.log('[placar_futebol] URL externa detectada, usando <img>: ' + url.substring(0, 50) + '...');
+            carregarImagemExterna(imgEl, url);
+        }
+    }
+    
+    function carregarImagemExterna(imgEl, url) {
         imgEl.onload = function() {
+            console.log('[placar_futebol] ✅ Imagem externa carregada: ' + url.substring(0, 50) + '...');
             onEscudoPronto();
         };
         imgEl.onerror = function() {
-            containerEl.innerHTML = SVG_ESCUDO;
+            console.error('[placar_futebol] ❌ Erro ao carregar imagem externa: ' + url.substring(0, 50) + '...');
+            console.warn('[placar_futebol] Usando SVG_ESCUDO como último recurso');
+            imgEl.style.display = 'none';
+            var wrapperEl = imgEl.parentNode;
+            var svgDiv = document.createElement('div');
+            svgDiv.innerHTML = SVG_ESCUDO;
+            svgDiv.className = 'w-full h-full';
+            wrapperEl.appendChild(svgDiv);
             onEscudoPronto();
         };
         imgEl.src = url;
@@ -1038,8 +1376,8 @@ function renderizarTemplate(dados, loader) {
         sponsorFooterEl.classList.add('hidden');
     }
 
-    carregarEscudo(logo1, logo1Container, dados.foto1);
-    carregarEscudo(logo2, logo2Container, dados.foto2);
+    carregarEscudo(logo1, logo1Clip, dados.foto1, dados.foto1Fallback);
+    carregarEscudo(logo2, logo2Clip, dados.foto2, dados.foto2Fallback);
 }
 
 /* ====================================================
