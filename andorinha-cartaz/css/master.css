@@ -554,10 +554,6 @@ video {
   display: none;
 }
 
-.\!container {
-  width: 100% !important;
-}
-
 .container {
   width: 100%;
 }
@@ -586,12 +582,8 @@ video {
   inset: 0px;
 }
 
-.left-\[8\%\] {
-  left: 8%;
-}
-
-.top-\[18\%\] {
-  top: 18%;
+.-bottom-\[40\%\] {
+  bottom: -40%;
 }
 
 .z-0 {
@@ -618,20 +610,24 @@ video {
   margin-top: 0.5rem;
 }
 
-.mb-\[1vmin\] {
-  margin-bottom: 1vmin;
-}
-
-.mb-\[2vmin\] {
-  margin-bottom: 2vmin;
-}
-
-.mt-\[1vmin\] {
-  margin-top: 1vmin;
-}
-
 .mt-\[2vmin\] {
   margin-top: 2vmin;
+}
+
+.ms-\[10\%\] {
+  margin-inline-start: 10%;
+}
+
+.mt-\[4vmin\] {
+  margin-top: 4vmin;
+}
+
+.-mt-10 {
+  margin-top: -2.5rem;
+}
+
+.ms-\[30\%\] {
+  margin-inline-start: 30%;
 }
 
 .block {
@@ -682,12 +678,12 @@ video {
   width: 100vw;
 }
 
-.max-w-\[85\%\] {
-  max-width: 85%;
+.w-\[90\%\] {
+  width: 90%;
 }
 
-.max-w-\[90\%\] {
-  max-width: 90%;
+.w-\[75\%\] {
+  width: 75%;
 }
 
 .flex-1 {
@@ -739,6 +735,32 @@ video {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+
+  14% {
+    transform: scale(1.15);
+  }
+
+  28% {
+    transform: scale(1);
+  }
+
+  42% {
+    transform: scale(1.15);
+  }
+
+  70% {
+    transform: scale(1);
+  }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
 @keyframes pulse {
   50% {
     opacity: .5;
@@ -747,6 +769,38 @@ video {
 
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulseScaleWithDelay {
+  0%, 20% {
+    transform: scale(1);
+  }
+
+  10% {
+    transform: scale(1.08);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-pulseScaleWithDelay {
+  animation: pulseScaleWithDelay 5s ease-in-out infinite;
+}
+
+@keyframes softFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-softFloat {
+  animation: softFloat 3.5s ease-in-out infinite;
 }
 
 .resize {
@@ -777,6 +831,14 @@ video {
   justify-content: center;
 }
 
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-around {
+  justify-content: space-around;
+}
+
 .gap-1 {
   gap: 0.25rem;
 }
@@ -797,6 +859,22 @@ video {
   gap: 1.5rem;
 }
 
+.gap-\[4\%\] {
+  gap: 4%;
+}
+
+.gap-\[12\%\] {
+  gap: 12%;
+}
+
+.self-start {
+  align-self: flex-start;
+}
+
+.self-end {
+  align-self: flex-end;
+}
+
 .overflow-hidden {
   overflow: hidden;
 }
@@ -811,14 +889,6 @@ video {
 
 .border {
   border-width: 1px;
-}
-
-.border-b-\[0\.12em\] {
-  border-bottom-width: 0.12em;
-}
-
-.border-b-\[0\.15em\] {
-  border-bottom-width: 0.15em;
 }
 
 .border-l {
@@ -872,6 +942,11 @@ video {
   padding-right: 1.5rem;
 }
 
+.px-\[4vmin\] {
+  padding-left: 4vmin;
+  padding-right: 4vmin;
+}
+
 .py-1 {
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
@@ -897,9 +972,9 @@ video {
   padding-bottom: 1.5rem;
 }
 
-.px-\[4vmin\] {
-  padding-left: 4vmin;
-  padding-right: 4vmin;
+.py-8 {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 }
 
 .py-\[1vmin\] {
@@ -907,9 +982,8 @@ video {
   padding-bottom: 1vmin;
 }
 
-.py-8 {
-  padding-top: 2rem;
-  padding-bottom: 2rem;
+.pt-\[28\%\] {
+  padding-top: 28%;
 }
 
 .text-center {
@@ -920,88 +994,68 @@ video {
   font-family: Komika Title, Impact, sans-serif;
 }
 
-.text-\[0\.32em\] {
-  font-size: 0.32em;
+.text-\[20\%\] {
+  font-size: 20%;
 }
 
-.text-\[0\.42em\] {
-  font-size: 0.42em;
+.text-\[280\%\] {
+  font-size: 280%;
 }
 
-.text-\[0\.45em\] {
-  font-size: 0.45em;
+.text-\[30\%\] {
+  font-size: 30%;
 }
 
-.text-\[0\.55em\] {
-  font-size: 0.55em;
+.text-\[400\%\] {
+  font-size: 400%;
 }
 
-.text-\[0\.5em\] {
-  font-size: 0.5em;
+.text-\[7vmin\] {
+  font-size: 7vmin;
 }
 
-.text-\[0\.65em\] {
-  font-size: 0.65em;
+.text-\[450\%\] {
+  font-size: 450%;
 }
 
-.text-\[0\.85em\] {
-  font-size: 0.85em;
+.text-\[50\%\] {
+  font-size: 50%;
 }
 
-.text-\[1\.1em\] {
-  font-size: 1.1em;
+.text-\[60\%\] {
+  font-size: 60%;
 }
 
-.text-\[2\.2em\] {
-  font-size: 2.2em;
+.text-\[40\%\] {
+  font-size: 40%;
 }
 
-.text-\[2\.8em\] {
-  font-size: 2.8em;
+.text-\[200\%\] {
+  font-size: 200%;
 }
 
-.text-\[2em\] {
-  font-size: 2em;
+.text-\[70\%\] {
+  font-size: 70%;
 }
 
-.text-\[4\.2em\] {
-  font-size: 4.2em;
+.text-\[80\%\] {
+  font-size: 80%;
 }
 
-.text-\[4\.5vh\] {
-  font-size: 4.5vh;
+.text-\[65\%\] {
+  font-size: 65%;
 }
 
-.text-\[5\.5em\] {
-  font-size: 5.5em;
+.text-\[120\%\] {
+  font-size: 120%;
 }
 
-.text-\[12vmin\] {
-  font-size: 12vmin;
+.text-\[140\%\] {
+  font-size: 140%;
 }
 
-.text-\[32vmin\] {
-  font-size: 32vmin;
-}
-
-.text-\[5vmin\] {
-  font-size: 5vmin;
-}
-
-.text-\[6vmin\] {
-  font-size: 6vmin;
-}
-
-.text-\[8vmin\] {
-  font-size: 8vmin;
-}
-
-.text-\[2vmin\] {
-  font-size: 2vmin;
-}
-
-.text-\[5\.5vmin\] {
-  font-size: 5.5vmin;
+.text-\[100\%\] {
+  font-size: 100%;
 }
 
 .font-black {
@@ -1028,8 +1082,17 @@ video {
   line-height: 1.25;
 }
 
+.leading-\[0\] {
+  line-height: 0;
+}
+
 .tracking-wide {
   letter-spacing: 0.025em;
+}
+
+.text-\[\#000000\] {
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity, 1));
 }
 
 .text-\[\#0000FF\] {
@@ -1052,14 +1115,14 @@ video {
   color: rgb(0 0 0 / var(--tw-text-opacity, 1));
 }
 
+.text-red-700 {
+  --tw-text-opacity: 1;
+  color: rgb(185 28 28 / var(--tw-text-opacity, 1));
+}
+
 .text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
-}
-
-.text-\[\#000000\] {
-  --tw-text-opacity: 1;
-  color: rgb(0 0 0 / var(--tw-text-opacity, 1));
 }
 
 .underline {
@@ -1068,6 +1131,14 @@ video {
 
 .line-through {
   text-decoration-line: line-through;
+}
+
+.underline-offset-4 {
+  text-underline-offset: 4px;
+}
+
+.underline-offset-\[6\%\] {
+  text-underline-offset: 6%;
 }
 
 .opacity-0 {
@@ -1096,6 +1167,10 @@ video {
 
 .opacity-90 {
   opacity: 0.9;
+}
+
+.opacity-45 {
+  opacity: 0.45;
 }
 
 .outline {
@@ -1161,7 +1236,7 @@ video {
 @font-face {
   font-family: 'Komika Title';
 
-  src: url('fonts/KOMTIT__.ttf') format('truetype');
+  src: url('fonts/KOMTITP_.ttf') format('truetype');
 
   font-weight: normal;
 
@@ -1171,7 +1246,7 @@ video {
 @font-face {
   font-family: 'Komika Title';
 
-  src: url('fonts/KOMTITB_.ttf') format('truetype');
+  src: url('fonts/KOMTITP_.ttf') format('truetype');
 
   font-weight: bold;
 
@@ -1251,21 +1326,11 @@ video {
    CUSTOMIZAÇÕES ADICIONAIS
    ══════════════════════════════════════════════════════════════════════ */
 
-/* Animação de pulse suave */
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.85;
-  }
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
+/* Animações definidas no tailwind.config.js:
+   - animate-pulseScaleWithDelay: pulse suave com scale 1.08 a cada 5s
+   - animate-heartbeat: batimento cardíaco
+   - animate-softFloat: flutuação suave
+*/
 
 /* Garantir que texto não quebre em lugares indesejados */
 
@@ -1281,80 +1346,4 @@ video {
 
 .border-b-\[0\.12em\] {
   border-bottom-width: 0.12em;
-}
-
-@media (orientation: portrait) {
-  .portrait\:gap-6 {
-    gap: 1.5rem;
-  }
-
-  .portrait\:py-4 {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
-
-  .portrait\:py-6 {
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
-  }
-
-  .portrait\:text-\[0\.45em\] {
-    font-size: 0.45em;
-  }
-
-  .portrait\:text-\[1\.15em\] {
-    font-size: 1.15em;
-  }
-
-  .portrait\:text-\[2\.2em\] {
-    font-size: 2.2em;
-  }
-
-  .portrait\:text-\[3\.5vh\] {
-    font-size: 3.5vh;
-  }
-
-  .portrait\:text-\[4\.5em\] {
-    font-size: 4.5em;
-  }
-}
-
-@media (orientation: landscape) {
-  .landscape\:border-l {
-    border-left-width: 1px;
-  }
-
-  .landscape\:border-t-0 {
-    border-top-width: 0px;
-  }
-
-  .landscape\:py-2 {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
-
-  .landscape\:py-4 {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
-
-  .landscape\:text-\[0\.38em\] {
-    font-size: 0.38em;
-  }
-
-  .landscape\:text-\[1\.8em\] {
-    font-size: 1.8em;
-  }
-
-  .landscape\:text-\[1em\] {
-    font-size: 1em;
-  }
-
-  .landscape\:text-\[2\.5vw\] {
-    font-size: 2.5vw;
-  }
-
-  .landscape\:text-\[3\.8em\] {
-    font-size: 3.8em;
-  }
 }
