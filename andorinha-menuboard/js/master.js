@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function() {
         
         // Calcula font-size proporcional à altura da linha
         // Base: altura linha / 3.5 (ajuste para caber título + preço confortavelmente)
-        var fontSize = Math.floor(alturaLinha / 3.5);
+        var fontSize = Math.floor(alturaLinha / 2.5);
         
         console.log('[INFO] Container height:', containerHeight + 'px');
         console.log('[INFO] Altura calculada por linha:', alturaLinha + 'px');

@@ -714,6 +714,10 @@ video {
   height: 100%;
 }
 
+.max-h-full {
+  max-height: 100%;
+}
+
 .min-h-\[8vh\] {
   min-height: 8vh;
 }
@@ -1075,6 +1079,11 @@ video {
   padding-bottom: 0.75rem;
 }
 
+.py-8 {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
 .ps-10 {
   padding-inline-start: 2.5rem;
 }
@@ -1158,6 +1167,26 @@ video {
 
 .text-\[4vmin\] {
   font-size: 4vmin;
+}
+
+.text-\[1\.8vmin\] {
+  font-size: 1.8vmin;
+}
+
+.text-\[110\%\] {
+  font-size: 110%;
+}
+
+.text-\[40\%\] {
+  font-size: 40%;
+}
+
+.text-\[70\%\] {
+  font-size: 70%;
+}
+
+.text-\[4\.5vmin\] {
+  font-size: 4.5vmin;
 }
 
 .font-bold {
@@ -1490,12 +1519,28 @@ video {
 }
 
 @media (orientation: portrait) {
+  .portrait\:h-full {
+    height: 100%;
+  }
+
   .portrait\:min-h-\[7vh\] {
     min-height: 7vh;
   }
 
   .portrait\:min-w-\[28vw\] {
     min-width: 28vw;
+  }
+
+  .portrait\:min-w-\[23vw\] {
+    min-width: 23vw;
+  }
+
+  .portrait\:min-w-\[22vw\] {
+    min-width: 22vw;
+  }
+
+  .portrait\:flex-1 {
+    flex: 1 1 0%;
   }
 
   .portrait\:bg-\[url\(\'img\/bg_menuboard_vertical\.jpg\'\)\] {
@@ -1510,11 +1555,37 @@ video {
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
   }
+
+  .portrait\:py-\[11vh\] {
+    padding-top: 11vh;
+    padding-bottom: 11vh;
+  }
+
+  .portrait\:py-\[6vh\] {
+    padding-top: 6vh;
+    padding-bottom: 6vh;
+  }
+
+  .portrait\:pb-\[6vh\] {
+    padding-bottom: 6vh;
+  }
+
+  .portrait\:pt-\[11vh\] {
+    padding-top: 11vh;
+  }
+
+  .portrait\:pb-\[5vh\] {
+    padding-bottom: 5vh;
+  }
 }
 
 @media (orientation: landscape) {
   .landscape\:flex {
     display: flex;
+  }
+
+  .landscape\:max-h-full {
+    max-height: 100%;
   }
 
   .landscape\:min-h-\[6vh\] {
@@ -1523,6 +1594,14 @@ video {
 
   .landscape\:min-w-\[14vw\] {
     min-width: 14vw;
+  }
+
+  .landscape\:min-w-\[11vw\] {
+    min-width: 11vw;
+  }
+
+  .landscape\:min-w-\[9vw\] {
+    min-width: 9vw;
   }
 
   .landscape\:flex-row {
@@ -1544,5 +1623,35 @@ video {
   .landscape\:py-2 {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
+  }
+
+  .landscape\:py-8 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .landscape\:py-\[11vh\] {
+    padding-top: 11vh;
+    padding-bottom: 11vh;
+  }
+
+  .landscape\:pt-\[11vh\] {
+    padding-top: 11vh;
+  }
+
+  .landscape\:pt-\[7vh\] {
+    padding-top: 7vh;
+  }
+
+  .landscape\:text-\[4\.5vmin\] {
+    font-size: 4.5vmin;
+  }
+
+  .landscape\:text-\[3vmin\] {
+    font-size: 3vmin;
+  }
+
+  .landscape\:text-\[2\.5vmin\] {
+    font-size: 2.5vmin;
   }
 }
