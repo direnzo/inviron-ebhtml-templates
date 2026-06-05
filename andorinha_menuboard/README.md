@@ -1,11 +1,11 @@
-# Menuboard - Lista de Produtos
+# Andorinha Menuboard - Lista de Produtos
 
-Template de exibição de lista de produtos para supermercados em displays digitais.
+Template de exibição de lista de produtos para Supermercado Andorinha em displays digitais.
 
 ## Estrutura
 
 ```
-_menuboard_modelo/
+andorinha_menuboard/
 ├── index.html
 ├── package.json
 ├── tailwind.config.js
