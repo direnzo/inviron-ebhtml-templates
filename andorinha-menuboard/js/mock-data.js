@@ -164,7 +164,7 @@ var MOCK_DATA = {
         {
             TITULO: 'Cerveja Heineken Puro Malte',
             TEXTO1: 'Lata 269ml',
-            PRICE: '33.79',
+            PRICE: '3.79',
             PRICE2: '45.48',
             TEXTO3: 'CX/12'
         },
@@ -181,6 +181,125 @@ var MOCK_DATA = {
             PRICE: '4.99',
             PRICE2: '58.90',
             TEXTO3: 'CX/12'
+        },
+        {
+            TITULO: 'Cerveja Antarctica Pilsen',
+            TEXTO1: 'Lata 350ml',
+            PRICE: '2.89',
+            PRICE2: '33.90',
+            TEXTO3: 'CX/12'
+        },
+        {
+            TITULO: 'Cerveja Stella Artois',
+            TEXTO1: 'Long Neck 330ml',
+            PRICE: '4.59',
+            PRICE2: '53.90',
+            TEXTO3: 'CX/12'
+        },
+        {
+            TITULO: 'Cerveja Budweiser',
+            TEXTO1: 'Lata 350ml',
+            PRICE: '3.49',
+            PRICE2: '40.90',
+            TEXTO3: 'CX/12'
+        },
+        {
+            TITULO: 'Cerveja Corona Extra',
+            TEXTO1: 'Long Neck 355ml',
+            PRICE: '5.99',
+            PRICE2: '69.90',
+            TEXTO3: 'CX/12'
+        },
+        {
+            TITULO: 'Cerveja Eisenbahn Pilsen',
+            TEXTO1: 'Garrafa 355ml',
+            PRICE: '4.29',
+            PRICE2: '50.90',
+            TEXTO3: 'CX/12'
+        },
+        {
+            TITULO: 'Coca-Cola Original',
+            TEXTO1: 'Lata 350ml',
+            PRICE: '3.19',
+            PRICE2: '37.90',
+            TEXTO3: 'CX/12'
+        },
+        {
+            TITULO: 'Coca-Cola Zero',
+            TEXTO1: 'PET 2L',
+            PRICE: '8.99',
+            PRICE2: '52.90',
+            TEXTO3: 'CX/6'
+        },
+        {
+            TITULO: 'Guaraná Antarctica',
+            TEXTO1: 'Lata 350ml',
+            PRICE: '2.79',
+            PRICE2: '32.90',
+            TEXTO3: 'CX/12'
+        },
+        {
+            TITULO: 'Fanta Laranja',
+            TEXTO1: 'PET 2L',
+            PRICE: '7.99',
+            PRICE2: '46.90',
+            TEXTO3: 'CX/6'
+        },
+        {
+            TITULO: 'Pepsi Cola',
+            TEXTO1: 'Lata 350ml',
+            PRICE: '2.69',
+            PRICE2: '31.90',
+            TEXTO3: 'CX/12'
+        },
+        {
+            TITULO: 'Água Crystal',
+            TEXTO1: 'Garrafa 500ml',
+            PRICE: '1.99',
+            PRICE2: '23.90',
+            TEXTO3: 'CX/12'
+        },
+        {
+            TITULO: 'Água com Gás Perrier',
+            TEXTO1: 'Garrafa 330ml',
+            PRICE: '4.99',
+            PRICE2: '58.90',
+            TEXTO3: 'CX/12'
+        },
+        {
+            TITULO: 'Suco Del Valle Laranja',
+            TEXTO1: 'Caixa 1L',
+            PRICE: '6.49',
+            PRICE2: '38.90',
+            TEXTO3: 'CX/6'
+        },
+        {
+            TITULO: 'Suco Del Valle Uva',
+            TEXTO1: 'Caixa 1L',
+            PRICE: '6.49',
+            PRICE2: '38.90',
+            TEXTO3: 'CX/6'
+        },
+        {
+            TITULO: 'Red Bull Energy Drink',
+            TEXTO1: 'Lata 250ml',
+            PRICE: '8.99',
+            PRICE2: '106.90',
+            TEXTO3: 'CX/12'
+        },
+        {
+            TITULO: 'Monster Energy',
+            TEXTO1: 'Lata 473ml',
+            PRICE: '9.99',
+            PRICE2: '118.90',
+            TEXTO3: 'CX/12'
+        },
+        {
+            TITULO: 'Sprite Limão',
+            TEXTO1: 'PET 2L',
+            PRICE: '7.99',
+            PRICE2: '46.90',
+            TEXTO3: 'CX/6'
         }
     ]
 };
