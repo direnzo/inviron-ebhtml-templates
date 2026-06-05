@@ -34,6 +34,41 @@ document.addEventListener("DOMContentLoaded", function() {
         return isLandscape() ? 20 : 10;  // 20 em landscape, 10 em portrait
     }
     
+    // ─── Ajuste Dinâmico de Altura (Landscape) ───────────────────────────────
+    
+    function ajustarAlturaLinhas() {
+        if (!isLandscape()) {
+            return; // Portrait usa flex-1 no CSS, não precisa calcular
+        }
+        
+        // Em landscape: calcular altura de cada linha para caber exatamente
+        var container = contentRowsContainer;
+        var containerHeight = container.offsetHeight; // Altura disponível
+        
+        var numLinhas = 10;
+        var gap = 16; // gap-4 = 1rem = 16px
+        var totalGaps = gap * (numLinhas - 1); // 9 gaps entre 10 linhas
+        
+        var alturaLinha = (containerHeight - totalGaps) / numLinhas;
+        
+        console.log('[INFO] Container height:', containerHeight + 'px');
+        console.log('[INFO] Altura calculada por linha:', alturaLinha + 'px');
+        
+        // Aplica altura calculada em todas as linhas da coluna 1
+        var linhas = container.querySelectorAll(':scope > div');
+        for (var i = 0; i < linhas.length; i++) {
+            linhas[i].style.height = alturaLinha + 'px';
+        }
+        
+        // Aplica também na coluna 2
+        if (contentRowsContainer2) {
+            var linhas2 = contentRowsContainer2.querySelectorAll(':scope > div');
+            for (var j = 0; j < linhas2.length; j++) {
+                linhas2[j].style.height = alturaLinha + 'px';
+            }
+        }
+    }
+    
     // ─── Funções Auxiliares ──────────────────────────────────────────────────
     
     function formatarPreco(valor) {
@@ -55,12 +90,15 @@ document.addEventListener("DOMContentLoaded", function() {
         
         // Seleciona os blocos
         var blocoDescricao = row.querySelector(".bloco-descricao");
+        var blocoPrecos = row.querySelector(".bloco-precos");
         
         // Classes alternadas para cor de fundo do bloco de descrição
         if (index % 2 === 0) {
             blocoDescricao.classList.add("bg-blue-600", "text-white");
+            blocoPrecos.classList.add("bg-blue-600", "text-white");
         } else {
             blocoDescricao.classList.add("bg-white", "text-blue-700");
+            blocoPrecos.classList.add("bg-white", "text-blue-700");
         }
         
         // Popula os dados
@@ -174,6 +212,11 @@ document.addEventListener("DOMContentLoaded", function() {
         tableContainer.classList.remove("opacity-0");
         body.classList.remove("opacity-0");
         body.classList.add("opacity-100");
+        
+        // Ajusta altura das linhas em landscape após renderização
+        setTimeout(function() {
+            ajustarAlturaLinhas();
+        }, 100); // Pequeno delay para garantir que DOM está pronto
     }
     
     function finalizarLoader() {
@@ -246,6 +289,18 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log('[MOCK] Total de produtos disponíveis: ' + items.length);
         
         exibirProdutos(items);
+        
+        // Mock loader
+        var mockLoader = {
+            loaded: function() { console.log('[Mock] Carregado'); },
+            finished: function() { console.log('[Mock] Finalizado'); }
+        };
+        loader2 = mockLoader;
+        loader2.loaded();
+        
+        setTimeout(function() {
+            finalizarLoader();
+        }, displayDuration);
     }
     
     // ─── INICIALIZAÇÃO ────────────────────────────────────────────────────────
