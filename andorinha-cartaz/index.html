@@ -1,37 +1,145 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>Andorinha Cartaz - Supermercado</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/master.css">
-    
+
     <!-- Scripts essenciais -->
     <script src="js/ebhtml.js"></script>
-    <script src="js/mock-data.js"></script> <!-- MOCK ATIVO para testes -->
+    <script src="js/mock-data.js"></script> MOCK ATIVO para testes
     <script src="js/master.js"></script>
 </head>
 
 <body class="bg-white overflow-hidden text-black font-komika opacity-0 transition-opacity duration-500 w-screen h-screen">
-    
+
     <!-- Background dinâmico (varia por condição) -->
     <div id="background_container" class="absolute inset-0 z-0"></div>
 
     <!-- Conteúdo principal -->
-    <div id="fullContent" class="relative z-10 w-full h-full flex flex-col bg-white opacity-0 transition-opacity duration-300">
-        
+    <div id="fullContent" class="relative z-10 w-full h-full flex flex-col opacity-0 transition-opacity duration-300 pt-[28%] text-[7vmin]">
+
         <!-- 1. TÍTULO DO PRODUTO -->
         <div class="flex-none flex items-center justify-center w-full px-6 py-8 max-h-[22%]">
-            <div id="titulo" class="text-center text-[5.5vmin] font-bold italic leading-tight uppercase"></div>
+            <div id="titulo" class="text-center font-bold leading-tight uppercase"></div>
         </div>
 
-        <!-- 2. PREÇO (construído dinamicamente via JS) -->
+        <!-- 2. PREÇO (preenchido via template) -->
         <div id="price_display" class="flex-1 flex items-center justify-center w-full px-4 py-2 min-h-0"></div>
 
         <!-- 3. TEXTO LEGAL (rodapé) -->
-        <div id="legal_text" class="flex-none text-center text-[2vmin] text-[#FF0000] font-bold px-4 py-3 leading-tight uppercase"></div>
+        <div id="legal_text" class="flex-none text-[30%] text-red-700 text-center #FF0000] font-bold px-4 py-3 leading-tight uppercase"></div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         TEMPLATES DE PREÇO (reutilizáveis)
+    ════════════════════════════════════════════════════════════════════════ -->
+
+    <!-- ─── SUB-TEMPLATE: PREÇO FULL (grande) ────────────────────────────── -->
+    <template id="price_full">
+        <div class="flex items-start justify-center leading-none gap-[4%]">
+            <div class="font-bold mt-[2vmin] self-end">R$</div>
+            <div data-field="inteiro" class="text-[450%] font-bold"></div>
+            <div class="flex flex-col font-bold mt-[2vmin] text-[280%] self-start relative">
+                <span data-field="centavos" class="underline underline-offset-[6%]"></span>
+                <div data-field="unit" class="absolute -bottom-[40%] text-[20%] w-full text-center"></div>
+            </div>
+        </div>
+    </template>
+
+    <!-- ─── SUB-TEMPLATE: PREÇO INLINE (pequeno) ──────────────────────────── -->
+    <template id="price_inline">
+        <div class="font-bold">
+            R$ <span data-field="preco_completo"></span>
+        </div>
+    </template>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         TEMPLATES POR CONDIÇÃO (usam sub-templates acima)
+    ════════════════════════════════════════════════════════════════════════ -->
+
+    <!-- ─── TEMPLATE: REGULAR ─────────────────────────────────────────────── -->
+    <template id="template_regular">
+        <div class="flex flex-col items-center justify-center w-full h-full text-[#FF0000]">
+            <div data-slot="price_full" class="animate-pulseScaleWithDelay"></div>
+        </div>
+    </template>
+
+    <!-- ─── TEMPLATE: DEPOR ───────────────────────────────────────────────── -->
+    <template id="template_depor">
+        <div class="flex flex-col items-center justify-center w-full h-full gap-[12%]">
+            <!-- Preço antigo (riscado, acima) -->
+            <div class="text-[#FF0000] opacity-70 line-through self-start ms-[10%]">
+                <div data-slot="price_inline_old"></div>
+            </div>
+
+            <!-- Preço novo (grande) -->
+            <div class="text-[#FF0000]">
+                <div data-slot="price_full" class="animate-pulseScaleWithDelay"></div>
+            </div>
+        </div>
+    </template>
+
+    <!-- ─── TEMPLATE: FIDELIDADE ──────────────────────────────────────────── -->
+    <template id="template_fidelidade">
+        <!-- bloco principal -->
+        <div class="flex flex-col items-center justify-center w-full h-full gap-3">
+
+            <!-- Preço antigo (riscado, acima) - SEM animação -->
+            <div class="text-[#FF0000] opacity-70 line-through self-start ms-[10%]">
+                <div data-slot="price_inline_old" class="text-[60%] opacity-45"></div>
+            </div>
+
+            <!-- Preço principal - COM animação -->
+            <div data-slot="price_full" class="text-[120%] text-[#FF0000] -mt-10 animate-pulseScaleWithDelay"></div>
+
+
+            <!-- segundo bloco com preco especial levando mais unidades -->
+            <!-- label azul dentro do box branco -->
+            <div class="w-[75%] flex flex-col items-center justify-center h-full gap-3 text-[#0000FF] mt-[4vmin]">
+                
+                <!-- Preço secundário - COM animação -->
+                <div data-slot="price_inline_secondary" class="mt-[2vmin] ms-[30%] text-[70%] font-bold text-[#FF0000] animate-pulseScaleWithDelay">
+                    <span data-slot-inline="price_full_secondary"></span>
+                </div>
+            </div>
+
+        </div>
+    </template>
+
+    <!-- ─── TEMPLATE: APARTIRDE ───────────────────────────────────────────── -->
+    <template id="template_apartirde">
+        <!-- bloco principal -->
+        <div class="flex flex-col items-center justify-center w-full h-full gap-3">
+
+            <!-- Preço antigo (riscado, acima) - SEM animação -->
+            <div class="text-[#FF0000] opacity-70 line-through self-start ms-[10%]">
+                <div data-slot="price_inline_old" class="text-[60%] opacity-45"></div>
+            </div>
+
+            <!-- Preço principal - COM animação -->
+            <div data-slot="price_full" class="text-[70%] text-[#FF0000] -mt-10 animate-pulseScaleWithDelay"></div>
+
+
+            <!-- segundo bloco com preco especial levando mais unidades -->
+            <!-- label azul dentro do box branco -->
+            <div class="w-[75%] flex flex-col items-center justify-center h-full gap-3 text-[#0000FF] mt-[4vmin]">
+                <div class="px-[4vmin] text-[50%] text-center">
+                    <!-- Label - SEM animação -->
+                    NO CARTÃO ANDORINHA OU A PARTIR DE <span data-slot="unidades" class="text-[#FF0000] text-[140%] leading-[0]"></span> UNIDADES
+                </div>
+                <!-- Preço secundário - COM animação -->
+                <div data-slot="price_inline_secondary" class="mt-[2vmin] text-[80%] font-bold text-[#FF0000] animate-pulseScaleWithDelay">
+                    <span data-slot-inline="price_full_secondary"></span>
+                </div>
+            </div>
+
+        </div>
+    </template>
+80
 </body>
+
 </html>

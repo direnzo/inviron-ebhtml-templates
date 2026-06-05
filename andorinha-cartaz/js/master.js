@@ -9,7 +9,7 @@
  */
 
 // ─── CONFIGURAÇÃO ───────────────────────────────────────────────────────────
-var DURATION = 15000;  // 15 segundos
+var DURATION = 10000;  // 10 segundos
 var DATASET = 'D_MENUBOARD_PRICES';
 
 // ─── CARREGAMENTO ──────────────────────────────────────────────────────────
@@ -40,7 +40,9 @@ window.onload = function() {
                 var dados = {
                     titulo: getField(item, 'TITULO'),
                     price: getField(item, 'PRICE'),
-                    price2: getField(item, 'PRICE2'),      // preço antigo (DEPOR) ou preço secundário (APARTIRDE)
+                    price2: getField(item, 'PRICE2'),      // preço antigo (DEPOR/FIDELIDADE) ou preço secundário (APARTIRDE)
+                    price3: getField(item, 'PRICE3'),       // preço terciário (FIDELIDADE - preço sem condição)
+                    unidades: getField(item, 'TEXTO6'),    // número de unidades (APARTIRDE)
                     condicao: getField(item, 'TEXTO3'),    // REGULAR/DEPOR/FIDELIDADE/APARTIRDE
                     unit: getField(item, 'TEXTO4'),        // kg/L/un
                     legal: getField(item, 'TEXTO5')        // texto legal (rodapé)
@@ -73,7 +75,7 @@ function formatarPreco(valor) {
     
     return {
         inteiro: inteiroFormatado,
-        centavos: centavos,
+        centavos: ',' + centavos,  // ✅ Vírgula vem do JS
         completo: inteiroFormatado + ',' + centavos
     };
 }
@@ -100,307 +102,213 @@ function aplicarBackground(condicao) {
     var bgPath = bgMap[condicao] || bgMap['regular'];
     var bgContainer = document.getElementById('background_container');
     
-    if (bgContainer) {
-        var img = document.createElement('img');
-        img.src = bgPath;
-        img.className = 'absolute inset-0 w-full h-full object-cover';
-        bgContainer.appendChild(img);
+    if (!bgContainer) {
+        throw new Error('Elemento background_container não encontrado');
     }
+    
+    var img = document.createElement('img');
+    img.src = bgPath;
+    img.className = 'absolute inset-0 w-full h-full object-cover';
+    bgContainer.appendChild(img);
 }
 
 // ─── RENDERIZAÇÃO PRINCIPAL ────────────────────────────────────────────────
 function renderizar(dados, loader) {
     console.log('[Renderizar]', dados);
     
-    // 1. Título
-    var tituloEl = document.getElementById('titulo');
-    if (tituloEl) {
-        tituloEl.textContent = dados.titulo || 'PRODUTO';
-    }
-    
-    // 2. Condição
-    var condicao = normalizarCondicao(dados.condicao);
-    console.log('[Condição]', condicao);
-    
-    // 3. Background
-    aplicarBackground(condicao);
-    
-    // 4. Preço (de acordo com condição)
-    var preco = formatarPreco(dados.price);
-    var preco2 = dados.price2 ? formatarPreco(dados.price2) : null;
-    
-    if (condicao === 'depor') {
-        renderizarDepor(preco, preco2, dados.unit);
-    } else if (condicao === 'fidelidade') {
-        renderizarFidelidade(preco, dados.unit);
-    } else if (condicao === 'apartirde') {
-        renderizarAPartirDe(preco, preco2, dados.unit);
-    } else {
-        renderizarRegular(preco, dados.unit);
-    }
-    
-    // 5. Texto legal (rodapé)
-    var legalEl = document.getElementById('legal_text');
-    if (legalEl && dados.legal) {
-        legalEl.textContent = dados.legal;
-    }
-    
-    // 6. Animação de entrada
-    var body = document.body;
-    var fullContent = document.getElementById('fullContent');
-    
-    setTimeout(function() {
-        body.classList.remove('opacity-0');
-        body.classList.add('opacity-100');
-        
-        if (fullContent) {
-            fullContent.classList.remove('opacity-0');
-            fullContent.classList.add('opacity-100');
+    try {
+        // 1. Título
+        var tituloEl = document.getElementById('titulo');
+        if (tituloEl) {
+            tituloEl.textContent = dados.titulo || 'PRODUTO';
         }
         
-        loader.loaded();  // ✅ Sucesso
+        // 2. Condição
+        var condicao = normalizarCondicao(dados.condicao);
+        console.log('[Condição]', condicao);
         
-        // Finalizar após duração
+        // 3. Background
+        aplicarBackground(condicao);
+        
+        // 4. Preço (usando template HTML)
+        renderizarPreco(dados, condicao);
+        
+        // 5. Texto legal (rodapé)
+        var legalEl = document.getElementById('legal_text');
+        if (legalEl && dados.legal) {
+            legalEl.textContent = dados.legal;
+        }
+        
+        // 6. Animação de entrada
+        var body = document.body;
+        var fullContent = document.getElementById('fullContent');
+        
         setTimeout(function() {
-            loader.finished();
-        }, DURATION);
-    }, 100);
+            body.classList.remove('opacity-0');
+            body.classList.add('opacity-100');
+            
+            if (fullContent) {
+                fullContent.classList.remove('opacity-0');
+                fullContent.classList.add('opacity-100');
+            }
+            
+            loader.loaded();  // ✅ Sucesso no carregamento
+            
+            // Finalizar após duração
+            setTimeout(function() {
+                loader.finished();  // ✅ Fim da execução
+            }, DURATION);
+        }, 100);
+        
+    } catch (erro) {
+        console.error('[ERRO] Falha na renderização:', erro);
+        loader.finished();  // ✅ Erro durante renderização - apenas finished
+    }
 }
 
-// ─── RENDERIZADORES POR CONDIÇÃO ───────────────────────────────────────────
-
-/**
- * REGULAR: Preço comum sem extras
- */
-function renderizarRegular(preco, unit) {
+// ─── RENDERIZAR PREÇO (usando templates HTML) ──────────────────────────────
+function renderizarPreco(dados, condicao) {
     var priceDisplay = document.getElementById('price_display');
-    if (!priceDisplay) return;
-    
-    priceDisplay.innerHTML = '';
-    
-    // Container principal
-    var container = document.createElement('div');
-    container.className = 'flex flex-col items-center justify-center w-full';
-    
-    // Linha do preço
-    var priceRow = document.createElement('div');
-    priceRow.className = 'flex items-start justify-center';
-    
-    // R$
-    var simbolo = document.createElement('div');
-    simbolo.className = 'text-[#FF0000] text-[12vmin] font-bold mt-[2vmin]';
-    simbolo.textContent = 'R$';
-    
-    // Parte inteira
-    var inteiro = document.createElement('div');
-    inteiro.className = 'text-[#FF0000] text-[32vmin] font-bold leading-none';
-    inteiro.textContent = preco.inteiro;
-    
-    // Parte decimal
-    var centavos = document.createElement('div');
-    centavos.className = 'text-[#FF0000] text-[12vmin] font-bold mt-[2vmin]';
-    centavos.textContent = ',' + preco.centavos;
-    
-    priceRow.appendChild(simbolo);
-    priceRow.appendChild(inteiro);
-    priceRow.appendChild(centavos);
-    
-    // Unidade (kg, L, un)
-    if (unit) {
-        var unitEl = document.createElement('div');
-        unitEl.className = 'text-[#FF0000] text-[8vmin] font-bold mt-[1vmin]';
-        unitEl.textContent = unit;
-        container.appendChild(priceRow);
-        container.appendChild(unitEl);
-    } else {
-        container.appendChild(priceRow);
+    if (!priceDisplay) {
+        throw new Error('Elemento price_display não encontrado');
     }
     
-    priceDisplay.appendChild(container);
+    // Limpar conteúdo anterior
+    priceDisplay.innerHTML = '';
+    
+    // Selecionar template correto
+    var templateId = 'template_' + condicao;
+    var template = document.getElementById(templateId);
+    
+    if (!template || !template.content) {
+        throw new Error('Template não encontrado: ' + templateId);
+    }
+    
+    // Clonar template principal
+    var clone = template.content.cloneNode(true);
+    
+    // Formatar preços
+    var preco = formatarPreco(dados.price);
+    var preco2 = dados.price2 ? formatarPreco(dados.price2) : null;
+    var preco3 = dados.price3 ? formatarPreco(dados.price3) : null;
+    
+    console.log('[Preço]', preco, '| Preço2:', preco2, '| Preço3:', preco3);
+    
+    // ─── Preencher slot: price_full (preço grande) ───────────────────────────
+    var slotPriceFull = clone.querySelector('[data-slot="price_full"]');
+    if (slotPriceFull) {
+        var priceFull = criarPriceFull(preco.inteiro, preco.centavos, dados.unit || '');
+        slotPriceFull.appendChild(priceFull);
+    }
+    
+    // ─── Preencher slot: price_inline_old (preço antigo riscado) ─────────────
+    var slotPriceOld = clone.querySelector('[data-slot="price_inline_old"]');
+    if (slotPriceOld) {
+        var precoParaRiscar = null;
+        
+        if (condicao === 'depor' && preco2) {
+            precoParaRiscar = preco2;  // DEPOR usa price2
+        } else if (condicao === 'fidelidade' && preco2) {
+            precoParaRiscar = preco2;  // FIDELIDADE usa price2
+        } else if (condicao === 'apartirde' && preco3) {
+            precoParaRiscar = preco3;  // APARTIRDE usa price3
+        }
+        // aplica preço antigo riscado se disponível para DEPOR, FIDELIDADE ou APARTIRDE
+        if (precoParaRiscar) {
+            var priceInlineOld = criarPriceInline(precoParaRiscar.completo);
+            slotPriceOld.appendChild(priceInlineOld);
+        }
+    }
+    
+    // ─── Preencher slots: unidades + price_full_secondary (APARTIRDE) ────────
+    if (condicao === 'apartirde') {
+        // Número de unidades
+        var slotUnidades = clone.querySelector('[data-slot="unidades"]');
+        if (slotUnidades) {
+            slotUnidades.textContent = dados.unidades || '2';
+            slotUnidades.classList.add('animate-pulseScaleWithDelay');
+        }
+        
+        // Preço secundário FULL (preço com condição - price2)
+        var slotPriceSecondary = clone.querySelector('[data-slot="price_inline_secondary"]');
+        if (slotPriceSecondary && preco2) {
+            var slotFull = slotPriceSecondary.querySelector('[data-slot-inline="price_full_secondary"]');
+            if (slotFull) {
+                var priceFullSecondary = criarPriceFull(preco2.inteiro, preco2.centavos, dados.unit || '');
+                slotFull.appendChild(priceFullSecondary);
+            }
+        }
+    }    
+    // ─── Preencher slot: price_full_secondary (FIDELIDADE - preço sem condição) ───────
+    if (condicao === 'fidelidade') {
+        var slotPriceSecondary = clone.querySelector('[data-slot="price_inline_secondary"]');
+        if (slotPriceSecondary && preco3) {
+            var slotFull = slotPriceSecondary.querySelector('[data-slot-inline="price_full_secondary"]');
+            if (slotFull) {
+                var priceFullSecondary = criarPriceFull(preco3.inteiro, preco3.centavos, dados.unit || '');
+                slotFull.appendChild(priceFullSecondary);
+            }
+        }
+    }    
+    // Adicionar ao DOM
+    priceDisplay.appendChild(clone);
+    
+   
 }
 
-/**
- * DEPOR: Preço promocional com preço antigo riscado acima
- */
-function renderizarDepor(preco, precoAntigo, unit) {
-    var priceDisplay = document.getElementById('price_display');
-    if (!priceDisplay) return;
-    
-    priceDisplay.innerHTML = '';
-    
-    // Container principal
-    var container = document.createElement('div');
-    container.className = 'flex flex-col items-center justify-center w-full';
-    
-    // Preço antigo (riscado) - ACIMA
-    if (precoAntigo) {
-        var oldPriceRow = document.createElement('div');
-        oldPriceRow.className = 'flex items-center justify-center mb-[1vmin]';
-        
-        var oldPrice = document.createElement('div');
-        oldPrice.className = 'text-[#000000] text-[6vmin] font-bold line-through opacity-70';
-        oldPrice.textContent = 'R$ ' + precoAntigo.completo;
-        
-        oldPriceRow.appendChild(oldPrice);
-        container.appendChild(oldPriceRow);
+// ─── CRIAR PRICE_FULL (sub-template de preço grande) ───────────────────────
+function criarPriceFull(inteiro, centavos, unit) {
+    var template = document.getElementById('price_full');
+    if (!template || !template.content) {
+        console.error('[ERRO] Template price_full não encontrado');
+        return document.createDocumentFragment();
     }
     
-    // Preço novo (grande)
-    var priceRow = document.createElement('div');
-    priceRow.className = 'flex items-start justify-center';
+    var clone = template.content.cloneNode(true);
     
-    // R$
-    var simbolo = document.createElement('div');
-    simbolo.className = 'text-[#FF0000] text-[12vmin] font-bold mt-[2vmin]';
-    simbolo.textContent = 'R$';
+    preencherCampo(clone, 'inteiro', inteiro);
+    preencherCampo(clone, 'centavos', centavos);
+    preencherCampo(clone, 'unit', unit);
     
-    // Parte inteira
-    var inteiro = document.createElement('div');
-    inteiro.className = 'text-[#FF0000] text-[32vmin] font-bold leading-none';
-    inteiro.textContent = preco.inteiro;
-    
-    // Parte decimal
-    var centavos = document.createElement('div');
-    centavos.className = 'text-[#FF0000] text-[12vmin] font-bold mt-[2vmin]';
-    centavos.textContent = ',' + preco.centavos;
-    
-    priceRow.appendChild(simbolo);
-    priceRow.appendChild(inteiro);
-    priceRow.appendChild(centavos);
-    
-    container.appendChild(priceRow);
-    
-    // Unidade
-    if (unit) {
-        var unitEl = document.createElement('div');
-        unitEl.className = 'text-[#FF0000] text-[8vmin] font-bold mt-[1vmin]';
-        unitEl.textContent = unit;
-        container.appendChild(unitEl);
-    }
-    
-    priceDisplay.appendChild(container);
+    return clone;
 }
 
-/**
- * FIDELIDADE: Preço com badge azul "FIDELIDADE"
- */
-function renderizarFidelidade(preco, unit) {
-    var priceDisplay = document.getElementById('price_display');
-    if (!priceDisplay) return;
-    
-    priceDisplay.innerHTML = '';
-    
-    // Container principal
-    var container = document.createElement('div');
-    container.className = 'flex flex-col items-center justify-center w-full';
-    
-    // Badge "FIDELIDADE"
-    var badge = document.createElement('div');
-    badge.className = 'bg-[#0000FF] text-white text-[5vmin] font-bold px-[4vmin] py-[1vmin] rounded-lg mb-[2vmin]';
-    badge.textContent = 'FIDELIDADE';
-    container.appendChild(badge);
-    
-    // Linha do preço
-    var priceRow = document.createElement('div');
-    priceRow.className = 'flex items-start justify-center';
-    
-    // R$
-    var simbolo = document.createElement('div');
-    simbolo.className = 'text-[#0000FF] text-[12vmin] font-bold mt-[2vmin]';
-    simbolo.textContent = 'R$';
-    
-    // Parte inteira
-    var inteiro = document.createElement('div');
-    inteiro.className = 'text-[#0000FF] text-[32vmin] font-bold leading-none';
-    inteiro.textContent = preco.inteiro;
-    
-    // Parte decimal
-    var centavos = document.createElement('div');
-    centavos.className = 'text-[#0000FF] text-[12vmin] font-bold mt-[2vmin]';
-    centavos.textContent = ',' + preco.centavos;
-    
-    priceRow.appendChild(simbolo);
-    priceRow.appendChild(inteiro);
-    priceRow.appendChild(centavos);
-    
-    container.appendChild(priceRow);
-    
-    // Unidade
-    if (unit) {
-        var unitEl = document.createElement('div');
-        unitEl.className = 'text-[#0000FF] text-[8vmin] font-bold mt-[1vmin]';
-        unitEl.textContent = unit;
-        container.appendChild(unitEl);
+// ─── CRIAR PRICE_INLINE (sub-template de preço pequeno) ────────────────────
+function criarPriceInline(precoCompleto) {
+    var template = document.getElementById('price_inline');
+    if (!template || !template.content) {
+        console.error('[ERRO] Template price_inline não encontrado');
+        return document.createDocumentFragment();
     }
     
-    priceDisplay.appendChild(container);
+    var clone = template.content.cloneNode(true);
+    
+    preencherCampo(clone, 'preco_completo', precoCompleto);
+    
+    return clone;
 }
 
-/**
- * APARTIRDE: "a partir de" com dois preços
- */
-function renderizarAPartirDe(preco, preco2, unit) {
-    var priceDisplay = document.getElementById('price_display');
-    if (!priceDisplay) return;
+// ─── PREENCHER CAMPO (helper) ───────────────────────────────────────────────
+function preencherCampo(clone, fieldName, valor) {
+    if (!valor && valor !== 0) return;  // Não preencher se vazio
     
-    priceDisplay.innerHTML = '';
+    var elementos = clone.querySelectorAll('[data-field="' + fieldName + '"]');
     
-    // Container principal
-    var container = document.createElement('div');
-    container.className = 'flex flex-col items-center justify-center w-full';
-    
-    // Label "A PARTIR DE"
-    var label = document.createElement('div');
-    label.className = 'text-[#FF6B9D] text-[5vmin] font-bold mb-[1vmin]';
-    label.textContent = 'A PARTIR DE';
-    container.appendChild(label);
-    
-    // Preço principal (grande)
-    var priceRow = document.createElement('div');
-    priceRow.className = 'flex items-start justify-center';
-    
-    // R$
-    var simbolo = document.createElement('div');
-    simbolo.className = 'text-[#FF6B9D] text-[12vmin] font-bold mt-[2vmin]';
-    simbolo.textContent = 'R$';
-    
-    // Parte inteira
-    var inteiro = document.createElement('div');
-    inteiro.className = 'text-[#FF6B9D] text-[32vmin] font-bold leading-none';
-    inteiro.textContent = preco.inteiro;
-    
-    // Parte decimal
-    var centavos = document.createElement('div');
-    centavos.className = 'text-[#FF6B9D] text-[12vmin] font-bold mt-[2vmin]';
-    centavos.textContent = ',' + preco.centavos;
-    
-    priceRow.appendChild(simbolo);
-    priceRow.appendChild(inteiro);
-    priceRow.appendChild(centavos);
-    
-    container.appendChild(priceRow);
-    
-    // Unidade
-    if (unit) {
-        var unitEl = document.createElement('div');
-        unitEl.className = 'text-[#FF6B9D] text-[8vmin] font-bold mt-[1vmin]';
-        unitEl.textContent = unit;
-        container.appendChild(unitEl);
-    }
-    
-    // Preço secundário (se houver) - menor, abaixo
-    if (preco2) {
-        var price2Row = document.createElement('div');
-        price2Row.className = 'flex items-center justify-center mt-[2vmin]';
+    for (var i = 0; i < elementos.length; i++) {
+        var el = elementos[i];
         
-        var price2 = document.createElement('div');
-        price2.className = 'text-[#FF6B9D] text-[6vmin] font-bold';
-        price2.textContent = 'ou R$ ' + preco2.completo;
-        if (unit) price2.textContent += ' ' + unit;
-        
-        price2Row.appendChild(price2);
-        container.appendChild(price2Row);
+        // Se tem filhos <span>, preencher o primeiro span vazio
+        var spans = el.querySelectorAll('span');
+        if (spans.length > 0) {
+            for (var j = 0; j < spans.length; j++) {
+                if (!spans[j].textContent || spans[j].textContent.trim() === '') {
+                    spans[j].textContent = valor;
+                    break;
+                }
+            }
+        } else {
+            // Senão, preencher o próprio elemento
+            el.textContent = valor;
+        }
     }
-    
-    priceDisplay.appendChild(container);
 }

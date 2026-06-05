@@ -8,14 +8,14 @@
 
 @font-face {
     font-family: 'Komika Title';
-    src: url('fonts/KOMTIT__.ttf') format('truetype');
+    src: url('fonts/KOMTITP_.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'Komika Title';
-    src: url('fonts/KOMTITB_.ttf') format('truetype');
+    src: url('fonts/KOMTITP_.ttf') format('truetype');
     font-weight: bold;
     font-style: normal;
 }
@@ -49,19 +49,11 @@
    CUSTOMIZAÇÕES ADICIONAIS
    ══════════════════════════════════════════════════════════════════════ */
 
-/* Animação de pulse suave */
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.85;
-    }
-}
-
-.animate-pulse {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
+/* Animações definidas no tailwind.config.js:
+   - animate-pulseScaleWithDelay: pulse suave com scale 1.08 a cada 5s
+   - animate-heartbeat: batimento cardíaco
+   - animate-softFloat: flutuação suave
+*/
 
 /* Garantir que texto não quebre em lugares indesejados */
 .leading-tight {
