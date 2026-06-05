@@ -15,13 +15,14 @@ var MOCK_DATA = {
     // Simula D_MENUBOARD_PRICES (lista de produtos)
     // Backend já retorna apenas os N itens (via amount= na URL)
     // NÃO precisa de paginação - cada refresh mostra novos produtos
-    produtos: [
+    acougue: [
         // ─── Layout Simples (apenas 1 preço) ─────────────────────
         {
             TITULO: 'Maminha da Alcatra',
             TEXTO1: '',
             PRICE: '69.00',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -29,13 +30,15 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '89.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
             TITULO: 'Contra Filé',
             TEXTO1: '',
             PRICE: '45.90',
-            PRICE2: '',
+            PRICE2: '', 
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -43,6 +46,7 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '32.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -50,6 +54,7 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '39.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -57,6 +62,7 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '36.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -64,6 +70,7 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '34.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -71,6 +78,7 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '28.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -78,6 +86,7 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '24.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -85,6 +94,7 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '26.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -92,6 +102,7 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '52.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -99,6 +110,7 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '48.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -106,6 +118,7 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '38.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -113,6 +126,7 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '29.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -120,6 +134,7 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '27.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -127,6 +142,7 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '79.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -134,6 +150,7 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '59.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -141,6 +158,7 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '22.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -148,6 +166,7 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '35.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         },
         {
@@ -155,17 +174,19 @@ var MOCK_DATA = {
             TEXTO1: '',
             PRICE: '44.90',
             PRICE2: '',
+            TEXTO2: 'KG',
             TEXTO3: ''
         }
     ],
     
     // Exemplo de produtos com 2 preços (bebidas, por exemplo)
-    produtosBebidas: [
+    bebidas: [
         {
             TITULO: 'Cerveja Heineken Puro Malte',
             TEXTO1: 'Lata 269ml',
             PRICE: '3.79',
             PRICE2: '45.48',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/12'
         },
         {
@@ -173,6 +194,7 @@ var MOCK_DATA = {
             TEXTO1: 'Lata 350ml',
             PRICE: '2.99',
             PRICE2: '34.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/12'
         },
         {
@@ -180,6 +202,7 @@ var MOCK_DATA = {
             TEXTO1: 'Garrafa 600ml',
             PRICE: '4.99',
             PRICE2: '58.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/12'
         },
         {
@@ -187,6 +210,7 @@ var MOCK_DATA = {
             TEXTO1: 'Lata 350ml',
             PRICE: '2.89',
             PRICE2: '33.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/12'
         },
         {
@@ -194,6 +218,7 @@ var MOCK_DATA = {
             TEXTO1: 'Long Neck 330ml',
             PRICE: '4.59',
             PRICE2: '53.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/12'
         },
         {
@@ -201,6 +226,7 @@ var MOCK_DATA = {
             TEXTO1: 'Lata 350ml',
             PRICE: '3.49',
             PRICE2: '40.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/12'
         },
         {
@@ -208,6 +234,7 @@ var MOCK_DATA = {
             TEXTO1: 'Long Neck 355ml',
             PRICE: '5.99',
             PRICE2: '69.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/12'
         },
         {
@@ -215,6 +242,7 @@ var MOCK_DATA = {
             TEXTO1: 'Garrafa 355ml',
             PRICE: '4.29',
             PRICE2: '50.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/12'
         },
         {
@@ -222,6 +250,7 @@ var MOCK_DATA = {
             TEXTO1: 'Lata 350ml',
             PRICE: '3.19',
             PRICE2: '37.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/12'
         },
         {
@@ -229,6 +258,7 @@ var MOCK_DATA = {
             TEXTO1: 'PET 2L',
             PRICE: '8.99',
             PRICE2: '52.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/6'
         },
         {
@@ -236,6 +266,7 @@ var MOCK_DATA = {
             TEXTO1: 'Lata 350ml',
             PRICE: '2.79',
             PRICE2: '32.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/12'
         },
         {
@@ -243,6 +274,7 @@ var MOCK_DATA = {
             TEXTO1: 'PET 2L',
             PRICE: '7.99',
             PRICE2: '46.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/6'
         },
         {
@@ -250,6 +282,7 @@ var MOCK_DATA = {
             TEXTO1: 'Lata 350ml',
             PRICE: '2.69',
             PRICE2: '31.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/12'
         },
         {
@@ -257,6 +290,7 @@ var MOCK_DATA = {
             TEXTO1: 'Garrafa 500ml',
             PRICE: '1.99',
             PRICE2: '23.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/12'
         },
         {
@@ -264,6 +298,7 @@ var MOCK_DATA = {
             TEXTO1: 'Garrafa 330ml',
             PRICE: '4.99',
             PRICE2: '58.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/12'
         },
         {
@@ -271,6 +306,7 @@ var MOCK_DATA = {
             TEXTO1: 'Caixa 1L',
             PRICE: '6.49',
             PRICE2: '38.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/6'
         },
         {
@@ -278,6 +314,7 @@ var MOCK_DATA = {
             TEXTO1: 'Caixa 1L',
             PRICE: '6.49',
             PRICE2: '38.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/6'
         },
         {
@@ -285,6 +322,7 @@ var MOCK_DATA = {
             TEXTO1: 'Lata 250ml',
             PRICE: '8.99',
             PRICE2: '106.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/12'
         },
         {
@@ -292,6 +330,7 @@ var MOCK_DATA = {
             TEXTO1: 'Lata 473ml',
             PRICE: '9.99',
             PRICE2: '118.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/12'
         },
         {
@@ -299,6 +338,7 @@ var MOCK_DATA = {
             TEXTO1: 'PET 2L',
             PRICE: '7.99',
             PRICE2: '46.90',
+            TEXTO2: 'UNID.',
             TEXTO3: 'CX/6'
         }
     ]

@@ -13,37 +13,41 @@
   <script src="js/master.js" defer></script>
 </head>
 
-<body
-  class="w-full h-full flex-col overflow-hidden flex items-center justify-center landscape:bg-[url('../img/bg_menuboard_horizontal.jpg')] portrait:bg-[url('../img/bg_menuboard_vertical.jpg')] bg-cover font-futura-bold text-[3.5vh] leading-tight p-8 opacity-0 transition-opacity duration-700">
+<body class="w-full h-full flex-col overflow-hidden flex items-center justify-center landscape:bg-[url('../img/bg_menuboard_horizontal.jpg')] portrait:bg-[url('../img/bg_menuboard_vertical.jpg')] bg-cover font-futura-bold text-[3.5vmin] leading-tight p-8 py-[11vh] opacity-0 transition-opacity duration-700">
 
   <!-- Container Principal -->
-  <div id="table-container"
-    class="w-full h-fit opacity-0 transition-opacity duration-700 flex flex-col landscape:flex-row landscape:gap-8 overflow-hidden">
-    
-    <!-- Container de Linhas (Coluna 1 em landscape) -->
-    <div id="content-rows" class="flex flex-col divide-y divide-gray-300 text-white flex-1"></div>
-    
-    <!-- Container de Linhas (Coluna 2 - apenas landscape) -->
-    <div id="content-rows-2" class="hidden landscape:flex flex-col divide-y divide-gray-300 text-white flex-1"></div>
+  <div id="table-container" class="w-full h-fit opacity-0 transition-opacity duration-700 flex flex-col landscape:flex-row landscape:gap-8 overflow-hidden">
 
-    <!-- Template de linha (layout simples - 1 preço) -->
+    <!-- Container de Linhas (Coluna 1 em landscape) -->
+    <div id="content-rows" class="flex flex-col text-white flex-1 space-y-4"></div>
+
+    <!-- Container de Linhas (Coluna 2 - apenas landscape) -->
+    <div id="content-rows-2" class="hidden landscape:flex flex-col text-white flex-1 space-y-4"></div>
+
+    <!-- Template de linha -->
     <template id="row-template">
-      <div
-        class="flex justify-between items-center py-4 px-8 opacity-0 translate-y-4 transform transition-all duration-500 min-h-[8vh]">
-        <!-- Coluna Esquerda: Descrição -->
-        <div class="flex-1 flex flex-col">
-          <p class="descr font-bold text-[3.8vh]"></p>
-          <p class="subtitle text-[2.5vh] text-gray-400 italic" style="display:none"></p>
-        </div>
+      <div class="flex items-center gap-4 opacity-0 translate-y-4 transform transition-all duration-500">
         
-        <!-- Coluna Direita: Preços -->
-        <div class="w-[25vw] flex flex-col items-center gap-1">
-          <p class="price text-[4.5vh] font-bold"></p>
-          <div class="flex items-center gap-2" style="display:none">
-            <span class="price-label text-[2.5vh] text-gray-400"></span>
-            <p class="price2 text-[3.5vh] font-bold"></p>
+        <!-- Bloco Esquerdo: Descrição -->
+        <div class="bloco-descricao flex-1 rounded-[2vh] p-4 portrait:py-3 landscape:py-2">
+          <p class="titulo font-bold text-[3.5vmin] leading-tight"></p>
+          <p class="texto1 text-[2.5vmin] italic mt-1 opacity-70"></p>
+        </div>
+
+        <!-- Bloco Direito: Preços -->
+        <div class="bloco-precos bg-blue-600 rounded-[2vh] p-4 portrait:py-3 landscape:py-2 portrait:min-w-[28vw] landscape:min-w-[14vw] flex flex-col items-end">
+          <!-- Linha 1: TEXTO2 + PRICE -->
+          <div class="flex items-baseline gap-2 w-full justify-between">
+            <span class="texto2 text-[2.2vmin] text-blue-200"></span>
+            <span class="price text-[4vmin] font-bold text-white"></span>
+          </div>
+          <!-- Linha 2: TEXTO3 + PRICE2 (condicional) -->
+          <div class="linha-price2 flex items-baseline gap-2 w-full justify-between mt-1">
+            <span class="texto3 text-[2.2vmin] text-blue-200"></span>
+            <span class="price2 text-[4vmin] font-bold text-white"></span>
           </div>
         </div>
+        
       </div>
     </template>
 

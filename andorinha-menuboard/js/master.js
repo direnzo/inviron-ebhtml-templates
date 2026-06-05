@@ -6,8 +6,8 @@
 
 document.addEventListener("DOMContentLoaded", function() {
     // ─── Configuração ────────────────────────────────────────────────────────
-    var selectedCategory = "Acougue-Bovino";  // Categoria padrão
-    var displayDuration = 15000;  // 15 segundos por exibição
+    var selectedCategory = "bebidas";  // Categoria padrão
+    var displayDuration = 10000;  // 10 segundos porexibição
     
     // ─── Elementos DOM ───────────────────────────────────────────────────────
     var contentRowsContainer = document.getElementById("content-rows");
@@ -53,41 +53,51 @@ document.addEventListener("DOMContentLoaded", function() {
         var row = rowTemplate.content.cloneNode(true);
         var rowElement = row.querySelector("div");
         
-        // Classes alternadas para cor de fundo
+        // Seleciona os blocos
+        var blocoDescricao = row.querySelector(".bloco-descricao");
+        
+        // Classes alternadas para cor de fundo do bloco de descrição
         if (index % 2 === 0) {
-            rowElement.classList.add("bg-blue-800");
+            blocoDescricao.classList.add("bg-blue-600", "text-white");
         } else {
-            rowElement.classList.add("bg-blue-700");
+            blocoDescricao.classList.add("bg-white", "text-blue-700");
         }
         
         // Popula os dados
-        var description = row.querySelector(".descr");
-        var subtitle = row.querySelector(".subtitle");
+        var titulo = row.querySelector(".titulo");
+        var texto1 = row.querySelector(".texto1");
+        var texto2 = row.querySelector(".texto2");
         var price = row.querySelector(".price");
+        var texto3 = row.querySelector(".texto3");
         var price2 = row.querySelector(".price2");
-        var priceLabel = row.querySelector(".price-label");
+        var linhaPrice2 = row.querySelector(".linha-price2");
         
-        description.textContent = item.value("TITULO").value.toUpperCase();
+        // Título (obrigatório)
+        titulo.textContent = item.value("TITULO").value.toUpperCase();
         
         // Subtítulo (opcional - ex: "Lata 269ml")
-        var texto1 = item.value("TEXTO1").value;
-        if (texto1 && subtitle) {
-            subtitle.textContent = texto1;
-            subtitle.style.display = 'block';
+        var valorTexto1 = item.value("TEXTO1").value;
+        if (valorTexto1) {
+            texto1.textContent = valorTexto1;
+        } else {
+            texto1.style.display = 'none';
         }
+        
+        // Label do primeiro preço (ex: "UNID.", "KG")
+        texto2.textContent = item.value("TEXTO2").value;
         
         // Preço principal
         price.textContent = formatarPreco(item.value("PRICE").value);
         
         // Preço secundário (opcional - ex: "CX/12")
         var valorPrice2 = item.value("PRICE2").value;
-        var textoLabel = item.value("TEXTO3").value;
+        var valorTexto3 = item.value("TEXTO3").value;
         
-        if (valorPrice2 && price2 && priceLabel) {
+        if (valorPrice2 && valorTexto3) {
+            texto3.textContent = valorTexto3;
             price2.textContent = formatarPreco(valorPrice2);
-            priceLabel.textContent = textoLabel || 'CX/12';
-            price2.style.display = 'block';
-            priceLabel.style.display = 'block';
+        } else {
+            linhaPrice2.style.display = 'none';
         }
         
         return row;
@@ -224,11 +234,11 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // ─── Modo MOCK (Desenvolvimento) ──────────────────────────────────────────
     
-    function usarMockData() {
+    function usarMockData(selectedCategory) {
         console.log('[MOCK] Usando dados fictícios');
         console.log('[MOCK] Tipo: ' + MOCK_DATA.tipo);
         
-        var mockDatalist = criarDatalistMock(MOCK_DATA.produtos);
+        var mockDatalist = criarDatalistMock(MOCK_DATA[selectedCategory]);
         var items = mockDatalist.f_items;
         
         console.log('[MOCK] Total de produtos disponíveis: ' + items.length);
@@ -239,7 +249,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // ─── INICIALIZAÇÃO ────────────────────────────────────────────────────────
     
     if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
-        usarMockData();
+        usarMockData(selectedCategory);
     } else {
         carregarDados(selectedCategory);
     }
