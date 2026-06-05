@@ -14,20 +14,17 @@
 </head>
 
 <body
-  class="w-full h-full flex-col overflow-hidden flex items-center justify-center bg-[url('img/bg_menuboard_horizontal.jpg')] bg-cover font-futura-bold text-[3.5vh] leading-tight p-8 opacity-0 transition-opacity duration-700">
+  class="w-full h-full flex-col overflow-hidden flex items-center justify-center landscape:bg-[url('../img/bg_menuboard_horizontal.jpg')] portrait:bg-[url('../img/bg_menuboard_vertical.jpg')] bg-cover font-futura-bold text-[3.5vh] leading-tight p-8 opacity-0 transition-opacity duration-700">
 
   <!-- Container Principal -->
   <div id="table-container"
-    class="w-full h-fit opacity-0 transition-opacity duration-700 flex flex-col overflow-hidden">
+    class="w-full h-fit opacity-0 transition-opacity duration-700 flex flex-col landscape:flex-row landscape:gap-8 overflow-hidden">
     
-    <!-- Header (2 colunas) -->
-    <div class="flex justify-between items-center bg-blue-600 text-white font-bold text-[4vh] py-4 px-8 rounded-t-[1.5vh]">
-      <div class="flex-1">Descrição</div>
-      <div class="w-[25vw] text-center">R$/KG</div>
-    </div>
+    <!-- Container de Linhas (Coluna 1 em landscape) -->
+    <div id="content-rows" class="flex flex-col divide-y divide-gray-300 text-white flex-1"></div>
     
-    <!-- Container de Linhas -->
-    <div id="content-rows" class="flex flex-col divide-y divide-gray-300 text-white"></div>
+    <!-- Container de Linhas (Coluna 2 - apenas landscape) -->
+    <div id="content-rows-2" class="hidden landscape:flex flex-col divide-y divide-gray-300 text-white flex-1"></div>
 
     <!-- Template de linha (layout simples - 1 preço) -->
     <template id="row-template">

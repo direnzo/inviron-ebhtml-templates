@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // ─── Elementos DOM ───────────────────────────────────────────────────────
     var contentRowsContainer = document.getElementById("content-rows");
+    var contentRowsContainer2 = document.getElementById("content-rows-2");
     var rowTemplate = document.getElementById("row-template");
     var tableContainer = document.getElementById("table-container");
     var body = document.body;
@@ -21,6 +22,17 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     
     var loader2;  // Loader EBHTML
+    
+    // ─── Detecção de Aspect Ratio ────────────────────────────────────────────
+    
+    function isLandscape() {
+        var aspectRatio = window.innerWidth / window.innerHeight;
+        return aspectRatio > 1;  // Landscape se largura > altura
+    }
+    
+    function getMaxItems() {
+        return isLandscape() ? 20 : 10;  // 20 em landscape, 10 em portrait
+    }
     
     // ─── Funções Auxiliares ──────────────────────────────────────────────────
     
@@ -82,28 +94,68 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     
     function exibirProdutos(items) {
-        // Limpa container
-        contentRowsContainer.innerHTML = "";
+        // Limita quantidade baseado em aspect ratio
+        var maxItems = getMaxItems();
+        var itemsToShow = items.slice(0, maxItems);
         
-        if (!items || items.length === 0) {
+        console.log('[INFO] Aspect Ratio: ' + (isLandscape() ? 'LANDSCAPE' : 'PORTRAIT'));
+        console.log('[INFO] Exibindo ' + itemsToShow.length + ' de ' + items.length + ' produtos');
+        
+        if (!itemsToShow || itemsToShow.length === 0) {
             console.warn("[AVISO] Nenhum item para exibir");
             return;
         }
         
-        console.log('[INFO] Exibindo ' + items.length + ' produtos');
+        // Limpa containers
+        contentRowsContainer.innerHTML = "";
+        if (contentRowsContainer2) {
+            contentRowsContainer2.innerHTML = "";
+        }
         
-        // Adiciona as linhas ao container
-        for (var i = 0; i < items.length; i++) {
-            var row = criarLinha(items[i], i);
-            contentRowsContainer.appendChild(row);
+        // Em LANDSCAPE: divide em 2 colunas (10 itens cada)
+        if (isLandscape() && contentRowsContainer2) {
+            var coluna1 = itemsToShow.slice(0, 10);  // Primeiros 10
+            var coluna2 = itemsToShow.slice(10, 20); // Próximos 10
             
-            // Animação com delay escalonado
-            var rowElement = contentRowsContainer.lastElementChild;
-            (function(el, delay) {
-                setTimeout(function() {
-                    el.classList.remove("opacity-0", "translate-y-4");
-                }, delay);
-            })(rowElement, 300 * i);
+            // Preenche coluna 1
+            for (var i = 0; i < coluna1.length; i++) {
+                var row = criarLinha(coluna1[i], i);
+                contentRowsContainer.appendChild(row);
+                
+                var rowElement = contentRowsContainer.lastElementChild;
+                (function(el, delay) {
+                    setTimeout(function() {
+                        el.classList.remove("opacity-0", "translate-y-4");
+                    }, delay);
+                })(rowElement, 300 * i);
+            }
+            
+            // Preenche coluna 2
+            for (var j = 0; j < coluna2.length; j++) {
+                var row2 = criarLinha(coluna2[j], j);
+                contentRowsContainer2.appendChild(row2);
+                
+                var rowElement2 = contentRowsContainer2.lastElementChild;
+                (function(el, delay) {
+                    setTimeout(function() {
+                        el.classList.remove("opacity-0", "translate-y-4");
+                    }, delay);
+                })(rowElement2, 300 * (10 + j));  // Delay continua após coluna 1
+            }
+        } 
+        // Em PORTRAIT: apenas 1 coluna (10 itens)
+        else {
+            for (var k = 0; k < itemsToShow.length; k++) {
+                var rowP = criarLinha(itemsToShow[k], k);
+                contentRowsContainer.appendChild(rowP);
+                
+                var rowElementP = contentRowsContainer.lastElementChild;
+                (function(el, delay) {
+                    setTimeout(function() {
+                        el.classList.remove("opacity-0", "translate-y-4");
+                    }, delay);
+                })(rowElementP, 300 * k);
+            }
         }
         
         // Exibe container
@@ -127,7 +179,10 @@ document.addEventListener("DOMContentLoaded", function() {
             loader.load(function() {
                 try {
                     var local = loader.data("D_LOCAL").value("SITE_CUSTOMERID").value;
-                    var filtro = 'f_category=' + category + '&f_TEXTO2=' + local + '&amount=10&order=ID&orderkind=id';
+                    var maxItems = getMaxItems();
+                    var filtro = 'f_category=' + category + '&f_TEXTO2=' + local + '&amount=' + maxItems + '&order=ID&orderkind=id';
+                    
+                    console.log('[INFO] Filtro: ' + filtro);
                     
                     ebhtml.create2({}, function(loaderInstance) {
                         loader2 = loaderInstance;
@@ -173,14 +228,10 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log('[MOCK] Usando dados fictícios');
         console.log('[MOCK] Tipo: ' + MOCK_DATA.tipo);
         
-        // Determina background baseado no tipo
-        var bgImage = 'img/bg_menuboard_horizontal.jpg';
-        body.style.backgroundImage = 'url(' + bgImage + ')';
-        
         var mockDatalist = criarDatalistMock(MOCK_DATA.produtos);
         var items = mockDatalist.f_items;
         
-        console.log('[MOCK] Total de produtos: ' + items.length);
+        console.log('[MOCK] Total de produtos disponíveis: ' + items.length);
         
         exibirProdutos(items);
     }

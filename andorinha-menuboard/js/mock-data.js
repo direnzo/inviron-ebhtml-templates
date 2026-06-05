@@ -19,10 +19,10 @@ var MOCK_DATA = {
         // ─── Layout Simples (apenas 1 preço) ─────────────────────
         {
             TITULO: 'Maminha da Alcatra',
-            TEXTO1: '',           // Sem subtítulo
-            PRICE: '69.00',       // Preço principal
-            PRICE2: '',           // Sem preço secundário
-            TEXTO3: ''            // Sem label de preço 2
+            TEXTO1: '',
+            PRICE: '69.00',
+            PRICE2: '',
+            TEXTO3: ''
         },
         {
             TITULO: 'Picanha Bovina',
@@ -84,6 +84,76 @@ var MOCK_DATA = {
             TITULO: 'Acém Bovino',
             TEXTO1: '',
             PRICE: '26.90',
+            PRICE2: '',
+            TEXTO3: ''
+        },
+        {
+            TITULO: 'Fraldinha Bovina',
+            TEXTO1: '',
+            PRICE: '52.90',
+            PRICE2: '',
+            TEXTO3: ''
+        },
+        {
+            TITULO: 'Cupim Bovino',
+            TEXTO1: '',
+            PRICE: '48.90',
+            PRICE2: '',
+            TEXTO3: ''
+        },
+        {
+            TITULO: 'Lagarto Bovino',
+            TEXTO1: '',
+            PRICE: '38.90',
+            PRICE2: '',
+            TEXTO3: ''
+        },
+        {
+            TITULO: 'Paleta Bovina',
+            TEXTO1: '',
+            PRICE: '29.90',
+            PRICE2: '',
+            TEXTO3: ''
+        },
+        {
+            TITULO: 'Peito Bovino',
+            TEXTO1: '',
+            PRICE: '27.90',
+            PRICE2: '',
+            TEXTO3: ''
+        },
+        {
+            TITULO: 'File Mignon',
+            TEXTO1: '',
+            PRICE: '79.90',
+            PRICE2: '',
+            TEXTO3: ''
+        },
+        {
+            TITULO: 'Baby Beef',
+            TEXTO1: '',
+            PRICE: '59.90',
+            PRICE2: '',
+            TEXTO3: ''
+        },
+        {
+            TITULO: 'Carne Moída',
+            TEXTO1: '',
+            PRICE: '22.90',
+            PRICE2: '',
+            TEXTO3: ''
+        },
+        {
+            TITULO: 'Ossobuco Bovino',
+            TEXTO1: '',
+            PRICE: '35.90',
+            PRICE2: '',
+            TEXTO3: ''
+        },
+        {
+            TITULO: 'Miolo de Alcatra',
+            TEXTO1: '',
+            PRICE: '44.90',
             PRICE2: '',
             TEXTO3: ''
         }
