@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="w-full h-full overflow-hidden ">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Andorinha Menuboard</title>
+
+  <link rel="stylesheet" href="css/master.css">
+  <!-- ⚠️ MOCK DATA: Descomentar linha abaixo para testes locais -->
+  <!-- <script src="js/mock-data.js" defer></script> -->
+  <script src="js/ebhtml.js" defer></script>
+  <script src="js/master.js" defer></script>
+</head>
+
+<body class="w-full h-full flex-col overflow-hidden flex items-center justify-center landscape:bg-[url('../img/bg_menuboard_horizontal.jpg')] portrait:bg-[url('../img/bg_menuboard_vertical.jpg')] bg-cover font-futura-bold text-[4vmin] landscape:text-[3vmin] leading-none p-8 portrait:pt-[11vh] portrait:pb-[6vh] landscape:py-[11vh]  opacity-0 transition-opacity duration-700">
+
+  <!-- Container Principal -->
+  <div id="table-container" class="w-full opacity-0 transition-opacity duration-700 portrait:h-full landscape:max-h-full flex flex-col landscape:flex-row landscape:gap-8 overflow-hidden">
+
+    <!-- Container de Linhas (Coluna 1 em landscape) -->
+    <div id="content-rows" class="flex flex-col text-white flex-1 gap-4 portrait:h-full"></div>
+
+    <!-- Container de Linhas (Coluna 2 - apenas landscape) -->
+    <div id="content-rows-2" class="hidden landscape:flex flex-col text-white flex-1 gap-4"></div>
+
+    <!-- Template de linha -->
+    <template id="row-template">
+      <div class="flex items-center gap-4 opacity-0 translate-y-4 transform transition-all duration-500 portrait:flex-1">
+        
+        <!-- Bloco Esquerdo: Descrição -->
+        <div class="bloco-descricao flex-1 flex flex-col justify-center rounded-[2vh] p-4 portrait:py-3 landscape:py-2 portrait:h-full">
+          <span class="titulo font-bold"></span>
+          <span class="texto1 italic mt-1 opacity-70 hidden"></span>
+        </div>
+
+        <!-- Bloco Direito: Preços -->
+        <div class="bloco-precos bg-blue-600 rounded-[2vh] flex flex-col justify-center p-4 portrait:py-3 landscape:py-2 portrait:min-w-[22vw] landscape:min-w-[9vw] flex flex-col items-end portrait:h-full">
+          <!-- Linha 1: TEXTO2 + PRICE -->
+          <div class="flex items-baseline gap-2 w-full justify-between">
+            <span class="texto2 text-[40%] opacity-70 hidden"></span>
+            <span class="price font-bold"></span>
+          </div>
+          <!-- Linha 2: TEXTO3 + PRICE2 (condicional) -->
+          <div class="linha-price2 flex items-baseline gap-2 w-full justify-between mt-1 hidden">
+            <span class="texto3 text-[40%] opacity-70"></span>
+            <span class="price2  font-bold"></span>
+          </div>
+        </div>
+        
+      </div>
+    </template>
+
+  </div>
+</body>
+
+</html>
