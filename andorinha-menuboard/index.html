@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="w-full h-full overflow-hidden ">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Andorinha Menuboard</title>
+
+  <link rel="stylesheet" href="css/master.css">
+  <!-- ⚠️ MOCK DATA: Descomentar linha abaixo para testes locais -->
+  <script src="js/mock-data.js" defer></script>
+  <script src="js/ebhtml.js" defer></script>
+  <script src="js/master.js" defer></script>
+</head>
+
+<body
+  class="w-full h-full flex-col overflow-hidden flex items-center justify-center bg-[url('img/bg_menuboard_horizontal.jpg')] bg-cover font-futura-bold text-[3.5vh] leading-tight p-8 opacity-0 transition-opacity duration-700">
+
+  <!-- Container Principal -->
+  <div id="table-container"
+    class="w-full h-fit opacity-0 transition-opacity duration-700 flex flex-col overflow-hidden">
+    
+    <!-- Header (2 colunas) -->
+    <div class="flex justify-between items-center bg-blue-600 text-white font-bold text-[4vh] py-4 px-8 rounded-t-[1.5vh]">
+      <div class="flex-1">Descrição</div>
+      <div class="w-[25vw] text-center">R$/KG</div>
+    </div>
+    
+    <!-- Container de Linhas -->
+    <div id="content-rows" class="flex flex-col divide-y divide-gray-300 text-white"></div>
+
+    <!-- Template de linha (layout simples - 1 preço) -->
+    <template id="row-template">
+      <div
+        class="flex justify-between items-center py-4 px-8 opacity-0 translate-y-4 transform transition-all duration-500 min-h-[8vh]">
+        <!-- Coluna Esquerda: Descrição -->
+        <div class="flex-1 flex flex-col">
+          <p class="descr font-bold text-[3.8vh]"></p>
+          <p class="subtitle text-[2.5vh] text-gray-400 italic" style="display:none"></p>
+        </div>
+        
+        <!-- Coluna Direita: Preços -->
+        <div class="w-[25vw] flex flex-col items-center gap-1">
+          <p class="price text-[4.5vh] font-bold"></p>
+          <div class="flex items-center gap-2" style="display:none">
+            <span class="price-label text-[2.5vh] text-gray-400"></span>
+            <p class="price2 text-[3.5vh] font-bold"></p>
+          </div>
+        </div>
+      </div>
+    </template>
+
+  </div>
+</body>
+
+</html>
