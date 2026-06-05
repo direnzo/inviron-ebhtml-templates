@@ -79,12 +79,15 @@ document.addEventListener("DOMContentLoaded", function() {
         var valorTexto1 = item.value("TEXTO1").value;
         if (valorTexto1) {
             texto1.textContent = valorTexto1;
-        } else {
-            texto1.style.display = 'none';
+            texto1.classList.remove('hidden');
         }
         
         // Label do primeiro preço (ex: "UNID.", "KG")
-        texto2.textContent = item.value("TEXTO2").value;
+        var valorTexto2 = item.value("TEXTO2").value;
+        if (valorTexto2) {
+            texto2.textContent = valorTexto2;
+            texto2.classList.remove('hidden');
+        }
         
         // Preço principal
         price.textContent = formatarPreco(item.value("PRICE").value);
@@ -96,8 +99,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (valorPrice2 && valorTexto3) {
             texto3.textContent = valorTexto3;
             price2.textContent = formatarPreco(valorPrice2);
-        } else {
-            linhaPrice2.style.display = 'none';
+            linhaPrice2.classList.remove('hidden');
         }
         
         return row;

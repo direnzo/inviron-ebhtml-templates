@@ -209,13 +209,13 @@ var MOCK_DATA = {
             TITULO: 'Cerveja Antarctica Pilsen',
             TEXTO1: 'Lata 350ml',
             PRICE: '2.89',
-            PRICE2: '33.90',
+            PRICE2: '',
             TEXTO2: 'UNID.',
-            TEXTO3: 'CX/12'
+            TEXTO3: ''
         },
         {
             TITULO: 'Cerveja Stella Artois',
-            TEXTO1: 'Long Neck 330ml',
+            TEXTO1: '',
             PRICE: '4.59',
             PRICE2: '53.90',
             TEXTO2: 'UNID.',
@@ -225,9 +225,9 @@ var MOCK_DATA = {
             TITULO: 'Cerveja Budweiser',
             TEXTO1: 'Lata 350ml',
             PRICE: '3.49',
-            PRICE2: '40.90',
+            PRICE2: '',
             TEXTO2: 'UNID.',
-            TEXTO3: 'CX/12'
+            TEXTO3: ''
         },
         {
             TITULO: 'Cerveja Corona Extra',

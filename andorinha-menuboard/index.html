@@ -29,20 +29,20 @@
       <div class="flex items-center gap-4 opacity-0 translate-y-4 transform transition-all duration-500">
         
         <!-- Bloco Esquerdo: Descrição -->
-        <div class="bloco-descricao flex-1 rounded-[2vh] p-4 portrait:py-3 landscape:py-2">
-          <p class="titulo font-bold text-[3.5vmin] leading-tight"></p>
-          <p class="texto1 text-[2.5vmin] italic mt-1 opacity-70"></p>
+        <div class="bloco-descricao flex-1 rounded-[2vh] p-4 portrait:py-3 landscape:py-2 h-full">
+          <span class="titulo font-bold text-[3.5vmin] leading-tight"></span>
+          <span class="texto1 text-[2.5vmin] italic mt-1 opacity-70 hidden"></span>
         </div>
 
         <!-- Bloco Direito: Preços -->
-        <div class="bloco-precos bg-blue-600 rounded-[2vh] p-4 portrait:py-3 landscape:py-2 portrait:min-w-[28vw] landscape:min-w-[14vw] flex flex-col items-end">
+        <div class="bloco-precos bg-blue-600 rounded-[2vh] p-4 portrait:py-3 landscape:py-2 portrait:min-w-[28vw] landscape:min-w-[14vw] flex flex-col items-end h-full">
           <!-- Linha 1: TEXTO2 + PRICE -->
           <div class="flex items-baseline gap-2 w-full justify-between">
-            <span class="texto2 text-[2.2vmin] text-blue-200"></span>
+            <span class="texto2 text-[2.2vmin] text-blue-200 hidden"></span>
             <span class="price text-[4vmin] font-bold text-white"></span>
           </div>
           <!-- Linha 2: TEXTO3 + PRICE2 (condicional) -->
-          <div class="linha-price2 flex items-baseline gap-2 w-full justify-between mt-1">
+          <div class="linha-price2 flex items-baseline gap-2 w-full justify-between mt-1 hidden">
             <span class="texto3 text-[2.2vmin] text-blue-200"></span>
             <span class="price2 text-[4vmin] font-bold text-white"></span>
           </div>
