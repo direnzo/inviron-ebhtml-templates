@@ -51,13 +51,19 @@ document.addEventListener("DOMContentLoaded", function() {
         
         var alturaLinha = (containerHeight - totalGaps) / numLinhas;
         
+        // Calcula font-size proporcional à altura da linha
+        // Base: altura linha / 3.5 (ajuste para caber título + preço confortavelmente)
+        var fontSize = Math.floor(alturaLinha / 3.5);
+        
         console.log('[INFO] Container height:', containerHeight + 'px');
         console.log('[INFO] Altura calculada por linha:', alturaLinha + 'px');
+        console.log('[INFO] Font-size calculado:', fontSize + 'px');
         
-        // Aplica altura calculada em todas as linhas da coluna 1
+        // Aplica altura e font-size em todas as linhas da coluna 1
         var linhas = container.querySelectorAll(':scope > div');
         for (var i = 0; i < linhas.length; i++) {
             linhas[i].style.height = alturaLinha + 'px';
+            linhas[i].style.fontSize = fontSize + 'px';
         }
         
         // Aplica também na coluna 2
@@ -65,6 +71,7 @@ document.addEventListener("DOMContentLoaded", function() {
             var linhas2 = contentRowsContainer2.querySelectorAll(':scope > div');
             for (var j = 0; j < linhas2.length; j++) {
                 linhas2[j].style.height = alturaLinha + 'px';
+                linhas2[j].style.fontSize = fontSize + 'px';
             }
         }
     }
