@@ -1,0 +1,232 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* @config "../tailwind.config.js"; */
+
+/* ========================================
+   FONTES - copiar de _template-base/css/fonts/
+   ======================================== */
+
+@font-face {
+    font-family: 'Roboto Regular';
+    src: url('fonts/Roboto-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'Roboto Medium';
+    src: url('fonts/Roboto-Medium.ttf');
+}
+
+@font-face {
+    font-family: 'Roboto Bold';
+    src: url('fonts/Roboto-Bold.ttf');
+}
+
+@font-face {
+    font-family: 'Roboto Black';
+    src: url('fonts/Roboto-Black.ttf');
+}
+
+html, body { height: 100%; }
+
+/* ========================================
+   FALLBACKS PARA WEBENGINE ANTIGO (Qt / ebhtmlbuilder)
+   Alguns WebKit muito antigos não suportam flexbox, vídeo ou unidades vmin.
+   Estas regras fornecem fallback para layout simples (block + %).
+   ======================================== */
+
+/* Fallback para flexbox em containers críticos (quando flex falha) */
+#mainContent,
+#gameArea,
+#gameAreaInner,
+#team1,
+#team2,
+#centerContent {
+    /* Mantém flex por padrão; override manual via JS se necessário */
+}
+
+/* Fallback para fontes: se vmin falhar, usar % do body */
+body {
+    font-size: 16px; /* fallback base */
+}
+
+/* ========================================
+   CORES — variáveis padrão (sobrescritas por aplicarCores() em master.js)
+   ======================================== */
+
+:root {
+    --cor-destaque:       #FBBF24;
+    --cor-destaque-glow:  rgba(251, 191, 36, 0.7);
+    --cor-fundo-painel:   rgb(0, 40, 0);
+    --cor-fundo-area:     rgba(7, 65, 192, 0.664);
+    --cor-borda:          #FFFFFF;
+    --cor-texto:          #FFFFFF;
+    --cor-texto-sec:      #FFFFFF;
+    --cor-texto-ter:      #FFFFFF;
+    --cor-grad-from:      rgba(0, 0, 0, 0.70);
+    --cor-grad-mid:       rgba(0, 0, 0, 0.60);
+    --cor-grad-to:        rgba(0, 0, 0, 0.80);
+}
+
+header                 { background-color: var(--cor-fundo-painel); border-bottom-color: var(--cor-borda); }
+footer                 { background-color: var(--cor-fundo-painel); border-top-color:    var(--cor-borda); }
+#gameAreaInner         { background-color: var(--cor-fundo-area); }
+#gradientOverlay       { background: linear-gradient(to bottom, var(--cor-grad-from), var(--cor-grad-mid), var(--cor-grad-to)); }
+#torneio               { color: var(--cor-texto); }
+#rodada                { color: var(--cor-texto-sec); }
+#headerSep             { color: var(--cor-texto-sec); }
+#time1Nome, #time2Nome { color: var(--cor-texto); }
+#estadioCentro         { color: var(--cor-texto-sec); }
+#hora                  { color: var(--cor-destaque); }
+#data                  { color: var(--cor-texto); }
+#horaSmall             { color: var(--cor-texto-sec); }
+#placar                { color: var(--cor-texto); }
+#tempo                 { color: var(--cor-destaque); }
+#penPlacar             { color: var(--cor-texto-sec); }
+#sponsorFrase          { color: var(--cor-texto-ter); }
+
+@keyframes pulseWin {
+    0%, 100% { transform: scale(1);    filter: brightness(1); }
+    50%      { transform: scale(1.06); filter: brightness(1.4) drop-shadow(0 0 12px var(--cor-destaque-glow)); }
+}
+
+@keyframes pulseGlow {
+    0%, 100% { filter: brightness(1); }
+    50%      { filter: brightness(1.4) drop-shadow(0 0 12px var(--cor-destaque-glow)); }
+}
+
+.animate-pulse-glow {
+    animation: pulseGlow 1.8s ease-in-out infinite;
+}
+
+/* ========================================
+   FALLBACKS HEX — Android 7 / Chrome < 65
+   Tailwind v3 gera rgb(r g b / alpha) que Chrome < 65 não suporta.
+   Estas regras sobrescrevem com valores hex/rgba diretos.
+   Devem ficar APÓS @tailwind utilities e FORA de @layer.
+   ======================================== */
+
+/* Body background */
+body                    { background-color: #052e16 }    /* bg-green-950 */
+
+/* Bordas do header/footer */
+header                  { border-bottom-color: #eab308 } /* border-yellow-500 */
+footer                  { border-top-color:    #eab308 } /* border-yellow-500 */
+
+/* Texto branco e variantes */
+.text-white             { color: #ffffff }
+.text-white\/30         { color: rgba(255,255,255,0.30) }
+.text-white\/50         { color: rgba(255,255,255,0.50) }
+
+/* Gradiente e overlay de fundo */
+#gradientOverlay.opacity-50 { opacity: 0.50 }
+
+/* ========================================
+   FALLBACKS ADICIONAIS — Android 7 / Chrome < 65
+   Cores com opacidade usadas no modo Standings e placar
+   ======================================== */
+
+/* Opacidades genéricas */
+.opacity-0  { opacity: 0 }
+.opacity-50 { opacity: 0.50 }
+.opacity-100 { opacity: 1 }
+
+/* Cores de fundo com opacidade (usadas em standings e jogo) */
+.bg-white\/5  { background-color: rgba(255,255,255,0.05) }
+.bg-white\/10 { background-color: rgba(255,255,255,0.10) }
+
+/* Bordas com opacidade (usadas em standings e jogo) */
+.border-white\/10 { border-color: rgba(255,255,255,0.10) }
+.border-white\/20 { border-color: rgba(255,255,255,0.20) }
+
+/* Texto com opacidade adicional */
+.text-white\/55 { color: rgba(255,255,255,0.55) }
+.text-white\/60 { color: rgba(255,255,255,0.60) }
+
+/* Linhas de standings */
+.standings-linha { background-color: rgba(255,255,255,0.05) }
+.standings-linha--classificado {
+    background-color: var(--cor-destaque-glow);
+    border-left: 0.4vmin solid var(--cor-destaque);
+}
+
+/* Linha de jogo ao vivo */
+.standings-jogo-linha--ao-vivo {
+    background-color: var(--cor-fundo-area);
+    border-left: 0.35vmin solid var(--cor-destaque);
+    border-radius: 0 0.3vmin 0.3vmin 0;
+}
+
+/* ========================================
+   STANDINGS — Tabela de classificação
+   ======================================== */
+
+/* Cores do header/footer standings via CSS vars */
+#standingsHeader         { background-color: var(--cor-fundo-painel); border-bottom-color: var(--cor-destaque); }
+#standingsSponsorFooter  { background-color: var(--cor-fundo-painel); border-top-color:    var(--cor-destaque); }
+#standingsHeader *       { color: var(--cor-texto); }
+#standingsSponsorFooter,
+#standingsSponsorFooter * { color: var(--cor-texto); }
+#standingsTabela         { background-color: rgba(10,10,26,0.72); border: 0.4vmin solid var(--cor-destaque); }
+#standingsJogos          { background-color: rgba(10,10,26,0.72); border: 0.4vmin solid rgba(37,99,235,0.7); }
+#standingsTabela *       { color: var(--cor-texto); }
+#standingsJogos *        { color: var(--cor-texto); }
+
+.standings-grid {
+    display: grid;
+    grid-template-columns: 1.2em 1fr repeat(8, 1.8em);
+    align-items: center;
+}
+.standings-linha {
+    background-color: rgba(255,255,255,0.05);
+    align-items: center;
+}
+.standings-linha--classificado {
+    background-color: var(--cor-destaque-glow);
+    border-left: 0.4vmin solid var(--cor-destaque);
+}
+
+.standings-jogo-linha--ao-vivo {
+    background-color: var(--cor-fundo-area);
+    border-left: 0.35vmin solid var(--cor-destaque);
+    border-radius: 0 0.3vmin 0.3vmin 0;
+}
+
+@keyframes standingsAoVivoFlash {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.35; }
+}
+.standings-ao-vivo-badge {
+    color: var(--cor-destaque);
+    font-weight: bold;
+    font-size: 80%;
+    letter-spacing: 0.05em;
+    animation: standingsAoVivoFlash 1.2s ease-in-out infinite;
+}
+
+#introScreen {
+    opacity: 0;
+    transition: opacity 0.7s ease;
+    pointer-events: none;
+}
+
+#introScreen.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.logo-clip {
+    height: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-top: 5%;
+}
+
+.logo-clip img {
+    width: 80%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
