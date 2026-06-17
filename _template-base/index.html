@@ -1,26 +1,55 @@
 <!DOCTYPE html>
-<html lang="pt-br" class="h-full w-full overflow-hidden">
-
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Base</title>
     <link rel="stylesheet" href="css/master.css">
-    
-    <!-- Mock data para desenvolvimento (comentar em produção) -->
-    <script src="js/mock-data.js"></script>
-    
+
+      <!-- Scripts -->
     <script src="js/ebhtml.js"></script>
+    <script src="js/mock-data.js"></script> <!-- Comentar em produção -->
     <script src="js/master.js"></script>
-    <title>Template EdgeContents</title>
+
 </head>
-
-<body class="relative h-screen w-full overflow-hidden bg-gray-900 font-roboto-regular opacity-0 transition-opacity duration-1000">
-    
+<body class="font-sans bg-black text-white text-[3.2vmin] superbanner:text-[5vmin] empena:text-[11vmin] opacity-0 transition-opacity duration-700 ease-in-out">
     <!-- Container principal -->
-    <div id="content" class="flex items-center justify-center w-full h-full">
-        <!-- Conteúdo será gerado dinamicamente pelo JavaScript -->
+    <div class="relative w-full h-full overflow-hidden">
+        <!-- Imagem de fundo (opcional) -->
+        <img id="image" class="absolute w-full h-full object-cover transition-all duration-[15000ms] ease-linear scale-100" style="object-position: center; left: 50%; top: 50%; transform: translate(-50%, -50%);">
+        <!-- Layer para gradiente ou efeito -->
+        <div id="photoLayer" class="absolute inset-0 bg-gradient-to-t from-black from-10% to-transparent transition-transform duration-[15000ms] ease-linear"></div>
+        
+        <!-- Container do título -->
+        <div id="titleBox" class="absolute top-8 left-8 right-8 px-6 py-4 bg-black bg-opacity-70 rounded-xl backdrop-blur-sm">
+            <h1 id="title" class="font-bold leading-tight"></h1>
+        </div>
+        
+        <!-- Container da descrição -->
+        <div id="descBox" class="absolute bottom-32 left-8 right-8 px-6 py-4 bg-black bg-opacity-70 rounded-xl backdrop-blur-sm">
+            <p id="description" class="leading-snug"></p>
+        </div>
+        
+        <!-- Logo/rodapé -->
+        <div id="logoWrap" class="absolute bottom-8 left-8 right-8 flex items-center justify-between">
+            <div class="text-sm opacity-80" id="footerText"></div>
+            <div id="qrWrap" class="w-16 h-16 bg-white/10 rounded-lg flex items-center justify-center">
+                <!-- QR code placeholder -->
+                <div class="text-xs text-center">QR</div>
+            </div>
+        </div>
     </div>
-
+    
+    <!-- Template para listas (opcional) -->
+    <template id="tpl-item">
+        <article class="item bg-black bg-opacity-50 p-4 rounded-lg mb-4">
+            <h2 class="item-title font-bold text-lg mb-2"></h2>
+            <p class="item-desc text-sm opacity-90"></p>
+            <img class="item-img w-full h-48 object-cover rounded mt-2">
+        </article>
+    </template>
+    <div id="list" class="hidden"></div>
+    
+  
 </body>
-
 </html>
