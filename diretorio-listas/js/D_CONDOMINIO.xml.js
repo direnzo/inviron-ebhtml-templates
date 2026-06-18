@@ -6,7 +6,7 @@
  * 
  * Como funciona:
  *   EBHTML tenta carregar http://127.0.0.1:13199/CONTENT/DATA/D_CONDOMINIO?...
- *   O mock redireciona para /FILES/1/js/D_CONDOMINIO.xml
+ *   O mock redireciona para js/D_CONDOMINIO.xml
  * 
  * Para PROD: comente este script no index.html
  */
@@ -14,7 +14,7 @@
     // Se estiver no EdgeContents real (com ebflashinterface), não ativa
     if (typeof window.ebflashinterface !== 'undefined') { return; }
     
-    var XML_PATH = '/FILES/1/js/D_CONDOMINIO.xml';
+    var XML_PATH = 'js/D_CONDOMINIO.xml';
     var TARGET_PATTERN = '/content/data/D_CONDOMINIO';
     
     console.log('[Mock] Interceptando XHR: ' + TARGET_PATTERN + ' -> ' + XML_PATH);
