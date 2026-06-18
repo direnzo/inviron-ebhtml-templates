@@ -1,0 +1,470 @@
+<EBDATA AMOUNT="0" QI_ORDER="RANDOM">
+    <!-- Prédio Comercial - 20 andares com 6 conjuntos por andar (A-F) -->
+    <!-- Empresas variadas com logos locais -->
+
+  
+    
+    <!-- Título principal do diretório / CONFIG GLOBAL -->
+    <!-- TEXTO4 = cores: cor_fundo,cor_card,cor_destaque,cor_texto,cor_titulo -->
+    <!-- TEXTO5 = numero de colunas -->
+    <!-- TEXTO6 = imagem de background -->
+    <!-- TEXTO7 = logo do condominio -->
+    <!-- TEXTO8 = duracao em segundos -->
+    <ITEM>
+        <CATEGORY><![CDATA[Diretório Comercial]]></CATEGORY>
+        <DATE><![CDATA[]]></DATE>
+        <DT_BEGIN><![CDATA[2026-06-17 09:00:00]]></DT_BEGIN>
+        <DT_CREATE><![CDATA[2026-06-17 09:00:00]]></DT_CREATE>
+        <DT_END><![CDATA[2026-12-31 23:59:59]]></DT_END>
+        <DT_UPDATE><![CDATA[2026-06-17 15:00:00]]></DT_UPDATE>
+        <FOTO><![CDATA[]]></FOTO>
+        <ID><![CDATA[200001]]></ID>
+        <LOCAL><![CDATA[1,2,3,4,5,6,7,8,9,10]]></LOCAL>
+        <SOURCE><![CDATA[]]></SOURCE>
+        <SOURCE_LOGO><![CDATA[]]></SOURCE_LOGO>
+        <SOURCE_SYS><![CDATA[]]></SOURCE_SYS>
+        <SUBTITULO><![CDATA[Edifício Comercial Torre Norte]]></SUBTITULO>
+        <SUBTITULO2><![CDATA[]]></SUBTITULO2>
+        <SUBTITULO3><![CDATA[]]></SUBTITULO3>
+        <SUBTITULO4><![CDATA[]]></SUBTITULO4>
+        <SUBTITULO5><![CDATA[]]></SUBTITULO5>
+        <TEXTO><![CDATA[]]></TEXTO>
+        <TEXTO2><![CDATA[]]></TEXTO2>
+        <TEXTO3><![CDATA[]]></TEXTO3>
+        <TEXTO4><![CDATA[#0b0b15,#a5a5d8,#5554d5,#ebebf2,#2c2b83]]></TEXTO4>
+        <TEXTO5><![CDATA[1]]></TEXTO5>
+        <TEXTO6><![CDATA[img/bg.jpg]]></TEXTO6>
+        <TEXTO7><![CDATA[img/logo.png]]></TEXTO7>
+        <TEXTO8><![CDATA[10]]></TEXTO8>
+        <TEXTOCOMPLETO><![CDATA[]]></TEXTOCOMPLETO>
+        <TITULO><![CDATA[Torre Norte Business Center]]></TITULO>
+        <TITULO2><![CDATA[]]></TITULO2>
+        <TITULO3><![CDATA[]]></TITULO3>
+        <TITULO4><![CDATA[]]></TITULO4>
+        <TITULO5><![CDATA[]]></TITULO5>
+        <_ACTIVE><![CDATA[1]]></_ACTIVE>
+    </ITEM>
+    
+    <!-- Empresas grandes (ocupam andares inteiros ou múltiplos conjuntos) -->
+    <ITEM>
+        <CATEGORY><![CDATA[Diretório Comercial]]></CATEGORY>
+        <DATE><![CDATA[]]></DATE>
+        <DT_BEGIN><![CDATA[2026-06-17 09:00:00]]></DT_BEGIN>
+        <DT_CREATE><![CDATA[2026-06-17 09:00:00]]></DT_CREATE>
+        <DT_END><![CDATA[2026-12-31 23:59:59]]></DT_END>
+        <DT_UPDATE><![CDATA[2026-06-17 15:00:00]]></DT_UPDATE>
+        <FOTO><![CDATA[img/logo_1.png]]></FOTO>
+        <ID><![CDATA[200002]]></ID>
+        <LOCAL><![CDATA[1,2,3,4,5,6,7,8,9,10]]></LOCAL>
+        <SOURCE><![CDATA[]]></SOURCE>
+        <SOURCE_LOGO><![CDATA[]]></SOURCE_LOGO>
+        <SOURCE_SYS><![CDATA[]]></SOURCE_SYS>
+        <SUBTITULO><![CDATA[Edifício Comercial Torre Norte]]></SUBTITULO>
+        <SUBTITULO2><![CDATA[]]></SUBTITULO2>
+        <SUBTITULO3><![CDATA[]]></SUBTITULO3>
+        <SUBTITULO4><![CDATA[]]></SUBTITULO4>
+        <SUBTITULO5><![CDATA[]]></SUBTITULO5>
+        <TEXTO><![CDATA[Tecnologia & Inovação]]></TEXTO>
+        <TEXTO2><![CDATA[20º]]></TEXTO2>
+        <TEXTO3><![CDATA[A-F]]></TEXTO3>
+        <TEXTO4><![CDATA[]]></TEXTO4>
+        <TEXTO5><![CDATA[]]></TEXTO5>
+        <TEXTOCOMPLETO><![CDATA[]]></TEXTOCOMPLETO>
+        <TITULO><![CDATA[TechVision Solutions]]></TITULO>
+        <TITULO2><![CDATA[]]></TITULO2>
+        <TITULO3><![CDATA[]]></TITULO3>
+        <TITULO4><![CDATA[]]></TITULO4>
+        <TITULO5><![CDATA[]]></TITULO5>
+        <_ACTIVE><![CDATA[1]]></_ACTIVE>
+    </ITEM>
+    
+    <ITEM>
+        <CATEGORY><![CDATA[Diretório Comercial]]></CATEGORY>
+        <DATE><![CDATA[]]></DATE>
+        <DT_BEGIN><![CDATA[2026-06-17 09:00:00]]></DT_BEGIN>
+        <DT_CREATE><![CDATA[2026-06-17 09:00:00]]></DT_CREATE>
+        <DT_END><![CDATA[2026-12-31 23:59:59]]></DT_END>
+        <DT_UPDATE><![CDATA[2026-06-17 15:00:00]]></DT_UPDATE>
+        <FOTO><![CDATA[img/logo_2.png]]></FOTO>
+        <ID><![CDATA[200003]]></ID>
+        <LOCAL><![CDATA[1,2,3,4,5,6,7,8,9,10]]></LOCAL>
+        <SOURCE><![CDATA[]]></SOURCE>
+        <SOURCE_LOGO><![CDATA[]]></SOURCE_LOGO>
+        <SOURCE_SYS><![CDATA[]]></SOURCE_SYS>
+        <SUBTITULO><![CDATA[Edifício Comercial Torre Norte]]></SUBTITULO>
+        <SUBTITULO2><![CDATA[]]></SUBTITULO2>
+        <SUBTITULO3><![CDATA[]]></SUBTITULO3>
+        <SUBTITULO4><![CDATA[]]></SUBTITULO4>
+        <SUBTITULO5><![CDATA[]]></SUBTITULO5>
+        <TEXTO><![CDATA[Consultoria Financeira]]></TEXTO>
+        <TEXTO2><![CDATA[19º]]></TEXTO2>
+        <TEXTO3><![CDATA[A-D]]></TEXTO3>
+        <TEXTO4><![CDATA[]]></TEXTO4>
+        <TEXTO5><![CDATA[]]></TEXTO5>
+        <TEXTOCOMPLETO><![CDATA[]]></TEXTOCOMPLETO>
+        <TITULO><![CDATA[Global Finance Partners]]></TITULO>
+        <TITULO2><![CDATA[]]></TITULO2>
+        <TITULO3><![CDATA[]]></TITULO3>
+        <TITULO4><![CDATA[]]></TITULO4>
+        <TITULO5><![CDATA[]]></TITULO5>
+        <_ACTIVE><![CDATA[1]]></_ACTIVE>
+    </ITEM>
+    
+    <ITEM>
+        <CATEGORY><![CDATA[Diretório Comercial]]></CATEGORY>
+        <DATE><![CDATA[]]></DATE>
+        <DT_BEGIN><![CDATA[2026-06-17 09:00:00]]></DT_BEGIN>
+        <DT_CREATE><![CDATA[2026-06-17 09:00:00]]></DT_CREATE>
+        <DT_END><![CDATA[2026-12-31 23:59:59]]></DT_END>
+        <DT_UPDATE><![CDATA[2026-06-17 15:00:00]]></DT_UPDATE>
+        <FOTO><![CDATA[]]></FOTO>
+        <ID><![CDATA[200004]]></ID>
+        <LOCAL><![CDATA[1,2,3,4,5,6,7,8,9,10]]></LOCAL>
+        <SOURCE><![CDATA[]]></SOURCE>
+        <SOURCE_LOGO><![CDATA[]]></SOURCE_LOGO>
+        <SOURCE_SYS><![CDATA[]]></SOURCE_SYS>
+        <SUBTITULO><![CDATA[Edifício Comercial Torre Norte]]></SUBTITULO>
+        <SUBTITULO2><![CDATA[]]></SUBTITULO2>
+        <SUBTITULO3><![CDATA[]]></SUBTITULO3>
+        <SUBTITULO4><![CDATA[]]></SUBTITULO4>
+        <SUBTITULO5><![CDATA[]]></SUBTITULO5>
+        <TEXTO><![CDATA[Advocacia Corporativa]]></TEXTO>
+        <TEXTO2><![CDATA[]]></TEXTO2>
+        <TEXTO3><![CDATA[A-C]]></TEXTO3>
+        <TEXTO4><![CDATA[]]></TEXTO4>
+        <TEXTO5><![CDATA[]]></TEXTO5>
+        <TEXTOCOMPLETO><![CDATA[]]></TEXTOCOMPLETO>
+        <TITULO><![CDATA[LegalCorp Advocacia]]></TITULO>
+        <TITULO2><![CDATA[]]></TITULO2>
+        <TITULO3><![CDATA[]]></TITULO3>
+        <TITULO4><![CDATA[]]></TITULO4>
+        <TITULO5><![CDATA[]]></TITULO5>
+        <_ACTIVE><![CDATA[1]]></_ACTIVE>
+    </ITEM>
+
+    <!-- 18º D-F: Arquitetura -->
+    <ITEM>
+        <CATEGORY><![CDATA[Diretório Comercial]]></CATEGORY>
+        <DATE><![CDATA[]]></DATE>
+        <DT_BEGIN><![CDATA[2026-06-17 09:00:00]]></DT_BEGIN>
+        <DT_CREATE><![CDATA[2026-06-17 09:00:00]]></DT_CREATE>
+        <DT_END><![CDATA[2026-12-31 23:59:59]]></DT_END>
+        <DT_UPDATE><![CDATA[2026-06-17 15:00:00]]></DT_UPDATE>
+        <FOTO><![CDATA[img/logo_4.png]]></FOTO>
+        <ID><![CDATA[200005]]></ID>
+        <LOCAL><![CDATA[1,2,3,4,5,6,7,8,9,10]]></LOCAL>
+        <SOURCE><![CDATA[]]></SOURCE>
+        <SOURCE_LOGO><![CDATA[]]></SOURCE_LOGO>
+        <SOURCE_SYS><![CDATA[]]></SOURCE_SYS>
+        <SUBTITULO><![CDATA[Edifício Comercial Torre Norte]]></SUBTITULO>
+        <SUBTITULO2><![CDATA[]]></SUBTITULO2>
+        <SUBTITULO3><![CDATA[]]></SUBTITULO3>
+        <SUBTITULO4><![CDATA[]]></SUBTITULO4>
+        <SUBTITULO5><![CDATA[]]></SUBTITULO5>
+        <TEXTO><![CDATA[Arquitetura & Urbanismo]]></TEXTO>
+        <TEXTO2><![CDATA[18º]]></TEXTO2>
+        <TEXTO3><![CDATA[D-F]]></TEXTO3>
+        <TEXTO4><![CDATA[]]></TEXTO4>
+        <TEXTO5><![CDATA[]]></TEXTO5>
+        <TEXTOCOMPLETO><![CDATA[]]></TEXTOCOMPLETO>
+        <TITULO><![CDATA[Goma Arquitetura]]></TITULO>
+        <TITULO2><![CDATA[]]></TITULO2>
+        <TITULO3><![CDATA[]]></TITULO3>
+        <TITULO4><![CDATA[]]></TITULO4>
+        <TITULO5><![CDATA[]]></TITULO5>
+        <_ACTIVE><![CDATA[1]]></_ACTIVE>
+    </ITEM>
+    
+    <!-- 17º A-F: Marketing Digital (andar inteiro) -->
+    <ITEM>
+        <CATEGORY><![CDATA[Diretório Comercial]]></CATEGORY>
+        <DATE><![CDATA[]]></DATE>
+        <DT_BEGIN><![CDATA[2026-06-17 09:00:00]]></DT_BEGIN>
+        <DT_CREATE><![CDATA[2026-06-17 09:00:00]]></DT_CREATE>
+        <DT_END><![CDATA[2026-12-31 23:59:59]]></DT_END>
+        <DT_UPDATE><![CDATA[2026-06-17 15:00:00]]></DT_UPDATE>
+        <FOTO><![CDATA[]]></FOTO>
+        <ID><![CDATA[200006]]></ID>
+        <LOCAL><![CDATA[1,2,3,4,5,6,7,8,9,10]]></LOCAL>
+        <SOURCE><![CDATA[]]></SOURCE>
+        <SOURCE_LOGO><![CDATA[]]></SOURCE_LOGO>
+        <SOURCE_SYS><![CDATA[]]></SOURCE_SYS>
+        <SUBTITULO><![CDATA[Edifício Comercial Torre Norte]]></SUBTITULO>
+        <SUBTITULO2><![CDATA[]]></SUBTITULO2>
+        <SUBTITULO3><![CDATA[]]></SUBTITULO3>
+        <SUBTITULO4><![CDATA[]]></SUBTITULO4>
+        <SUBTITULO5><![CDATA[]]></SUBTITULO5>
+        <TEXTO><![CDATA[Marketing Digital]]></TEXTO>
+        <TEXTO2><![CDATA[17º]]></TEXTO2>
+        <TEXTO3><![CDATA[A-F]]></TEXTO3>
+        <TEXTO4><![CDATA[]]></TEXTO4>
+        <TEXTO5><![CDATA[]]></TEXTO5>
+        <TEXTOCOMPLETO><![CDATA[]]></TEXTOCOMPLETO>
+        <TITULO><![CDATA[Criative Marketing]]></TITULO>
+        <TITULO2><![CDATA[]]></TITULO2>
+        <TITULO3><![CDATA[]]></TITULO3>
+        <TITULO4><![CDATA[]]></TITULO4>
+        <TITULO5><![CDATA[]]></TITULO5>
+        <_ACTIVE><![CDATA[1]]></_ACTIVE>
+    </ITEM>
+    
+    <!-- 16º A-C: Engenharia / D-F: Seguros -->
+    <ITEM>
+        <CATEGORY><![CDATA[Diretório Comercial]]></CATEGORY>
+        <DATE><![CDATA[]]></DATE>
+        <DT_BEGIN><![CDATA[2026-06-17 09:00:00]]></DT_BEGIN>
+        <DT_CREATE><![CDATA[2026-06-17 09:00:00]]></DT_CREATE>
+        <DT_END><![CDATA[2026-12-31 23:59:59]]></DT_END>
+        <DT_UPDATE><![CDATA[2026-06-17 15:00:00]]></DT_UPDATE>
+        <FOTO><![CDATA[img/logo_13.png]]></FOTO>
+        <ID><![CDATA[200007]]></ID>
+        <LOCAL><![CDATA[1,2,3,4,5,6,7,8,9,10]]></LOCAL>
+        <SOURCE><![CDATA[]]></SOURCE>
+        <SOURCE_LOGO><![CDATA[]]></SOURCE_LOGO>
+        <SOURCE_SYS><![CDATA[]]></SOURCE_SYS>
+        <SUBTITULO><![CDATA[Edifício Comercial Torre Norte]]></SUBTITULO>
+        <SUBTITULO2><![CDATA[]]></SUBTITULO2>
+        <SUBTITULO3><![CDATA[]]></SUBTITULO3>
+        <SUBTITULO4><![CDATA[]]></SUBTITULO4>
+        <SUBTITULO5><![CDATA[]]></SUBTITULO5>
+        <TEXTO><![CDATA[Engenharia Civil]]></TEXTO>
+        <TEXTO2><![CDATA[16º]]></TEXTO2>
+        <TEXTO3><![CDATA[A-C]]></TEXTO3>
+        <TEXTO4><![CDATA[]]></TEXTO4>
+        <TEXTO5><![CDATA[]]></TEXTO5>
+        <TEXTOCOMPLETO><![CDATA[]]></TEXTOCOMPLETO>
+        <TITULO><![CDATA[Concreta Engenharia]]></TITULO>
+        <TITULO2><![CDATA[]]></TITULO2>
+        <TITULO3><![CDATA[]]></TITULO3>
+        <TITULO4><![CDATA[]]></TITULO4>
+        <TITULO5><![CDATA[]]></TITULO5>
+        <_ACTIVE><![CDATA[1]]></_ACTIVE>
+    </ITEM>
+    
+    <ITEM>
+        <CATEGORY><![CDATA[Diretório Comercial]]></CATEGORY>
+        <DATE><![CDATA[]]></DATE>
+        <DT_BEGIN><![CDATA[2026-06-17 09:00:00]]></DT_BEGIN>
+        <DT_CREATE><![CDATA[2026-06-17 09:00:00]]></DT_CREATE>
+        <DT_END><![CDATA[2026-12-31 23:59:59]]></DT_END>
+        <DT_UPDATE><![CDATA[2026-06-17 15:00:00]]></DT_UPDATE>
+        <FOTO><![CDATA[img/logo_7.png]]></FOTO>
+        <ID><![CDATA[200008]]></ID>
+        <LOCAL><![CDATA[1,2,3,4,5,6,7,8,9,10]]></LOCAL>
+        <SOURCE><![CDATA[]]></SOURCE>
+        <SOURCE_LOGO><![CDATA[]]></SOURCE_LOGO>
+        <SOURCE_SYS><![CDATA[]]></SOURCE_SYS>
+        <SUBTITULO><![CDATA[Edifício Comercial Torre Norte]]></SUBTITULO>
+        <SUBTITULO2><![CDATA[]]></SUBTITULO2>
+        <SUBTITULO3><![CDATA[]]></SUBTITULO3>
+        <SUBTITULO4><![CDATA[]]></SUBTITULO4>
+        <SUBTITULO5><![CDATA[]]></SUBTITULO5>
+        <TEXTO><![CDATA[Corretora de Seguros]]></TEXTO>
+        <TEXTO2><![CDATA[16º]]></TEXTO2>
+        <TEXTO3><![CDATA[D-F]]></TEXTO3>
+        <TEXTO4><![CDATA[]]></TEXTO4>
+        <TEXTO5><![CDATA[]]></TEXTO5>
+        <TEXTOCOMPLETO><![CDATA[]]></TEXTOCOMPLETO>
+        <TITULO><![CDATA[Delta Seguros]]></TITULO>
+        <TITULO2><![CDATA[]]></TITULO2>
+        <TITULO3><![CDATA[]]></TITULO3>
+        <TITULO4><![CDATA[]]></TITULO4>
+        <TITULO5><![CDATA[]]></TITULO5>
+        <_ACTIVE><![CDATA[1]]></_ACTIVE>
+    </ITEM>
+    
+    <!-- 15º A-B: Saúde Ocupacional / C-D: Odontologia / E-F: Fisioterapia -->
+    <ITEM>
+        <CATEGORY><![CDATA[Diretório Comercial]]></CATEGORY>
+        <DATE><![CDATA[]]></DATE>
+        <DT_BEGIN><![CDATA[2026-06-17 09:00:00]]></DT_BEGIN>
+        <DT_CREATE><![CDATA[2026-06-17 09:00:00]]></DT_CREATE>
+        <DT_END><![CDATA[2026-12-31 23:59:59]]></DT_END>
+        <DT_UPDATE><![CDATA[2026-06-17 15:00:00]]></DT_UPDATE>
+        <FOTO><![CDATA[img/logo_11.png]]></FOTO>
+        <ID><![CDATA[200009]]></ID>
+        <LOCAL><![CDATA[1,2,3,4,5,6,7,8,9,10]]></LOCAL>
+        <SOURCE><![CDATA[]]></SOURCE>
+        <SOURCE_LOGO><![CDATA[]]></SOURCE_LOGO>
+        <SOURCE_SYS><![CDATA[]]></SOURCE_SYS>
+        <SUBTITULO><![CDATA[Edifício Comercial Torre Norte]]></SUBTITULO>
+        <SUBTITULO2><![CDATA[]]></SUBTITULO2>
+        <SUBTITULO3><![CDATA[]]></SUBTITULO3>
+        <SUBTITULO4><![CDATA[]]></SUBTITULO4>
+        <SUBTITULO5><![CDATA[]]></SUBTITULO5>
+        <TEXTO><![CDATA[Saúde Ocupacional]]></TEXTO>
+        <TEXTO2><![CDATA[15º]]></TEXTO2>
+        <TEXTO3><![CDATA[A-B]]></TEXTO3>
+        <TEXTO4><![CDATA[]]></TEXTO4>
+        <TEXTO5><![CDATA[]]></TEXTO5>
+        <TEXTOCOMPLETO><![CDATA[]]></TEXTOCOMPLETO>
+        <TITULO><![CDATA[Vitalis Clínica]]></TITULO>
+        <TITULO2><![CDATA[]]></TITULO2>
+        <TITULO3><![CDATA[]]></TITULO3>
+        <TITULO4><![CDATA[]]></TITULO4>
+        <TITULO5><![CDATA[]]></TITULO5>
+        <_ACTIVE><![CDATA[1]]></_ACTIVE>
+    </ITEM>
+    
+    <ITEM>
+        <CATEGORY><![CDATA[Diretório Comercial]]></CATEGORY>
+        <DATE><![CDATA[]]></DATE>
+        <DT_BEGIN><![CDATA[2026-06-17 09:00:00]]></DT_BEGIN>
+        <DT_CREATE><![CDATA[2026-06-17 09:00:00]]></DT_CREATE>
+        <DT_END><![CDATA[2026-12-31 23:59:59]]></DT_END>
+        <DT_UPDATE><![CDATA[2026-06-17 15:00:00]]></DT_UPDATE>
+        <FOTO><![CDATA[img/logo_11.png]]></FOTO>
+        <ID><![CDATA[200010]]></ID>
+        <LOCAL><![CDATA[1,2,3,4,5,6,7,8,9,10]]></LOCAL>
+        <SOURCE><![CDATA[]]></SOURCE>
+        <SOURCE_LOGO><![CDATA[]]></SOURCE_LOGO>
+        <SOURCE_SYS><![CDATA[]]></SOURCE_SYS>
+        <SUBTITULO><![CDATA[Edifício Comercial Torre Norte]]></SUBTITULO>
+        <SUBTITULO2><![CDATA[]]></SUBTITULO2>
+        <SUBTITULO3><![CDATA[]]></SUBTITULO3>
+        <SUBTITULO4><![CDATA[]]></SUBTITULO4>
+        <SUBTITULO5><![CDATA[]]></SUBTITULO5>
+        <TEXTO><![CDATA[Odontologia]]></TEXTO>
+        <TEXTO2><![CDATA[15º]]></TEXTO2>
+        <TEXTO3><![CDATA[C-D]]></TEXTO3>
+        <TEXTO4><![CDATA[]]></TEXTO4>
+        <TEXTO5><![CDATA[]]></TEXTO5>
+        <TEXTOCOMPLETO><![CDATA[]]></TEXTOCOMPLETO>
+        <TITULO><![CDATA[Sorria Odontologia]]></TITULO>
+        <TITULO2><![CDATA[]]></TITULO2>
+        <TITULO3><![CDATA[]]></TITULO3>
+        <TITULO4><![CDATA[]]></TITULO4>
+        <TITULO5><![CDATA[]]></TITULO5>
+        <_ACTIVE><![CDATA[1]]></_ACTIVE>
+    </ITEM>
+    
+    <ITEM>
+        <CATEGORY><![CDATA[Diretório Comercial]]></CATEGORY>
+        <DATE><![CDATA[]]></DATE>
+        <DT_BEGIN><![CDATA[2026-06-17 09:00:00]]></DT_BEGIN>
+        <DT_CREATE><![CDATA[2026-06-17 09:00:00]]></DT_CREATE>
+        <DT_END><![CDATA[2026-12-31 23:59:59]]></DT_END>
+        <DT_UPDATE><![CDATA[2026-06-17 15:00:00]]></DT_UPDATE>
+        <FOTO><![CDATA[img/logo_11.png]]></FOTO>
+        <ID><![CDATA[200011]]></ID>
+        <LOCAL><![CDATA[1,2,3,4,5,6,7,8,9,10]]></LOCAL>
+        <SOURCE><![CDATA[]]></SOURCE>
+        <SOURCE_LOGO><![CDATA[]]></SOURCE_LOGO>
+        <SOURCE_SYS><![CDATA[]]></SOURCE_SYS>
+        <SUBTITULO><![CDATA[Edifício Comercial Torre Norte]]></SUBTITULO>
+        <SUBTITULO2><![CDATA[]]></SUBTITULO2>
+        <SUBTITULO3><![CDATA[]]></SUBTITULO3>
+        <SUBTITULO4><![CDATA[]]></SUBTITULO4>
+        <SUBTITULO5><![CDATA[]]></SUBTITULO5>
+        <TEXTO><![CDATA[Fisioterapia]]></TEXTO>
+        <TEXTO2><![CDATA[15º]]></TEXTO2>
+        <TEXTO3><![CDATA[E-F]]></TEXTO3>
+        <TEXTO4><![CDATA[]]></TEXTO4>
+        <TEXTO5><![CDATA[]]></TEXTO5>
+        <TEXTOCOMPLETO><![CDATA[]]></TEXTOCOMPLETO>
+        <TITULO><![CDATA[Movimentar Fisioterapia]]></TITULO>
+        <TITULO2><![CDATA[]]></TITULO2>
+        <TITULO3><![CDATA[]]></TITULO3>
+        <TITULO4><![CDATA[]]></TITULO4>
+        <TITULO5><![CDATA[]]></TITULO5>
+        <_ACTIVE><![CDATA[1]]></_ACTIVE>
+    </ITEM>
+    
+    <!-- 14º A-F: Logística (andar inteiro) -->
+    <ITEM>
+        <CATEGORY><![CDATA[Diretório Comercial]]></CATEGORY>
+        <DATE><![CDATA[]]></DATE>
+        <DT_BEGIN><![CDATA[2026-06-17 09:00:00]]></DT_BEGIN>
+        <DT_CREATE><![CDATA[2026-06-17 09:00:00]]></DT_CREATE>
+        <DT_END><![CDATA[2026-12-31 23:59:59]]></DT_END>
+        <DT_UPDATE><![CDATA[2026-06-17 15:00:00]]></DT_UPDATE>
+        <FOTO><![CDATA[img/logo_1.png]]></FOTO>
+        <ID><![CDATA[200012]]></ID>
+        <LOCAL><![CDATA[1,2,3,4,5,6,7,8,9,10]]></LOCAL>
+        <SOURCE><![CDATA[]]></SOURCE>
+        <SOURCE_LOGO><![CDATA[]]></SOURCE_LOGO>
+        <SOURCE_SYS><![CDATA[]]></SOURCE_SYS>
+        <SUBTITULO><![CDATA[Edifício Comercial Torre Norte]]></SUBTITULO>
+        <SUBTITULO2><![CDATA[]]></SUBTITULO2>
+        <SUBTITULO3><![CDATA[]]></SUBTITULO3>
+        <SUBTITULO4><![CDATA[]]></SUBTITULO4>
+        <SUBTITULO5><![CDATA[]]></SUBTITULO5>
+        <TEXTO><![CDATA[Logística & Transportes]]></TEXTO>
+        <TEXTO2><![CDATA[14º]]></TEXTO2>
+        <TEXTO3><![CDATA[A-F]]></TEXTO3>
+        <TEXTO4><![CDATA[]]></TEXTO4>
+        <TEXTO5><![CDATA[]]></TEXTO5>
+        <TEXTOCOMPLETO><![CDATA[]]></TEXTOCOMPLETO>
+        <TITULO><![CDATA[Rota Express Logística]]></TITULO>
+        <TITULO2><![CDATA[]]></TITULO2>
+        <TITULO3><![CDATA[]]></TITULO3>
+        <TITULO4><![CDATA[]]></TITULO4>
+        <TITULO5><![CDATA[]]></TITULO5>
+        <_ACTIVE><![CDATA[1]]></_ACTIVE>
+    </ITEM>
+    
+    <!-- 13º A-D: Construção / E-F: Imobiliária -->
+    <ITEM>
+        <CATEGORY><![CDATA[Diretório Comercial]]></CATEGORY>
+        <DATE><![CDATA[]]></DATE>
+        <DT_BEGIN><![CDATA[2026-06-17 09:00:00]]></DT_BEGIN>
+        <DT_CREATE><![CDATA[2026-06-17 09:00:00]]></DT_CREATE>
+        <DT_END><![CDATA[2026-12-31 23:59:59]]></DT_END>
+        <DT_UPDATE><![CDATA[2026-06-17 15:00:00]]></DT_UPDATE>
+        <FOTO><![CDATA[img/logo_2.png]]></FOTO>
+        <ID><![CDATA[200013]]></ID>
+        <LOCAL><![CDATA[1,2,3,4,5,6,7,8,9,10]]></LOCAL>
+        <SOURCE><![CDATA[]]></SOURCE>
+        <SOURCE_LOGO><![CDATA[]]></SOURCE_LOGO>
+        <SOURCE_SYS><![CDATA[]]></SOURCE_SYS>
+        <SUBTITULO><![CDATA[Edifício Comercial Torre Norte]]></SUBTITULO>
+        <SUBTITULO2><![CDATA[]]></SUBTITULO2>
+        <SUBTITULO3><![CDATA[]]></SUBTITULO3>
+        <SUBTITULO4><![CDATA[]]></SUBTITULO4>
+        <SUBTITULO5><![CDATA[]]></SUBTITULO5>
+        <TEXTO><![CDATA[Construção Civil]]></TEXTO>
+        <TEXTO2><![CDATA[13º]]></TEXTO2>
+        <TEXTO3><![CDATA[A-D]]></TEXTO3>
+        <TEXTO4><![CDATA[]]></TEXTO4>
+        <TEXTO5><![CDATA[]]></TEXTO5>
+        <TEXTOCOMPLETO><![CDATA[]]></TEXTOCOMPLETO>
+        <TITULO><![CDATA[Edifica Construtora]]></TITULO>
+        <TITULO2><![CDATA[]]></TITULO2>
+        <TITULO3><![CDATA[]]></TITULO3>
+        <TITULO4><![CDATA[]]></TITULO4>
+        <TITULO5><![CDATA[]]></TITULO5>
+        <_ACTIVE><![CDATA[1]]></_ACTIVE>
+    </ITEM>
+    
+    <ITEM>
+        <CATEGORY><![CDATA[Diretório Comercial]]></CATEGORY>
+        <DATE><![CDATA[]]></DATE>
+        <DT_BEGIN><![CDATA[2026-06-17 09:00:00]]></DT_BEGIN>
+        <DT_CREATE><![CDATA[2026-06-17 09:00:00]]></DT_CREATE>
+        <DT_END><![CDATA[2026-12-31 23:59:59]]></DT_END>
+        <DT_UPDATE><![CDATA[2026-06-17 15:00:00]]></DT_UPDATE>
+        <FOTO><![CDATA[img/logo_3.png]]></FOTO>
+        <ID><![CDATA[200014]]></ID>
+        <LOCAL><![CDATA[1,2,3,4,5,6,7,8,9,10]]></LOCAL>
+        <SOURCE><![CDATA[]]></SOURCE>
+        <SOURCE_LOGO><![CDATA[]]></SOURCE_LOGO>
+        <SOURCE_SYS><![CDATA[]]></SOURCE_SYS>
+        <SUBTITULO><![CDATA[Edifício Comercial Torre Norte]]></SUBTITULO>
+        <SUBTITULO2><![CDATA[]]></SUBTITULO2>
+        <SUBTITULO3><![CDATA[]]></SUBTITULO3>
+        <SUBTITULO4><![CDATA[]]></SUBTITULO4>
+        <SUBTITULO5><![CDATA[]]></SUBTITULO5>
+        <TEXTO><![CDATA[Imobiliária]]></TEXTO>
+        <TEXTO2><![CDATA[13º]]></TEXTO2>
+        <TEXTO3><![CDATA[E-F]]></TEXTO3>
+        <TEXTO4><![CDATA[]]></TEXTO4>
+        <TEXTO5><![CDATA[]]></TEXTO5>
+        <TEXTOCOMPLETO><![CDATA[]]></TEXTOCOMPLETO>
+        <TITULO><![CDATA[Nova Morar Imobiliária]]></TITULO>
+        <TITULO2><![CDATA[]]></TITULO2>
+        <TITULO3><![CDATA[]]></TITULO3>
+        <TITULO4><![CDATA[]]></TITULO4>
+        <TITULO5><![CDATA[]]></TITULO5>
+        <_ACTIVE><![CDATA[1]]></_ACTIVE>
+    </ITEM>
+</EBDATA>

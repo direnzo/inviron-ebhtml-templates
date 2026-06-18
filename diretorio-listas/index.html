@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diretório Listas - Condomínios</title>
+    <link rel="stylesheet" href="css/master.css">
+
+    <script src="js/ebhtml.js"></script>
+    <!-- carregar a lista de condomínios mock -->
+    <script src="js/D_CONDOMINIO.xml.js"></script>
+    <script src="js/master.js"></script>
+    <script src="js/preview.js"></script>
+</head>
+
+<body class="font-sans text-[3.2vmin] portrait:text-[3.8vmin] landscape:text-[3vmin] ultrawide:text-[2.2vmin] superbanner:text-[5vmin] empena:text-[11vmin] h-screen overflow-hidden opacity-0 transition-opacity duration-500 ease-in-out">
+
+    <!-- Background image (opcional) -->
+    <img id="bgImage" class="absolute inset-0 w-full h-full object-cover hidden" aria-hidden="true">
+
+    <!-- Container principal -->
+    <div class="relative z-10 flex flex-col w-full h-full p-[1.5em]">
+
+        <!-- Cabeçalho -->
+        <div id="header" class="flex items-center justify-center portrait:justify-around gap-[0.8em] mb-[0.8em] flex-shrink-0">
+            <img id="condoLogo" class="h-[2.5em] portrait:max-w-[20vw] object-contain hidden">
+            <div class="text-center">
+                <h1 id="title" class="font-bold text-[1.4em] portrait:text-[1em] leading-tight"></h1>
+            </div>
+        </div>
+
+        <!-- Lista (scrollável via transform) -->
+        <div id="listContainer" class="relative flex-1 overflow-hidden">
+            <div id="columnsWrapper" class="flex flex-row gap-[0.6em]">
+                <div id="col1" class="flex-1 min-w-0">
+                    <div id="listCol1" class="space-y-[0.35em]"></div>
+                </div>
+                <div id="col2" class="flex-1 min-w-0 hidden">
+                    <div id="listCol2" class="space-y-[0.35em]"></div>
+                </div>
+                <div id="col3" class="flex-1 min-w-0 hidden">
+                    <div id="listCol3" class="space-y-[0.35em]"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rodapé -->
+        <div id="footer" class="absolute bottom-0 left-0 right-0 z-9999 flex items-center justify-center text-[0.55em] opacity-60 mt-[0.5em] flex-shrink-0">
+            <span id="subtitle" class="text-[0.7em] opacity-100"></span>
+
+        </div>
+    </div>
+
+    <!-- Template para cada item da lista -->
+    <template id="tpl-list-item">
+        <div class="list-item list-none rounded-[0.3em] p-[0.3em_0.6em] border-l-[0.2em] items-center gap-[0.3em] whitespace-nowrap" style="background-color:var(--cor-card,#2d3748);border-left-color:var(--cor-destaque,#4299e1)">
+            <div class="flex items-center gap-[1em] min-w-0">
+                <!-- LOGO -->
+                <div id="logoContainer" class="flex-none hidden leading-none">
+                    <img id="logo" class="w-[1.5em] h-[1.5em] object-contain rounded-full bg-white p-[0.1em]">
+                </div>
+                <!-- NOME + INFORMAÇÃO EXTRA -->
+                <div class="flex-1 flex-col min-w-0 flex items-baseline gap-x-[0.3em] overflow-hidden">
+                    <h3 id="nome" class="font-bold truncate"></h3>
+                    <div id="extraText" class="hidden text-[0.65em] opacity-60 truncate flex-shrink-0"></div>
+                </div>
+                <!-- ANDAR + CONJUNTO -->
+                <div class="flex-col flex items-end gap-[0.2em] text-[0.65em] font-bold">
+                    <span id="andarContainer" class="hidden"><span id="andar"></span></span>
+                    <span id="conjuntoContainer" class="hidden"><span id="conjunto"></span></span>
+                </div>
+            </div>
+        </div>
+    </template>
+    <script>
+        // Detecta se está sendo exibido na extranet (preview) ou no player normal
+        // Executado aqui (final do body) para garantir que o DOM está pronto
+        var _ggCheckEl = null;
+        try {
+            if (window.parent && window.parent.document) {
+                _ggCheckEl = window.parent.document.getElementById('template_check');
+            }
+        } catch (e) { _ggCheckEl = null; }
+        if (_ggCheckEl !== null) { extranetView(); } else { playerView(); }
+    </script>
+</body>
+
+</html>
