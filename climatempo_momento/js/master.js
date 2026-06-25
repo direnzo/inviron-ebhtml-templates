@@ -56,6 +56,11 @@ window.onload = function () {
 };
 
 function iniciarTemplate(dados, config, loader) {
+    // Centraliza cor dos icones via CONFIG_CLIMA (fallback: branco)
+    var corIcone = (typeof CONFIG_CLIMA !== 'undefined' && CONFIG_CLIMA.iconColor)
+        ? CONFIG_CLIMA.iconColor
+        : '#ffffff';
+
     // Cidade
     var cidadeEl = document.getElementById("cidade");
     if (cidadeEl && dados.CIDADE) {
@@ -82,7 +87,7 @@ function iniciarTemplate(dados, config, loader) {
     }
     var humidityIcon = document.getElementById("humidity-icon");
     if (humidityIcon) {
-        injetarMeteocon(humidityIcon, "humidity", "#ffffff");
+        injetarMeteocon(humidityIcon, "humidity", corIcone);
     }
 
     // Vento — velocidade
@@ -130,7 +135,7 @@ function iniciarTemplate(dados, config, loader) {
     if (mainIcon) {
         var codigo = (dados.ICON || "3").toString();
         var nomeIcone = climaToMeteocon(codigo);
-        injetarMeteocon(mainIcon, nomeIcone, "#ffffff");
+        injetarMeteocon(mainIcon, nomeIcone, corIcone);
     }
 
     // Fade in

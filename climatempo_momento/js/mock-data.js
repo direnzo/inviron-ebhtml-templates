@@ -7,6 +7,15 @@
  * IMPORTANTE: Alterar enabled para false em producao
  */
 
+/* CONFIG_CLIMA — altera estilo e cor dos icones Meteocons
+ *   iconStyle: 'fill' | 'flat' | 'line' | 'monochrome'
+ *   iconColor: qualquer cor hex (ex: '#ffffff', '#ffcc00')
+ */
+var CONFIG_CLIMA = {
+    iconStyle: 'fill',
+    iconColor: '#ffffff'
+};
+
 var MOCK_DATA = {
     enabled: true,
     config: {

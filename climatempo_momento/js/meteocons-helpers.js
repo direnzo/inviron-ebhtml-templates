@@ -20,6 +20,12 @@ var METEOCONS_PATH = 'img/meteocons';
 var METEOCONS_STYLE = 'fill';
 var METEOCONS_COLOR = 'currentColor';
 
+/* Aplica CONFIG_CLIMA se existir (sobrescreve estilo e cor) */
+if (typeof CONFIG_CLIMA !== 'undefined') {
+    if (CONFIG_CLIMA.iconStyle) { METEOCONS_STYLE = CONFIG_CLIMA.iconStyle; }
+    if (CONFIG_CLIMA.iconColor) { METEOCONS_COLOR = CONFIG_CLIMA.iconColor; }
+}
+
 /* ---------- MAPEAMENTO CLIMATEMPO -> METEOCONS ---------- */
 var METEOCONS_MAP = {
   '1':   'clear-day',
