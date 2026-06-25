@@ -140,9 +140,13 @@ function injetarMeteocon(el, nomeArquivo, cor) {
       svg.style.height = '100%';
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-      // Aplica cor em TODOS os elementos com fill/color/stroke no SVG
-      // Funciona em fill, flat, line e monochrome
-      aplicarCorSvg(svg, cor);
+      // monochrome: aplica cor em todos os elementos (icone monocromatico)
+      if (METEOCONS_STYLE === 'monochrome') {
+        aplicarCorSvg(svg, cor);
+      } else {
+        // fill/flat/line: preserva cores originais, afeta apenas currentColor
+        svg.style.color = cor;
+      }
     }
   });
 }
@@ -237,41 +241,73 @@ function direcaoCardinalParaAngulo(dir) {
 }
 
 /**
- * Converte velocidade do vento (km/h) para o icone Beaufort correspondente.
- * Segue a Escala Beaufort internacional (WMO):
- *   0:  < 1     -> wind-beaufort-0
- *   1:  1-5     -> wind-beaufort-1
- *   2:  6-11    -> wind-beaufort-2
- *   3:  12-19   -> wind-beaufort-3
- *   4:  20-28   -> wind-beaufort-4
- *   5:  29-38   -> wind-beaufort-5
- *   6:  39-49   -> wind-beaufort-6
- *   7:  50-61   -> wind-beaufort-7
- *   8:  62-74   -> wind-beaufort-8
- *   9:  75-88   -> wind-beaufort-9
- *   10: 89-102  -> wind-beaufort-10
- *   11: 103-117 -> wind-beaufort-11
- *   12: >= 118  -> wind-beaufort-12
+ * Converte velocidade do vento (km/h) para o icone correspondente.
+ *   < 50 km/h -> wind
+ *   >= 50 km/h -> wind-alert
  * @param {string|number} velocidade - Velocidade do vento em km/h
- * @returns {string} Nome do arquivo SVG (ex: 'wind-beaufort-3')
+ * @returns {string} Nome do arquivo SVG (ex: 'wind', 'wind-alert')
  */
 function ventoVelocidadeParaIcone(velocidade) {
-  if (!velocidade) return 'wind-beaufort-0';
+  if (!velocidade) return 'wind';
   var num = parseInt(String(velocidade).replace(/[^0-9]/g, ''), 10);
-  if (isNaN(num)) return 'wind-beaufort-0';
-  if (num < 1)   return 'wind-beaufort-0';
-  if (num <= 5)  return 'wind-beaufort-1';
-  if (num <= 11) return 'wind-beaufort-2';
-  if (num <= 19) return 'wind-beaufort-3';
-  if (num <= 28) return 'wind-beaufort-4';
-  if (num <= 38) return 'wind-beaufort-5';
-  if (num <= 49) return 'wind-beaufort-6';
-  if (num <= 61) return 'wind-beaufort-7';
-  if (num <= 74) return 'wind-beaufort-8';
-  if (num <= 88) return 'wind-beaufort-9';
-  if (num <= 102) return 'wind-beaufort-10';
-  if (num <= 117) return 'wind-beaufort-11';
-  return 'wind-beaufort-12';
+  if (isNaN(num)) return 'wind';
+  if (num < 50) return 'wind';
+  return 'wind-alert';
+}
+
+/* ---------- MAPEAMENTO CLIMATEMPO -> BACKGROUND ---------- */
+var CLIMA_BG_MAP = {
+  '1':   'bg-sunny',
+  '1n':  'bg-night',
+  '2':   'bg-sunny',
+  '2r':  'bg-rainy',
+  '2n':  'bg-night',
+  '2rn': 'bg-rainy',
+  '3':   'bg-cloudy',
+  '3n':  'bg-night',
+  '4':   'bg-rainy',
+  '4r':  'bg-rainy',
+  '4n':  'bg-rainy',
+  '4rn': 'bg-rainy',
+  '4t':  'bg-storm',
+  '4tn': 'bg-storm',
+  '5':   'bg-rainy',
+  '5n':  'bg-rainy',
+  '6':   'bg-storm',
+  '6n':  'bg-storm',
+  '7':   'bg-snow',
+  '7n':  'bg-snow',
+  '8':   'bg-snow',
+  '9':   'bg-fog',
+  '10':  'bg-rainy',
+  '11':  'bg-rainy',
+  '12':  'bg-rainy',
+  '13':  'bg-rainy',
+  '14':  'bg-storm',
+  '15':  'bg-storm',
+  '16':  'bg-storm',
+  '17':  'bg-snow',
+  '18':  'bg-snow',
+  '19':  'bg-fog',
+  '20':  'bg-fog',
+  '21':  'bg-night',
+  '22':  'bg-night',
+  '23':  'bg-cloudy',
+  '24':  'bg-rainy',
+  '25':  'bg-rainy',
+  '26':  'bg-storm',
+  '27':  'bg-snow',
+  '28':  'bg-snow'
+};
+
+/**
+ * Retorna a classe de background com base no codigo do icone Climatempo.
+ * @param {string|number} codigo - Codigo do icone (ex: '1', '4t', '21')
+ * @returns {string} Nome da classe CSS (ex: 'bg-sunny', 'bg-night')
+ */
+function climaBackgroundClass(codigo) {
+  var chave = codigo.toString();
+  return CLIMA_BG_MAP[chave] || 'bg-sunny';
 }
 
 /**

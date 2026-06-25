@@ -68,6 +68,13 @@ function iniciarTemplate(dados, config, loader) {
         ? CONFIG_CLIMA.iconColor
         : '#ffffff';
 
+    // Aplica background tematico conforme condicao climatica
+    var bgClass = climaBackgroundClass(dados.ICON);
+    if (bgClass) {
+        document.body.className = document.body.className.replace(/bg-\w+/g, '');
+        document.body.className = document.body.className + ' ' + bgClass;
+    }
+
     // Cidade
     var cidadeEl = document.getElementById("cidade");
     if (cidadeEl && dados.CIDADE) {

@@ -15,3 +15,12 @@
 .bg-\[\#009ee3\] { background-color: #009ee3 }
 .bg-\[\#006699\] { background-color: #006699 }
 .drop-shadow { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5)) }
+
+/* Backgrounds tematicos por condicao climatica */
+.bg-sunny { background: linear-gradient(180deg, #4a90d9 0%, #87ceeb 50%, #b8dff5 100%) }
+.bg-cloudy { background: linear-gradient(180deg, #7a8a9e 0%, #a0b3c4 50%, #c5d3de 100%) }
+.bg-rainy { background: linear-gradient(180deg, #4a5568 0%, #6b7b8d 50%, #8a9baa 100%) }
+.bg-storm { background: linear-gradient(180deg, #1a202c 0%, #2d3748 50%, #4a5568 100%) }
+.bg-snow { background: linear-gradient(180deg, #c4d4e0 0%, #e2e8f0 50%, #f7fafc 100%) }
+.bg-fog { background: linear-gradient(180deg, #8a9baa 0%, #a8b8c8 50%, #c8d4e0 100%) }
+.bg-night { background: linear-gradient(180deg, #0a0a1a 0%, #141428 50%, #1a1a3e 100%) }

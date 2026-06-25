@@ -8,8 +8,8 @@
     <!-- CONFIG_CLIMA — deve vir antes de todos os scripts -->
     <script>
         var CONFIG_CLIMA = {
-            iconStyle: 'fill',
-            iconColor: '#ffffff',
+            iconStyle: 'line', // 'fill' | 'flat' | 'line' | 'monochrome'
+            iconColor: '#FF00CC', // só funciona com o estilo 'monochrome'
             duration: 10000
         };
     </script>
@@ -21,7 +21,7 @@
     <title>Climatempo Momento</title>
 </head>
 
-<body class="relative flex flex-col h-screen w-full overflow-hidden bg-gradient-to-b from-[#009ee3] to-[#006699] font-montserrat leading-none font-bold text-white text-[3.2vmin] superbanner:text-[5vmin] empena:text-[11vmin] opacity-0 transition-opacity duration-800 ease-out">
+<body class="relative flex flex-col h-screen w-full overflow-hidden font-montserrat leading-none font-bold text-white text-[3.2vmin] superbanner:text-[5vmin] empena:text-[11vmin] opacity-0 transition-opacity duration-800 ease-out">
 
     <!-- Header: cidade -->
     <header class="w-full flex h-[15vmin] items-center justify-center z-10 py-[2.5vmin]">
