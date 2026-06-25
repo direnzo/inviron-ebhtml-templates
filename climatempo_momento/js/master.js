@@ -10,6 +10,13 @@
  *   C1_WINDDIRECTION, C1_TEXTMIN
  */
 
+/* CONFIG_CLIMA — configuracao global do template
+ * Definido no index.html (deve vir antes de todos os scripts)
+ *   iconStyle: 'fill' | 'flat' | 'line' | 'monochrome'
+ *   iconColor: qualquer cor hex (ex: '#ffffff', '#ffcc00')
+ *   duration:  tempo em ms que o template fica em tela (padrao: 10000)
+ */
+
 window.onload = function () {
 
     if (typeof MOCK_DATA !== "undefined" && MOCK_DATA.enabled) {
@@ -17,7 +24,7 @@ window.onload = function () {
             loaded: function () { console.log("[Mock] Carregado"); },
             finished: function () { console.log("[Mock] Finalizado"); }
         };
-        iniciarTemplate(MOCK_DATA.dados[0], MOCK_DATA.config, mockLoader);
+        iniciarTemplate(MOCK_DATA.dados[0], CONFIG_CLIMA, mockLoader);
     } else {
         
         ebhtml.create2({}, function (loader) {
@@ -48,7 +55,7 @@ window.onload = function () {
                     DESCRICAO:  item.value("C1_TEXTMIN").value || ""
                 };
 
-                var config = { duration: 10000 };
+                var config = CONFIG_CLIMA;
                 iniciarTemplate(dados, config, loader);
             });
         });

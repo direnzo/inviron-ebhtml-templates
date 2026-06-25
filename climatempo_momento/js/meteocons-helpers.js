@@ -140,11 +140,9 @@ function injetarMeteocon(el, nomeArquivo, cor) {
       svg.style.height = '100%';
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-      if (METEOCONS_STYLE === 'monochrome') {
-        svg.setAttribute('fill', cor);
-      } else {
-        svg.style.color = cor;
-      }
+      // Aplica cor em TODOS os elementos com fill/color/stroke no SVG
+      // Funciona em fill, flat, line e monochrome
+      aplicarCorSvg(svg, cor);
     }
   });
 }
@@ -274,4 +272,27 @@ function ventoVelocidadeParaIcone(velocidade) {
   if (num <= 102) return 'wind-beaufort-10';
   if (num <= 117) return 'wind-beaufort-11';
   return 'wind-beaufort-12';
+}
+
+/**
+ * Aplica uma cor a todos os elementos de um SVG, forçando fill e stroke.
+ * Percorre recursivamente todos os elementos filho e sobrescreve atributos
+ * de cor, garantindo que o icone use a cor desejada independente do estilo.
+ * @param {SVGSVGElement} svg - Elemento SVG raiz
+ * @param {string} cor - Cor a aplicar (ex: '#ff00cc')
+ */
+function aplicarCorSvg(svg, cor) {
+  if (!svg || !cor) return;
+
+  // Força no proprio SVG
+  svg.setAttribute('fill', cor);
+
+  // Percorre todos os elementos filhos
+  var todos = svg.querySelectorAll('path, circle, rect, ellipse, line, polyline, polygon, g, use, text');
+  for (var i = 0; i < todos.length; i++) {
+    var el = todos[i];
+    el.setAttribute('fill', cor);
+    el.setAttribute('stroke', cor);
+    el.removeAttribute('style');
+  }
 }
