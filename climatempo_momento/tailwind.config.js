@@ -1,8 +1,8 @@
 // tailwind.config.js para climatempo_momento
 module.exports = {
   content: [
-    "./**/*.html",
-    "./**/*.js",
+    "./index.html",
+    "./js/*.js",
     "./css/*.css"
   ],
   theme: {

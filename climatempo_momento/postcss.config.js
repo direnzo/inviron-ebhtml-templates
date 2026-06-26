@@ -1,4 +1,5 @@
 // Resolve modulos globais (pacotes instalados com npm -g)
+// gap em flex containers: usar space-x-*/space-y-* no HTML (Chrome < 84)
 var path = require('path');
 var globalPath = path.resolve(process.execPath, '../../lib/node_modules');
 // Fallback: tenta npm root -g

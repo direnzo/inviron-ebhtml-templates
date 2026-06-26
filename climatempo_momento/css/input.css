@@ -38,3 +38,25 @@
 .backdrop-fallback {
     backdrop-filter: blur(2px);
 }
+
+/* Fallback aspect-ratio para Chrome < 88 (dispositivos Chromium 78)
+   Tailwind gera .aspect-square { aspect-ratio: 1/1 } que Chrome 78 ignora.
+   Esta regua usa o padding-bottom trick para forcar proporcao 1:1. */
+@supports not (aspect-ratio: 1 / 1) {
+  .aspect-square {
+    position: relative;
+    overflow: hidden;
+  }
+  .aspect-square::before {
+    content: '';
+    display: block;
+    padding-bottom: 100%;
+  }
+  .aspect-square > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}

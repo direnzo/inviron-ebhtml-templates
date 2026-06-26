@@ -31,7 +31,7 @@
 
     <!-- Main: conteudo central -->
     <main class="flex-1 flex items-center justify-center w-full overflow-hidden p-[2vmin] z-10 bg-black/30 backdrop-fallback rounded-[2vmin]">
-        <div id="content" class="flex portrait:flex-col items-center justify-center gap-[2vmin] w-full h-full
+        <div id="content" class="flex portrait:flex-col items-center justify-center space-y-[2vmin] ls:space-y-0 ls:space-x-[2vmin] ultrawide:space-y-0 ultrawide:space-x-[2vmin] superbanner:space-y-0 superbanner:space-x-[2vmin] w-full h-full
                     ls:flex-row ultrawide:flex-row superbanner:flex-row">
 
             <!-- Icone grande -->
@@ -43,7 +43,7 @@
             </div>
 
             <!-- Informacoes -->
-            <div id="info-area" class="flex flex-col items-center justify-center gap-[3.5vmin]
+            <div id="info-area" class="flex flex-col items-center justify-center space-y-[3.5vmin]
                         portrait:w-full portrait:h-auto
                         ls:h-full
                         ultrawide:h-full">
@@ -58,26 +58,26 @@
                 <div id="sensacao" class="hidden text-[80%] portrait:text-[120%] opacity-90 drop-shadow">--</div>
 
                 <!-- Umidade + Vento -->
-                <div id="extra-row" class="flex flex-row portrait:flex-col items-center justify-center gap-[3vmin] text-[90%]  mt-[1vmin]">
+                <div id="extra-row" class="flex flex-row portrait:flex-col items-center justify-center space-x-[3vmin] portrait:space-x-0 portrait:space-y-[3vmin] text-[90%]  mt-[1vmin]">
 
                     <!-- Umidade -->
-                    <div class="flex flex-col items-center gap-[0.8vmin]">
+                    <div class="flex flex-col items-center space-y-[0.8vmin]">
                         <span id="humidity-title" class="text-[50%] drop-shadow">Umidade</span>
-                        <div class="flex flex-row items-center gap-[0.8vmin]">
+                        <div class="flex flex-row items-center space-x-[0.8vmin]">
                             <span id="humidity-icon" class="w-[1.4em] h-[1.4em] flex items-center flex-shrink-0"></span>
                             <span id="humidity-value" class="whitespace-nowrap drop-shadow">--%</span>
                         </div>
                     </div>
 
                     <!-- Vento -->
-                    <div class="flex flex-col items-center gap-[0.8vmin]">
+                    <div class="flex flex-col items-center space-y-[0.8vmin]">
                         <span id="wind-title" class="text-[50%] drop-shadow">Vento</span>
-                        <div class="flex flex-row portrait:flex-col items-center gap-[0.8vmin]">
-                            <div class="flex flex-row items-center gap-[0.8vmin]">
+                        <div class="flex flex-row portrait:flex-col items-center space-x-[0.8vmin] portrait:space-x-0 portrait:space-y-[0.8vmin]">
+                            <div class="flex flex-row items-center space-x-[0.8vmin]">
                                 <span id="wind-icon" class="w-[1.4em] h-[1.4em] flex items-center flex-shrink-0"></span>
                                 <span id="wind-value" class="whitespace-nowrap drop-shadow">--km/h</span>
                             </div>
-                            <div class="flex flex-row items-center gap-[0.8vmin]">
+                            <div class="flex flex-row items-center space-x-[0.8vmin]">
                                 <span id="wind-dir-icon" class="w-[0.8em] h-[0.8em] flex items-center flex-shrink-0"></span>
                                 <span id="wind-dir-text" class="whitespace-nowrap opacity-70 drop-shadow"></span>
                             </div>
