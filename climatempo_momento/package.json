@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Template EdgeContents - Climatempo Momento (temperatura atual, umidade, vento)",
   "scripts": {
-    "dev": "tailwindcss -i css/input.css -o css/master.css --watch",
-    "build": "tailwindcss -i css/input.css -o css/master.css --minify"
+    "dev": "postcss css/input.css -o css/master.css --watch",
+    "build": "postcss css/input.css -o css/master.css --env production"
   },
   "keywords": [
     "digital-signage",
@@ -14,7 +14,17 @@
   ],
   "author": "Eduardo Di Renzo - Inviron Technologies",
   "license": "ISC",
-  "dependencies": {
-    "tailwindcss": "^3.4.1"
-  }
+  "browserslist": [
+    "> 0.2%",
+    "last 3 versions",
+    "not dead",
+    "IE 11",
+    "Android >= 4.4",
+    "last 5 ChromeAndroid versions",
+    "last 5 Chrome versions",
+    "last 5 Firefox versions",
+    "last 5 Edge versions",
+    "Safari >= 9",
+    "ios_saf >= 9"
+  ]
 }

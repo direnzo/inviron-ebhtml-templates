@@ -50,25 +50,8 @@ var METEOCONS_MAP = {
   '7n':  'partly-cloudy-night-snow',
   '8':   'snow',
   '9':   'fog',
-  '10':  'rain',
-  '11':  'rain',
-  '12':  'rain',
-  '13':  'overcast-day-rain',
-  '14':  'extreme-rain',
-  '15':  'thunderstorms',
-  '16':  'thunderstorms',
-  '17':  'partly-cloudy-day-snow',
-  '18':  'snow',
-  '19':  'fog',
-  '20':  'fog',
-  '21':  'clear-night',
-  '22':  'partly-cloudy-night',
-  '23':  'cloudy',
-  '24':  'overcast-night-rain',
-  '25':  'extreme-night-rain',
-  '26':  'thunderstorms-night',
-  '27':  'partly-cloudy-night-snow',
-  '28':  'snow'
+  '11':  'rain'
+
 };
 
 /* ---------- FUNCOES ---------- */
@@ -259,7 +242,7 @@ function ventoVelocidadeParaIcone(velocidade) {
 var CLIMA_BG_MAP = {
   '1':   'bg-sunny',
   '1n':  'bg-night',
-  '2':   'bg-sunny',
+  '2':   'bg-sunny-cloudy',
   '2r':  'bg-rainy',
   '2n':  'bg-night',
   '2rn': 'bg-rainy',
@@ -271,33 +254,16 @@ var CLIMA_BG_MAP = {
   '4rn': 'bg-rainy',
   '4t':  'bg-storm',
   '4tn': 'bg-storm',
-  '5':   'bg-rainy',
-  '5n':  'bg-rainy',
+  '5':   'bg-rainy-dark',
+  '5n':  'bg-rainy-dark',
   '6':   'bg-storm',
   '6n':  'bg-storm',
   '7':   'bg-snow',
   '7n':  'bg-snow',
   '8':   'bg-snow',
   '9':   'bg-fog',
-  '10':  'bg-rainy',
-  '11':  'bg-rainy',
-  '12':  'bg-rainy',
-  '13':  'bg-rainy',
-  '14':  'bg-storm',
-  '15':  'bg-storm',
-  '16':  'bg-storm',
-  '17':  'bg-snow',
-  '18':  'bg-snow',
-  '19':  'bg-fog',
-  '20':  'bg-fog',
-  '21':  'bg-night',
-  '22':  'bg-night',
-  '23':  'bg-cloudy',
-  '24':  'bg-rainy',
-  '25':  'bg-rainy',
-  '26':  'bg-storm',
-  '27':  'bg-snow',
-  '28':  'bg-snow'
+  '11':  'bg-rainy'
+
 };
 
 /**

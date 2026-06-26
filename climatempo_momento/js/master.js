@@ -43,7 +43,7 @@ window.onload = function () {
                 var dados = {
                     CIDADE:     item.value("C1_CIDADE").value || "",
                     CIDADE_SYS: item.value("C1_CIDADE_SYS").value || "",
-                    ICON:       item.value("C1_ICO").value || "",
+                    ICON:       item.value("C1_TEXTPT").value || "",
                     TEMP_ATUAL: item.value("C1_MAX").value || "",
                     TEMP_MAX:   item.value("C1_MAX").value || "",
                     TEMP_MIN:   item.value("C1_MIN").value || "",
@@ -52,8 +52,10 @@ window.onload = function () {
                     VENTO_DIR:  item.value("C1_WINDDIRECTION").value || "",
                     VENTO_MAX:  item.value("C1_WINDMAXVELOCITY").value || "",
                     VENTO_MIN:  item.value("C1_WINDMINVELOCITY").value || "",
-                    DESCRICAO:  item.value("C1_TEXTMIN").value || ""
+                    DESCRICAO:  item.value("C1_TEXTMIN").value || "",
+                    SENSACAO:   item.value("C1_PRECIPITATION").value || ""
                 };
+                console.log("[CLIMA MOMENTO] Dados recebidos:", dados);
 
                 var config = CONFIG_CLIMA;
                 iniciarTemplate(dados, config, loader);
@@ -75,6 +77,12 @@ function iniciarTemplate(dados, config, loader) {
         document.body.className = document.body.className + ' ' + bgClass;
     }
 
+    // Aplica cor do texto via CONFIG_CLIMA (fallback: branco)
+    var corTexto = (typeof CONFIG_CLIMA !== 'undefined' && CONFIG_CLIMA.textColor)
+        ? CONFIG_CLIMA.textColor
+        : '#ffffff';
+    document.body.style.color = corTexto;
+
     // Cidade
     var cidadeEl = document.getElementById("cidade");
     if (cidadeEl && dados.CIDADE) {
@@ -90,8 +98,19 @@ function iniciarTemplate(dados, config, loader) {
 
     // Descricao do tempo
     var descEl = document.getElementById("descricao");
+    console.log("Descricao do tempo: " + dados.DESCRICAO);
     if (descEl) {
         descEl.innerText = dados.DESCRICAO || "--";
+    }
+
+     // Sensacao termica
+    var sensacaoEl = document.getElementById("sensacao");
+    if (sensacaoEl) {
+        if (dados.SENSACAO) {
+            sensacaoEl.classList.remove("hidden");
+            sensacaoEl.classList.add("block");
+            sensacaoEl.innerText = "Sensação térmica de " + dados.SENSACAO + "°C" || "";
+        } 
     }
 
     // Umidade
@@ -112,7 +131,7 @@ function iniciarTemplate(dados, config, loader) {
     var windIcon = document.getElementById("wind-icon");
     if (windIcon) {
         var nomeIconeVento = ventoVelocidadeParaIcone(dados.VENTO_VEL);
-        injetarMeteocon(windIcon, nomeIconeVento);
+        injetarMeteocon(windIcon, nomeIconeVento, corIcone);
     }
 
     // Vento — direcao (compass SVG com rotacao)
@@ -133,6 +152,7 @@ function iniciarTemplate(dados, config, loader) {
                     var path = svg.querySelector('path');
                     if (path) {
                         path.setAttribute('transform', 'rotate(' + ang + ' 12 12)');
+                        path.setAttribute('fill', corIcone);
                     }
                 }
             }

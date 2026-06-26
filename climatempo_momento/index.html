@@ -8,20 +8,21 @@
     <!-- CONFIG_CLIMA — deve vir antes de todos os scripts -->
     <script>
         var CONFIG_CLIMA = {
-            iconStyle: 'line', // 'fill' | 'flat' | 'line' | 'monochrome'
-            iconColor: '#FF00CC', // só funciona com o estilo 'monochrome'
+            iconStyle: 'fill', // 'fill' | 'flat' | 'line' | 'monochrome'
+            iconColor: '#ffffff', // só funciona com o estilo 'monochrome'
+            textColor: '#ffffff', // cor do texto (opcional)
             duration: 10000
         };
     </script>
     <!-- Mock data (comentar em producao) -->
-    <script src="js/mock-data.js"></script>
+    <!-- <script src="js/mock-data.js"></script> -->
     <script src="js/meteocons-helpers.js"></script>
     <script src="js/ebhtml.js"></script>
     <script src="js/master.js"></script>
     <title>Climatempo Momento</title>
 </head>
 
-<body class="relative flex flex-col h-screen w-full overflow-hidden font-montserrat leading-none font-bold text-white text-[3.2vmin] superbanner:text-[5vmin] empena:text-[11vmin] opacity-0 transition-opacity duration-800 ease-out">
+<body class="relative flex flex-col h-screen w-full overflow-hidden font-montserrat leading-none font-bold text-[5vmin] superbanner:text-[8vmin] empena:text-[20vmin] opacity-0 transition-opacity duration-800 ease-out px-[2vmin] py-[2vmin]]">
 
     <!-- Header: cidade -->
     <header class="w-full flex h-[15vmin] items-center justify-center z-10 py-[2.5vmin]">
@@ -29,7 +30,7 @@
     </header>
 
     <!-- Main: conteudo central -->
-    <main class="flex-1 flex items-center justify-center w-full overflow-hidden p-[2vmin] z-10">
+    <main class="flex-1 flex items-center justify-center w-full overflow-hidden p-[2vmin] z-10 bg-black/30 backdrop-fallback rounded-[2vmin]">
         <div id="content" class="flex portrait:flex-col items-center justify-center gap-[2vmin] w-full h-full
                     ls:flex-row ultrawide:flex-row superbanner:flex-row">
 
@@ -38,41 +39,48 @@
                         portrait:w-full portrait:h-auto portrait:max-h-[40%]
                         ls:w-[45%] ls:h-full
                         ultrawide:w-[40%] ultrawide:h-full">
-                <div id="main-icon" class="w-full h-full min-w-[20vmin] max-w-[50vmin] portrait:max-w-[40vmin] aspect-square flex-shrink-0"></div>
+                <div id="main-icon" class="w-full h-full min-w-[20vmin] max-w-[50vmin] portrait:max-w-[40vmin] aspect-square flex-shrink-0 shadow-sm"></div>
             </div>
 
             <!-- Informacoes -->
             <div id="info-area" class="flex flex-col items-center justify-center gap-[3.5vmin]
-                        portrait:w-full portrait:h-auto portrait:flex-[1]
-                        ls:w-[55%] ls:h-full
-                        ultrawide:w-[60%] ultrawide:h-full">
+                        portrait:w-full portrait:h-auto
+                        ls:h-full
+                        ultrawide:h-full">
 
                 <!-- Temperatura -->
-                <div id="temp-main" class="text-[min(20vmin,8em)] portrait:text-[min(22vmin,5em)] leading-none drop-shadow-lg">--°</div>
+                <div id="temp-main" class="text-[450%] portrait:text-[400%] leading-none drop-shadow">--°</div>
 
                 <!-- Descricao -->
-                <div id="descricao" class="text-[min(4.5vmin,1.4em)] portrait:text-[min(4vmin,1.2em)] opacity-90 drop-shadow">--</div>
+                <div id="descricao" class="text-[80%] portrait:text-[120%] opacity-90 drop-shadow">--</div>
+
+                <!-- Sensacao termica -->
+                <div id="sensacao" class="hidden text-[80%] portrait:text-[120%] opacity-90 drop-shadow">--</div>
 
                 <!-- Umidade + Vento -->
-                <div id="extra-row" class="flex flex-row items-center justify-center gap-[3vmin] text-[min(4vmin,1.2em)] portrait:text-[min(3.5vmin,1em)] mt-[1vmin]">
+                <div id="extra-row" class="flex flex-row portrait:flex-col items-center justify-center gap-[3vmin] text-[90%]  mt-[1vmin]">
 
                     <!-- Umidade -->
                     <div class="flex flex-col items-center gap-[0.8vmin]">
-                        <span id="humidity-title" class="text-[50%]">Umidade</span>
+                        <span id="humidity-title" class="text-[50%] drop-shadow">Umidade</span>
                         <div class="flex flex-row items-center gap-[0.8vmin]">
                             <span id="humidity-icon" class="w-[1.4em] h-[1.4em] flex items-center flex-shrink-0"></span>
-                            <span id="humidity-value" class="whitespace-nowrap">--%</span>
+                            <span id="humidity-value" class="whitespace-nowrap drop-shadow">--%</span>
                         </div>
                     </div>
 
                     <!-- Vento -->
                     <div class="flex flex-col items-center gap-[0.8vmin]">
-                        <span id="wind-title" class="text-[50%]">Vento</span>
-                        <div class="flex flex-row items-center gap-[0.8vmin]">
-                            <span id="wind-icon" class="w-[1.4em] h-[1.4em] flex items-center flex-shrink-0"></span>
-                            <span id="wind-value" class="whitespace-nowrap">--km/h</span>
-                            <span id="wind-dir-icon" class="w-[1.4em] h-[1.4em] flex items-center flex-shrink-0"></span>
-                            <span id="wind-dir-text" class="whitespace-nowrap text-[0.8em] opacity-70">--</span>
+                        <span id="wind-title" class="text-[50%] drop-shadow">Vento</span>
+                        <div class="flex flex-row portrait:flex-col items-center gap-[0.8vmin]">
+                            <div class="flex flex-row items-center gap-[0.8vmin]">
+                                <span id="wind-icon" class="w-[1.4em] h-[1.4em] flex items-center flex-shrink-0"></span>
+                                <span id="wind-value" class="whitespace-nowrap drop-shadow">--km/h</span>
+                            </div>
+                            <div class="flex flex-row items-center gap-[0.8vmin]">
+                                <span id="wind-dir-icon" class="w-[0.8em] h-[0.8em] flex items-center flex-shrink-0"></span>
+                                <span id="wind-dir-text" class="whitespace-nowrap opacity-70 drop-shadow"></span>
+                            </div>
                         </div>
                     </div>
 
