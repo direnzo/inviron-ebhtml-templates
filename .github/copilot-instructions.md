@@ -164,35 +164,93 @@ Editar `css/input.css` → gera `css/master.css`
 
 ---
 
-### 4. CSS Compatível com Android 7 (Chrome 51–64)
+### 4. CSS Compatível com Dispositivos Reais (Chromium 78 + Android 7)
 
-Dois problemas reais com Tailwind v3 + browsers antigos:
+**Target real:** Chromium 78 (out/2019) — browserslist no `package.json`:
+```
+"browserslist": ["Chrome >= 78", "Android >= 7"]
+```
 
-#### ❌ `clamp()` requer Chrome 79+ — NUNCA usar
+#### ❌ `clamp()` — Chrome 79+ — NUNCA usar
 ```html
-❌ text-[clamp(14px,3.8vmin,4vh)]  → font-size ignorado no Android 7
+❌ text-[clamp(14px,3.8vmin,4vh)]  → font-size ignorado
 ✅ text-[3.8vmin]                   → vmin funciona desde Chrome 26
 ```
 
-#### ❌ Tailwind gera `rgb(r g b / alpha)` — não funciona em Chrome < 65
-Todo utilitário de cor do Tailwind v3 (`text-white`, `bg-black`, `text-[#hex]`, etc.) compila para:
-```css
-color: rgb(255 255 255 / var(--tw-text-opacity)); /* Chrome 65+ apenas */
-```
-**Solução:** adicionar fallbacks hex no `input.css` de cada template, **fora de `@layer`** (para ter prioridade sobre os utilitários do Tailwind):
-```css
-/* Após @tailwind utilities — fora de @layer — Android 7 / Chrome < 65 */
-.text-white          { color: #ffffff }
-.text-black          { color: #000000 }
-.bg-white            { background-color: #ffffff }
-.bg-black            { background-color: #000000 }
-/* Para cores arbitrárias: */
-.text-\[\#abc123\]   { color: #abc123 }
-.bg-\[\#abc123\]     { background-color: #abc123 }
+#### ❌ `gap` em flex containers — Chrome 84+ — NUNCA usar `gap-*` em flex
+`gap` funciona em Grid (desde Chrome 57) mas **NÃO em flex** no Chrome 78.
+**Solução:** Substituir `gap-*` por `space-x-*`/`space-y-*` do Tailwind:
+
+```html
+<!-- ❌ ERRADO: gap em flex → Chrome 78 ignora -->
+<div class="flex flex-row items-center gap-[2vmin]">
+
+<!-- ✅ CORRETO: space-x-* usa margin → funciona em TODOS browsers -->
+<div class="flex flex-row items-center space-x-[2vmin]">
 ```
 
-#### ✅ Prefixos `-webkit-` NÃO são necessários para Android 7
-Chrome 51+ suporta nativamente (sem prefixo): flexbox, transitions, animations, object-fit, CSS vars, vmin/vw/vh.
+**Regra de conversão:**
+- `flex-row` → `space-x-[X]` (margin horizontal entre filhos)
+- `flex-col` → `space-y-[X]` (margin vertical entre filhos)
+- Se muda direção por breakpoint, usar overrides:
+```html
+<div class="flex flex-row portrait:flex-col items-center
+            space-x-[2vmin] portrait:space-x-0 portrait:space-y-[2vmin]">
+```
+
+#### ❌ `aspect-ratio` — Chrome 88+ — NUNCA confiar em `aspect-*` isolado
+Tailwind gera `.aspect-square { aspect-ratio: 1/1 }` que Chrome 78 ignora.
+**Solução:** Adicionar fallback `@supports not (aspect-ratio)` no `input.css`:
+```css
+@supports not (aspect-ratio: 1 / 1) {
+  .aspect-square {
+    position: relative;
+    overflow: hidden;
+  }
+  .aspect-square::before {
+    content: '';
+    display: block;
+    padding-bottom: 100%;
+  }
+  .aspect-square > * {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+}
+```
+
+#### ❌ `:where()` pseudo-classe — Chrome 89+ — Preflight do Tailwind
+O Preflight do Tailwind usa `:where()` em seletores como `abbr:where([title])`.
+Chrome 78 ignora **todas as regras** que contêm `:where()`, então resets visuais
+podem não funcionar. Não crítico para layouts de signage, mas ciente.
+
+#### ❌ `rgb(r g b / alpha)` — Chrome 65+ — já OK para Chrome 78
+Tailwind gera `color: rgb(255 255 255 / var(--tw-text-opacity))`. Chrome 78
+suporta (desde 65). Fallback hex ainda necessário para **Chrome < 65**.
+
+**Solução** (para dispositivos Chrome < 65, manter por compatibilidade):
+```css
+/* Após @tailwind utilities — fora de @layer */
+.text-white   { color: #ffffff }
+.text-black   { color: #000000 }
+.bg-white     { background-color: #ffffff }
+.bg-black     { background-color: #000000 }
+```
+
+#### ✅ Features que funcionam no Chrome 78 (sem fallback)
+| Feature | Desde | OK |
+|---------|-------|----|
+| `flexbox` | Chrome 29 | ✅ |
+| CSS Grid | Chrome 57 | ✅ |
+| CSS Custom Properties (`var()`) | Chrome 49 | ✅ |
+| `calc()` inclusive com `var()` | Chrome 49 | ✅ |
+| `backdrop-filter` (c/ `-webkit-`) | Chrome 51 | ✅ (usar prefixo) |
+| `object-fit` | Chrome 31 | ✅ |
+| `vmin`, `vw`, `vh` | Chrome 26 | ✅ |
+| `place-*` (place-content/items) | Chrome 59 | ✅ |
+| `transform`, `transition`, `animation` | Chrome 36 | ✅ |
+| `filter` / `drop-shadow()` | Chrome 53 | ✅ |
 
 ---
 
@@ -559,6 +617,8 @@ Padrão para melhorar legibilidade de texto sobre imagens:
 | CSS não carrega | TailwindCSS não compilou | `npm run dev` |
 | Arrow function error | ES6 em Android 7 | Use `function() {}` |
 | `clamp()` não funciona | Requer Chrome 79+ | Use `vmin/vw/vh` simples |
+| `gap` em flex não funciona | Chrome 78 não suporta gap em flex (req 84+) | Use `space-x-*`/`space-y-*` |
+| `aspect-ratio` ignorado | Chrome 78 ignora (req 88+) | Fallback `@supports not` com padding-bottom |
 | Cores invisíveis | Tailwind gera `rgb(r g b / alpha)` (Chrome 65+) | Fallbacks hex em `input.css` |
 | Texto diferente em portrait/landscape | `portrait:text-[X]` espalhados nos filhos | `vmin` no body, `em` nos filhos |
 ---
@@ -572,6 +632,8 @@ Padrão para melhorar legibilidade de texto sobre imagens:
 - [ ] `npm run build` executado
 - [ ] Classes Tailwind válidas
 - [ ] Sem `clamp()` em CSS (não suportado Chrome < 79)
+- [ ] Sem `gap-*` em flex containers (não suportado Chrome < 84) — usar `space-x-*`/`space-y-*`
+- [ ] Fallback `@supports not (aspect-ratio)` para `aspect-*` classes no `input.css`
 - [ ] Fallbacks hex em `input.css` para todas as cores usadas (`text-white`, `bg-black`, `text-[#hex]`, etc.)
 - [ ] `font-size` no body via `vmin` — filhos usam apenas `em` ou `%`, sem `portrait:text-[X]` nos filhos
 
