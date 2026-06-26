@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: "Montserrat";
+    src: url('fonts/Montserrat-VariableFont_wght.ttf');
+}
+
+/* Fallbacks hex para Android 7 / Chrome < 65 */
+.text-white { color: #ffffff }
+.text-black { color: #000000 }
+.text-orange-400 { color: #fb923c }
+.text-blue-400 { color: #60a5fa }
+.bg-white { background-color: #ffffff }
+.bg-black { background-color: #000000 }
+.bg-black\/80 { background-color: rgba(0, 0, 0, 0.8) }
+.bg-blue-600 { background-color: #2563eb }
+.bg-\[\#009ee3\] { background-color: #009ee3 }
+.text-blue-600 { color: #2563eb }
+.rounded-2xl { border-radius: 16px }
+.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) }
+.drop-shadow { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5)) }
+

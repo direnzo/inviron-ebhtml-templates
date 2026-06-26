@@ -1,6 +1,12 @@
 # EdgeContents Digital Signage - AI Agent Instructions
 
 Sistema de templates HTML para Digital Signage usando EdgeContents CMS. Compatível com Android 7+ (WebKit legado).
+
+## 🚫 REGRAS ABSOLUTAS (NUNCA VIOLAR)
+
+- **NUNCA** executar `git commit` sem permissão explícita do usuário
+- **NUNCA** executar `npm run build` — o usuário sempre roda `npm run dev` (watch mode), que compila automaticamente
+
 ---
 
 ## ⚡ REGRA PRIORITÁRIA #1: JAVASCRIPT CLÁSSICO (ES5) OBRIGATÓRIO
