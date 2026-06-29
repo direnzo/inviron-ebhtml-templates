@@ -52,22 +52,23 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: 1.4vmin;
     padding: 1.8vmin 2.2vmin;
     background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.4) 100%);
     border: 0.18vmin solid rgba(255, 255, 255, 0.1);
-    border-radius: 0.9vmin;
+    border-radius: 1.5%;
     min-width: 0;
     min-height: 0;
     overflow: hidden;
     box-shadow: 0 0.3vmin 1vmin rgba(0, 0, 0, 0.25);
+}
+.card-partida > * + * {
+    margin-top: 1.4vmin;
 }
 
 /* Linha de metadados */
 .card-meta {
     display: flex;
     align-items: center;
-    gap: 0.9vmin;
     font-size: 100%;
     color: rgba(255, 255, 255, 0.6);
     text-transform: uppercase;
@@ -76,6 +77,9 @@
     flex: none;
     padding-bottom: 1vmin;
     border-bottom: 0.1vmin dashed rgba(255, 255, 255, 0.12);
+}
+.card-meta > * + * {
+    margin-left: 1.5%;
 }
 .card-data {
     font-family: 'Roboto Bold', sans-serif;
@@ -151,9 +155,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1vmin;
     min-width: 0;
     overflow: hidden;
+}
+.card-time > * + * {
+    margin-top: 1vmin;
 }
 .card-time-casa  { justify-content: flex-end; }
 .card-time-visit { justify-content: flex-start; }
@@ -243,7 +249,6 @@
 .chave-fase-FINAL .card-partida,
 .chave-fase-BRONZE .card-partida {
     padding: 4vmin 5vmin;
-    gap: 3vmin;
     border-color: var(--cor-destaque);
     background:
         radial-gradient(ellipse at center, rgba(251, 191, 36, 0.08) 0%, transparent 70%),
@@ -251,6 +256,10 @@
     box-shadow:
         0 0 2vmin rgba(251, 191, 36, 0.18),
         inset 0 0 1vmin rgba(251, 191, 36, 0.08);
+}
+.chave-fase-FINAL .card-partida > * + *,
+.chave-fase-BRONZE .card-partida > * + * {
+    margin-top: 3vmin;
 }
 .chave-fase-FINAL .card-meta,
 .chave-fase-BRONZE .card-meta {
@@ -299,7 +308,9 @@
     }
     .card-partida {
         padding: 1vmin 1.4vmin;
-        gap: 0.8vmin;
+    }
+    .card-partida > * + * {
+        margin-top: 0.8vmin;
     }
     .card-meta { font-size: 55%; padding-bottom: 0.6vmin; }
     .card-local { display: none; }
@@ -321,7 +332,8 @@
         grid-template-columns: 1fr 1fr 1fr 1fr;
         grid-template-rows: 1fr;
     }
-    .card-partida { padding: 1vmin 1.4vmin; gap: 0.8vmin; }
+    .card-partida { padding: 1vmin 1.4vmin; }
+    .card-partida > * + * { margin-top: 0.8vmin; }
     .card-meta { font-size: 55%; padding-bottom: 0.5vmin; }
     .card-local { display: none; }
     .card-nome { font-size: 95%; }
@@ -342,4 +354,47 @@
         grid-template-columns: 1fr;
         grid-template-rows: 1fr 1fr;
     }
+}
+
+/* ─────────────────────────────────────────────
+   FALLBACKS HEX — Chrome < 65 nao suporta rgb(r g b / alpha)
+   Após utilities, fora de @layer
+   ───────────────────────────────────────────── */
+.text-white   { color: #ffffff !important; }
+.text-black   { color: #000000 !important; }
+.bg-black     { background-color: #000000 !important; }
+.bg-white     { background-color: #ffffff !important; }
+.text-yellow-400 { color: #facc15 !important; }
+.border-white     { border-color: #ffffff !important; }
+
+.bg-\[#0a0f1e\] { background-color: #0a0f1e !important; }
+
+/* ─────────────────────────────────────────────
+   FALLBACK aspect-ratio — Chrome 78 ignora (requer 88+)
+   Usa tecnica padding-bottom ::before
+   ───────────────────────────────────────────── */
+@supports not (aspect-ratio: 1 / 1) {
+  .aspect-square,
+  .aspect-video,
+  [class*="aspect-"] {
+    position: relative;
+    overflow: hidden;
+  }
+  .aspect-square::before {
+    content: '';
+    display: block;
+    padding-bottom: 100%;
+  }
+  .aspect-video::before {
+    content: '';
+    display: block;
+    padding-bottom: 56.25%;
+  }
+  .aspect-square > *,
+  .aspect-video > *,
+  [class*="aspect-"] > * {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
 }

@@ -3,52 +3,34 @@ var TEMPO_PCT_ENTRADA = 0.15; // 15% para animar todos os cards e linhas
 var TEMPO_PCT_ZOOM    = 0.30; // 30% para o efeito de zoom
 var TEMPO_PCT_FOCO    = 0.55; // 55% para exibir o chaveamento ampliado
 
-// ===== ANIMAÇÃO DE INTRO BRACKET-AREA (zoom + alternância de canto) =====
-// Zoom reverso: começa em scale 1, termina em scale 2 nos 30% finais do tempo
+// ===== ANIMAÇÃO DE ZOOM: roda os 4 cantos em sequência =====
+// top left → bottom left → top right → bottom right → top left → ...
 function animarZoomOutBracketArea(restanteMs) {
     var area = document.querySelector('.bracket-area');
     if (!area) {
         console.log('[animarZoomOutBracketArea] .bracket-area NÃO encontrada');
         return;
     }
+
     var ORIGINS = ['top left', 'bottom left', 'top right', 'bottom right'];
-    var idx = parseInt(localStorage.getItem('bracket_intro_origin_idx'), 10);
-    if (isNaN(idx) || idx < 0 || idx > 3) idx = 0;
+    var lsKey = 'bracket_zoom_origin_idx';
+    var idx = parseInt(localStorage.getItem(lsKey), 10);
+    if (isNaN(idx) || idx < 0 || idx >= ORIGINS.length) { idx = 0; }
     var origin = ORIGINS[idx];
-    localStorage.setItem('bracket_intro_origin_idx', (idx + 1) % 4);
+    localStorage.setItem(lsKey, (idx + 1) % ORIGINS.length);
 
-    var zoomDelay = 0; // inicia imediatamente
-    var zoomDur   = Math.max(restanteMs, 200); // ocupa todo o tempo do zoom, mínimo 200ms
-
-    console.log('[animarZoomOutBracketArea] INICIO', {
-        restanteMs: restanteMs,
-        zoomDelay: zoomDelay,
-        zoomDur: zoomDur,
-        origin: origin,
-        area: area
-    });
+    var zoomDur = Math.max(restanteMs, 200);
+    console.log('[animarZoomOutBracketArea] origin=' + origin + ' (' + (idx + 1) + '/4) dur=' + zoomDur + 'ms');
 
     area.style.transition = 'none';
     area.style.transformOrigin = origin;
     area.style.transform = 'scale(1)';
     void area.offsetWidth;
     setTimeout(function() {
-        console.log('[animarZoomOutBracketArea] INICIANDO ZOOM', {
-            transition: 'transform ' + (zoomDur/1000) + 's cubic-bezier(0.77,0,0.175,1), transform-origin ' + (zoomDur/1000) + 's cubic-bezier(0.77,0,0.175,1)',
-            origin: origin
-        });
-        area.style.transition = 'transform ' + (zoomDur/1000) + 's cubic-bezier(0.77,0,0.175,1), transform-origin ' + (zoomDur/1000) + 's cubic-bezier(0.77,0,0.175,1)';
+        area.style.transition = 'transform ' + (zoomDur/1000) + 's cubic-bezier(0.77,0,0.175,1)';
         area.style.transformOrigin = origin;
         area.style.transform = 'scale(2)';
-    }, zoomDelay);
-    // NÃO remove mais o scale 2 após o zoom: permanece ampliado
-    // Se quiser resetar só em debug, comente a linha abaixo
-    // setTimeout(function() {
-    //     console.log('[animarZoomOutBracketArea] RESETANDO estilos');
-    //     area.style.transition = '';
-    //     area.style.transform = '';
-    //     area.style.transformOrigin = '';
-    // }, zoomDelay + zoomDur + 80);
+    }, 0);
 }
 // ═══════════════════════════════════════════════════════
 //  caminhos_futebol — master.js
@@ -179,32 +161,44 @@ function carregarSvgInline(containerEl, src, onSuccess, onError) {
    ==================================================== */
 function mapearCodigoParaSVG(code) {
     if (!code) return null;
-    
+
     var map = {
         // CONCACAF (16 times)
         'USA': 'us', 'MEX': 'mx', 'CAN': 'ca', 'CRC': 'cr',
         'JAM': 'jm', 'PAN': 'pa', 'HON': 'hn', 'SLV': 'sv',
         'TRI': 'tt', 'CUW': 'cw', 'GUA': 'gt', 'HAI': 'ht',
         'NCA': 'ni', 'SUR': 'sr', 'MTQ': 'mq', 'GUY': 'gy',
-        
+
         // CONMEBOL (10 times)
         'BRA': 'br', 'ARG': 'ar', 'URU': 'uy', 'COL': 'co',
         'CHI': 'cl', 'ECU': 'ec', 'PAR': 'py', 'PER': 'pe',
         'BOL': 'bo', 'VEN': 've',
-        
+
         // UEFA (16 times)
         'GER': 'de', 'FRA': 'fr', 'ENG': 'gb-eng', 'ESP': 'es',
         'BEL': 'be', 'NED': 'nl', 'HOL': 'nl', 'ITA': 'it', 'POR': 'pt',
         'CRO': 'hr', 'SUI': 'ch', 'DEN': 'dk', 'POL': 'pl',
         'AUT': 'at', 'SWE': 'se', 'UKR': 'ua', 'WAL': 'gb-wls',
-        
-        // CAF (4 times)
+        'SCO': 'gb-sct', 'NIR': 'gb-nir',
+
+        // CAF
         'SEN': 'sn', 'MOR': 'ma', 'MAR': 'ma', 'TUN': 'tn', 'NGA': 'ng',
-        
-        // AFC (2 times)
-        'JPN': 'jp', 'KOR': 'kr'
+        'RSA': 'za', 'ZAF': 'za', 'CIV': 'ci',  // África do Sul, Costa do Marfim
+        'EGY': 'eg', 'CMR': 'cm', 'GHA': 'gh',
+        'ALG': 'dz', 'COD': 'cd', 'COG': 'cg',  // Argélia, RD Congo
+        'MLI': 'ml', 'SEN': 'sn',
+
+        // AFC
+        'JPN': 'jp', 'JAP': 'jp',  // JAP = código alternativo do backend
+        'KOR': 'kr', 'IRN': 'ir', 'IRA': 'ir',
+        'AUS': 'au', 'SAU': 'sa',  // Arábia Saudita
+        'IRQ': 'iq',               // Iraque
+        'UZB': 'uz',               // Uzbequistão
+
+        // Outros
+        'NZL': 'nz', 'BIH': 'ba', 'NOR': 'no', 'SWI': 'ch'
     };
-    
+
     return map[code.toUpperCase()] || null;
 }
 
@@ -403,10 +397,13 @@ function hexToRgba(hex, alpha) {
 
 function aplicarCores(cfg) {
     var s = document.documentElement.style;
-    s.setProperty('--cor-destaque',     cfg.corDestaque);
-    s.setProperty('--cor-fundo-painel', hexToRgba(cfg.corEscura, 0.90));
-    s.setProperty('--cor-borda',        hexToRgba(cfg.corClara,  0.30));
-    s.setProperty('--cor-texto',        cfg.corClara);
+    s.setProperty('--cor-destaque',      cfg.corDestaque);
+    s.setProperty('--cor-destaque-glow', hexToRgba(cfg.corDestaque, 0.70));
+    s.setProperty('--cor-fundo-painel',  hexToRgba(cfg.corEscura,   0.90));
+    s.setProperty('--cor-fundo-area',    hexToRgba(cfg.corEscura,   0.40));
+    s.setProperty('--cor-borda',         hexToRgba(cfg.corClara,    0.10));
+    s.setProperty('--cor-texto',         cfg.corClara);
+    s.setProperty('--cor-texto-sec',     hexToRgba(cfg.corClara,    0.90));
 }
 
 /* Mescla cores do D_SPD (COLOR1/COLOR2/COLOR3) com defaults do CONFIG
@@ -414,19 +411,19 @@ function aplicarCores(cfg) {
 function mergeColorsFromSpd(defaults, spd) {
     if (!spd) { return defaults; }
     
-    // COLOR1 = corDestaque, COLOR2 = corEscura, COLOR3 = corClara
+    // COLOR1 = corEscura (fundo), COLOR2 = corDestaque (bordas/destaques), COLOR3 = corClara (texto)
+    // Mesmo mapeamento do futebol_placar_classificacao_v23
     var cor1 = obterValorSpd(spd, 'COLOR1');
     var cor2 = obterValorSpd(spd, 'COLOR2');
     var cor3 = obterValorSpd(spd, 'COLOR3');
-    
-    // Adicionar '#' se não tiver
+
     if (cor1 && cor1.indexOf('#') !== 0) { cor1 = '#' + cor1; }
     if (cor2 && cor2.indexOf('#') !== 0) { cor2 = '#' + cor2; }
     if (cor3 && cor3.indexOf('#') !== 0) { cor3 = '#' + cor3; }
-    
+
     return {
-        corDestaque: cor1 || defaults.corDestaque,
-        corEscura:   cor2 || defaults.corEscura,
+        corDestaque: cor2 || defaults.corDestaque,
+        corEscura:   cor1 || defaults.corEscura,
         corClara:    cor3 || defaults.corClara
     };
 }
@@ -528,84 +525,493 @@ window.onload = function() {
         aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
         iniciarTemplate(dados, mockConfig, mockLoader);
     } else {
-        ebhtml.create2({}, function(loader) {
-            loader.addData('D_FOOTBALL', false);
-            loader.addData('D_SPD', false, 'f_config=1');  // Patrocinador (CONFIG=1)
-            loader.addData('D_FOOTBALL_TEAMS', false, 'amount=0');  // Todos os times de uma vez
-            loader.autoloaded    = false;
-            loader.nodataiserror = false;
-
-            loader.load(function() {
-                var dfReg = loader.data('D_FOOTBALL');
-                if (!dfReg) {
-                    console.error('[caminhos_futebol] Sem dados D_FOOTBALL');
-                    loader.finished();
-                    return;
-                }
-                var jsonStr = obterValor(dfReg, 'TEXTO3');
-                if (!jsonStr) {
-                    console.error('[caminhos_futebol] D_FOOTBALL.TEXTO3 vazio');
-                    loader.finished();
-                    return;
-                }
-                var partidas;
-                try {
-                    partidas = JSON.parse(jsonStr);
-                } catch (e) {
-                    console.error('[caminhos_futebol] Erro JSON.parse TEXTO3:', e);
-                    loader.finished();
-                    return;
-                }
-
-                // Extrai patrocinador e SPECIALPROJECT dinâmico do D_SPD (CONFIG='1')
-                var spdSponsor = loader.data('D_SPD');
-                if (spdSponsor) {
-                    var specialProjectAtivo = obterValor(spdSponsor, 'SPECIALPROJECT');
-                    console.log('[caminhos_futebol] D_SPD patrocinador encontrado (CONFIG=1)');
-                    console.log('[caminhos_futebol] SPECIALPROJECT extraído dinamicamente: ' + specialProjectAtivo);
-                } else {
-                    console.log('[caminhos_futebol] D_SPD patrocinador não encontrado (CONFIG=1)');
-                }
-
-                // Buscar todos os times do D_FOOTBALL_TEAMS (loader já carregou com amount=0)
-                var teamsMap = {};
-                var teamsLista = loader.datalist('D_FOOTBALL_TEAMS');
-                if (teamsLista) {
-                    for (var i = 0; i < teamsLista.count(); i++) {
-                        var time = teamsLista.get(i);
-                        var teamId = obterValor(time, 'TITULO');
-                        var nome = obterValor(time, 'TEXTO2');
-                        var codigo = obterValor(time, 'TEXTO3');
-                        var fotoPng = obterValor(time, 'FOTO');
-                        
-                        if (teamId && nome) {
-                            // Mapear para SVG local
-                            var bandeiras = obterBandeiraSVG(codigo, fotoPng);
-                            
-                            teamsMap[teamId] = {
-                                nome: nome,
-                                codigo: codigo,
-                                bandeira: bandeiras.bandeira || bandeiras.bandeiraFallback
-                            };
-                        }
-                    }
-                    console.log('[caminhos_futebol] D_FOOTBALL_TEAMS: ' + Object.keys(teamsMap).length + ' times mapeados');
-                } else {
-                    console.warn('[caminhos_futebol] D_FOOTBALL_TEAMS sem dados');
-                }
-
-                // Monta config com sponsor e duracao (compatível com aplicarSponsor)
-                var runConfig = {
-                    sponsor: montarSponsorConfig(spdSponsor)
-                };
-
-                aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
-                var dados = processarDadosMock(partidas, teamsMap);
-                iniciarTemplate(dados, runConfig, loader);
-            });
-        });
+        playerView();
     }
 };
+
+// ══════════════════════════════════════════════════════════
+//  playerView — produção (EdgeContents real)
+//
+//  Um único ebhtml.create2 com 3 addData simultâneos:
+//    D_FOOTBALL      amount=0  → todas as partidas (grupos + eliminatórias)
+//    D_FOOTBALL_TEAMS amount=0 → 50 times (nome PT-BR, código, bandeira)
+//    D_SPD           f_config=1 → sponsor (cores, intro, logo)
+//
+//  Dados da API real:
+//    D_FOOTBALL:      TITULO=fixtureId, TEXTO2=JSON API-Football,
+//                     TEXTO4=round, TEXTO5=status, DATE="YYYY-MM-DD HH:MM:SS"
+//    D_FOOTBALL_TEAMS: TITULO=teamId, TEXTO2=nome PT-BR, TEXTO3=código, FOTO=URL bandeira
+// ══════════════════════════════════════════════════════════
+var _playerViewExecutando = false;
+
+function playerView() {
+    // Guard: evita duplo disparo do loader
+    if (_playerViewExecutando) {
+        console.log('[caminhos_futebol] playerView: guard — ignorando disparo duplo');
+        return;
+    }
+    _playerViewExecutando = true;
+
+    ebhtml.create2({}, function(loader) {
+        loader.addData('D_FOOTBALL',       false, 'amount=0');
+        loader.addData('D_FOOTBALL_TEAMS', false, 'amount=0');
+        loader.addData('D_SPD',            false, 'f_config=1');
+        loader.autoloaded    = false;
+        loader.nodataiserror = false;
+
+        loader.load(function() {
+
+            // ── 1. Sponsor (D_SPD) ───────────────────────────────────
+            var spdSponsor = loader.data('D_SPD');
+            if (spdSponsor) {
+                console.log('[caminhos_futebol] D_SPD sponsor OK — SP=' + obterValorSpd(spdSponsor, 'SPECIALPROJECT'));
+            } else {
+                console.log('[caminhos_futebol] D_SPD sem sponsor — continua sem patrocinador');
+            }
+
+            // ── 2. D_FOOTBALL → lista de todas as partidas ───────────
+            var listaFootball = loader.datalist('D_FOOTBALL');
+            if (!listaFootball || listaFootball.count() === 0) {
+                console.error('[caminhos_futebol] D_FOOTBALL sem dados');
+                loader.finished();
+                return;
+            }
+            console.log('[caminhos_futebol] D_FOOTBALL: ' + listaFootball.count() + ' registros totais');
+
+            // Converter lista EBHTML para array de partidas
+            var todasPartidas = [];
+            for (var i = 0; i < listaFootball.count(); i++) {
+                var item = listaFootball.get(i);
+                var partida = parseItemFootball(item);
+                if (partida) { todasPartidas.push(partida); }
+            }
+
+            // Filtrar apenas fases eliminatórias
+            var eliminatorias = [];
+            for (var j = 0; j < todasPartidas.length; j++) {
+                if (isFaseEliminatoria(todasPartidas[j].round)) {
+                    eliminatorias.push(todasPartidas[j]);
+                }
+            }
+            console.log('[caminhos_futebol] Eliminatórias filtradas: ' + eliminatorias.length);
+
+            if (eliminatorias.length === 0) {
+                console.error('[caminhos_futebol] Sem partidas eliminatórias — 2ª fase ainda não começou?');
+                loader.finished();
+                return;
+            }
+
+            // Atribuir posições no bracket (ordenado por data)
+            var comSlot = atribuirPosicoesBracket(eliminatorias);
+
+            // ── 3. D_FOOTBALL_TEAMS → teamsMap ───────────────────────
+            var teamsMap = {};
+            var listaTeams = loader.datalist('D_FOOTBALL_TEAMS');
+            if (listaTeams) {
+                for (var k = 0; k < listaTeams.count(); k++) {
+                    var time = listaTeams.get(k);
+                    var teamId = time.value('TITULO').value || '';
+                    var nome   = time.value('TEXTO2').value || '';
+                    var codigo = time.value('TEXTO3').value || '';
+                    var foto   = time.value('FOTO').value   || '';
+                    if (teamId && nome) {
+                        var svgCode = mapearCodigoParaSVG(codigo);
+                        // Prioridade: fotoApi (URL absoluta EdgeContents) garante exibição.
+                        // SVG local fica como alternativa quando fotoApi estiver vazio.
+                        teamsMap[teamId] = {
+                            nome:     nome,
+                            codigo:   codigo,
+                            bandeira: foto || (svgCode ? ('img/flags/' + svgCode + '.svg') : ''),
+                            fotoApi:  foto
+                        };
+                    }
+                }
+                console.log('[caminhos_futebol] D_FOOTBALL_TEAMS: ' + Object.keys(teamsMap).length + ' times');
+            }
+
+            // ── 4. Renderizar ─────────────────────────────────────────
+            var runConfig = { sponsor: montarSponsorConfig(spdSponsor) };
+            aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
+            var dados = processarDadosApi(comSlot, teamsMap);
+            iniciarTemplate(dados, runConfig, loader);
+        });
+    });
+}
+
+// ──────────────────────────────────────────────────
+//  parseItemFootball — converte item EBHTML (D_FOOTBALL)
+//  para objeto interno de partida
+// ──────────────────────────────────────────────────
+function parseItemFootball(item) {
+    if (!item) { return null; }
+    var fixtureId = item.value('TITULO').value  || '';
+    var round     = item.value('TEXTO4').value  || '';
+    var statusRaw = item.value('TEXTO5').value  || 'NS';
+    var dateStr   = item.value('DATE').value    || '';
+    var texto2    = item.value('TEXTO2').value  || '';
+
+    var homeId = '', awayId = '', homeName = '', awayName = '';
+    var homeLogo = '', awayLogo = '';
+    var goalsHome = null, goalsAway = null;
+    var penHome = null, penAway = null;
+    var venue = '', elapsed = null, extra = null;
+    var fixtureDate = '';
+
+    try {
+        var obj = JSON.parse(texto2);
+        var resp = obj.response && obj.response[0];
+        if (resp) {
+            if (resp.teams && resp.teams.home) {
+                homeId   = String(resp.teams.home.id  || '');
+                homeName = resp.teams.home.name  || '';
+                homeLogo = resp.teams.home.logo  || '';
+            }
+            if (resp.teams && resp.teams.away) {
+                awayId   = String(resp.teams.away.id  || '');
+                awayName = resp.teams.away.name  || '';
+                awayLogo = resp.teams.away.logo  || '';
+            }
+            if (resp.goals) {
+                goalsHome = resp.goals.home;
+                goalsAway = resp.goals.away;
+            }
+            if (resp.score && resp.score.penalty) {
+                penHome = resp.score.penalty.home;
+                penAway = resp.score.penalty.away;
+            }
+            if (resp.fixture) {
+                fixtureDate = resp.fixture.date || '';
+                if (resp.fixture.venue) { venue = resp.fixture.venue.name || ''; }
+                if (resp.fixture.status) {
+                    elapsed = resp.fixture.status.elapsed;
+                    extra   = resp.fixture.status.extra;
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('[caminhos_futebol] parseItemFootball: JSON inválido para fixtureId=' + fixtureId);
+    }
+
+    return {
+        fixtureId:   fixtureId,
+        round:       round,
+        statusRaw:   statusRaw,
+        dateStr:     dateStr,
+        fixtureDate: fixtureDate,
+        homeId:      homeId,   awayId:    awayId,
+        homeName:    homeName, awayName:  awayName,
+        homeLogo:    homeLogo, awayLogo:  awayLogo,
+        goalsHome:   goalsHome, goalsAway: goalsAway,
+        penHome:     penHome,  penAway:   penAway,
+        venue:       venue,
+        elapsed:     elapsed,  extra:     extra
+    };
+}
+
+// ──────────────────────────────────────────────────
+//  isFaseEliminatoria — retorna true para rounds eliminatórios
+// ──────────────────────────────────────────────────
+function isFaseEliminatoria(roundName) {
+    if (!roundName) { return false; }
+    var r = roundName.toLowerCase();
+    return (
+        r.indexOf('round of 32') !== -1 ||
+        r.indexOf('round of 16') !== -1 ||
+        r.indexOf('quarter')     !== -1 ||
+        r.indexOf('semi')        !== -1 ||
+        r.indexOf('3rd')         !== -1 ||
+        r.indexOf('third')       !== -1 ||
+        r === 'final'
+    );
+}
+
+// ──────────────────────────────────────────────────
+//  mapearFaseParaCategoria — round → CATEGORY interno
+// ──────────────────────────────────────────────────
+function mapearFaseParaCategoria(roundName) {
+    if (!roundName) { return ''; }
+    var r = roundName.toLowerCase();
+    if (r.indexOf('round of 32') !== -1) { return 'R32'; }
+    if (r.indexOf('round of 16') !== -1) { return 'R16'; }
+    if (r.indexOf('quarter')     !== -1) { return 'QF'; }
+    if (r.indexOf('semi')        !== -1) { return 'SF'; }
+    if (r.indexOf('3rd')         !== -1) { return 'BRONZE'; }
+    if (r.indexOf('third')       !== -1) { return 'BRONZE'; }
+    if (r === 'final')                   { return 'FINAL'; }
+    return '';
+}
+
+// ══════════════════════════════════════════════════════════
+//  MAPEAMENTO AUTOMÁTICO DE SLOTS R32
+//
+//  Estratégia em 2 camadas (totalmente automático em produção):
+//
+//  Camada 1 — FIXTURE_SLOT_MAP: fixtureId → slot
+//    Lookup direto por fixtureId da API. Confirmados conforme
+//    chegam na API. Atualizar quando novos IDs forem confirmados.
+//
+//  Camada 2 — TEAMS_SLOT_MAP: "homeId|awayId" → slot
+//    Fallback automático por combinação de teamIds.
+//    Cobre TODOS os 16 jogos R32 baseado nos teamIds já
+//    cadastrados no D_FOOTBALL_TEAMS.
+//    Funciona mesmo quando o fixtureId ainda não é conhecido.
+//
+//  Estrutura do bracket (esq→dir, cima→baixo):
+//    L1: M74 GER(25)×?          L2: M77 ?×?
+//    L3: M73 RSA(1531)×CAN(5529) L4: M75 NED(1118)×MAR(31)
+//    L5: M83 ?×?                L6: M84 ?×?
+//    L7: M81 USA(2384)×BIH(1113) L8: M82 ?×?
+//    R1: M76 BRA(6)×JPN(12)     R2: M78 IVO(1501)×?
+//    R3: M79 MEX(16)×?          R4: M80 ENG(10)×?
+//    R5: M86 ARG(26)×?          R6: M88 TUR(777)×?
+//    R7: M85 CAN(5529)?×?       R8: M87 POR(27)×?
+//  (? = classificados dos grupos — definidos pós fase de grupos)
+// ══════════════════════════════════════════════════════════
+
+// Camada 1: fixtureId → slot (confirmados na API)
+var FIXTURE_SLOT_MAP = {
+    '1561329': { CATEGORY: 'R32', SUBTITULO: '3'  },  // M73  RSA×CAN   L3
+    '1562344': { CATEGORY: 'R32', SUBTITULO: '9'  },  // M76  BRA×JPN   R1
+    '1562345': { CATEGORY: 'R32', SUBTITULO: '4'  },  // M75  NED×MAR   L4
+    '1562586': { CATEGORY: 'R32', SUBTITULO: '7'  }   // M81  USA×BIH   L7
+};
+
+// Camada 2: "homeId|awayId" → slot (auto-atualização por teamId)
+// Qualquer ordem (home|away ou away|home) é verificada.
+// Baseado nos teamIds do D_FOOTBALL_TEAMS + estrutura oficial FIFA.
+//
+// teamIds confirmados no backend:
+//   Brasil=6, Japão=12, Holanda=1118, Marrocos=31
+//   África do Sul=1531, Canadá=5529, EUA=2384, Bósnia=1113
+//   Alemanha=25, França=2, Noruega=1090, Senegal=13
+//   Argentina=26, Uruguai=7, Colômbia=8, Portugal=27
+//   Espanha=9, Bélgica=1, Inglaterra=10, Croácia=3
+//   México=16, Turquia=777, Suíça=15, Austrália=20
+//   Costa do Marfim=1501, Escócia=1108, Egito=32, Irã=22
+//   Jordânia=1548, Nova Zelândia=4673, Cabo Verde=1533
+//   Gana=1504, Uzbequistão=1568, RD Congo=1508, Iraque=1567
+//
+// Slots conhecidos (um dos times é fixo pelo bracket oficial):
+var TEAMS_SLOT_MAP = {
+    // M73 L3: África do Sul × Canadá (ambos fixos)
+    '1531|5529': { CATEGORY: 'R32', SUBTITULO: '3'  },
+    // M74 L1: Alemanha × 3ºABCDF (Alemanha é fixo)
+    '25':        { CATEGORY: 'R32', SUBTITULO: '1'  },
+    // M75 L4: Holanda × Marrocos (ambos fixos)
+    '1118|31':   { CATEGORY: 'R32', SUBTITULO: '4'  },
+    // M76 R1: Brasil × Japão (ambos fixos)
+    '6|12':      { CATEGORY: 'R32', SUBTITULO: '9'  },
+    // M77 L2: 1ºI × 3ºCDFGH — Noruega ou França (1ºI = Grupo I)
+    // Grupo I: França(2), Senegal(13), Iraque(1567), Noruega(1090)
+    // 1ºI será um desses 4 — mapeado quando o fixtureId chegar
+    // M78 R2: Costa do Marfim × 2ºI
+    '1501':      { CATEGORY: 'R32', SUBTITULO: '10' },
+    // M79 R3: México × 3ºCEFHI
+    '16':        { CATEGORY: 'R32', SUBTITULO: '11' },
+    // M80 R4: Inglaterra × 3ºEHIJK
+    '10':        { CATEGORY: 'R32', SUBTITULO: '12' },
+    // M81 L7: EUA × Bósnia (ambos fixos)
+    '2384|1113': { CATEGORY: 'R32', SUBTITULO: '7'  },
+    // M82 L8: 1ºG × 3ºAEHIJ — Bélgica é favorita do Grupo G
+    '1':         { CATEGORY: 'R32', SUBTITULO: '8'  },
+    // M83 L5: 2ºK × 2ºL — Portugal é favorito do Grupo K, Inglaterra L
+    // Sem time fixo até fase de grupos terminar
+    // M84 L6: 1ºH × 2ºJ — Espanha favorita H, Argentina favorita J
+    '9|26':      { CATEGORY: 'R32', SUBTITULO: '6'  },
+    '9':         { CATEGORY: 'R32', SUBTITULO: '6'  },
+    // M85 R7: 1ºB × 3ºEFGIJ — Canadá favorito B
+    '5529':      { CATEGORY: 'R32', SUBTITULO: '15' },
+    // M86 R5: Argentina × 2ºH
+    '26':        { CATEGORY: 'R32', SUBTITULO: '13' },
+    // M87 R8: Portugal × 3ºDEIJL
+    '27':        { CATEGORY: 'R32', SUBTITULO: '16' },
+    // M88 R6: Turquia × 2ºG
+    '777':       { CATEGORY: 'R32', SUBTITULO: '14' }
+};
+
+// ──────────────────────────────────────────────────
+//  buscarSlotPorTeams — Camada 2 de lookup
+//  Tenta encontrar slot por combinação de teamIds
+//  Verifica "homeId|awayId", "awayId|homeId" e cada ID isolado
+//  Retorna slot ou null
+// ──────────────────────────────────────────────────
+function buscarSlotPorTeams(homeId, awayId) {
+    var h = String(homeId || '');
+    var a = String(awayId || '');
+    // 1. Par exato (ambas ordens)
+    if (h && a) {
+        if (TEAMS_SLOT_MAP[h + '|' + a]) { return TEAMS_SLOT_MAP[h + '|' + a]; }
+        if (TEAMS_SLOT_MAP[a + '|' + h]) { return TEAMS_SLOT_MAP[a + '|' + h]; }
+    }
+    // 2. Time isolado (quando só um time é conhecido no bracket)
+    if (h && TEAMS_SLOT_MAP[h]) { return TEAMS_SLOT_MAP[h]; }
+    if (a && TEAMS_SLOT_MAP[a]) { return TEAMS_SLOT_MAP[a]; }
+    return null;
+}
+
+// ──────────────────────────────────────────────────
+//  atribuirPosicoesBracket — 2 camadas + fallback por data
+//
+//  Camada 1: FIXTURE_SLOT_MAP[fixtureId]
+//  Camada 2: TEAMS_SLOT_MAP[homeId|awayId] ou TEAMS_SLOT_MAP[teamId]
+//  Fallback:  ordenar por data → próximo slot livre
+// ──────────────────────────────────────────────────
+function atribuirPosicoesBracket(partidas) {
+    var result = [];
+    var porFase = {};
+    var mapeadas = 0;
+
+    for (var i = 0; i < partidas.length; i++) {
+        var p   = partidas[i];
+        var cat = mapearFaseParaCategoria(p.round);
+        if (!cat) { continue; }
+
+        // Camada 1: fixtureId fixo
+        var slot = FIXTURE_SLOT_MAP[String(p.fixtureId)];
+        if (slot) {
+            p.CATEGORY  = slot.CATEGORY;
+            p.SUBTITULO = slot.SUBTITULO;
+            result.push(p);
+            mapeadas++;
+            console.log('[caminhos_futebol] camada1 fixtureId=' + p.fixtureId + ' → ' + p.CATEGORY + '_' + p.SUBTITULO);
+            continue;
+        }
+
+        // Camada 2: teamIds (só para R32)
+        if (cat === 'R32') {
+            slot = buscarSlotPorTeams(p.homeId, p.awayId);
+            if (slot) {
+                p.CATEGORY  = slot.CATEGORY;
+                p.SUBTITULO = slot.SUBTITULO;
+                result.push(p);
+                mapeadas++;
+                console.log('[caminhos_futebol] camada2 teams=' + p.homeId + '|' + p.awayId + ' → ' + p.CATEGORY + '_' + p.SUBTITULO);
+                continue;
+            }
+        }
+
+        // Sem mapa → fallback por data
+        if (!porFase[cat]) { porFase[cat] = []; }
+        porFase[cat].push(p);
+    }
+
+    // Fallback: ordenar por data e atribuir próximos slots livres
+    var fases = ['R32', 'R16', 'QF', 'SF', 'FINAL', 'BRONZE'];
+    var usedR32Slots = {};
+    for (var k = 0; k < result.length; k++) {
+        if (result[k].CATEGORY === 'R32') { usedR32Slots[result[k].SUBTITULO] = true; }
+    }
+
+    for (var f = 0; f < fases.length; f++) {
+        var fase  = fases[f];
+        var lista = porFase[fase] || [];
+        if (lista.length === 0) { continue; }
+
+        lista.sort(function(a, b) {
+            var da = a.dateStr || '';
+            var db = b.dateStr || '';
+            if (da < db) { return -1; }
+            if (da > db) { return 1; }
+            return parseInt(a.fixtureId || 0, 10) - parseInt(b.fixtureId || 0, 10);
+        });
+
+        var nextSlot = 1;
+        for (var j = 0; j < lista.length; j++) {
+            var partida = lista[j];
+            if (fase === 'R32') {
+                while (usedR32Slots[String(nextSlot)]) { nextSlot++; }
+                partida.CATEGORY  = fase;
+                partida.SUBTITULO = String(nextSlot);
+                usedR32Slots[String(nextSlot)] = true;
+                nextSlot++;
+                console.log('[caminhos_futebol] fallback-data R32_' + partida.SUBTITULO + ' fixtureId=' + partida.fixtureId);
+            } else {
+                partida.CATEGORY  = fase;
+                partida.SUBTITULO = String(j + 1);
+            }
+            result.push(partida);
+        }
+    }
+
+    console.log('[caminhos_futebol] atribuirPosicoesBracket: ' + result.length + ' partidas (' + mapeadas + ' mapeadas, ' + (result.length - mapeadas) + ' fallback)');
+    return result;
+}
+
+// ──────────────────────────────────────────────────
+//  processarDadosApi — converte array da API para
+//  o formato interno { "FASE_SLOT": { ...campos } }
+//  compatível com renderizarBracket(), preencherLinha()
+// ──────────────────────────────────────────────────
+function processarDadosApi(partidas, teamsMap) {
+    teamsMap = teamsMap || {};
+    var dados = {};
+
+    for (var i = 0; i < partidas.length; i++) {
+        var p    = partidas[i];
+        var fase = p.CATEGORY  || '';
+        var pos  = p.SUBTITULO || '';
+        if (!fase || !pos) { continue; }
+
+        var chave = fase + '_' + pos;
+
+        // Resolver nome e bandeira via teamsMap
+        var timeCasa = '';
+        var timeVis  = '';
+        var flagCasa = p.homeLogo || '';
+        var flagVis  = p.awayLogo || '';
+
+        if (teamsMap[p.homeId]) {
+            timeCasa = teamsMap[p.homeId].nome;
+            flagCasa = teamsMap[p.homeId].bandeira || teamsMap[p.homeId].fotoApi || flagCasa;
+        } else {
+            timeCasa = p.homeName || '';
+        }
+
+        if (teamsMap[p.awayId]) {
+            timeVis = teamsMap[p.awayId].nome;
+            flagVis = teamsMap[p.awayId].bandeira || teamsMap[p.awayId].fotoApi || flagVis;
+        } else {
+            timeVis = p.awayName || '';
+        }
+
+        // Formatar data/hora a partir de dateStr "YYYY-MM-DD HH:MM:SS"
+        var datahora = '';
+        if (p.dateStr) {
+            var partes = p.dateStr.split(' ');
+            var dp = (partes[0] || '').split('-');
+            var hp = (partes[1] || '').split(':');
+            var dia = dp[2] || '';
+            var mes = dp[1] || '';
+            var hora = (hp[0] || '') + ':' + (hp[1] || '00');
+            datahora = dia + '/' + mes + ' · ' + hora;
+        }
+
+        // Placar: null = não iniciado; 0 = zero gols
+        var golsCasa = (p.goalsHome !== null && p.goalsHome !== undefined) ? String(p.goalsHome) : '';
+        var golsVis  = (p.goalsAway !== null && p.goalsAway !== undefined) ? String(p.goalsAway) : '';
+
+        dados[chave] = {
+            fase:          fase,
+            posicao:       parseInt(pos, 10),
+            timeCasa:      timeCasa,
+            timeVisitante: timeVis,
+            flagCasa:      flagCasa,
+            flagVisitante: flagVis,
+            golsCasa:      golsCasa,
+            golsVisitante: golsVis,
+            status:        p.statusRaw || 'NS',
+            datahora:      datahora,
+            // Campos extras (pênaltis, ao vivo)
+            penCasa:       (p.penHome !== null && p.penHome !== undefined) ? String(p.penHome) : '',
+            penVisitante:  (p.penAway !== null && p.penAway !== undefined) ? String(p.penAway) : '',
+            elapsed:       p.elapsed !== null ? String(p.elapsed || '') : '',
+            extra:         p.extra   !== null ? String(p.extra   || '') : ''
+        };
+    }
+
+    console.log('[caminhos_futebol] processarDadosApi: ' + Object.keys(dados).length + ' slots preenchidos');
+    return dados;
+}
 
 // ──────────────────────────────────────────────────
 //  PROCESSAR DADOS — array de partidas (mock e producao)
@@ -832,10 +1238,9 @@ function iniciarTemplateSemIntro(dados, config, loader, introMs) {
         BracketDraw.animarLinhas(0);
     }, Math.round(tempoEntrada * 0.4)); // linhas SVG entram junto, mas um pouco depois dos cards
 
-    // 2. Zoom após entrada
+    // 2. Zoom após entrada — roda os 4 cantos em sequência
     if (faseMaisAlta === 'R32' || faseMaisAlta === 'R16') {
         setTimeout(function() {
-            console.log('[iniciarTemplateSemIntro] Chamando animarZoomOutBracketArea, tempoZoom:', tempoZoom);
             animarZoomOutBracketArea(tempoZoom);
         }, tempoEntrada);
     }
@@ -847,6 +1252,7 @@ function iniciarTemplateSemIntro(dados, config, loader, introMs) {
     }
     
     setTimeout(function() {
+        _playerViewExecutando = false; // libera para próximo ciclo da playlist
         loader.finished();
     }, restante);
 }

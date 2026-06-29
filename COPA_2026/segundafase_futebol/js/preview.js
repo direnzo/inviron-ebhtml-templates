@@ -136,6 +136,5 @@ function extranetView() {
     renderizarChave(ordem[0], dadosMap, config, getPreviewLoader());
 }
 
-function playerView() {
-    /* window.onload definido em master.js */
-}
+// playerView definido em master.js — não sobrescrever
+// Apenas a lógica de preview (pré-visualização da extranet EdgeContents) deve entrar aqui

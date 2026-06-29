@@ -2,7 +2,9 @@
  * master.js - Segunda Fase Copa 2026 (1 chave por reload, didatico)
  * ES5 obrigatorio
  *
- * Dados: D_FOOTBALL.TEXTO3 (JSON partidas, igual caminhos_futebol)
+ * Dados: D_FOOTBALL.TEXTO2 (JSON API-Football, amount=0)
+ *        D_FOOTBALL_TEAMS (amount=0 para todos os times)
+ *        D_SPD (f_config=1 para patrocinador)
  * Tempo: 10s padrao + intro D_SPD.DURACAO (quando houver)
  *
  * Fluxo: cada reload mostra UMA chave (bloco de ate 4 jogos cujos
@@ -13,7 +15,7 @@
 
 var FASES_ORDEM = ['R32', 'R16', 'QF', 'SF', 'FINAL', 'BRONZE'];
 var FASE_LABEL = {
-    'R32':    'Segundas de Final',
+    'R32':    'Segunda Fase',
     'R16':    'Oitavas de Final',
     'QF':     'Quartas de Final',
     'SF':     'Semifinais',
@@ -21,7 +23,7 @@ var FASE_LABEL = {
     'BRONZE': 'Disputa do 3º Lugar'
 };
 var FASE_CURTA = {
-    'R32': 'Seg. Final', 'R16': 'Oitavas', 'QF': 'Quartas',
+    'R32': 'Seg. Fase', 'R16': 'Oitavas', 'QF': 'Quartas',
     'SF':  'Semis',      'FINAL': 'Final', 'BRONZE': '3º Lugar'
 };
 
@@ -101,17 +103,27 @@ function mapearCodigoParaSVG(code) {
         'CHI': 'cl', 'ECU': 'ec', 'PAR': 'py', 'PER': 'pe',
         'BOL': 'bo', 'VEN': 've',
         
-        // UEFA (16 times)
+        // UEFA (16+ times)
         'GER': 'de', 'FRA': 'fr', 'ENG': 'gb-eng', 'ESP': 'es',
         'BEL': 'be', 'NED': 'nl', 'HOL': 'nl', 'ITA': 'it', 'POR': 'pt',
         'CRO': 'hr', 'SUI': 'ch', 'DEN': 'dk', 'POL': 'pl',
         'AUT': 'at', 'SWE': 'se', 'UKR': 'ua', 'WAL': 'gb-wls',
+        'SRB': 'rs', 'BIH': 'ba', 'BOS': 'ba', 'NOR': 'no',
+        'SUI': 'ch', 'ROU': 'ro', 'GRE': 'gr', 'RUS': 'ru',
+        'TUR': 'tr', 'CZE': 'cz', 'SVK': 'sk', 'HUN': 'hu',
+        'SLO': 'si', 'ISR': 'il', 'MKD': 'mk', 'GEO': 'ge',
+        'ALB': 'al', 'MNE': 'me', 'KVX': 'xk',
         
-        // CAF (4 times)
+        // CAF (8+ times)
         'SEN': 'sn', 'MOR': 'ma', 'MAR': 'ma', 'TUN': 'tn', 'NGA': 'ng',
+        'RSA': 'za', 'SOU': 'za', 'CMR': 'cm', 'EGY': 'eg',
+        'GUI': 'gn', 'CIV': 'ci', 'GHA': 'gh', 'BFA': 'bf',
+        'ALG': 'dz', 'COD': 'cd', 'ZAM': 'zm',
         
-        // AFC (2 times)
-        'JPN': 'jp', 'KOR': 'kr'
+        // AFC (6+ times)
+        'JPN': 'jp', 'JAP': 'jp', 'KOR': 'kr', 'AUS': 'au',
+        'IRN': 'ir', 'IRQ': 'iq', 'KSA': 'sa', 'QAT': 'qa',
+        'UZB': 'uz', 'JOR': 'jo'
     };
     
     return map[code.toUpperCase()] || null;
@@ -119,13 +131,23 @@ function mapearCodigoParaSVG(code) {
 
 /* ====================================================
    RETORNA BANDEIRA SVG LOCAL + FALLBACK PNG
+   PRIORIDADE: FOTO (URL absoluta EdgeContents) > SVG local
    ==================================================== */
-function obterBandeiraSVG(teamCode, fallbackUrl) {
+function obterBandeiraSVG(teamCode, fotoUrl) {
     var svgCode = mapearCodigoParaSVG(teamCode);
+    var svgPath = svgCode ? ('img/flags/' + svgCode + '.svg') : null;
+    
+    // FOTO da API é URL absoluta (mais confiável que SVG local no EdgeContents)
+    if (fotoUrl) {
+        return {
+            bandeira: fotoUrl,
+            bandeiraFallback: svgPath
+        };
+    }
     
     return {
-        bandeira: svgCode ? ('img/flags/' + svgCode + '.svg') : null,
-        bandeiraFallback: fallbackUrl || null
+        bandeira: svgPath,
+        bandeiraFallback: null
     };
 }
 
@@ -246,6 +268,205 @@ function buscarTime(teamId, loader, callback) {
     });
 }
 
+/* ====================================================
+   PARSE ITEM FOOTBALL - converte item EBHTML (D_FOOTBALL)
+   para objeto interno de partida (mesmo padrao do caminhos_futebol)
+   ==================================================== */
+function parseItemFootball(item) {
+    if (!item) { return null; }
+    var fixtureId = item.value('TITULO').value  || '';
+    var round     = item.value('TEXTO4').value  || '';
+    var statusRaw = item.value('TEXTO5').value  || 'NS';
+    var dateStr   = item.value('DATE').value    || '';
+    var texto2    = item.value('TEXTO2').value  || '';
+
+    var homeId = '', awayId = '', homeName = '', awayName = '';
+    var homeLogo = '', awayLogo = '';
+    var goalsHome = null, goalsAway = null;
+    var penHome = null, penAway = null;
+    var venue = '', elapsed = null, extra = null;
+
+    try {
+        var obj = JSON.parse(texto2);
+        var resp = obj.response && obj.response[0];
+        if (resp) {
+            if (resp.teams && resp.teams.home) {
+                homeId   = String(resp.teams.home.id  || '');
+                homeName = resp.teams.home.name  || '';
+                homeLogo = resp.teams.home.logo  || '';
+            }
+            if (resp.teams && resp.teams.away) {
+                awayId   = String(resp.teams.away.id  || '');
+                awayName = resp.teams.away.name  || '';
+                awayLogo = resp.teams.away.logo  || '';
+            }
+            if (resp.goals) {
+                goalsHome = resp.goals.home;
+                goalsAway = resp.goals.away;
+            }
+            if (resp.score && resp.score.penalty) {
+                penHome = resp.score.penalty.home;
+                penAway = resp.score.penalty.away;
+            }
+            if (resp.fixture) {
+                if (resp.fixture.venue) { venue = resp.fixture.venue.name || ''; }
+                if (resp.fixture.status) {
+                    elapsed = resp.fixture.status.elapsed;
+                    extra   = resp.fixture.status.extra;
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('[segundafase_futebol] parseItemFootball: JSON invalido para fixtureId=' + fixtureId);
+    }
+
+    return {
+        fixtureId: fixtureId,
+        round:     round,
+        statusRaw: statusRaw,
+        dateStr:   dateStr,
+        homeId:    homeId,     awayId:    awayId,
+        homeName:  homeName,   awayName:  awayName,
+        homeLogo:  homeLogo,   awayLogo:  awayLogo,
+        goalsHome: goalsHome,  goalsAway: goalsAway,
+        penHome:   penHome,    penAway:   penAway,
+        venue:     venue,
+        elapsed:   elapsed,    extra:     extra
+    };
+}
+
+/* ====================================================
+   isFaseEliminatoria — true para rounds eliminatórios
+   ==================================================== */
+function isFaseEliminatoria(roundName) {
+    if (!roundName) { return false; }
+    var r = roundName.toLowerCase();
+    return (
+        r.indexOf('round of 32') !== -1 ||
+        r.indexOf('round of 16') !== -1 ||
+        r.indexOf('quarter')     !== -1 ||
+        r.indexOf('semi')        !== -1 ||
+        r.indexOf('3rd')         !== -1 ||
+        r.indexOf('third')       !== -1 ||
+        r === 'final'
+    );
+}
+
+/* ====================================================
+   mapearFaseParaCategoria — round → CATEGORY interno
+   ==================================================== */
+function mapearFaseParaCategoria(roundName) {
+    if (!roundName) { return ''; }
+    var r = roundName.toLowerCase();
+    if (r.indexOf('round of 32') !== -1) { return 'R32'; }
+    if (r.indexOf('round of 16') !== -1) { return 'R16'; }
+    if (r.indexOf('quarter')     !== -1) { return 'QF'; }
+    if (r.indexOf('semi')        !== -1) { return 'SF'; }
+    if (r.indexOf('3rd')         !== -1) { return 'BRONZE'; }
+    if (r.indexOf('third')       !== -1) { return 'BRONZE'; }
+    if (r === 'final')                   { return 'FINAL'; }
+    return '';
+}
+
+// ══════════════════════════════════════════════════════════
+//  MAPEAMENTO AUTOMÁTICO DE SLOTS R32
+//  Mesmo padrao do caminhos_futebol para posicionar
+//  cada fixtureId / combinação de teamIds no slot correto
+// ══════════════════════════════════════════════════════════
+
+var FIXTURE_SLOT_MAP = {
+    '1561329': { CATEGORY: 'R32', SUBTITULO: '3'  },  // M73  RSA×CAN
+    '1562344': { CATEGORY: 'R32', SUBTITULO: '9'  },  // M76  BRA×JPN
+    '1562345': { CATEGORY: 'R32', SUBTITULO: '4'  },  // M75  NED×MAR
+    '1562586': { CATEGORY: 'R32', SUBTITULO: '7'  }   // M81  USA×BIH
+};
+
+var TEAMS_SLOT_MAP = {
+    '1531|5529': { CATEGORY: 'R32', SUBTITULO: '3'  }, // M73 L3
+    '25':        { CATEGORY: 'R32', SUBTITULO: '1'  }, // M74 L1 Alemanha
+    '1118|31':   { CATEGORY: 'R32', SUBTITULO: '4'  }, // M75 L4
+    '6|12':      { CATEGORY: 'R32', SUBTITULO: '9'  }, // M76 R1 Brasil×Japão
+    '1501':      { CATEGORY: 'R32', SUBTITULO: '10' }, // M78 R2 Costa do Marfim
+    '16':        { CATEGORY: 'R32', SUBTITULO: '11' }, // M79 R3 México
+    '10':        { CATEGORY: 'R32', SUBTITULO: '12' }, // M80 R4 Inglaterra
+    '2384|1113': { CATEGORY: 'R32', SUBTITULO: '7'  }, // M81 L7 EUA×Bósnia
+    '1':         { CATEGORY: 'R32', SUBTITULO: '8'  }, // M82 L8 Bélgica
+    '9|26':      { CATEGORY: 'R32', SUBTITULO: '6'  }, // M84 L6
+    '9':         { CATEGORY: 'R32', SUBTITULO: '6'  }, // Espanha
+    '5529':      { CATEGORY: 'R32', SUBTITULO: '15' }, // M85 R7 Canadá
+    '26':        { CATEGORY: 'R32', SUBTITULO: '13' }, // M86 R5 Argentina
+    '27':        { CATEGORY: 'R32', SUBTITULO: '16' }, // M87 R8 Portugal
+    '777':       { CATEGORY: 'R32', SUBTITULO: '14' }  // M88 R6 Turquia
+};
+
+function buscarSlotPorTeams(homeId, awayId) {
+    var h = String(homeId || '');
+    var a = String(awayId || '');
+    if (h && a) {
+        if (TEAMS_SLOT_MAP[h + '|' + a]) { return TEAMS_SLOT_MAP[h + '|' + a]; }
+        if (TEAMS_SLOT_MAP[a + '|' + h]) { return TEAMS_SLOT_MAP[a + '|' + h]; }
+    }
+    if (h && TEAMS_SLOT_MAP[h]) { return TEAMS_SLOT_MAP[h]; }
+    if (a && TEAMS_SLOT_MAP[a]) { return TEAMS_SLOT_MAP[a]; }
+    return null;
+}
+
+function atribuirPosicoesBracket(partidas) {
+    var result = [];
+    var porFase = {};
+
+    for (var i = 0; i < partidas.length; i++) {
+        var p   = partidas[i];
+        var cat = mapearFaseParaCategoria(p.round);
+        if (!cat) { continue; }
+
+        var slot = FIXTURE_SLOT_MAP[String(p.fixtureId)];
+        if (slot) {
+            p.CATEGORY  = slot.CATEGORY;
+            p.SUBTITULO = slot.SUBTITULO;
+            result.push(p);
+            console.log('[segundafase_futebol] fixtureId=' + p.fixtureId + ' → ' + p.CATEGORY + '_' + p.SUBTITULO);
+            continue;
+        }
+
+        if (cat === 'R32') {
+            slot = buscarSlotPorTeams(p.homeId, p.awayId);
+            if (slot) {
+                p.CATEGORY  = slot.CATEGORY;
+                p.SUBTITULO = slot.SUBTITULO;
+                result.push(p);
+                console.log('[segundafase_futebol] teams=' + p.homeId + '|' + p.awayId + ' → ' + p.CATEGORY + '_' + p.SUBTITULO);
+                continue;
+            }
+        }
+
+        if (!porFase[cat]) { porFase[cat] = []; }
+        porFase[cat].push(p);
+    }
+
+    var fases = ['R32', 'R16', 'QF', 'SF', 'FINAL', 'BRONZE'];
+    for (var f = 0; f < fases.length; f++) {
+        var fase  = fases[f];
+        var lista = porFase[fase] || [];
+        if (lista.length === 0) { continue; }
+        lista.sort(function(a, b) {
+            var da = a.dateStr || '';
+            var db = b.dateStr || '';
+            if (da < db) { return -1; }
+            if (da > db) { return 1; }
+            return parseInt(a.fixtureId || 0, 10) - parseInt(b.fixtureId || 0, 10);
+        });
+        for (var j = 0; j < lista.length; j++) {
+            lista[j].CATEGORY  = fase;
+            lista[j].SUBTITULO = String(j + 1);
+            result.push(lista[j]);
+        }
+    }
+
+    console.log('[segundafase_futebol] atribuirPosicoesBracket: ' + result.length + ' partidas');
+    return result;
+}
+
 /**
  * Sanitiza nomes de torneios (remove palavras proibidas).
  */
@@ -277,15 +498,19 @@ function hexToRgba(hex, alpha) {
 function aplicarCores(cfg) {
     var s = document.documentElement.style;
     s.setProperty('--cor-destaque',     cfg.corDestaque);
+    s.setProperty('--cor-destaque-glow', hexToRgba(cfg.corDestaque, 0.3));
     s.setProperty('--cor-fundo-painel', hexToRgba(cfg.corEscura, 0.92));
+    s.setProperty('--cor-fundo-area',   hexToRgba(cfg.corEscura, 0.5));
     s.setProperty('--cor-borda',        hexToRgba(cfg.corClara, 0.15));
     s.setProperty('--cor-texto',        cfg.corClara);
+    s.setProperty('--cor-texto-sec',    hexToRgba(cfg.corClara, 0.7));
 }
 
 function mergeColorsFromSpd(defaults, spd) {
     if (!spd) { return defaults; }
     
-    // COLOR1 = corDestaque, COLOR2 = corEscura, COLOR3 = corClara
+    // COLOR1 = corEscura (fundo), COLOR2 = corDestaque, COLOR3 = corClara (texto)
+    // Mesmo padrão do futebol_placar_classificacao_v23
     var cor1 = obterValorSpd(spd, 'COLOR1');
     var cor2 = obterValorSpd(spd, 'COLOR2');
     var cor3 = obterValorSpd(spd, 'COLOR3');
@@ -296,9 +521,9 @@ function mergeColorsFromSpd(defaults, spd) {
     if (cor3 && cor3.indexOf('#') !== 0) { cor3 = '#' + cor3; }
     
     return {
-        corDestaque: cor1 || defaults.corDestaque,
-        corEscura:   cor2 || defaults.corEscura,
-        corClara:    cor3 || defaults.corClara
+        corEscura:   cor1 || defaults.corEscura,    // COLOR1 → fundo escuro
+        corDestaque: cor2 || defaults.corDestaque,  // COLOR2 → destaque
+        corClara:    cor3 || defaults.corClara       // COLOR3 → texto
     };
 }
 
@@ -398,6 +623,83 @@ function processarDadosMock(partidas, teamsMap) {
             local:         dh.local
         };
     }
+    return dados;
+}
+
+// ──────────────────────────────────────────────────
+//  processarDadosApi — converte array da API (parseItemFootball)
+//  para o formato { "FASE_SLOT": { ...campos } }
+//  compatível com iniciarExibicao() e agruparPorFase()
+// ──────────────────────────────────────────────────
+function processarDadosApi(partidas, teamsMap) {
+    teamsMap = teamsMap || {};
+    var dados = {};
+
+    for (var i = 0; i < partidas.length; i++) {
+        var p    = partidas[i];
+        var fase = p.CATEGORY  || '';
+        var pos  = p.SUBTITULO || '';
+        if (!fase || !pos) { continue; }
+
+        var chave = fase + '_' + pos;
+
+        // Resolver nome e bandeira via teamsMap
+        var timeCasa = '';
+        var timeVis  = '';
+        var flagCasa = p.homeLogo || '';
+        var flagVis  = p.awayLogo || '';
+
+        if (teamsMap[p.homeId]) {
+            timeCasa = teamsMap[p.homeId].nome;
+            flagCasa = teamsMap[p.homeId].bandeira || teamsMap[p.homeId].fotoApi || flagCasa;
+        } else {
+            timeCasa = p.homeName || '';
+        }
+
+        if (teamsMap[p.awayId]) {
+            timeVis = teamsMap[p.awayId].nome;
+            flagVis = teamsMap[p.awayId].bandeira || teamsMap[p.awayId].fotoApi || flagVis;
+        } else {
+            timeVis = p.awayName || '';
+        }
+
+        // Formatar data/hora a partir de dateStr "YYYY-MM-DD HH:MM:SS"
+        var datahora = '';
+        var data = '';
+        var hora = '';
+        if (p.dateStr) {
+            var partes = p.dateStr.split(' ');
+            var dp = (partes[0] || '').split('-');
+            var hp = (partes[1] || '').split(':');
+            var dia = dp[2] || '';
+            var mes = dp[1] || '';
+            hora = (hp[0] || '') + ':' + (hp[1] || '00');
+            datahora = dia + '/' + mes + ' · ' + hora;
+            data = dia + '/' + mes;
+        }
+
+        // Placar: null = nao iniciado
+        var golsCasa = (p.goalsHome !== null && p.goalsHome !== undefined) ? String(p.goalsHome) : '';
+        var golsVis  = (p.goalsAway !== null && p.goalsAway !== undefined) ? String(p.goalsAway) : '';
+
+        dados[chave] = {
+            fase:          fase,
+            posicao:       parseInt(pos, 10),
+            timeCasa:      timeCasa,
+            timeVisitante: timeVis,
+            flagCasa:      flagCasa,
+            flagVisitante: flagVis,
+            golsCasa:      golsCasa,
+            golsVisitante: golsVis,
+            status:        p.statusRaw || 'NS',
+            datahora:      datahora,
+            data:          data,
+            hora:          hora,
+            local:         p.venue || ''
+        };
+    }
+
+    console.log('[segundafase_futebol] processarDadosApi: ' + Object.keys(dados).length + ' slots preenchidos');
     return dados;
 }
 
@@ -748,7 +1050,7 @@ function renderizarChave(chave, dadosMap, config, loader) {
     console.log('[segundafase_futebol] chave fase=' + chave.fase +
                 ' idx=' + chave.idx + '/' + chave.total +
                 ' jogos=' + chave.partidas.length);
-    setTimeout(function() { loader.finished(); }, DURACAO_PADRAO_MS);
+    setTimeout(function() { _playerViewExecutando = false; loader.finished(); }, DURACAO_PADRAO_MS);
 }
 
 function iniciarExibicao(dadosMap, config, loader) {
@@ -758,6 +1060,7 @@ function iniciarExibicao(dadosMap, config, loader) {
     if (ordem.length === 0) {
         console.error('[segundafase_futebol] sem chaves para exibir');
         // ❌ ERRO: NÃO chamar loader.loaded() — apenas finished()
+        _playerViewExecutando = false;
         loader.finished();
         return;
     }
@@ -870,8 +1173,15 @@ function esconderIntro(onDone) {
     }, 700);
 }
 
+var _playerViewExecutando = false;
+
 function playerView() {
-    /* noop — entrada via window.onload (preview.js redefine esta funcao) */
+    if (_playerViewExecutando) {
+        console.log('[segundafase_futebol] playerView ja executando, ignorando chamada duplicada');
+        return;
+    }
+    _playerViewExecutando = true;
+    /* entrada via window.onload — preview.js nao deve sobrescrever */
 }
 
 window.onload = function() {
@@ -905,10 +1215,13 @@ window.onload = function() {
             for (var i = 0; i < MOCK_DATA.D_FOOTBALL_TEAMS.length; i++) {
                 var time = MOCK_DATA.D_FOOTBALL_TEAMS[i];
                 if (time.TITULO && time.TEXTO2) {
+                    var codigo = time.TEXTO3 || '';
+                    var fotoApi = time.FOTO || '';
+                    var bandeiras = obterBandeiraSVG(codigo, fotoApi);
                     teamsMap[time.TITULO] = {
                         nome: time.TEXTO2,
-                        codigo: time.TEXTO3 || '',
-                        bandeira: time.FOTO1 || ''
+                        codigo: codigo,
+                        bandeira: bandeiras.bandeira || bandeiras.bandeiraFallback
                     };
                 }
             }
@@ -921,62 +1234,76 @@ window.onload = function() {
         iniciarExibicao(processarDadosMock(partidas, teamsMap), config, mockLoader);
     } else {
         ebhtml.create2({}, function(loader) {
-            loader.addData('D_FOOTBALL', false);
-            loader.addData('D_SPD', false, 'f_config=1');  // Patrocinador (CONFIG=1)
+            loader.addData('D_FOOTBALL', false, 'amount=0');   // Todas as partidas
+            loader.addData('D_SPD', false, 'f_config=1');      // Patrocinador (CONFIG=1)
             loader.addData('D_FOOTBALL_TEAMS', false, 'amount=0');  // Todos os times de uma vez
             loader.autoloaded    = false;
             loader.nodataiserror = false;
 
             loader.load(function() {
-                var dfReg = loader.data('D_FOOTBALL');
-                if (!dfReg) {
-                    console.error('[segundafase_futebol] Sem dados D_FOOTBALL');
-                    loader.finished();
-                    return;
-                }
-                var jsonStr = obterValor(dfReg, 'TEXTO3');
-                if (!jsonStr) {
-                    console.error('[segundafase_futebol] D_FOOTBALL.TEXTO3 vazio');
-                    loader.finished();
-                    return;
-                }
-                var partidas;
-                try { partidas = JSON.parse(jsonStr); }
-                catch (e2) {
-                    console.error('[segundafase_futebol] JSON.parse erro:', e2);
-                    loader.finished();
-                    return;
-                }
-
-                // Extrai patrocinador e SPECIALPROJECT dinâmico do D_SPD (CONFIG='1')
+                // ── 1. D_SPD → patrocinador ──────────────────────────
                 var spdSponsor = loader.data('D_SPD');
                 if (spdSponsor) {
-                    var specialProjectAtivo = obterValor(spdSponsor, 'SPECIALPROJECT');
-                    console.log('[segundafase_futebol] D_SPD patrocinador encontrado (CONFIG=1)');
-                    console.log('[segundafase_futebol] SPECIALPROJECT extraído dinamicamente: ' + specialProjectAtivo);
+                    console.log('[segundafase_futebol] D_SPD sponsor OK');
                 } else {
-                    console.log('[segundafase_futebol] D_SPD patrocinador não encontrado (CONFIG=1)');
+                    console.log('[segundafase_futebol] D_SPD sem sponsor');
                 }
 
-                // Buscar todos os times do D_FOOTBALL_TEAMS (loader já carregou com amount=0)
+                // ── 2. D_FOOTBALL → lista de todas as partidas ───────
+                var listaFootball = loader.datalist('D_FOOTBALL');
+                if (!listaFootball || listaFootball.count() === 0) {
+                    console.error('[segundafase_futebol] D_FOOTBALL sem dados');
+                    loader.finished();
+                    _playerViewExecutando = false;
+                    return;
+                }
+                console.log('[segundafase_futebol] D_FOOTBALL: ' + listaFootball.count() + ' registros totais');
+
+                // Converter lista EBHTML para array de partidas (parseItemFootball)
+                var todasPartidas = [];
+                for (var idx = 0; idx < listaFootball.count(); idx++) {
+                    var item = listaFootball.get(idx);
+                    var partida = parseItemFootball(item);
+                    if (partida) { todasPartidas.push(partida); }
+                }
+
+                // Filtrar apenas fases eliminatórias (ignorar Group Stage)
+                var eliminatorias = [];
+                for (var j = 0; j < todasPartidas.length; j++) {
+                    if (isFaseEliminatoria(todasPartidas[j].round)) {
+                        eliminatorias.push(todasPartidas[j]);
+                    }
+                }
+                console.log('[segundafase_futebol] Eliminatórias filtradas: ' + eliminatorias.length);
+
+                if (eliminatorias.length === 0) {
+                    console.error('[segundafase_futebol] Sem partidas eliminatórias');
+                    loader.finished();
+                    _playerViewExecutando = false;
+                    return;
+                }
+
+                // Atribuir posições no bracket (fixtureId map + fallback por data)
+                var comSlot = atribuirPosicoesBracket(eliminatorias);
+
+                // ── 3. D_FOOTBALL_TEAMS → teamsMap ───────────────────
                 var teamsMap = {};
-                var teamsLista = loader.datalist('D_FOOTBALL_TEAMS');
-                if (teamsLista) {
-                    for (var i = 0; i < teamsLista.count(); i++) {
-                        var time = teamsLista.get(i);
+                var listaTeams = loader.datalist('D_FOOTBALL_TEAMS');
+                if (listaTeams) {
+                    for (var k = 0; k < listaTeams.count(); k++) {
+                        var time = listaTeams.get(k);
                         var teamId = obterValor(time, 'TITULO');
-                        var nome = obterValor(time, 'TEXTO2');
+                        var nome   = obterValor(time, 'TEXTO2');
                         var codigo = obterValor(time, 'TEXTO3');
                         var fotoPng = obterValor(time, 'FOTO');
-                        
+
                         if (teamId && nome) {
-                            // Mapear para SVG local
                             var bandeiras = obterBandeiraSVG(codigo, fotoPng);
-                            
                             teamsMap[teamId] = {
-                                nome: nome,
-                                codigo: codigo,
-                                bandeira: bandeiras.bandeira || bandeiras.bandeiraFallback
+                                nome:    nome,
+                                codigo:  codigo,
+                                bandeira: bandeiras.bandeira || bandeiras.bandeiraFallback,
+                                fotoApi: fotoPng
                             };
                         }
                     }
@@ -985,9 +1312,10 @@ window.onload = function() {
                     console.warn('[segundafase_futebol] D_FOOTBALL_TEAMS sem dados');
                 }
 
+                // ── 4. Renderizar ─────────────────────────────────────
                 var config = { sponsor: montarSponsorConfig(spdSponsor) };
                 aplicarCores(mergeColorsFromSpd(CONFIG, spdSponsor));
-                iniciarExibicao(processarDadosMock(partidas, teamsMap), config, loader);
+                iniciarExibicao(processarDadosApi(comSlot, teamsMap), config, loader);
             });
         });
     }

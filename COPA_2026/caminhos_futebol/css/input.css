@@ -41,7 +41,6 @@
     flex-direction: row;
     align-items: stretch;
     padding: 0.4% 2%;
-    gap: 0;
     overflow: hidden;
 }
 
@@ -66,7 +65,9 @@
     z-index: 1;
     display: flex;
     align-items: stretch;
-    gap: 5vmin;
+}
+.half > * + * {
+    margin-left: 5vmin;
 }
 .half-left  { flex-direction: row; }
 .half-right { flex-direction: row; }
@@ -119,7 +120,9 @@
 .match-slot {
     display: flex;
     flex-direction: column;
-    gap: 0.3vmin;
+}
+.match-slot > * + * {
+    margin-top: 0.3vmin;
 }
 .match-date {
     font-family: 'Roboto Regular', sans-serif;
@@ -166,11 +169,13 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 1vmin;
     padding: 0.8vmin 0.5vmin;
     font-size: 1.3vmin;
     line-height: 1;
     border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.team-row > * + * {
+    margin-left: 1vmin;
 }
 .team-row:last-child { border-bottom: none; }
 
@@ -229,8 +234,10 @@
     flex-direction: column;
     justify-content: center;
     padding: 0;
-    gap: 25vh;
     overflow: visible;
+}
+.center-col > * + * {
+    margin-top: 25vh;
 }
 .center-col > div {
     overflow: visible;
@@ -245,7 +252,9 @@
 .center-col .team-row {
     padding: 0.8vmin 1.0vmin;
     font-size: 1.1vmin;
-    gap: 0.8vmin;
+}
+.center-col .team-row > * + * {
+    margin-left: 0.8vmin;
 }
 .center-col .flag  { width: 3.6vmin; height: 2.9vmin; }
 .center-col .tname { font-size: 3vmin !important; }
@@ -359,7 +368,6 @@
     .bracket-area {
         flex-direction: column;
         padding: 0.4% 1%;
-        gap: 0.4vmin;
         overflow: hidden;
     }
 
@@ -368,8 +376,10 @@
         flex: 1;
         min-height: 0;
         flex-direction: column;
-        gap: 0.4vmin;
         align-items: stretch;
+    }
+    .half > * + * {
+        margin-top: 0.4vmin;
     }
 
     /* Round-cols: largura total, altura automática */
@@ -388,7 +398,9 @@
         justify-content: space-around;
         min-width: 0;
         align-items: stretch;
-        gap: 1vmin;
+    }
+    .cards-area > * + * {
+        margin-left: 1vmin;
     }
     .cards-area--center {
         justify-content: center;
@@ -415,11 +427,12 @@
     /* Cards menores para caber 8 lado a lado em R32 */
     .team-row {
         padding: 0.5vmin 0.4vmin;
-        gap: 0.5vmin;
         font-size: 2.0vmin;
         justify-content: center;
         height: 4vmin;
-      
+    }
+    .team-row > * + * {
+        margin-left: 0.5vmin;
     }
     .tname, .tname-indef {
         font-size: 1.8min;
@@ -437,15 +450,18 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 4vmin;
         padding: 0.5vmin 0;
+    }
+    .center-col > * + * {
+        margin-top: 4vmin;
     }
     /* Final: card largo centrado */
     .center-col .match-slot            { width: 65vw; }
     /* Bronze: card menor, empurrado à direita */
     .center-col > div:last-child       { align-self: flex-end; padding-right: 5vmin; }
     .center-col > div:last-child .match-slot { width: 32vw; }
-    .center-col .team-row   { padding: 0.8vmin 0.8vmin; gap: 0.8vmin; height: 3vh; }
+    .center-col .team-row   { padding: 0.8vmin 0.8vmin; height: 3vh; }
+    .center-col .team-row > * + * { margin-left: 0.8vmin; }
     .center-col .flag       { width: 2.8vmin; height: 2.0vmin; }
     .center-col .score      { font-size: 1.6vmin; min-width: 2.4vmin; }
 }
@@ -481,3 +497,32 @@
 .bg-\[\#0a0f1e\]    { background-color: #0a0f1e }
 .opacity-0          { opacity: 0 }
 .opacity-40         { opacity: 0.4 }
+
+/* ═══════════════════════════════════════
+   FALLBACK aspect-ratio — Chrome 78 ignora (requer 88+)
+   ═══════════════════════════════════════ */
+@supports not (aspect-ratio: 1 / 1) {
+  .aspect-square,
+  .aspect-video,
+  [class*="aspect-"] {
+    position: relative;
+    overflow: hidden;
+  }
+  .aspect-square::before {
+    content: '';
+    display: block;
+    padding-bottom: 100%;
+  }
+  .aspect-video::before {
+    content: '';
+    display: block;
+    padding-bottom: 56.25%;
+  }
+  .aspect-square > *,
+  .aspect-video > *,
+  [class*="aspect-"] > * {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+}

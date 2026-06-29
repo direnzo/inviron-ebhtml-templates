@@ -1,7 +1,8 @@
 # caminhos_futebol
 
-Template de Digital Signage para exibição do chaveamento eliminatório da **Copa FIFA 2026**.
-Exibe o bracket completo (2ª Rodada → Final), com conectores SVG, animações de entrada e destaque do caminho do vencedor.
+Template de Digital Signage para exibição do chaveamento eliminatório da **Copa do Mundo 2026**.
+Exibe o bracket completo (2ª Rodada → Final), com conectores SVG, animações de entrada,
+zoom nos confrontos e destaque do caminho do vencedor.
 
 ---
 
@@ -9,19 +10,21 @@ Exibe o bracket completo (2ª Rodada → Final), com conectores SVG, animações
 
 ```
 caminhos_futebol/
-├── index.html              HTML principal
-├── package.json            Scripts npm (dev / build)
-├── tailwind.config.js      Breakpoints e tema
+├── index.html                HTML principal
+├── package.json              Scripts npm (dev / build)
+├── tailwind.config.js        Breakpoints e tema
 ├── css/
-│   ├── input.css           Fonte dos estilos (editar aqui)
-│   └── master.css          Compilado pelo Tailwind (não editar)
+│   ├── input.css             Fonte dos estilos (Tailwind)
+│   └── master.css            Compilado (não editar)
 ├── img/
-│   └── soccer-background-loop-*.mp4   Vídeo de fundo
+│   ├── flags/                Bandeiras SVG (48 países)
+│   └── pre.mp4               Vídeo de fundo (pré-jogo)
 └── js/
-    ├── ebhtml.js           Biblioteca EBHTML (não editar)
-    ├── bracket-draw.js     Desenho de conectores SVG
-    ├── master.js           Lógica principal do template
-    └── mock-data.js        Dados fictícios para desenvolvimento
+    ├── ebhtml.js             Biblioteca EBHTML (não editar)
+    ├── bracket-draw.js       Conectores SVG entre fases
+    ├── master.js             Lógica principal do template
+    ├── preview.js            Preview Extranet (EdgeContents)
+    └── mock-data.js          Dados fictícios (dev local)
 ```
 
 ---
@@ -29,175 +32,177 @@ caminhos_futebol/
 ## Desenvolvimento local
 
 ```bash
-# 1. Watch CSS (recompila ao salvar input.css)
-npm run dev
-
-# 2. Abrir no navegador via servidor EdgeContents
+npm run dev          # Watch TailwindCSS
+# Abrir no navegador:
 # http://localhost:12099/FILES/1/index.html
 ```
 
-Para habilitar dados fictícios (sem backend), garanta que o script `mock-data.js` esteja **descomentado** no `<head>` do `index.html`:
-
-```html
-<script src="js/mock-data.js"></script>  <!-- habilitado = modo dev -->
-```
-
-Para produção, **comentar** essa linha e executar:
-
-```bash
-npm run build
-```
+Mock habilitado: descomentar `<script src="js/mock-data.js">` no `<head>` do `index.html`.
+Produção: comentar a linha, executar `npm run build`.
 
 ---
 
-## Dados do Patrocinador (D_SPD)
+## Fluxo de Dados (Produção)
 
-O template suporta dados de patrocinador via `D_SPD` (CONFIG='1'):
+Um único `ebhtml.create2()` carrega 3 datasets simultâneos:
+
+```
+ebhtml.create2()
+  ├─ D_FOOTBALL       amount=0  → todas as partidas (16 registros: 12 grupos + 4 R32)
+  ├─ D_FOOTBALL_TEAMS  amount=0  → 50 times (IDs, nomes PT-BR, bandeiras)
+  └─ D_SPD             f_config=1  → patrocinador (intro, logo, cores)
+```
+
+**D_FOOTBALL — campos:**
+| Campo XML | Conteúdo |
+|-----------|----------|
+| `TITULO`  | fixtureId (ex: `1561329`) |
+| `TEXTO2`  | JSON `{"response":[{...}]}` da API-Football |
+| `TEXTO4`  | Round (ex: `"Round of 32"`, `"Group Stage - 3"`) |
+| `TEXTO5`  | Status (`NS`, `FT`, `1H`, `2H`, etc.) |
+| `DATE`    | Data/hora `"YYYY-MM-DD HH:MM:SS"` (horário Brasil) |
+
+Função `parseItemFootball()` extrai do JSON de `TEXTO2`: fixtureId, round, status, data, homeId, awayId, homeName, awayName, homeLogo, awayLogo, goalsHome, goalsAway, penHome, penAway, venue, elapsed, extra.
+
+---
+
+## Mapeamento R32 — fixtureId → Slot
+
+**CRÍTICO**: O bracket da Copa 2026 tem 16 slots na R32. Cada fixtureId da API-Football
+deve ser mapeado para o slot correto conforme a estrutura oficial do torneio.
+
+O mapa fica em `master.js` na variável `FIXTURE_SLOT_MAP`:
+
+```javascript
+var FIXTURE_SLOT_MAP = {
+    // Lado esquerdo (L1-L8)
+    '1561329': { CATEGORY: 'R32', SUBTITULO: '3' },  // M73  RSA×CAN
+    '1562345': { CATEGORY: 'R32', SUBTITULO: '4' },  // M75  NED×MAR
+    '1562586': { CATEGORY: 'R32', SUBTITULO: '7' },  // M81  USA×BIH
+    // Lado direito (R1-R8)
+    '1562344': { CATEGORY: 'R32', SUBTITULO: '9' },  // M76  BRA×JPN
+};
+```
+
+### Tabela dos 16 slots R32
+
+| Slot | ID DOM | Partida FIFA | Confronto |
+|------|--------|-------------|-----------|
+| R32_1 | `m-r32-l1` | M74 | 1ºE × 3ºABCDF |
+| R32_2 | `m-r32-l2` | M77 | 1ºI × 3ºCDFGH |
+| **R32_3** | `m-r32-l3` | **M73** | **África do Sul × Canadá** |
+| **R32_4** | `m-r32-l4` | **M75** | **Holanda × Marrocos** |
+| R32_5 | `m-r32-l5` | M83 | 2ºK × 2ºL |
+| R32_6 | `m-r32-l6` | M84 | 1ºH × 2ºJ |
+| **R32_7** | `m-r32-l7` | **M81** | **EUA × Bósnia** |
+| R32_8 | `m-r32-l8` | M82 | 1ºG × 3ºAEHIJ |
+| **R32_9** | `m-r32-r1` | **M76** | **Brasil × Japão** |
+| R32_10 | `m-r32-r2` | M78 | 2ºE × 2ºI |
+| R32_11 | `m-r32-r3` | M79 | 1ºA × 3ºCEFHI |
+| R32_12 | `m-r32-r4` | M80 | 1ºL × 3ºEHIJK |
+| R32_13 | `m-r32-r5` | M86 | 1ºJ × 2ºH |
+| R32_14 | `m-r32-r6` | M88 | 2ºD × 2ºG |
+| R32_15 | `m-r32-r7` | M85 | 1ºB × 3ºEFGIJ |
+| R32_16 | `m-r32-r8` | M87 | 1ºK × 3ºDEIJL |
+
+### Mapeamento automático — 2 camadas (sem intervenção manual)
+
+O template identifica o slot correto automaticamente em **3 níveis**:
+
+**Camada 1 — `FIXTURE_SLOT_MAP` (fixtureId → slot)**
+Lookup direto pelo `TITULO` do XML. Mais confiável. Confirmados conforme chegam na API.
+
+**Camada 2 — `TEAMS_SLOT_MAP` (teamId → slot)**
+Fallback automático por combinação de teamIds (`homeId|awayId`).
+Cobre casos onde a partida chega na API antes do fixtureId estar no mapa.
+Verifica: `homeId|awayId`, `awayId|homeId`, `homeId` isolado, `awayId` isolado.
+
+**Camada 3 — Fallback por data**
+Para partidas que não se encaixam em nenhum mapa (R16, QF, SF, FINAL, BRONZE),
+ordena por data e atribui os próximos slots livres sequencialmente.
+
+```
+nova partida R32 chega na API
+  ├─ FIXTURE_SLOT_MAP[fixtureId]?  → usa slot fixo          ✅ mais preciso
+  ├─ TEAMS_SLOT_MAP[homeId|awayId]? → usa slot por times     ✅ auto
+  └─ nenhum mapa encontrado        → próximo slot livre      ⚠️ menos preciso
+```
+
+Para confirmar um novo fixtureId (opcional, melhora precisão):
+1. Ver o `fixtureId` nos logs do console: `camada2 teams=X|Y → R32_N`
+2. Adicionar em `FIXTURE_SLOT_MAP`: `'XXXXXXX': { CATEGORY: 'R32', SUBTITULO: 'N' }`
+
+Para R16, QF, SF, FINAL e BRONZE: fallback por data (ordenar e atribuir 1..N).
+
+---
+
+## Controle de Playlist
+
+| Método | Quando chamar |
+|--------|---------------|
+| `loader.loaded()` | ✅ Após renderizar o bracket (antes da intro) |
+| `loader.finished()` | ✅ Após todo o tempo de exibição (entrada + zoom + foco) |
+
+Tempo total sem intro: 10s | Com intro: (duração TEXT2) + 5s
+
+---
+
+## Animações
+
+### Entrada (stagger)
+32 cards + labels aparecem em sequência (fora → centro), R32 primeiro, Final por último.
+Controlado por `animarEntradaBracket()` + `STAGGER_ORDER`.
+
+### Zoom (4 cantos rotativos)
+Após a entrada, o bracket escala 2x focado em um canto. A cada reload o canto alterna:
+`top left → bottom left → top right → bottom right → ...`
+
+O lado (left/right) é determinado por onde estão as partidas com times definidos.
+O top/bottom alterna via `localStorage` (`bracket_zoom_tb_idx`).
+
+### Destaques
+- **Brasil**: card com glow amarelo (`match-brasil`, `brasil-row`)
+- **Vencedor**: linha do vencedor com classe `winner`, perdedor `loser`
+- **Caminho do vencedor**: cards encerrados recebem `winner-path`
+- **Partida mais recente**: card com `match-highlight`
+
+---
+
+## Patrocinador (D_SPD)
 
 | Campo | Descrição |
 |-------|-----------|
-| `FILE_IMAGE1` | Vídeo ou imagem de intro do patrocinador |
-| `IMAGE_LOGO` | Logo do patrocinador (exibido no rodapé) |
-| `TEXT1` | Texto/título do patrocinador |
-| `TEXT2` | **Duração do vídeo/imagem** (em segundos) |
-| `COLOR1` | Cor de destaque (ex: `#FBBF24` ou `FBBF24`) |
-| `COLOR2` | Cor escura/fundo (ex: `#006400`) |
-| `COLOR3` | Cor clara/texto (ex: `#FFFFFF`) |
+| `FILE_IMAGE1` | Vídeo/imagem de intro |
+| `IMAGE_LOGO` | Logo no rodapé |
+| `TEXT1` | Frase do patrocinador |
+| `TEXT2` | Duração da intro (segundos) |
+| `COLOR1` | Cor de destaque |
+| `COLOR2` | Cor de fundo |
+| `COLOR3` | Cor de texto |
 
-**Controle de duração de vídeo/imagem (TEXT2):**
-- Se TEXT2 tem valor (ex: `5`): vídeo é **cortado** após 5 segundos
-- Se TEXT2 vazio: vídeo roda **até o fim** (evento `ended`)
-- Imagens: TEXT2 ou **5 s padrão** (DURACAO_IMAGEM_PADRAO_MS)
-
-**Modo Preview (Extranet):**
-- Extrai partidas do **D_FOOTBALL.TEXTO3** (JSON stringificado)
-- Extrai sponsor: COLOR1/2/3, FILE_IMAGE1, IMAGE_LOGO, TEXT1, TEXT2
-- Aplica cores dinâmicas via `mergeColorsFromSpd()`
-- Suporta intro de vídeo/imagem com controle de duração
-- **teamsMap vazio**: preview não acessa D_FOOTBALL_TEAMS (nomes vêm direto do TEXTO3)
-
-**IMPORTANTE:** Campo DURACAO foi DEPRECIADO. Use TEXT2.
+Se `TEXT2` vazio: vídeo roda até o fim. Se `TEXT2` preenchido: corta no tempo indicado.
 
 ---
 
-## Funções de Tradução e Sanitização
+## Histórico de Correções (jun/2026)
 
-O template inclui funções para processar nomes de torneios e fases que venham dos dados:
-
-### traduzirFase(texto)
-Traduz nomes de fases/rodadas do inglês para PT-BR:
-- **Lookup direto**: "quarter-finals" → "Quartas de Final"
-- **Padrões dinâmicos**: "Matchday 12" → "Rodada 12", "Round 15" → "Rodada 15"
-- Se não encontrar tradução, retorna o texto original sem modificação
-
-```javascript
-traduzirFase('quarter-finals')  // → "Quartas de Final"
-traduzirFase('Matchday 5')      // → "Rodada 5"
-traduzirFase('Round of 16')     // → "Oitavas de Final"
-```
-
-### sanitizarNomeTorneio(texto)
-Remove termos proibidos de direitos autorais e substitui por equivalentes:
-- "Copa do Mundo" → "O Mundo em Campo"
-- "World Cup" → "O Mundo em Campo"
-- "FIFA 2026" → "O Mundo em Campo 2026"
-- "FIFA" → (removido)
-
-```javascript
-sanitizarNomeTorneio('Copa do Mundo FIFA 2026')  // → "O Mundo em Campo 2026"
-sanitizarNomeTorneio('FIFA World Cup')           // → "O Mundo em Campo"
-```
-
-**Nota:** Estas funções estão disponíveis mas não são aplicadas automaticamente. Use-as ao processar dados externos que possam conter termos protegidos ou nomes em inglês.
+| Data | Problema | Solução |
+|------|----------|---------|
+| 26/jun | `playerView` sobrescrito pelo `preview.js` | Removido stub vazio do `preview.js` |
+| 26/jun | Loader disparava 2x, duplicando animações | Guard `_playerViewExecutando` com reset em `finished()` |
+| 26/jun | Zoom rotacional usava localStorage com duplo avanço | Alternância top/bottom com `localStorage` corrigida |
+| 26/jun | Times posicionados lado errado (ordenados por data) | Mapa hardcoded `FIXTURE_SLOT_MAP` por fixtureId |
+| 26/jun | XHR manual desnecessário | Substituído por `loader.addData()` + `loader.datalist()` nativo EBHTML |
+| 26/jun | TEXTO3 usado em vez de TEXTO2 | Migrado para `TEXTO2` com JSON API-Football |
 
 ---
 
-## Formato dos dados (EdgeContents / Mock)
+## Links úteis
 
-O template consome um dataset chamado **`D_COPA`** com uma linha por partida.
-No mock, equivale ao array `MOCK_DATA.partidas`. Cada registro tem os campos:
-
-| Campo            | Tipo   | Descrição                                      |
-|------------------|--------|------------------------------------------------|
-| `FASE`           | string | `R32`, `R16`, `QF`, `SF`, `FINAL`, `BRONZE`   |
-| `POSICAO`        | number | Número do slot dentro da fase (ver tabela abaixo) |
-| `TIME_CASA`      | string | Sigla do time mandante (ex: `BRA`)             |
-| `TIME_VISITANTE` | string | Sigla do time visitante (ex: `ARG`)            |
-| `FLAG_CASA`      | string | URL da bandeira mandante                       |
-| `FLAG_VISITANTE` | string | URL da bandeira visitante                      |
-| `GOLS_CASA`      | string | Placar mandante (vazio se não jogou)           |
-| `GOLS_VISITANTE` | string | Placar visitante (vazio se não jogou)          |
-| `STATUS`         | string | Ver tabela de status abaixo                    |
-
-### Tabela de posições (FASE + POSICAO → slot DOM)
-
-| FASE   | POSICAO | Lado    | ID no DOM    |
-|--------|---------|---------|--------------|
-| R32    | 1–8     | Esquerda| `m-r32-l1` … `m-r32-l8` |
-| R32    | 9–16    | Direita | `m-r32-r1` … `m-r32-r8` |
-| R16    | 1–4     | Esquerda| `m-r16-l1` … `m-r16-l4` |
-| R16    | 5–8     | Direita | `m-r16-r1` … `m-r16-r4` |
-| QF     | 1–2     | Esquerda| `m-qf-l1`, `m-qf-l2`   |
-| QF     | 3–4     | Direita | `m-qf-r1`, `m-qf-r2`   |
-| SF     | 1       | Esquerda| `m-sf-l`                |
-| SF     | 2       | Direita | `m-sf-r`                |
-| FINAL  | 1       | Centro  | `m-final`               |
-| BRONZE | 1       | Centro  | `m-bronze`              |
-
-### Status válidos
-
-| STATUS | Significado                          |
-|--------|--------------------------------------|
-| `NS`   | Não iniciado (a definir)             |
-| `TBD`  | Time ainda não classificado          |
-| `1H`   | Primeiro tempo em andamento          |
-| `HT`   | Intervalo                            |
-| `2H`   | Segundo tempo em andamento           |
-| `ET`   | Prorrogação                          |
-| `BT`   | Intervalo da prorrogação             |
-| `P`    | Pênaltis                             |
-| `FT`   | Encerrado (tempo normal)             |
-| `AET`  | Encerrado na prorrogação             |
-| `PEN`  | Encerrado nos pênaltis               |
-
-Times com `STATUS` = `NS` ou `TBD`, ou com `TIME_CASA` vazio/`TBD`, exibem **"a definir"** em itálico discreto no lugar do nome.
-
----
-
-## Lógica de renderização (`master.js`)
-
-### Fluxo de inicialização
-
-```
-window.onload
-  └─ mock ativo? → processarDadosMock()
-                → iniciarTemplate()
-     senão      → ebhtml.create2() → loader.load()
-                → processarDados()
-                → iniciarTemplate()
-
-iniciarTemplate()
-  ├─ renderizarBracket()        preenche todos os 32 slots
-  ├─ BracketDraw.init()         desenha conectores SVG
-  ├─ ocultarFasesAnteriores()   oculta colunas de fases já superadas
-  ├─ atualizarFaseAtual()       atualiza label no header
-  ├─ aplicarSponsor()           preenche nome/logo do patrocinador
-  ├─ animarEntradaBracket()     stagger de fade-in nos cards
-  ├─ destacarPartidaRecente()   brilho dourado no último jogo
-  ├─ animarCaminhoVencedor()    highlight do caminho do líder
-  ├─ wrapper.opacity = 1        fade-in geral da tela
-  ├─ loader.loaded()            ✅ sinaliza sucesso ao EBHTML
-  └─ loader.finished()          ✅ sinaliza fim da exibição (após duration ms)
-```
-
-### Ocultamento automático de fases anteriores
-
-Quando **todos os times** de uma fase estão definidos (nenhum vazio ou `TBD`), as colunas da fase imediatamente anterior são ocultadas com `display: none`. Isso libera espaço na tela para as fases mais recentes.
-
-**Funções responsáveis:**
-
-- `isFaseCompleta(dados, fase, total)` — retorna `true` se todos os `total` slots da fase têm time válido
-- `ocultarFasesAnteriores(dados)` — percorre `FASES_COLS` em ordem (`R32 → R16 → QF → SF`) e oculta tudo antes da fase mais avançada completa. Após ocultar, chama `BracketDraw.init()` para redesenhar os conectores SVG sem as colunas ocultas.
+- `MAPEAMENTO_CONSULTAS.md` — Documentação de referência das consultas EdgeContents
+- `futebol_placar_classificacao_v23/` — Template referência (mesmo padrão EBHTML)
+- `segundafase_futebol/` — Template similar para confrontos individuais (2ª fase)
+- `.github/copilot-instructions.md` — Regras de código ES5 e EBHTML
 
 **Exemplo prático:**
 
