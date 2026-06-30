@@ -201,6 +201,7 @@ footer                 { background-color: var(--cor-fundo-painel); border-top-c
 
 .match-slot { display: flex; flex-direction: column; }
 .match-slot > * + * { margin-top: 0.3vmin; }
+.match-slot--finished { opacity: 0.3; }
 .match-date { font-family: 'Roboto Regular', sans-serif; font-size: 1.2vmin; color: rgba(255,255,255,0.788); text-align: center; letter-spacing: 0.05em; white-space: nowrap; line-height: 1; z-index: 10; background: rgba(39,40,41,0.9); width: fit-content; padding: 0.4vmin 0.9vmin; border-radius: 0.4vmin; align-self: end; margin-right: 0.9vmin; display: none; }
 .match-date:empty { display: none; }
 

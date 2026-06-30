@@ -51,9 +51,28 @@ function extrairVencedor(partida) {
     if (partida.status !== 'FT' && partida.status !== 'AET' && partida.status !== 'PEN') { return null; }
     var gc = parseInt(partida.golsCasa, 10);
     var gv = parseInt(partida.golsVisitante, 10);
-    if (isNaN(gc) || isNaN(gv) || gc === gv) { return null; }
-    if (gc > gv) { return { nome: partida.timeCasa, flag: partida.flagCasa }; }
-    return { nome: partida.timeVisitante, flag: partida.flagVisitante };
+
+    // Se gols diferentes, vencedor definido pelo placar
+    if (!isNaN(gc) && !isNaN(gv) && gc !== gv) {
+        if (gc > gv) {
+            return { nome: partida.timeCasa, flag: partida.flagCasa, codigo: partida.codigoCasa };
+        }
+        return { nome: partida.timeVisitante, flag: partida.flagVisitante, codigo: partida.codigoVisitante };
+    }
+
+    // Se empatou (gols iguais ou ambos null), verifica penaltis
+    if (partida.status === 'PEN') {
+        var pc = parseInt(partida.penCasa, 10);
+        var pv = parseInt(partida.penVisitante, 10);
+        if (!isNaN(pc) && !isNaN(pv) && pc !== pv) {
+            if (pc > pv) {
+                return { nome: partida.timeCasa, flag: partida.flagCasa, codigo: partida.codigoCasa };
+            }
+            return { nome: partida.timeVisitante, flag: partida.flagVisitante, codigo: partida.codigoVisitante };
+        }
+    }
+
+    return null;
 }
 
 /* ====================================================
@@ -144,15 +163,38 @@ function propagarVencedoresBracket(dados) {
             var chaveDest = destino.fase + '_' + destino.posicao;
             var partidaDest = dados[chaveDest];
 
+            var campoTime = (destino.lado === 'casa') ? 'timeCasa' : 'timeVisitante';
+            var campoFlag = (destino.lado === 'casa') ? 'flagCasa' : 'flagVisitante';
+            var campoCodigo = (destino.lado === 'casa') ? 'codigoCasa' : 'codigoVisitante';
+
             if (partidaDest) {
-                // So preenche se o slot estiver vazio / TBD
-                var campoTime = (destino.lado === 'casa') ? 'timeCasa' : 'timeVisitante';
-                var campoFlag = (destino.lado === 'casa') ? 'flagCasa' : 'flagVisitante';
+                // Slot ja existe — preenche se estiver vazio / TBD
                 var nomeAtual = partidaDest[campoTime];
                 if (!nomeAtual || nomeAtual === '' || nomeAtual === 'TBD' || nomeAtual === 'A definir') {
                     partidaDest[campoTime] = vencedor.nome;
                     partidaDest[campoFlag] = vencedor.flag || partidaDest[campoFlag];
+                    partidaDest[campoCodigo] = vencedor.codigo || partidaDest[campoCodigo];
                 }
+            } else {
+                // Slot nao existe na API — cria com o vencedor
+                var novoSlot = {
+                    fase: destino.fase,
+                    posicao: destino.posicao,
+                    timeCasa: '',
+                    timeVisitante: '',
+                    codigoCasa: '',
+                    codigoVisitante: '',
+                    flagCasa: '',
+                    flagVisitante: '',
+                    golsCasa: '',
+                    golsVisitante: '',
+                    status: '',
+                    datahora: ''
+                };
+                novoSlot[campoTime] = vencedor.nome;
+                novoSlot[campoFlag] = vencedor.flag || '';
+                novoSlot[campoCodigo] = vencedor.codigo || '';
+                dados[chaveDest] = novoSlot;
             }
         }
     }
@@ -222,11 +264,18 @@ function processarDadosApiBracket(partidas, teamsMap) {
 
         var timeCasa = ''; var timeVis = '';
         var flagCasa = p.homeLogo || ''; var flagVis = p.awayLogo || '';
+        var codigoCasa = ''; var codigoVis = '';
 
-        if (teamsMap[p.homeId]) { timeCasa = teamsMap[p.homeId].nome; flagCasa = teamsMap[p.homeId].bandeira || teamsMap[p.homeId].fotoApi || flagCasa; }
-        else { timeCasa = p.homeName || ''; }
-        if (teamsMap[p.awayId]) { timeVis = teamsMap[p.awayId].nome; flagVis = teamsMap[p.awayId].bandeira || teamsMap[p.awayId].fotoApi || flagVis; }
-        else { timeVis = p.awayName || ''; }
+        if (teamsMap[p.homeId]) {
+            timeCasa = teamsMap[p.homeId].nome;
+            codigoCasa = teamsMap[p.homeId].codigo || '';
+            flagCasa = teamsMap[p.homeId].bandeira || teamsMap[p.homeId].fotoApi || flagCasa;
+        } else { timeCasa = p.homeName || ''; }
+        if (teamsMap[p.awayId]) {
+            timeVis = teamsMap[p.awayId].nome;
+            codigoVis = teamsMap[p.awayId].codigo || '';
+            flagVis = teamsMap[p.awayId].bandeira || teamsMap[p.awayId].fotoApi || flagVis;
+        } else { timeVis = p.awayName || ''; }
 
         var datahora = '';
         if (p.dateStr) {
@@ -244,6 +293,7 @@ function processarDadosApiBracket(partidas, teamsMap) {
         dados[chave] = {
             fase: fase, posicao: parseInt(pos, 10),
             timeCasa: timeCasa, timeVisitante: timeVis,
+            codigoCasa: codigoCasa, codigoVisitante: codigoVis,
             flagCasa: flagCasa, flagVisitante: flagVis,
             golsCasa: golsCasa, golsVisitante: golsVis,
             status: p.statusRaw || 'NS', datahora: datahora,
@@ -260,7 +310,7 @@ function processarDadosApiBracket(partidas, teamsMap) {
 /* ====================================================
    RENDER — preenche cada card do bracket
    ==================================================== */
-function preencherLinha(linha, nome, flagUrl, gols) {
+function preencherLinha(linha, nome, flagUrl, gols, nomeCompleto) {
     var imgFlag   = linha.querySelector('.flag');
     var spanNome  = linha.querySelector('.tname');
     var spanScore = linha.querySelector('.score');
@@ -268,12 +318,13 @@ function preencherLinha(linha, nome, flagUrl, gols) {
     var nomeValido = nome && nome.length > 0;
 
     if (imgFlag) {
-        if (flagUrl && nomeValido) { imgFlag.src = flagUrl; imgFlag.alt = nome; imgFlag.style.display = ''; }
+        if (flagUrl && nomeValido) { imgFlag.src = flagUrl; imgFlag.alt = nomeCompleto || nome; imgFlag.style.display = ''; }
         else { imgFlag.style.display = 'none'; }
     }
     if (spanNome) {
         if (nomeValido) {
             spanNome.textContent = nome;
+            spanNome.setAttribute('data-fullname', nomeCompleto || nome);
             spanNome.className = spanNome.className.replace(/\s*tname-indef/g, '');
         } else {
             spanNome.textContent = 'a definir';
@@ -305,11 +356,16 @@ function renderizarCard(slotId, partida) {
         return;
     }
 
-    preencherLinha(linhaCasa, partida.timeCasa, partida.flagCasa, partida.golsCasa);
-    preencherLinha(linhaVisitante, partida.timeVisitante, partida.flagVisitante, partida.golsVisitante);
+    // Usa codigo abreviado (ex: BRA) se disponivel, senao nome completo
+    var nomeExibirCasa = partida.codigoCasa || partida.timeCasa;
+    var nomeExibirVis = partida.codigoVisitante || partida.timeVisitante;
+
+    preencherLinha(linhaCasa, nomeExibirCasa, partida.flagCasa, partida.golsCasa, partida.timeCasa);
+    preencherLinha(linhaVisitante, nomeExibirVis, partida.flagVisitante, partida.golsVisitante, partida.timeVisitante);
 
     if (partida.status === 'FT' || partida.status === 'AET' || partida.status === 'PEN') {
         aplicarResultado(card, partida);
+        if (slot) { slot.className = slot.className + ' match-slot--finished'; }
     }
 }
 
@@ -342,7 +398,8 @@ function marcarBrasil() {
         var linhas = cards[i].querySelectorAll('.team-row');
         for (var j = 0; j < linhas.length; j++) {
             var span = linhas[j].querySelector('.tname');
-            if (span && span.textContent.toLowerCase().indexOf('brasil') !== -1) {
+            var nomeBusca = span ? (span.getAttribute('data-fullname') || span.textContent) : '';
+            if (nomeBusca.toLowerCase().indexOf('brasil') !== -1) {
                 if (cards[i].className.indexOf('match-brasil') === -1) { cards[i].className = cards[i].className + ' match-brasil'; }
                 if (linhas[j].className.indexOf('brasil-row') === -1) { linhas[j].className = linhas[j].className + ' brasil-row'; }
             }
@@ -412,7 +469,7 @@ function atualizarFaseAtual(dados) {
         var prio = FASE_PRIORIDADE[p.fase] || 0;
         if (prio > melhorPrioridade) { melhorPrioridade = prio; melhorFase = p.fase; }
     }
-    var labels = { 'R32': 'Segunda Fase', 'R16': 'Oitavas de Final', 'QF': 'Quartas de Final', 'SF': 'Semifinal', 'FINAL': 'Grande Final', 'BRONZE': 'Disputa de 3o Lugar' };
+    var labels = { 'R32': 'Segunda Fase', 'R16': 'Oitavas de Final', 'QF': 'Quartas de Final', 'SF': 'Semifinal', 'FINAL': 'Grande Final', 'BRONZE': 'Disputa de Terceiro Lugar' };
     var el = document.getElementById('header-fase');
     if (el && melhorFase) { el.textContent = labels[melhorFase] || melhorFase; }
 }

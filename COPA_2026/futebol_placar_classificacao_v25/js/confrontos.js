@@ -19,11 +19,11 @@ var FASE_LABEL_CONFR = {
     'QF':     'Quartas de Final',
     'SF':     'Semifinais',
     'FINAL':  'Grande Final',
-    'BRONZE': 'Disputa do 3o Lugar'
+    'BRONZE': 'Disputa do Terceiro Lugar'
 };
 var FASE_CURTA = {
     'R32': 'Segunda Fase', 'R16': 'Oitavas', 'QF': 'Quartas',
-    'SF':  'Semis', 'FINAL': 'Final', 'BRONZE': '3o Lugar'
+    'SF':  'Semis', 'FINAL': 'Final', 'BRONZE': 'Terceiro Lugar'
 };
 
 var LS_KEY_CHAVE = 'futebol_v25_chave_idx';
@@ -202,8 +202,32 @@ function buscarSlotPorTeams(homeId, awayId) {
 }
 
 /* ====================================================
-   atribuirPosicoesBracket — 2 camadas + fallback por data
+   atribuirPosicoesBracket — 3 camadas + fallback por chaveamento
+   
+   1. FIXTURE_SLOT_MAP (por fixtureId)
+   2. TEAMS_SLOT_MAP (por teamIds, so R32)
+   3. Fallback: tenta derivar posicao pelo chaveamento (teamSlot→slot)
+      Se nao conseguir, usa ordenacao por data
    ==================================================== */
+
+/**
+ * Tenta derivar o slot de uma fase pelo chaveamento.
+ * Ex: se timeA veio de R32_slot3 e timeB de R32_slot4,
+ *     a partida R16 entre eles deve ser slot Math.ceil(min(3,4)/2) = 2
+ */
+function derivarSlotPorChaveamento(teamSlotMap, partida) {
+    if (!teamSlotMap || !partida) { return -1; }
+    var h = partida.homeId;
+    var a = partida.awayId;
+    if (!h || !a) { return -1; }
+    var slotH = teamSlotMap[h];
+    var slotA = teamSlotMap[a];
+    if (slotH && slotA) {
+        return Math.ceil(Math.min(slotH, slotA) / 2);
+    }
+    return -1;
+}
+
 function atribuirPosicoesBracket(partidas) {
     var result = [];
     var porFase = {};
@@ -241,6 +265,16 @@ function atribuirPosicoesBracket(partidas) {
         if (result[k].CATEGORY === 'R32') { usedR32Slots[result[k].SUBTITULO] = true; }
     }
 
+    // Popula teamSlotR32 com times das camadas 1 e 2 (ja em result)
+    var teamSlotR32 = {};
+    for (var ri0 = 0; ri0 < result.length; ri0++) {
+        var rp0 = result[ri0];
+        if (rp0.CATEGORY === 'R32' && rp0.SUBTITULO) {
+            if (rp0.homeId) { teamSlotR32[rp0.homeId] = parseInt(rp0.SUBTITULO, 10); }
+            if (rp0.awayId) { teamSlotR32[rp0.awayId] = parseInt(rp0.SUBTITULO, 10); }
+        }
+    }
+
     for (var f = 0; f < fases.length; f++) {
         var fase = fases[f];
         var lista = porFase[fase] || [];
@@ -263,11 +297,44 @@ function atribuirPosicoesBracket(partidas) {
                 partida.SUBTITULO = String(nextSlot);
                 usedR32Slots[String(nextSlot)] = true;
                 nextSlot++;
+                // Atualiza teamSlotR32 com os times do fallback
+                if (partida.homeId) { teamSlotR32[partida.homeId] = parseInt(partida.SUBTITULO, 10); }
+                if (partida.awayId) { teamSlotR32[partida.awayId] = parseInt(partida.SUBTITULO, 10); }
+            } else if (fase === 'R16') {
+                var posR16 = derivarSlotPorChaveamento(teamSlotR32, partida);
+                if (posR16 > 0) {
+                    partida.CATEGORY = fase;
+                    partida.SUBTITULO = String(posR16);
+                } else {
+                    partida.CATEGORY = fase;
+                    partida.SUBTITULO = String(j + 1);
+                }
+            } else if (fase === 'QF') {
+                var posQF = derivarSlotPorChaveamento(teamSlotR16, partida);
+                if (posQF > 0) {
+                    partida.CATEGORY = fase;
+                    partida.SUBTITULO = String(posQF);
+                } else {
+                    partida.CATEGORY = fase;
+                    partida.SUBTITULO = String(j + 1);
+                }
             } else {
                 partida.CATEGORY = fase;
                 partida.SUBTITULO = String(j + 1);
             }
             result.push(partida);
+        }
+
+        // Constroi mapa teamSlotR16 apos processar R16
+        if (fase === 'R16') {
+            var teamSlotR16 = {};
+            for (var ri2 = 0; ri2 < result.length; ri2++) {
+                var rp2 = result[ri2];
+                if (rp2.CATEGORY === 'R16' && rp2.SUBTITULO) {
+                    if (rp2.homeId) { teamSlotR16[rp2.homeId] = parseInt(rp2.SUBTITULO, 10); }
+                    if (rp2.awayId) { teamSlotR16[rp2.awayId] = parseInt(rp2.SUBTITULO, 10); }
+                }
+            }
         }
     }
 
@@ -315,11 +382,15 @@ function processarDadosApi(partidas, teamsMap) {
         var golsCasa = (p.goalsHome !== null && p.goalsHome !== undefined) ? String(p.goalsHome) : '';
         var golsVis = (p.goalsAway !== null && p.goalsAway !== undefined) ? String(p.goalsAway) : '';
 
+        var penCasa = (p.penHome !== null && p.penHome !== undefined) ? String(p.penHome) : '';
+        var penVis = (p.penAway !== null && p.penAway !== undefined) ? String(p.penAway) : '';
+
         dados[chave] = {
             fase: fase, posicao: parseInt(pos, 10),
             timeCasa: timeCasa, timeVisitante: timeVis,
             flagCasa: flagCasa, flagVisitante: flagVis,
             golsCasa: golsCasa, golsVisitante: golsVis,
+            penCasa: penCasa, penVisitante: penVis,
             status: p.statusRaw || 'NS',
             datahora: datahora, data: data, hora: hora, local: p.venue || ''
         };
@@ -359,9 +430,24 @@ function extrairVencedor(partida) {
     if (!ehEncerrado(partida.status)) { return null; }
     var gc = parseInt(partida.golsCasa, 10);
     var gv = parseInt(partida.golsVisitante, 10);
-    if (isNaN(gc) || isNaN(gv) || gc === gv) { return null; }
-    if (gc > gv) { return { nome: partida.timeCasa, flag: partida.flagCasa }; }
-    return { nome: partida.timeVisitante, flag: partida.flagVisitante };
+
+    // Se gols diferentes, vencedor definido pelo placar
+    if (!isNaN(gc) && !isNaN(gv) && gc !== gv) {
+        if (gc > gv) { return { nome: partida.timeCasa, flag: partida.flagCasa }; }
+        return { nome: partida.timeVisitante, flag: partida.flagVisitante };
+    }
+
+    // Se empatou (gols iguais ou ambos null), verifica penaltis
+    if (partida.status === 'PEN') {
+        var pc = parseInt(partida.penCasa, 10);
+        var pv = parseInt(partida.penVisitante, 10);
+        if (!isNaN(pc) && !isNaN(pv) && pc !== pv) {
+            if (pc > pv) { return { nome: partida.timeCasa, flag: partida.flagCasa }; }
+            return { nome: partida.timeVisitante, flag: partida.flagVisitante };
+        }
+    }
+
+    return null;
 }
 
 function formatarPlacar(partida) {
@@ -474,9 +560,9 @@ function destinoChave(chave) {
     if (f === 'R32') { return 'Os vencedores destes jogos avancam para as Oitavas de Final'; }
     if (f === 'R16') { return 'Os vencedores destes jogos avancam para as Quartas de Final'; }
     if (f === 'QF') { return 'Os vencedores destes jogos avancam para as Semifinais'; }
-    if (f === 'SF') { return 'Os vencedores vao a Final . Os perdedores disputam o 3o lugar'; }
-    if (f === 'FINAL') { return 'A partida que define o campeao'; }
-    if (f === 'BRONZE') { return 'A partida que define o 3o colocado'; }
+    if (f === 'SF') { return 'Os vencedores vao a Final . Os perdedores disputam o Terceiro Lugar'; }
+    if (f === 'FINAL') { return 'A partida que define o Campeão'; }
+    if (f === 'BRONZE') { return 'A partida que define o Terceiro Colocado'; }
     return '';
 }
 
