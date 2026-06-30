@@ -3,76 +3,96 @@ name: frontend-tailwind-golden-ratio
 description: "Use when: frontend design, TailwindCSS layouts, responsive UI for signage, visual hierarchy, spacing scale, typography scale, or golden ratio proportion (1.618). Builds structured UI with anti-overlap rules, adaptive price blocks, and aspect-ratio-safe composition."
 ---
 
-# Frontend Tailwind Golden Ratio
+# Frontend — TailwindCSS para Digital Signage
 
-## Purpose
-Apply a consistent visual system for digital signage and web layouts using:
-- Tailwind utility patterns
-- Golden ratio proportional scale
-- Anti-overflow and anti-overlap constraints
-- Aspect-ratio-aware composition
+## Propósito
+Guia prático de TailwindCSS para templates de digital signage: breakpoints aspect-ratio, sistema de fontes vmin, layout responsivo, anti-overlap.
 
-## Trigger Keywords
-Use this skill when user asks for:
-- Tailwind design improvements
-- Typography hierarchy
-- Image and price block alignment
-- Golden ratio scaling
-- Responsive composition across portrait, landscape, ultrawide
-- Prevent text overlap and broken layouts
+## Breakpoints (tailwind.config.js)
+```javascript
+screens: {
+    'portrait':    { 'raw': '(max-aspect-ratio: 3/4)' },
+    'square':      { 'raw': '(aspect-ratio: 1/1)' },
+    'landscape':   { 'raw': '(min-aspect-ratio: 4/3) and (max-aspect-ratio: 2/1)' },
+    'ultrawide':   { 'raw': '(min-aspect-ratio: 3/1)' },
+    'superbanner': { 'raw': '(min-aspect-ratio: 5/1) and (max-aspect-ratio: 15/1)' },
+    'footer':      { 'raw': '(min-aspect-ratio: 15/1)' },
+    'empena':      { 'raw': '(max-aspect-ratio: 1/3)' },
+}
+```
 
-## Core Rules
-1. Use a proportional scale based on phi = 1.618 for spacing and typography.
-2. Avoid absolute stacking for core content blocks unless container constraints are explicit.
-3. Every price layout must have:
-- symbol slot
-- integer slot
-- decimal slot
-- unit slot
-4. Enforce anti-overlap:
-- max width for text regions
-- controlled line-height
-- min and max font size clamps
-- fallback truncation or fit loop
-5. For product images:
-- fixed visual frame size by aspect family
-- object-fit policy explicit: contain or cover
-- no uncontrolled natural-size rendering
-6. Keep styles in Tailwind utility classes and tokenized config, not random inline styling.
-7. Preserve ES5 compatibility in JS for legacy WebKit devices.
-8. **Sistema de fontes centralizado (vmin):** definir `font-size` base no `<body>` usando `vmin` (ex: `text-[3.2vmin]`). Overrides de breakpoint apenas em superbanner e empena. **Todos os filhos usam somente `em` ou `%`** — nunca `portrait:text-[X]` ou `landscape:text-[X]` em elementos individuais. Para ajustar tamanho em um formato: alterar o valor do body, não dos filhos.
+## Sistema de Fontes (vmin)
+- **Body**: `text-[3.2vmin]` — escala em qqr formato. Só override em superbanner/empena.
+- **Filhos**: SOMENTE `em` ou `%` — NUNCA `vw/vh/vmin` em filhos.
+- **NUNCA** `portrait:text-[X]` em filhos — ajuste o body.
 
-## Golden Ratio Tokens
-Reference tokens file:
-- tokens.phi.base = 1.618
-- typography steps and spacing steps follow geometric progression
+```html
+<!-- ✅ -->
+<body class="text-[3.2vmin] superbanner:text-[5vmin] empena:text-[11vmin]">
+  <h1 class="text-[2.5em]">Título</h1>
+  <p class="text-[1.2em]">Subtítulo</p>
+```
 
-## Layout Strategy
-1. Build page as vertical flow:
-- logo
-- image frame
-- title
-- price
-- legal text
-2. Keep price in normal flow when possible.
-3. Use aspect-ratio breakpoints:
-- portrait
-- square
-- landscape
-- ultrawide
+## Anti-Overlap (Prevenir Texto Sobreposto)
+```javascript
+function fitFont(element, maxWidthPercent) {
+    var maxW = window.innerWidth * maxWidthPercent;
+    var currentSize = parseInt(window.getComputedStyle(element).fontSize);
+    while (element.scrollWidth > maxW && currentSize > 6) {
+        currentSize -= 1;
+        element.style.fontSize = currentSize + 'px';
+    }
+}
+// Uso: fitFont(document.getElementById('titulo'), 0.85);
+```
 
-## Output Checklist
-- No overlap in title/price/image/legal text
-- Symbol alignment visually anchored to number baseline
-- Large values supported, e.g. R$ 999.999,99
-- Decimals and unit remain readable
-- Product images appear uniform across items
-- No ES6+ syntax in runtime JS
+## Price Blocks (4 Slots)
+```html
+<div class="flex items-baseline space-x-[0.1em]">
+  <span class="text-[0.5em]">R$</span>        <!-- símbolo -->
+  <span class="text-[1em] font-bold">1.234</span>  <!-- inteiro -->
+  <span class="text-[0.4em]">,56</span>        <!-- decimal -->
+  <span class="text-[0.3em]">kg</span>          <!-- unidade -->
+</div>
+```
 
-## Suggested Assistant Behavior
-When this skill is active:
-1. Audit current layout constraints before editing.
-2. Propose token-based updates first.
-3. Apply minimal, reversible changes.
-4. Validate with at least one long-title and one large-price sample.
-5. Report residual risks (extreme aspect ratios or missing assets).
+## Layout Vertical (prevenir overlap)
+```html
+<body class="flex flex-col items-center justify-center w-full h-full p-[2vmin]">
+  <div id="logo" class="h-[15%]"></div>
+  <div id="imagem" class="h-[40%] w-full portrait:h-[30%]">
+    <img class="w-full h-full object-contain">
+  </div>
+  <div id="titulo" class="h-[10%] flex items-center"></div>
+  <div id="preco" class="h-[20%] flex items-center"></div>
+  <div id="legal" class="h-[10%] text-[0.6em] opacity-70"></div>
+</body>
+```
+
+## CSS Fallbacks (input.css)
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fallback hex para Chrome < 65 */
+.text-white { color: #ffffff }
+.text-black { color: #000000 }
+.bg-white   { background-color: #ffffff }
+.bg-black   { background-color: #000000 }
+
+/* Fallback aspect-ratio para Chrome < 88 */
+@supports not (aspect-ratio: 1 / 1) {
+  .aspect-square { position: relative; overflow: hidden; }
+  .aspect-square::before { content: ''; display: block; padding-bottom: 100%; }
+  .aspect-square > * { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+}
+```
+
+## Checklist
+- [ ] font-size body em vmin, filhos em em/%
+- [ ] Sem `portrait:text-[X]` espalhado nos filhos
+- [ ] Sem `gap-*` em flex (usar `space-x-*`/`space-y-*`)
+- [ ] Fallback hex p/ cada cor usada no template
+- [ ] Imagens com `object-fit` (contain/cover) explícito
+- [ ] Testar com título longo + preço grande
