@@ -5,7 +5,7 @@
  * Canal de dados: D_CLIMATEMPO_MOMENTO
  *
  * Campos esperados do XML:
- *   C1_CIDADE, C1_ICO, C1_MAX (temp atual),
+ *   C1_CIDADE, C1_TEXTPT, C1_MAX (temp atual),
  *   C1_HUMIDITYMIN, C1_WINDAVGVELOCITY,
  *   C1_WINDDIRECTION, C1_TEXTMIN
  */
