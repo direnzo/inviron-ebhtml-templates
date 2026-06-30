@@ -136,6 +136,8 @@ function isFaseEliminatoria(roundName) {
     var r = roundName.toLowerCase();
     return (
         r.indexOf('round of 32') !== -1 || r.indexOf('round of 16') !== -1 ||
+        r.indexOf('last 16')     !== -1 || r.indexOf('last 32')  !== -1 ||
+        r.indexOf('1/8')         !== -1 || r.indexOf('1/16')     !== -1 ||
         r.indexOf('quarter')     !== -1 || r.indexOf('semi') !== -1 ||
         r.indexOf('3rd')         !== -1 || r.indexOf('third') !== -1 ||
         r === 'final'
@@ -148,8 +150,8 @@ function isFaseEliminatoria(roundName) {
 function mapearFaseParaCategoria(roundName) {
     if (!roundName) { return ''; }
     var r = roundName.toLowerCase();
-    if (r.indexOf('round of 32') !== -1) { return 'R32'; }
-    if (r.indexOf('round of 16') !== -1) { return 'R16'; }
+    if (r.indexOf('round of 32') !== -1 || r.indexOf('last 32') !== -1 || r.indexOf('1/16') !== -1) { return 'R32'; }
+    if (r.indexOf('round of 16') !== -1 || r.indexOf('last 16') !== -1 || r.indexOf('1/8')  !== -1) { return 'R16'; }
     if (r.indexOf('quarter')     !== -1) { return 'QF'; }
     if (r.indexOf('semi')        !== -1) { return 'SF'; }
     if (r.indexOf('3rd')         !== -1) { return 'BRONZE'; }
@@ -348,6 +350,20 @@ function nomeValido(nome) { return !!(nome && nome !== 'TBD' && nome !== ''); }
 function ehEncerrado(status) { return status === 'FT' || status === 'AET' || status === 'PEN'; }
 function ehAoVivo(status) { return status === '1H' || status === '2H' || status === 'ET' || status === 'HT' || status === 'BT' || status === 'P' || status === 'LIVE'; }
 
+/**
+ * extrairVencedor — se partida encerrada com vencedor definido,
+ * retorna { nome, flag } do time vencedor, ou null se empate/sem resultado.
+ */
+function extrairVencedor(partida) {
+    if (!partida) { return null; }
+    if (!ehEncerrado(partida.status)) { return null; }
+    var gc = parseInt(partida.golsCasa, 10);
+    var gv = parseInt(partida.golsVisitante, 10);
+    if (isNaN(gc) || isNaN(gv) || gc === gv) { return null; }
+    if (gc > gv) { return { nome: partida.timeCasa, flag: partida.flagCasa }; }
+    return { nome: partida.timeVisitante, flag: partida.flagVisitante };
+}
+
 function formatarPlacar(partida) {
     var gc = partida.golsCasa; var gv = partida.golsVisitante; var st = partida.status;
     if (st === 'NS' || st === 'TBD') { return 'X'; }
@@ -404,6 +420,11 @@ function resolverNomeTime(partida, lado, dadosMap) {
         var idx = (lado === 'casa') ? 0 : 1;
         var feeder = buscarPartida(dadosMap, fs[idx].fase, fs[idx].posicao);
         if (feeder) {
+            // Tenta extrair vencedor real da partida anterior
+            var vencedor = extrairVencedor(feeder);
+            if (vencedor) {
+                return { nome: vencedor.nome, flag: vencedor.flag, placeholder: false };
+            }
             var a = expandirGrupoStr(feeder.timeCasa);
             var b = expandirGrupoStr(feeder.timeVisitante);
             if (nomeValido(feeder.timeCasa) && nomeValido(feeder.timeVisitante)) {

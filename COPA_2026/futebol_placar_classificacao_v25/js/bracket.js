@@ -44,6 +44,19 @@ var FASES_COLS = [
 ];
 
 /* ====================================================
+   EXTRAIR VENCEDOR — mesma logica do confrontos.js
+   ==================================================== */
+function extrairVencedor(partida) {
+    if (!partida) { return null; }
+    if (partida.status !== 'FT' && partida.status !== 'AET' && partida.status !== 'PEN') { return null; }
+    var gc = parseInt(partida.golsCasa, 10);
+    var gv = parseInt(partida.golsVisitante, 10);
+    if (isNaN(gc) || isNaN(gv) || gc === gv) { return null; }
+    if (gc > gv) { return { nome: partida.timeCasa, flag: partida.flagCasa }; }
+    return { nome: partida.timeVisitante, flag: partida.flagVisitante };
+}
+
+/* ====================================================
    FIXTURE_SLOT_MAP + TEAMS_SLOT_MAP (compartilhado)
    ==================================================== */
 var FIXTURE_SLOT_MAP_BRACKET = {
@@ -72,8 +85,78 @@ var TEAMS_SLOT_MAP_BRACKET = {
 };
 
 /* ====================================================
-   ANIMACAO DE ZOOM — roda os 4 cantos em sequencia
+   PROPAGAR VENCEDORES BRACKET — preenche slots vazios
+   com vencedores das partidas anteriores
    ==================================================== */
+
+var FASE_PROXIMA = { 'R32': 'R16', 'R16': 'QF', 'QF': 'SF', 'SF': 'FINAL' };
+
+/**
+ * Mapa: quantos slots de cada fase alimentam 1 slot da fase seguinte
+ * R32 tem 16 slots → cada par (1-2, 3-4...) alimenta 1 slot de R16 (8 total)
+ * R16 tem 8 slots  → cada par alimenta 1 slot de QF (4 total)
+ * QF tem 4 slots   → QF 1-2 → SF (esquerda), QF 3-4 → SF (direita)
+ */
+function slotDestinoNoBracket(fase, posicao) {
+    if (fase === 'R32') {
+        // R32 1-2 → R16 1, 3-4 → R16 2 ... 15-16 → R16 8
+        var slotR16 = Math.ceil(posicao / 2);
+        // Lado: posicao impar → casa, par → visitante
+        var lado = (posicao % 2 === 1) ? 'casa' : 'visitante';
+        return { fase: 'R16', posicao: slotR16, lado: lado };
+    }
+    if (fase === 'R16') {
+        var slotQF = Math.ceil(posicao / 2);
+        var ladoR16 = (posicao % 2 === 1) ? 'casa' : 'visitante';
+        return { fase: 'QF', posicao: slotQF, lado: ladoR16 };
+    }
+    if (fase === 'QF') {
+        // QF 1-2 → SF esquerda (posicao 1), QF 3-4 → SF direita (posicao 2)
+        var slotSF = (posicao <= 2) ? 1 : 2;
+        var ladoQF = (posicao === 1 || posicao === 3) ? 'casa' : 'visitante';
+        return { fase: 'SF', posicao: slotSF, lado: ladoQF };
+    }
+    if (fase === 'SF') {
+        // SF 1 → Final (casa), SF 2 → Final (visitante)
+        return { fase: 'FINAL', posicao: 1, lado: (posicao === 1) ? 'casa' : 'visitante' };
+    }
+    return null;
+}
+
+function propagarVencedoresBracket(dados) {
+    var fases = ['R32', 'R16', 'QF', 'SF'];
+    for (var f = 0; f < fases.length; f++) {
+        var fase = fases[f];
+        var prox = FASE_PROXIMA[fase];
+        if (!prox) { continue; }
+
+        for (var i = 1; i <= 32; i++) {
+            var chave = fase + '_' + i;
+            var partida = dados[chave];
+            if (!partida) { continue; }
+
+            var vencedor = extrairVencedor(partida);
+            if (!vencedor) { continue; }
+
+            var destino = slotDestinoNoBracket(fase, i);
+            if (!destino) { continue; }
+
+            var chaveDest = destino.fase + '_' + destino.posicao;
+            var partidaDest = dados[chaveDest];
+
+            if (partidaDest) {
+                // So preenche se o slot estiver vazio / TBD
+                var campoTime = (destino.lado === 'casa') ? 'timeCasa' : 'timeVisitante';
+                var campoFlag = (destino.lado === 'casa') ? 'flagCasa' : 'flagVisitante';
+                var nomeAtual = partidaDest[campoTime];
+                if (!nomeAtual || nomeAtual === '' || nomeAtual === 'TBD' || nomeAtual === 'A definir') {
+                    partidaDest[campoTime] = vencedor.nome;
+                    partidaDest[campoFlag] = vencedor.flag || partidaDest[campoFlag];
+                }
+            }
+        }
+    }
+}
 function animarZoomOutBracketArea(restanteMs) {
     var area = document.querySelector('.bracket-area');
     if (!area) { return; }
@@ -510,6 +593,7 @@ function iniciarBracket(loader) {
 
     var dados = processarDadosApiBracket(comSlot, teamsMap);
     enriquecerComStandings(dados);
+    propagarVencedoresBracket(dados);
 
     mostrarView('bracket');
     iniciarTemplateBracket(dados, runConfig, loader);
