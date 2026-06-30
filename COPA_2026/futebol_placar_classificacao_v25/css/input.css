@@ -128,7 +128,7 @@ footer                 { background-color: var(--cor-fundo-painel); border-top-c
 .card-nome { font-family: 'Roboto Bold', sans-serif; font-size: 130%; overflow: hidden; min-width: 0; line-height: 1.15; }
 .card-time-casa .card-nome { text-align: right; }
 .card-time-visit .card-nome { text-align: left; }
-.card-flag { flex-shrink: 0; display: inline-block; width: 10vmin; height: 6vmin; object-fit: cover; border-radius: 0.3vmin; box-shadow: 0 0 0 0.08vmin rgba(255,255,255,0.25); }
+.card-flag { flex-shrink: 0; display: inline-block; width: 18vmin; height: 12vmin; object-fit: cover; border-radius: 0.3vmin; }
 .card-placar { font-family: 'Roboto Black', sans-serif; font-size: 300%; letter-spacing: 0.04em; white-space: nowrap; color: rgba(255,255,255,0.95); padding: 0 1vmin; text-align: center; line-height: 1; }
 .card-placar-pend { font-family: 'Roboto Bold', sans-serif; font-size: 150%; color: rgba(255,255,255,0.5); text-transform: lowercase; letter-spacing: 0.18em; }
 .card-placar-live { color: var(--cor-destaque); }
@@ -149,7 +149,7 @@ footer                 { background-color: var(--cor-fundo-painel); border-top-c
 .chave-fase-FINAL .card-meta, .chave-fase-BRONZE .card-meta { font-size: 150%; justify-content: center; }
 .chave-fase-FINAL .card-nome, .chave-fase-BRONZE .card-nome { font-size: 220%; }
 .chave-fase-FINAL .card-placar, .chave-fase-BRONZE .card-placar { font-size: 280%; }
-.chave-fase-FINAL .card-flag, .chave-fase-BRONZE .card-flag { width: 9vmin; height: 6vmin; }
+.chave-fase-FINAL .card-flag, .chave-fase-BRONZE .card-flag { width: 18vmin; height: 12vmin; }
 .chave-fase-SF .card-nome { font-size: 150%; }
 
 /* Confrontos responsive */
