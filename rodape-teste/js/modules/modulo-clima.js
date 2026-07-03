@@ -24,23 +24,12 @@
  */
 
 var ModuloClima = (function () {
-
-    /* -------------------------------------------------------------------
-       Códigos com variante noturna disponível ({codigo}n.svg)
-       Demais códigos (ex: 11) usam somente a versão diurna.
-    ------------------------------------------------------------------- */
-    var COM_VARIANTE_NOITE = {
-        '1': true, '2': true, '3': true, '4': true, '5': true,
-        '6': true, '7': true, '8': true, '9': true
-    };
-
-    function iconeArquivo(codigo, isNoite) {
-        if (!codigo) codigo = '3';
-        codigo = String(codigo);
-        if (isNoite && COM_VARIANTE_NOITE[codigo]) {
-            return codigo + 'n.svg';
+    function codigoClimaComPeriodo(codigo, isNoite) {
+        var base = String(codigo || '3');
+        if (isNoite && typeof METEOCONS_MAP !== 'undefined' && METEOCONS_MAP[base + 'n']) {
+            return base + 'n';
         }
-        return codigo + '.svg';
+        return base;
     }
 
     function parseJsonArray(valor) {
@@ -59,9 +48,59 @@ var ModuloClima = (function () {
         if (!rawData) return '';
         if (typeof rawData.value === 'function') {
             var v = rawData.value(campo);
-            return (v && typeof v.value !== 'undefined') ? (v.value || '') : '';
+            var valor = (v && typeof v.value !== 'undefined') ? (v.value || '') : '';
+            if (valor && valor.charAt(0) === '[' && valor.charAt(valor.length - 1) === ']') {
+                return '';
+            }
+            return valor;
         }
         return '';
+    }
+
+    function textoClimaParaMeteocon(texto, isNoite) {
+        if (!texto) return '';
+        var t = String(texto).toLowerCase();
+
+        if (t.indexOf('trovo') >= 0 || t.indexOf('tempest') >= 0 || t.indexOf('raio') >= 0) {
+            return isNoite ? 'thunderstorms-night' : 'thunderstorms';
+        }
+        if (t.indexOf('garoa') >= 0 || t.indexOf('chuva') >= 0 || t.indexOf('pancada') >= 0 || t.indexOf('chuv') >= 0) {
+            return isNoite ? 'extreme-night-rain' : 'extreme-rain';
+        }
+        if (t.indexOf('nebl') >= 0 || t.indexOf('névo') >= 0 || t.indexOf('nuvem baixa') >= 0) {
+            return 'fog';
+        }
+        if (t.indexOf('nublado') >= 0 || t.indexOf('encoberto') >= 0 || t.indexOf('muitas nuvens') >= 0) {
+            return 'cloudy';
+        }
+        if (t.indexOf('parcial') >= 0 || t.indexOf('algumas nuvens') >= 0 || t.indexOf('sol entre nuvens') >= 0) {
+            return isNoite ? 'partly-cloudy-night' : 'partly-cloudy-day';
+        }
+        if (t.indexOf('limpo') >= 0 || t.indexOf('aberto') >= 0 || t.indexOf('ensolar') >= 0 || t.indexOf('sol') >= 0) {
+            return isNoite ? 'clear-night' : 'clear-day';
+        }
+
+        return '';
+    }
+
+    function animarEntrada(inner, duracao) {
+        inner.style.transition = 'none';
+        inner.style.opacity = '0';
+        inner.style.transform = 'translateY(115%)';
+        setTimeout(function () {
+            inner.style.transition = 'transform ' + duracao + 'ms ease, opacity ' + duracao + 'ms ease';
+            inner.style.opacity = '1';
+            inner.style.transform = 'translateY(0)';
+        }, 20);
+    }
+
+    function animarSaida(inner, duracao, onFim) {
+        inner.style.transition = 'transform ' + duracao + 'ms ease, opacity ' + duracao + 'ms ease';
+        inner.style.opacity = '0';
+        inner.style.transform = 'translateY(-115%)';
+        setTimeout(function () {
+            if (onFim) onFim();
+        }, duracao);
     }
 
     /* -------------------------------------------------------------------
@@ -89,8 +128,10 @@ var ModuloClima = (function () {
             tempMin:     '',
             tempMax:     '',
             descricao:   '',
+            cidade:      '',
             umidade:     '',
             vento:       '',
+            condicaoIcone: '',
             iconeCodigo: '3'
         };
 
@@ -120,10 +161,15 @@ var ModuloClima = (function () {
                     resultado.tempMin     = reg.nr_min_wea        || '';
                     resultado.tempMax     = reg.nr_max_wea        || '';
                     resultado.descricao   = reg.mm_textpt_wea     || '';
+                    resultado.condicaoIcone = reg.mm_textpt_wea   || '';
                     resultado.umidade     = reg.nr_humidity_wea   || '';
                     resultado.vento       = reg.nr_wind_vel_wea   || '';
                     resultado.iconeCodigo = String(reg.nr_icon_wea || '3');
                     resultado.isNoite     = (String(reg.nr_period_wea) === '3');
+
+                    if (reg.city && reg.city.ds_name_cit) {
+                        resultado.cidade = reg.city.ds_name_cit;
+                    }
                 }
             } else {
                 // Fallback: D_CLIMA_CLIMATEMPO_MOMENTO (campos flat — sem arrays JSON)
@@ -134,8 +180,10 @@ var ModuloClima = (function () {
                     resultado.temp        = tempFlat;
                     resultado.iconeCodigo = lerCampo(rawDataClimatempo, 'C1_ICO')             || '3';
                     resultado.descricao   = lerCampo(rawDataClimatempo, 'C1_TEXTMIN')         || '';
+                    resultado.condicaoIcone = lerCampo(rawDataClimatempo, 'C1_TEXTMIN')       || '';
                     resultado.umidade     = lerCampo(rawDataClimatempo, 'C1_HUMIDITYMIN')     || '';
                     resultado.vento       = lerCampo(rawDataClimatempo, 'C1_WINDAVGVELOCITY') || '';
+                    resultado.cidade      = lerCampo(rawDataClimatempo, 'C1_CITY')            || '';
                     resultado.isNoite     = horaAtual >= 18 || horaAtual < 6;
                 }
             }
@@ -155,6 +203,12 @@ var ModuloClima = (function () {
             if (resultado.descricao === '') {
                 resultado.descricao = lerCampo(rawDataClima, 'C1_D1_TEXTPT') || '';
             }
+            if (resultado.condicaoIcone === '') {
+                resultado.condicaoIcone = lerCampo(rawDataClima, 'C1_D1_TEXTPT') || '';
+            }
+            if (resultado.cidade === '') {
+                resultado.cidade = lerCampo(rawDataClima, 'C1_D1_CIDADE') || '';
+            }
         }
 
         // Retorna null se não tiver nada útil
@@ -162,39 +216,13 @@ var ModuloClima = (function () {
         return temDados ? resultado : null;
     }
 
-    /* --- Carrega SVG via XHR e injeta inline (único modo confiável para SVG animado) --- */
-    function carregarSvgInline(containerEl, src, className) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', src, true);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState !== 4) return;
-            if (xhr.status === 200 || xhr.status === 0) {
-                // status 0 = file:// protocol (ok)
-                var wrapper = document.createElement('span');
-                wrapper.className = className;
-                wrapper.innerHTML = xhr.responseText;
-                // Garante que o SVG interno não ultrapasse o container
-                var svgEl = wrapper.querySelector('svg');
-                if (svgEl) {
-                    svgEl.style.width  = '100%';
-                    svgEl.style.height = '100%';
-                    svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-                }
-                containerEl.insertBefore(wrapper, containerEl.firstChild);
-            }
-        };
-        xhr.send();
-        return xhr;
-    }
-
     /* --- Render --- */
     function render(inner, dados, config, onDone) {
         var timer = null;
-        var xhr = null;
+        var cancelado = false;
 
         // Limpa inner e insere conteúdo
         inner.innerHTML = '';
-        inner.style.opacity = '0';
 
         var wrap = document.createElement('div');
         wrap.className = 'modulo-clima-wrap';
@@ -204,8 +232,16 @@ var ModuloClima = (function () {
         iconeContainer.className = 'modulo-clima-icone';
         wrap.appendChild(iconeContainer);
 
-        if (dados.iconeCodigo) {
-            xhr = carregarSvgInline(iconeContainer, 'img/clima/' + iconeArquivo(dados.iconeCodigo, dados.isNoite), '');
+        if (typeof injetarMeteocon === 'function') {
+            var codigoPeriodo = codigoClimaComPeriodo(dados.iconeCodigo, dados.isNoite);
+            var nomeIcone = textoClimaParaMeteocon(dados.condicaoIcone, dados.isNoite);
+            if (!nomeIcone) {
+                nomeIcone = climaToMeteocon(codigoPeriodo);
+            }
+            var corIcone = (typeof CONFIG_CLIMA !== 'undefined' && CONFIG_CLIMA.iconColor)
+                ? CONFIG_CLIMA.iconColor
+                : ((config && config.corTexto) || '#ffffff');
+            injetarMeteocon(iconeContainer, nomeIcone, corIcone);
         }
 
         // Temperatura atual
@@ -216,27 +252,33 @@ var ModuloClima = (function () {
             wrap.appendChild(tempEl);
         }
 
-        // Min / Max
-        if (dados.tempMin !== '' && dados.tempMax !== '') {
-            var minmax = document.createElement('span');
-            minmax.className = 'modulo-clima-minmax';
-            minmax.textContent = dados.tempMin + '° / ' + dados.tempMax + '°';
-            wrap.appendChild(minmax);
+        // Cidade em linha
+        if (dados.cidade) {
+            var sepCidade = document.createElement('span');
+            sepCidade.className = 'modulo-sep';
+            sepCidade.textContent = '•';
+            wrap.appendChild(sepCidade);
+
+            var cidadeEl = document.createElement('span');
+            cidadeEl.className = 'modulo-clima-cidade';
+            cidadeEl.textContent = dados.cidade;
+            wrap.appendChild(cidadeEl);
         }
 
-        // Separador
-        var sep = document.createElement('span');
-        sep.className = 'modulo-sep';
-        sep.textContent = '•';
-        wrap.appendChild(sep);
+        // Condição textual (ex.: Parcialmente nublado) recebida em C1_TEXTMIN/C1_D1_TEXTPT
+        if (dados.condicaoIcone) {
+            var sepCond = document.createElement('span');
+            sepCond.className = 'modulo-sep';
+            sepCond.textContent = '•';
+            wrap.appendChild(sepCond);
 
-        // Descrição
-        if (dados.descricao) {
-            var descEl = document.createElement('span');
-            descEl.className = 'modulo-clima-desc';
-            descEl.textContent = dados.descricao;
-            wrap.appendChild(descEl);
+            var condEl = document.createElement('span');
+            condEl.className = 'modulo-clima-condicao';
+            condEl.textContent = dados.condicaoIcone;
+            wrap.appendChild(condEl);
         }
+
+        // Regra de negócio atual: exibir somente temperatura, umidade e vento.
 
         // Umidade
         if (dados.umidade) {
@@ -245,9 +287,19 @@ var ModuloClima = (function () {
             sep2.textContent = '•';
             wrap.appendChild(sep2);
 
+            if (config && config.clima && config.clima.usarIconesAuxiliares && typeof injetarMeteocon === 'function') {
+                var umidIcone = document.createElement('span');
+                umidIcone.className = 'modulo-clima-icone-info';
+                wrap.appendChild(umidIcone);
+                var corAux = (typeof CONFIG_CLIMA !== 'undefined' && CONFIG_CLIMA.iconColor)
+                    ? CONFIG_CLIMA.iconColor
+                    : ((config && config.corTexto) || '#ffffff');
+                injetarMeteocon(umidIcone, (config.clima.iconeUmidade || 'humidity'), corAux);
+            }
+
             var umidEl = document.createElement('span');
             umidEl.className = 'modulo-clima-umidade';
-            umidEl.textContent = dados.umidade + '% UR';
+            umidEl.textContent = dados.umidade + '%';
             wrap.appendChild(umidEl);
         }
 
@@ -258,6 +310,19 @@ var ModuloClima = (function () {
             sep3.textContent = '•';
             wrap.appendChild(sep3);
 
+            if (config && config.clima && config.clima.usarIconesAuxiliares && typeof injetarMeteocon === 'function') {
+                var ventoIcone = document.createElement('span');
+                ventoIcone.className = 'modulo-clima-icone-info';
+                wrap.appendChild(ventoIcone);
+                var nomeIconeVento = typeof ventoVelocidadeParaIcone === 'function'
+                    ? ventoVelocidadeParaIcone(dados.vento)
+                    : 'wind';
+                var corAuxVento = (typeof CONFIG_CLIMA !== 'undefined' && CONFIG_CLIMA.iconColor)
+                    ? CONFIG_CLIMA.iconColor
+                    : ((config && config.corTexto) || '#ffffff');
+                injetarMeteocon(ventoIcone, nomeIconeVento, corAuxVento);
+            }
+
             var ventoEl = document.createElement('span');
             ventoEl.className = 'modulo-clima-vento';
             ventoEl.textContent = dados.vento + ' km/h';
@@ -266,23 +331,22 @@ var ModuloClima = (function () {
 
         inner.appendChild(wrap);
 
-        // Fade in
-        var fadeDuracao = (config && config.fadeDuracao) || 400;
-        setTimeout(function () {
-            inner.style.transition = 'opacity ' + fadeDuracao + 'ms';
-            inner.style.opacity = '1';
-        }, 20);
+        // Entrada: de baixo para o centro, com fade-in
+        var transDuracao = (config && config.fadeDuracao) || 400;
+        animarEntrada(inner, transDuracao);
 
         // Duração do item
         var duracao = (config && config.itemDuracao) || 6000;
         timer = setTimeout(function () {
             timer = null;
-            if (onDone) onDone();
-        }, duracao + fadeDuracao);
+            if (cancelado) return;
+            // Saída: do centro para cima, com fade-out
+            animarSaida(inner, transDuracao, onDone);
+        }, duracao);
 
         return function cancel() {
+            cancelado = true;
             if (timer) { clearTimeout(timer); timer = null; }
-            if (xhr)   { xhr.abort();           xhr = null;   }
         };
     }
 

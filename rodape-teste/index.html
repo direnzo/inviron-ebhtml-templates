@@ -9,13 +9,17 @@
     <!-- 1. Configuração global (editar para customizar) -->
     <script src="js/config.js"></script>
 
+    <!-- 1.1 Biblioteca Meteocons (deve carregar antes do módulo clima) -->
+    <script src="js/meteocons-helpers.js"></script>
+
     <!-- 2. Módulos de canais (independentes) -->
     <script src="js/modules/modulo-clima.js"></script>
     <script src="js/modules/modulo-financeiro.js"></script>
-    <script src="js/modules/modulo-noticias.js"></script>
-    <script src="js/modules/modulo-mensageria.js"></script>
-    <script src="js/modules/modulo-placar.js"></script>
-    <script src="js/modules/modulo-horoscopo.js"></script>
+    <!-- Módulos fora do escopo atual -->
+    <!-- <script src="js/modules/modulo-noticias.js"></script> -->
+    <!-- <script src="js/modules/modulo-mensageria.js"></script> -->
+    <!-- <script src="js/modules/modulo-placar.js"></script> -->
+    <!-- <script src="js/modules/modulo-horoscopo.js"></script> -->
 
     <!-- 3. Mock data para desenvolvimento (comentar em produção) -->
     <!-- <script src="js/mock-data.js"></script> -->
@@ -27,14 +31,16 @@
     <title>Rodape</title>
 </head>
 
-<body class="rodape-body">
+<body class="rodape-body opacity-0 transition-opacity duration-500">
 
     <!-- Barra principal — 3 colunas configuráveis -->
     <div id="rodape-bar" class="rodape-bar">
 
         <!-- Coluna Logo -->
         <div id="col-logo" class="rodape-col rodape-col-logo">
-            <img id="logo-img" class="rodape-logo" src="" alt="">
+            <div id="logo-box" class="rodape-logo" aria-label="">
+                <img id="logo-img" class="rodape-logo-img" src="" alt="">
+            </div>
         </div>
 
         <!-- Divisor 1 -->
@@ -53,7 +59,10 @@
 
         <!-- Coluna Relógio -->
         <div id="col-clock" class="rodape-col rodape-col-clock">
-            <div id="clock-time" class="rodape-clock-time"></div>
+            <div id="clock-time" class="rodape-clock-time">
+                <span id="clock-time-icon" class="rodape-clock-icon" aria-hidden="true"></span>
+                <span id="clock-time-text"></span>
+            </div>
             <div id="clock-date" class="rodape-clock-date"></div>
         </div>
 

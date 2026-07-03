@@ -25,10 +25,9 @@
 
 /* ========================================
    ESTRUTURA BASE DO RODAPÉ
-   Unidades: vh exclusivamente.
+    Unidades: body em vmin, descendentes em em/%.
    Sem clamp() — requer Chrome 79+
-   Calibrado para barra 1080x60px: 1vh = 0.6px.
-   Escala base: 28vh ≈ 17px, 37vh ≈ 22px.
+    Escala base: body 28vmin (1080x60 => ~16.8px).
    ======================================== */
 
 html, body {
@@ -37,14 +36,15 @@ html, body {
     width: 100%;
     height: 100%;
     overflow: hidden;
+    background-color: #15181c;
 }
 
 .rodape-body {
     width: 100%;
-    height: 100vh;
+    height: 100%;
     overflow: hidden;
     font-family: 'Roboto Regular', sans-serif;
-    font-size: 28vh;
+    font-size: 28vmin;
 }
 
 /* Barra principal — flex horizontal */
@@ -53,11 +53,10 @@ html, body {
     flex-direction: row;
     align-items: center;
     width: 100%;
-    height: 100vh;
+    height: 100%;
     overflow: hidden;
     box-sizing: border-box;
-    padding: 0 7vh;
-    gap: 0;
+    padding: 0 0.25em;
 }
 
 /* ========================================
@@ -66,27 +65,35 @@ html, body {
 
 .rodape-col {
     display: flex;
-    flex-direction: column;
+    /* flex-direction: column; */
     align-items: center;
     justify-content: center;
     height: 100%;
     flex-shrink: 0;
     overflow: hidden;
-    padding: 0 7vh;
+    padding: 0 1em;
     box-sizing: border-box;
 }
 
 /* Coluna logo: largura automática baseada no conteúdo */
 .rodape-col-logo {
-    min-width: 80vh;
-    max-width: 130vh;
+    min-width: 2.86em;
+    max-width: 6.2em;
 }
 
 /* Coluna relógio: largura fixa */
 .rodape-col-clock {
-    min-width: 100vh;
-    max-width: 140vh;
-    gap: 2vh;
+    min-width: 4.4em;
+    max-width: 12.2em;
+}
+
+.rodape-col-clock > * + * {
+    margin-top: 0.07em;
+}
+
+.clock-time-text span{
+    margin-left: 0.2em;
+    margin-right: 0.2em;
 }
 
 /* Coluna conteúdo: ocupa espaço restante */
@@ -96,9 +103,12 @@ html, body {
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    gap: 5vh;
     overflow: hidden;
-    padding: 0 5vh;
+    padding: 0 1em;
+}
+
+.rodape-col-content > * + * {
+    margin-left: 0.18em;
 }
 
 /* Divisor vertical */
@@ -116,8 +126,15 @@ html, body {
 
 .rodape-logo {
     height: 75%;
-    max-height: 80vh;
+    max-height: 2.86em;
     width: auto;
+    display: block;
+}
+
+.rodape-logo-img,
+.rodape-logo > svg {
+    width: 100%;
+    height: 100%;
     object-fit: contain;
     display: block;
 }
@@ -128,16 +145,35 @@ html, body {
 
 .rodape-clock-time {
     font-family: 'Roboto Medium', sans-serif;
-    font-size: 38vh;
+    font-size: 1.82em;
     line-height: 1;
     white-space: nowrap;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rodape-clock-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    margin-right: 0.12em;
+    flex-shrink: 0;
+}
+
+.rodape-clock-icon img,
+.rodape-clock-icon svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
 }
 
 .rodape-clock-date {
-    font-size: 20vh;
+    font-size: 0.81em;
     line-height: 1;
-    white-space: nowrap;
+    white-space: pre-wrap;
     text-align: center;
     opacity: 0.75;
 }
@@ -166,9 +202,9 @@ html, body {
    ======================================== */
 
 .modulo-sep {
-    font-size: 23vh;
+    font-size: 0.82em;
     opacity: 0.5;
-    margin: 0 5vh;
+    margin: 0 0.18em;
     flex-shrink: 0;
 }
 
@@ -180,37 +216,48 @@ html, body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 5vh;
     overflow: hidden;
     width: 100%;
 }
 
+.modulo-clima-wrap > * + * {
+    margin-left: 0.18em;
+}
+
 .modulo-clima-icone {
-    height: 80vh;
-    width: 80vh;
+    height: 2.2em;
+    width: 2.2em;
     flex-shrink: 0;
     display: block;
     pointer-events: none;
     overflow: hidden;
 }
 
+.modulo-clima-icone-info {
+    display: inline-block;
+    width: 1.52em;
+    height: 1.52em;
+    margin-right: 0.11em;
+    flex-shrink: 0;
+}
+
 .modulo-clima-temp {
     font-family: 'Roboto Bold', sans-serif;
-    font-size: 37vh;
+    font-size: 1.32em;
     line-height: 1;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .modulo-clima-minmax {
-    font-size: 22vh;
+    font-size: 0.79em;
     opacity: 0.8;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .modulo-clima-desc {
-    font-size: 22vh;
+    font-size: 0.79em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -220,10 +267,24 @@ html, body {
 
 .modulo-clima-umidade,
 .modulo-clima-vento {
-    font-size: 22vh;
+    font-size: 0.79em;
     opacity: 0.85;
     white-space: nowrap;
     flex-shrink: 0;
+}
+
+.modulo-clima-cidade,
+.modulo-clima-condicao {
+    font-size: 0.79em;
+    opacity: 0.85;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.modulo-clima-condicao {
+    max-width: 13em;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* ========================================
@@ -234,29 +295,37 @@ html, body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 5vh;
     overflow: hidden;
     width: 100%;
 }
 
+.modulo-fin-wrap > * + * {
+    margin-left: 0.18em;
+}
+
 .modulo-fin-icone {
-    font-size: 28vh;
+    font-size: 1.05em;
     flex-shrink: 0;
     line-height: 1;
 }
 
 /* Ícone SVG (dolar.svg, euro.svg) — tamanho alinhado com a fonte */
 .modulo-fin-icone-svg {
-    width: 36vh;
-    height: 36vh;
+    width: 1.85em;
+    height: 1.85em;
     object-fit: contain;
     display: block;
     flex-shrink: 0;
 }
 
+.modulo-fin-wrap span {
+    margin-left: 0.4em;
+    margin-right: 0.4em;
+}
+
 /* Seta de variação (seta_amarala.png / seta_verde.png) */
 .modulo-fin-seta {
-    height: 24vh;
+    height: 0.82em;
     width: auto;
     object-fit: contain;
     display: block;
@@ -264,7 +333,7 @@ html, body {
 }
 
 .modulo-fin-nome {
-    font-size: 22vh;
+    font-size: 0.79em;
     opacity: 0.85;
     white-space: nowrap;
     flex-shrink: 0;
@@ -272,13 +341,13 @@ html, body {
 
 .modulo-fin-valor {
     font-family: 'Roboto Bold', sans-serif;
-    font-size: 32vh;
+    font-size: 1.14em;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .modulo-fin-var {
-    font-size: 22vh;
+    font-size: 0.79em;
     white-space: nowrap;
     flex-shrink: 0;
     letter-spacing: 0.02em;
@@ -304,16 +373,19 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: start;
-    gap: 1vh;
     overflow: hidden;
     width: 100%;
 }
 
+.modulo-noticias-wrap > * + * {
+    margin-top: 0.04em;
+}
+
 .modulo-noticias-categoria {
     font-family: 'Roboto Bold', sans-serif;
-    font-size: 10vh;
-    padding: 2vh 5vh;
-    border-radius: 3vh;
+    font-size: 0.36em;
+    padding: 0.07em 0.18em;
+    border-radius: 0.11em;
     white-space: nowrap;
     flex-shrink: 0;
     text-transform: uppercase;
@@ -321,7 +393,7 @@ html, body {
 }
 
 .modulo-noticias-titulo {
-    font-size: 25vh;
+    font-size: 0.89em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -330,7 +402,7 @@ html, body {
 }
 
 .modulo-noticias-fonte {
-    font-size: 20vh;
+    font-size: 0.71em;
     opacity: 0.6;
     white-space: nowrap;
     flex-shrink: 0;
@@ -344,30 +416,33 @@ html, body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 5vh;
     overflow: hidden;
     width: 100%;
-    padding: 3vh 7vh;
-    border-radius: 4vh;
+    padding: 0.11em 0.25em;
+    border-radius: 0.14em;
     box-sizing: border-box;
+}
+
+.modulo-msg-wrap > * + * {
+    margin-left: 0.18em;
 }
 
 .modulo-msg-icone {
     font-family: 'Roboto Bold', sans-serif;
-    font-size: 32vh;
+    font-size: 1.14em;
     flex-shrink: 0;
     line-height: 1;
 }
 
 .modulo-msg-titulo {
     font-family: 'Roboto Bold', sans-serif;
-    font-size: 25vh;
+    font-size: 0.89em;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .modulo-msg-texto {
-    font-size: 22vh;
+    font-size: 0.79em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -383,13 +458,16 @@ html, body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 6vh;
     overflow: hidden;
     width: 100%;
 }
 
+.modulo-placar-wrap > * + * {
+    margin-left: 0.21em;
+}
+
 .modulo-placar-time {
-    font-size: 25vh;
+    font-size: 0.89em;
     white-space: nowrap;
     flex-shrink: 1;
     min-width: 0;
@@ -399,13 +477,13 @@ html, body {
 
 .modulo-placar-score {
     font-family: 'Roboto Bold', sans-serif;
-    font-size: 37vh;
+    font-size: 1.32em;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .modulo-placar-status {
-    font-size: 20vh;
+    font-size: 0.71em;
     opacity: 0.7;
     white-space: nowrap;
     flex-shrink: 0;
@@ -420,25 +498,28 @@ html, body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 5vh;
     overflow: hidden;
     width: 100%;
 }
 
+.modulo-horo-wrap > * + * {
+    margin-left: 0.18em;
+}
+
 .modulo-horo-icone {
-    font-size: 32vh;
+    font-size: 1.14em;
     flex-shrink: 0;
 }
 
 .modulo-horo-signo {
     font-family: 'Roboto Bold', sans-serif;
-    font-size: 25vh;
+    font-size: 0.89em;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
 .modulo-horo-texto {
-    font-size: 22vh;
+    font-size: 0.79em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

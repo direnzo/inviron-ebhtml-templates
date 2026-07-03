@@ -34,10 +34,91 @@ var ModuloFinanceiro = (function () {
     /* --- Formata valor: 4 casas quando < 0.1 (ex: Yen), senão 2 --- */
     function formatarValor(str) {
         if (!str) return str;
-        var num = parseFloat(str);
+        var num = parseFloat(String(str).replace(',', '.'));
         if (isNaN(num)) return str;
         var dec = (Math.abs(num) > 0 && Math.abs(num) < 0.1) ? 4 : 2;
         return num.toFixed(dec).replace('.', ',');
+    }
+
+    function valorCampo(rawData, n, sufixo) {
+        return ler(rawData, 'M' + n + '_' + sufixo);
+    }
+
+    function primeiroNaoVazio() {
+        for (var i = 0; i < arguments.length; i++) {
+            if (arguments[i] !== '') return arguments[i];
+        }
+        return '';
+    }
+
+    function parseVariacaoNumero(variacao) {
+        if (variacao === '' || variacao === null || typeof variacao === 'undefined') return null;
+        var parsed = parseFloat(String(variacao).replace(',', '.'));
+        return isNaN(parsed) ? null : parsed;
+    }
+
+    function formatarValorFinanceiro(item) {
+        if (!item || !item.valor) return '';
+
+        var valor = String(item.valor);
+        if (/^\s*R\$\s*/.test(valor)) return valor;
+
+        // Moedas em D_CAMBIO / D_AWESOMEAPI são cotadas em BRL.
+        if (item.tipo === 'currency') {
+            return 'R$ ' + valor;
+        }
+
+        return valor;
+    }
+
+    function animarEntrada(inner, duracao) {
+        inner.style.transition = 'none';
+        inner.style.opacity = '0';
+        inner.style.transform = 'translateY(115%)';
+        setTimeout(function () {
+            inner.style.transition = 'transform ' + duracao + 'ms ease, opacity ' + duracao + 'ms ease';
+            inner.style.opacity = '1';
+            inner.style.transform = 'translateY(0)';
+        }, 20);
+    }
+
+    function animarSaida(inner, duracao, onFim) {
+        inner.style.transition = 'transform ' + duracao + 'ms ease, opacity ' + duracao + 'ms ease';
+        inner.style.opacity = '0';
+        inner.style.transform = 'translateY(-115%)';
+        setTimeout(function () {
+            if (onFim) onFim();
+        }, duracao);
+    }
+
+    function aplicarCorSvgMonocromatico(svg, cor, trocarBranco) {
+        if (!svg || !cor) return;
+
+        svg.style.color = cor;
+
+        var els = svg.querySelectorAll('path, circle, rect, ellipse, line, polyline, polygon, g');
+        for (var i = 0; i < els.length; i++) {
+            var el = els[i];
+            var fill = el.getAttribute('fill');
+            if (fill === 'black' || fill === '#000' || fill === '#000000' ||
+                (trocarBranco && (fill === 'white' || fill === '#fff' || fill === '#ffffff'))) {
+                el.setAttribute('fill', 'currentColor');
+            }
+            var stroke = el.getAttribute('stroke');
+            if (stroke === 'black' || stroke === '#000' || stroke === '#000000' ||
+                (trocarBranco && (stroke === 'white' || stroke === '#fff' || stroke === '#ffffff'))) {
+                el.setAttribute('stroke', 'currentColor');
+            }
+        }
+    }
+
+    function deveTrocarBrancoNoSvg(src) {
+        if (!src) return false;
+        var s = String(src).toLowerCase();
+        return s.indexOf('dolar.svg') >= 0 ||
+               s.indexOf('euro.svg') >= 0 ||
+               s.indexOf('b3.svg') >= 0 ||
+               s.indexOf('nasdaq.svg') >= 0;
     }
 
     /* --- Mapa: quote key → caminho do SVG em img/
@@ -45,7 +126,12 @@ var ModuloFinanceiro = (function () {
     var SVG_ICON_MAP = {
         'dolar':  'img/dolar.svg',
         'dollar': 'img/dolar.svg',
-        'euro':   'img/euro.svg'
+        'euro':   'img/euro.svg',
+        'bovespa': 'img/b3.svg',
+        'ibovespa': 'img/b3.svg',
+        'ibv': 'img/b3.svg',
+        'nasdaq': 'img/nasdaq.svg',
+        'nsd': 'img/nasdaq.svg'
     };
 
     function svgPathDeQuote(quote) {
@@ -91,13 +177,28 @@ var ModuloFinanceiro = (function () {
             var nome = ler(rawData, 'M' + n + '_NOME');
             if (!nome) continue;
 
-            var quote    = ler(rawData, 'M' + n + '_QUOTE');
-            var valor    = ler(rawData, 'M' + n + '_VALOR') || ler(rawData, 'M' + n + '_VALOR_COMPRA');
-            var variacao = ler(rawData, 'M' + n + '_VAR');
+            var quote = valorCampo(rawData, n, 'QUOTE');
+
+            // D_CAMBIO e D_AWESOMEAPI costumam preencher Mx_VALOR e Mx_VALOR_COMPRA;
+            // mantém fallback defensivo para variações de fonte.
+            var valor = primeiroNaoVazio(
+                valorCampo(rawData, n, 'VALOR'),
+                valorCampo(rawData, n, 'VALOR_COMPRA'),
+                valorCampo(rawData, n, 'VALOR_VENDA'),
+                valorCampo(rawData, n, 'PRICE'),
+                valorCampo(rawData, n, 'PRECO')
+            );
+
+            var variacao = primeiroNaoVazio(
+                valorCampo(rawData, n, 'VAR'),
+                valorCampo(rawData, n, 'VARIACAO'),
+                valorCampo(rawData, n, 'CHANGE'),
+                valorCampo(rawData, n, 'PCT_CHANGE')
+            );
 
             // Bolsas sem variação útil: omitir
-            var varNum = parseFloat(variacao);
-            var temVariacao = variacao && !isNaN(varNum) && varNum !== 0;
+            var varNum = parseVariacaoNumero(variacao);
+            var temVariacao = varNum !== null && varNum !== 0;
             if (!valor && !temVariacao) continue;
 
             // 'quote' = índice/bolsa; 'currency' = câmbio/moeda
@@ -122,7 +223,7 @@ var ModuloFinanceiro = (function () {
     }
 
     /* --- Injeta SVG inline via XHR (evita problema de naturalWidth=0 em SVGs com em) --- */
-    function injetarSvgInline(containerEl, src) {
+    function injetarSvgInline(containerEl, src, cor) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', src, true);
         xhr.onreadystatechange = function () {
@@ -136,6 +237,7 @@ var ModuloFinanceiro = (function () {
                     svg.style.width  = '100%';
                     svg.style.height = '100%';
                     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                    aplicarCorSvgMonocromatico(svg, cor, deveTrocarBrancoNoSvg(src));
                 }
             }
         };
@@ -147,23 +249,26 @@ var ModuloFinanceiro = (function () {
     function renderItem(inner, item, config, onDone) {
         var timer = null;
         var xhr   = null;
+        var cancelado = false;
 
         inner.innerHTML = '';
-        inner.style.opacity = '0';
 
         var wrap = document.createElement('div');
         wrap.className = 'modulo-fin-wrap';
+
+        var corIcone = (config && config.corDestaque) ? config.corDestaque : ((config && config.corTexto) ? config.corTexto : '#ffffff');
 
         // Ícone: SVG inline quando disponível, senão texto/sigla
         if (item.iconeSvg) {
             var iconeEl = document.createElement('span');
             iconeEl.className = 'modulo-fin-icone modulo-fin-icone-svg';
             wrap.appendChild(iconeEl);
-            xhr = injetarSvgInline(iconeEl, item.iconeSvg);
+            xhr = injetarSvgInline(iconeEl, item.iconeSvg, corIcone);
         } else if (item.iconeText) {
             var iconeEl = document.createElement('span');
             iconeEl.className = 'modulo-fin-icone';
             iconeEl.textContent = item.iconeText;
+            iconeEl.style.color = corIcone;
             wrap.appendChild(iconeEl);
         }
 
@@ -177,7 +282,7 @@ var ModuloFinanceiro = (function () {
         if (item.valor) {
             var valorEl = document.createElement('span');
             valorEl.className = 'modulo-fin-valor';
-            valorEl.textContent = item.valor;
+            valorEl.textContent = formatarValorFinanceiro(item);
             wrap.appendChild(valorEl);
         }
 
@@ -187,11 +292,11 @@ var ModuloFinanceiro = (function () {
             if (!isNaN(varNum) && varNum !== 0) {
                 var sinal  = varNum > 0 ? '+' : '';
 
-                // Seta: amarela=cima(positivo), verde=baixo(negativo)
+                // Seta: verde=cima (positivo), amarela=baixo (negativo)
                 var setaImg = document.createElement('img');
-                setaImg.src = varNum > 0 ? 'img/seta_amarala.png' : 'img/seta_verde.png';
+                setaImg.src = varNum > 0 ? 'img/seta_verde.png' : 'img/seta_amarala.png';
                 setaImg.className = 'modulo-fin-seta';
-                if (varNum < 0) { setaImg.style.transform = 'none'; }
+                setaImg.style.transform = varNum > 0 ? 'none' : 'rotate(180deg)';
                 setaImg.alt = varNum > 0 ? '+' : '-';
                 wrap.appendChild(setaImg);
 
@@ -206,19 +311,18 @@ var ModuloFinanceiro = (function () {
 
         inner.appendChild(wrap);
 
-        var fadeDuracao = (config && config.fadeDuracao) || 400;
-        setTimeout(function () {
-            inner.style.transition = 'opacity ' + fadeDuracao + 'ms';
-            inner.style.opacity = '1';
-        }, 20);
+        var transDuracao = (config && config.fadeDuracao) || 400;
+        animarEntrada(inner, transDuracao);
 
         var duracao = (config && config.itemDuracao) || 6000;
         timer = setTimeout(function () {
             timer = null;
+            if (cancelado) return;
             if (onDone) onDone();
-        }, duracao + fadeDuracao);
+        }, duracao);
 
         return function cancel() {
+            cancelado = true;
             if (timer) { clearTimeout(timer); timer = null; }
             if (xhr)   { xhr.abort();          xhr = null;  }
         };
@@ -240,14 +344,11 @@ var ModuloFinanceiro = (function () {
             var item = dados[idx];
             idx++;
 
-            // Fade out antes de trocar
-            inner.style.transition = 'opacity ' + ((config && config.fadeDuracao) || 400) + 'ms';
-            inner.style.opacity = '0';
-
-            setTimeout(function () {
+            var transDuracao = (config && config.fadeDuracao) || 400;
+            animarSaida(inner, transDuracao, function () {
                 if (cancelado) return;
                 cancelaItem = renderItem(inner, item, config, proxItem);
-            }, (config && config.fadeDuracao) || 400);
+            });
         }
 
         // Inicia diretamente (sem fade out inicial)

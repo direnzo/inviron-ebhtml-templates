@@ -6,6 +6,16 @@
  * ES5 puro — compatível com Android 7+ (WebKit legado)
  */
 
+/* =====================================================
+   METEOCONS (biblioteca de ícones de clima)
+   Lido por js/meteocons-helpers.js
+   ===================================================== */
+
+var CONFIG_CLIMA = {
+    iconStyle: 'monochrome',
+    iconColor: '#ca8e2b'
+};
+
 var CONFIG = {
 
     /* =====================================================
@@ -13,33 +23,33 @@ var CONFIG = {
        ===================================================== */
 
     // Cor de fundo da barra (hex)
-    corFundo: '#1a1a2e',
+    corFundo: '#15181c',
 
     // Cor principal do texto (hex)
     corTexto: '#ffffff',
 
     // Cor de destaque (títulos, labels, valores positivos)
-    corDestaque: '#f0c040',
+    corDestaque: '#ca8e2b',
 
     // Cor do divisor vertical entre colunas (hex ou 'transparent')
-    corDivisor: 'rgba(255,255,255,0.2)',
+    corDivisor: '#ca8e2b',
 
     /* =====================================================
        LOGO
        ===================================================== */
 
-    logoPath: 'img/logo.png',
+    logoPath: 'img/focusLogo.svg',
     logoAlt: 'Logo Cliente',
 
     // Posição: 'esquerda' | 'direita' | 'oculto'
-    logoPosicao: 'esquerda',
+    logoPosicao: 'direita',
 
     /* =====================================================
        RELÓGIO
        ===================================================== */
 
     // Posição: 'esquerda' | 'direita' | 'oculto'
-    relogioPosicao: 'direita',
+    relogioPosicao: 'esquerda',
 
     /* =====================================================
        COLUNA DE CONTEÚDO
@@ -49,7 +59,7 @@ var CONFIG = {
     conteudoVisivel: true,
 
     // Duração padrão de cada item em ms (usado se o módulo não definir o próprio)
-    itemDuracao: 6000,
+    itemDuracao: 8000,
 
     // Duração da transição fade entre itens (ms)
     fadeDuracao: 400,
@@ -73,12 +83,14 @@ var CONFIG = {
         {
             tipo: 'financeiro',
             ativo: true,
-            dataset: 'D_CAMBIO'
-            // Alternativa com só moedas (sem bolsas): dataset: 'D_AWESOMEAPI'
+            // Escopo atual: analisar e suportar os dois datasets
+            datasets: ['D_CAMBIO', 'D_AWESOMEAPI'],
+            // Estratégia: tenta o primeiro da lista e faz fallback no próximo
+            estrategiaDataset: 'fallback'
         },
         {
             tipo: 'noticias',
-            ativo: true,
+            ativo: false,
             dataset: 'D_UOL'
         },
         // {
@@ -96,5 +108,14 @@ var CONFIG = {
             ativo: false,
             dataset: 'D_HOROSCOPO_PERSONARE_CURTO'
         }
-    ]
+    ],
+
+    /* =====================================================
+       CLIMA (render)
+       ===================================================== */
+
+    clima: {
+        usarIconesAuxiliares: true,
+        iconeUmidade: 'humidity'
+    }
 };
