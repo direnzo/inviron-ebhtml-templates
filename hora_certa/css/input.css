@@ -1,0 +1,463 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* HORA CERTA — 3 donuts CSS (cores derivadas de CLOCK_CONFIG.colors) */
+
+body {
+  overflow: hidden;
+  font-family: 'Arial Black', Impact, 'Franklin Gothic Heavy', sans-serif;
+  color: var(--text);
+  background-color: var(--background);
+  background-image: radial-gradient(circle at 50% 50%, var(--bg-to) 0%, var(--bg-from) 70%);
+  background-size: 200% 200%;
+  animation: bgShift 12s ease-in-out infinite;
+}
+
+@keyframes bgShift {
+  0%   { background-position: 0% 0%; }
+  25%  { background-position: 100% 0%; }
+  50%  { background-position: 100% 100%; }
+  75%  { background-position: 0% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Hardware fraco */
+.reduced * { animation: none !important; transition: none !important; }
+.reduced #waveCanvas { display: none !important; }
+.reduced body { animation: none !important; background-image: none !important; }
+html.reduced body { animation: none !important; background-image: none !important; }
+body.reduced { animation: none !important; background-image: none !important; }
+.reduced #overlayLayer { background: rgba(0, 0, 0, 0.12) !important; }
+.reduced .ring { box-shadow: none !important; }
+.reduced .clock-core { box-shadow: none !important; background: var(--background) !important; }
+.reduced .time-display {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  background-color: var(--background) !important;
+}
+
+#waveContainer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+#clockOuter {
+  position: absolute;
+  z-index: 3;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  padding: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+}
+
+/* Espaçamento entre data e relógio (substitui gap — WebKit 78 não suporta) */
+#dateBlock {
+  margin-right: 1.25em;
+}
+
+.date-block {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: end;
+  -ms-flex-align: end;
+  align-items: flex-end;
+  text-align: right;
+  width: 8.8em;
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
+}
+
+.date-weekday {
+  font-size: 0.84em;
+  line-height: 1.15;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  /* opacity: 0.64; */
+}
+
+.city-name {
+  font-size: 0.7em;
+  line-height: 1.1;
+  font-weight: 700;
+  opacity: 0.72;
+  margin-bottom: 0.3em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.date-daymonth {
+  margin-top: 0.32em;
+  font-size: 0.58em;
+  line-height: 1.1;
+  font-weight: 700;
+  opacity: 0.84;
+}
+
+/* Linha de clima (temperatura | umidade | vento) */
+.weather-row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  margin-top: 0.5em;
+  font-size: 0.5em;
+  font-weight: 700;
+  opacity: 0.88;
+}
+
+.weather-item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  white-space: nowrap;
+}
+
+/* Espaçamento entre ícone e texto dentro de cada item */
+.weather-icon {
+  width: 1.4em;
+  height: 1.4em;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
+  margin-right: 0.2em;
+}
+
+/* Espaçamento entre itens (substitui gap — não suportado no WebKit 78) */
+.weather-item + .weather-sep {
+  margin-left: 0.4em;
+  margin-right: 0.4em;
+}
+
+.weather-sep {
+  opacity: 0.4;
+}
+
+.clock-wrap {
+  position: relative;
+  width: 11.8em;
+  height: 11.8em;
+  max-width: 100%;
+  max-height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 9999px;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%) translateZ(0);
+  transform: translate(-50%, -50%) translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+  background: conic-gradient(from 0deg, var(--ring-color) 0deg var(--value), var(--ring-track) var(--value) 360deg);
+  box-shadow: 0 0 0.26em var(--ring-soft-shadow), 0 0 0.65em var(--ring-glow);
+}
+
+/* Fill base com a cor background transparente por baixo do conic-gradient */
+.ring:before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--background);
+  opacity: 0.3;
+  z-index: -1;
+}
+
+/* PIE: sem furo central — anéis sobrepostos preenchidos */
+.ring:after {
+  display: none;
+}
+
+.ring-s {
+  width: 100%;
+  height: 100%;
+  --ring-color: var(--ring-s-color);
+  --ring-glow: var(--ring-s-glow);
+  --value: 0deg;
+}
+
+.ring-m {
+  width: 88%;
+  height: 88%;
+  --ring-color: var(--ring-m-color);
+  --ring-glow: var(--ring-m-glow);
+  --value: 0deg;
+}
+
+.ring-h {
+  width: 76%;
+  height: 76%;
+  --ring-color: var(--ring-h-color);
+  --ring-glow: var(--ring-h-glow);
+  --value: 0deg;
+}
+
+.clock-core {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 30% 30%, var(--core-hi), var(--core-lo));
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  box-shadow: inset 0 0 0.2em var(--core-inset-shadow), 0 0 1.2em var(--core-drop-shadow);
+  z-index: 10;
+}
+
+.time-display {
+  font-size: 3.06em;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  font-weight: 900;
+  color: var(--time-text);
+  text-shadow: 0 0 0.25em var(--time-glow);
+  /* Box com backdrop blur + bg da variável --background + borda do accent */
+  padding: 0.2em 0.4em;
+  border-radius: 0.2em;
+  border: 0.03em solid var(--accent);
+  background-color: rgba(0, 0, 0, 0.8); /* quase transparente para o backdrop funcionar */
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 0.4em rgba(0, 0, 0, 0.3), inset 0 0 0.3em rgba(255, 255, 255, 0.05);
+}
+
+/* Fallback: se backdrop-filter não for suportado, usa bg sólido da variável */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .time-display {
+    background-color: var(--background);
+    opacity: 0.85;
+  }
+}
+
+#overlayLayer {
+  background: linear-gradient(to top, var(--overlay-bottom), transparent 55%, var(--overlay-top));
+}
+
+@supports not (background: conic-gradient(#fff, #000)) {
+  .ring {
+    background: var(--fallback-ring);
+  }
+}
+
+/* Header D_SPD (logo + frase no topo) */
+.spd-header {
+  position: absolute;
+  top: 2%;
+  left: 3%;
+  right: 3%;
+  z-index: 4;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  color: var(--text);
+}
+
+.spd-logo {
+  display: block;
+  width: 3.6em;
+  height: auto;
+  max-height: 1.3em;
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
+}
+
+.spd-text {
+  margin-left: 0.5em;
+  font-size: 0.3em;
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Pré-roll de mídia D_SPD */
+.spd-preroll {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 50;
+  background: #000;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+.spd-preroll-image,
+.spd-preroll-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Landscape: data na esquerda */
+@media (min-aspect-ratio: 3/4) {
+  #clockOuter {
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: row;
+    flex-direction: row;
+  }
+
+  #dateBlock {
+    -webkit-box-ordinal-group: 1;
+    -ms-flex-order: 1;
+    order: 1;
+    margin-right: 0;
+  }
+
+  #clockWrap {
+    -webkit-box-ordinal-group: 2;
+    -ms-flex-order: 2;
+    order: 2;
+    margin-left: 1.25em;
+  }
+}
+
+/* Portrait: data abaixo */
+@media (max-aspect-ratio: 3/4) {
+  #clockOuter {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+  }
+
+  /* Espaçamento vertical (substitui gap — WebKit 78 não suporta) */
+  #clockWrap {
+    -webkit-box-ordinal-group: 1;
+    -ms-flex-order: 1;
+    order: 1;
+    width: 11.8em;
+    height: 11.8em;
+    max-width: 100%;
+    max-height: 100%;
+    margin-bottom: 0.9em;
+  }
+
+  #dateBlock {
+    -webkit-box-ordinal-group: 2;
+    -ms-flex-order: 2;
+    order: 2;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    text-align: center;
+    width: auto;
+    margin-right: 0;
+  }
+}
+
+/* Fade in */
+.template-fade-in { opacity: 0; transition: opacity 0.7s ease-in-out; }
+.template-fade-in.visible { opacity: 1; }
+
+/* Logo Climatempo no rodapé */
+.climatempo-footer {
+  position: absolute;
+  bottom: 2%;
+  left: 2%;
+  z-index: 4;
+  opacity: 0.4;
+}
+
+.climatempo-footer img {
+  height: 0.3em;
+  width: auto;
+  object-fit: contain;
+}

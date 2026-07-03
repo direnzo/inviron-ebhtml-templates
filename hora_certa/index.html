@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hora Certa</title>
+    <link rel="stylesheet" href="css/master.css">
+
+    <!-- Scripts -->
+    <script src="js/ebhtml.js"></script>
+    <script src="js/meteocons-helpers.js"></script>
+    <!-- <script src="js/mock-data.js"></script> Comentar em produção -->
+    <script src="js/master.js"></script>
+</head>
+<body class="template-fade-in text-[7.6vmin] superbanner:text-[8.2vmin] empena:text-[11vmin]">
+
+    <!-- Ondas Perlin -->
+    <div id="waveContainer" class="absolute inset-0 z-[1]"></div>
+    <div id="overlayLayer" class="absolute inset-0 z-[2]"></div>
+
+    <!-- Sponsor D_SPD (topo) -->
+    <div id="spdHeader" class="spd-header" style="display:none">
+        <div id="spdText" class="spd-text mr-4" style="display:none"></div>
+        <img id="spdLogo" class="spd-logo" src="" alt="Patrocinador" style="display:none" />
+    </div>
+
+    <!-- Container -->
+    <div id="clockOuter" class="relative z-[3]">
+
+        <!-- Cidade + Data (esquerda no landscape / abaixo no portrait) -->
+        <div id="dateBlock" class="date-block">
+            <div id="cityName" class="city-name" style="display:none"></div>
+            <div id="dateWeekday" class="date-weekday"></div>
+            <div id="dateDayMonth" class="date-daymonth"></div>
+            <div id="weatherRow" class="weather-row" style="display:none">
+                <span class="weather-item">
+                    <span id="weatherTempIcon" class="weather-icon"></span>
+                    <span id="weatherTemp"></span>
+                </span>
+                <span class="weather-sep">|</span>
+                <span class="weather-item">
+                    <span id="weatherHumidityIcon" class="weather-icon"></span>
+                    <span id="weatherHumidity"></span>
+                </span>
+                <span class="weather-sep">|</span>
+                <span class="weather-item">
+                    <span id="weatherWindIcon" class="weather-icon"></span>
+                    <span id="weatherWind"></span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Relógio Donut CSS -->
+        <div id="clockWrap" class="clock-wrap" aria-label="Relogio radial">
+            <div id="ringS" class="ring ring-s"></div>
+            <div id="ringM" class="ring ring-m"></div>
+            <div id="ringH" class="ring ring-h"></div>
+            <div class="clock-core">
+                <div id="timeDisplay" class="time-display">00:00</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logo Climatempo (só aparece com dados de clima) -->
+    <div id="climatempoFooter" class="climatempo-footer" style="display:none">
+        <img src="img/climatempo.png" alt="Climatempo" />
+    </div>
+
+    <!-- Pré-roll D_SPD (mídia fullscreen antes do relógio) -->
+    <div id="spdPreroll" class="spd-preroll" style="display:none">
+        <img id="spdPrerollImage" class="spd-preroll-image" src="" alt="Mídia patrocinador" style="display:none" />
+        <video id="spdPrerollVideo" class="spd-preroll-video" style="display:none" playsinline muted></video>
+    </div>
+</body>
+</html>

@@ -8,6 +8,17 @@ Sistema de templates HTML para Digital Signage via EdgeContents CMS. Android 7+ 
 - **NUNCA** `npm run build` — use `npm run dev` (watch mode, compila automático)
 - **ES5 OBRIGATÓRIO** — zero tolerância para ES6+ (WebKit legado)
 
+### 🔴 TESTE — URL OBRIGATÓRIA (NUNCA USAR file:///)
+
+A URL de teste **SEMPRE** é:
+```
+http://localhost:12099/FILES/1/index.html
+```
+- **NUNCA** abrir com `file:///c:/...` — o servidor EdgeContents (ebcliente4) resolve assets, fontes e dados
+- **NUNCA** usar Live Server, http-server, ou qualquer outro servidor local — só o `ebcliente4.exe`
+- `MOCK_DATA.enabled = true` funciona em ambas, mas `file://` não carrega `ebhtml.js` corretamente
+- Se o servidor não estiver rodando, iniciar: `ebcliente4.exe`
+
 ## ⚡ ES5 — Proibido vs Permitido
 
 | ❌ Proibido (ES6+) | ✅ Use (ES5) |
