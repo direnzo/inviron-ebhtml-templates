@@ -165,8 +165,19 @@ function mapearFaseParaCategoria(roundName) {
    (mesmo do caminhos_futebol para posicionamento)
    ==================================================== */
 var FIXTURE_SLOT_MAP = {
+    '1565176': { CATEGORY: 'R32', SUBTITULO: '1'  },
+    '1565177': { CATEGORY: 'R32', SUBTITULO: '2'  },
     '1561329': { CATEGORY: 'R32', SUBTITULO: '3'  },
+    '1567309': { CATEGORY: 'R32', SUBTITULO: '5'  },
+    '1567311': { CATEGORY: 'R32', SUBTITULO: '6'  },
     '1562344': { CATEGORY: 'R32', SUBTITULO: '9'  },
+    '1564789': { CATEGORY: 'R32', SUBTITULO: '10' },
+    '1567306': { CATEGORY: 'R32', SUBTITULO: '11' },
+    '1567307': { CATEGORY: 'R32', SUBTITULO: '12' },
+    '1567310': { CATEGORY: 'R32', SUBTITULO: '13' },
+    '1565179': { CATEGORY: 'R32', SUBTITULO: '14' },
+    '1567312': { CATEGORY: 'R32', SUBTITULO: '15' },
+    '1565178': { CATEGORY: 'R32', SUBTITULO: '16' },
     '1562345': { CATEGORY: 'R32', SUBTITULO: '4'  },
     '1562586': { CATEGORY: 'R32', SUBTITULO: '7'  }
 };
