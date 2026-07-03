@@ -296,7 +296,7 @@ var ModuloFinanceiro = (function () {
                 var setaImg = document.createElement('img');
                 setaImg.src = varNum > 0 ? 'img/seta_verde.png' : 'img/seta_amarala.png';
                 setaImg.className = 'modulo-fin-seta';
-                setaImg.style.transform = varNum > 0 ? 'none' : 'rotate(180deg)';
+                // setaImg.style.transform = varNum > 0 ? 'none' : 'rotate(180deg)';
                 setaImg.alt = varNum > 0 ? '+' : '-';
                 wrap.appendChild(setaImg);
 

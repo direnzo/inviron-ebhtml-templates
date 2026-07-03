@@ -362,11 +362,73 @@ window.onload = function () {
         }, duracao);
     }
 
+    function normalizarNumeroPositivo(valor, fallback) {
+        var n = parseInt(valor, 10);
+        if (isNaN(n) || n <= 0) return fallback;
+        return n;
+    }
+
+    function contarItensCanal(modulo, dadosCanal) {
+        if (!dadosCanal) return 0;
+
+        if (modulo && typeof modulo.contarItens === 'function') {
+            var n = modulo.contarItens(dadosCanal);
+            return normalizarNumeroPositivo(n, 1);
+        }
+
+        if (typeof dadosCanal.length !== 'undefined') {
+            return normalizarNumeroPositivo(dadosCanal.length, 1);
+        }
+
+        return 1;
+    }
+
+    function montarConfigRuntime(canaisAtivos, dados, configBase) {
+        var cfg = configBase || {};
+        var tempoTotal = normalizarNumeroPositivo(cfg.tempoTotalExibicao, 0);
+
+        if (tempoTotal <= 0) {
+            return cfg;
+        }
+
+        var totalItens = 0;
+        for (var i = 0; i < canaisAtivos.length; i++) {
+            var canal = canaisAtivos[i];
+            var dadosCanal = dados[canal.tipo];
+            if (!dadosCanal) continue;
+
+            var modulo = encontrarModulo(canal.tipo);
+            totalItens += contarItensCanal(modulo, dadosCanal);
+        }
+
+        totalItens = normalizarNumeroPositivo(totalItens, 1);
+
+        var itemDuracaoCalculada = Math.round(tempoTotal / totalItens);
+        var itemDuracaoMinima = 1000;
+
+        if (itemDuracaoCalculada < itemDuracaoMinima) {
+            itemDuracaoCalculada = itemDuracaoMinima;
+        }
+
+        var configRuntime = {};
+        for (var k in cfg) {
+            if (cfg.hasOwnProperty(k)) {
+                configRuntime[k] = cfg[k];
+            }
+        }
+
+        configRuntime.itemDuracao = itemDuracaoCalculada;
+
+        console.log('[Rodape] tempoTotalExibicao=' + tempoTotal + 'ms, totalItens=' + totalItens + ', itemDuracao=' + itemDuracaoCalculada + 'ms');
+
+        return configRuntime;
+    }
+
     /**
      * Roda o canal de índice idx dentro de canaisAtivos.
      * onCicloCompleto() é chamado quando todos os canais terminam.
      */
-    function rodarSlideshow(canaisAtivos, dados, loader, onCicloCompleto) {
+    function rodarSlideshow(canaisAtivos, dados, loader, onCicloCompleto, configRuntime) {
         var cancelaAtual = null;
 
         function rodarCanal(idx) {
@@ -395,7 +457,7 @@ window.onload = function () {
                 return;
             }
 
-            cancelaAtual = modulo.render(inner, dadosCanal, CONFIG, function () {
+            cancelaAtual = modulo.render(inner, dadosCanal, configRuntime || CONFIG, function () {
                 cancelaAtual = null;
                 rodarCanal(idx + 1);
             });
@@ -432,13 +494,15 @@ window.onload = function () {
             return;
         }
 
+        var configRuntime = montarConfigRuntime(canaisAtivos, dados, CONFIG);
+
         rodarSlideshow(canaisAtivos, dados, loader, function () {
             if (clockInterval) {
                 clearInterval(clockInterval);
                 clockInterval = null;
             }
             emitirFinished(loader);
-        });
+        }, configRuntime);
     }
 
     /* =====================================================

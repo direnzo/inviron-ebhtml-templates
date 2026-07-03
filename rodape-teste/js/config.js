@@ -58,7 +58,14 @@ var CONFIG = {
     // Exibir a coluna de conteúdo (canais)
     conteudoVisivel: true,
 
+    // Tempo total do ciclo completo (ms) até chamar finished().
+    // Exemplo: 1 minuto = 60000.
+    // Quando > 0, itemDuracao é recalculado automaticamente:
+    // itemDuracao = tempoTotalExibicao / totalDeItensDoCiclo
+    tempoTotalExibicao: 60000,
+
     // Duração padrão de cada item em ms (usado se o módulo não definir o próprio)
+    // É usado também como fallback quando tempoTotalExibicao <= 0.
     itemDuracao: 8000,
 
     // Duração da transição fade entre itens (ms)
