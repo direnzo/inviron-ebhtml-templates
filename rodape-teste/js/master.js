@@ -333,6 +333,139 @@ window.onload = function () {
         }
     }
 
+    function lerCampoRaw(item, campo) {
+        if (!item || typeof item.value !== 'function') return '';
+        var v = item.value(campo);
+        if (!v || typeof v.value === 'undefined') return '';
+        var val = v.value || '';
+        if (val && val.charAt(0) === '[' && val.charAt(val.length - 1) === ']') return '';
+        return String(val).replace(/^\s+|\s+$/g, '');
+    }
+
+    function stampData(valor) {
+        if (!valor) return 0;
+        var s = String(valor).replace(/^\s+|\s+$/g, '');
+        if (!s) return 0;
+
+        var mIso = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+        if (mIso) {
+            return parseInt(
+                mIso[1] + mIso[2] + mIso[3] +
+                (mIso[4] || '00') + (mIso[5] || '00') + (mIso[6] || '00'),
+                10
+            );
+        }
+
+        var mBr = s.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?/);
+        if (mBr) {
+            return parseInt(
+                mBr[3] + mBr[2] + mBr[1] +
+                (mBr[4] || '00') + (mBr[5] || '00') + (mBr[6] || '00'),
+                10
+            );
+        }
+
+        return 0;
+    }
+
+    function extrairStampMaisRecente(rawData) {
+        if (!rawData) return 0;
+
+        var melhor = 0;
+        var camposBase = ['DT_UPDATE', 'DT_CREATE'];
+
+        for (var i = 0; i < camposBase.length; i++) {
+            var sBase = stampData(lerCampoRaw(rawData, camposBase[i]));
+            if (sBase > melhor) melhor = sBase;
+        }
+
+        for (var n = 1; n <= 9; n++) {
+            var sAtualiza = stampData(lerCampoRaw(rawData, 'M' + n + '_ATUALIZA'));
+            if (sAtualiza > melhor) melhor = sAtualiza;
+        }
+
+        return melhor;
+    }
+
+    function chaveItemFinanceiro(item) {
+        if (!item) return '';
+        var nome = item.nome ? String(item.nome).toLowerCase() : '';
+        var tipo = item.tipo ? String(item.tipo).toLowerCase() : '';
+        return tipo + '|' + nome;
+    }
+
+    function mesclarFinanceiroMaisRecentePorItem(modulo, canal, rawDataSecundario, loader) {
+        var mapa = {};
+        var ordem = [];
+
+        for (var d = 0; d < canal.datasets.length; d++) {
+            var datasetNome = canal.datasets[d];
+            var raw = loader.data(datasetNome);
+            if (!raw) continue;
+
+            var lista = modulo.parseEbhtml(raw, rawDataSecundario);
+            if (!lista || !lista.length) continue;
+
+            for (var i = 0; i < lista.length; i++) {
+                var item = lista[i];
+                var chave = chaveItemFinanceiro(item);
+                if (!chave) continue;
+
+                var stampNovo = stampData(item.atualizadoEm);
+
+                if (!mapa[chave]) {
+                    mapa[chave] = {
+                        item: item,
+                        stamp: stampNovo,
+                        dataset: datasetNome
+                    };
+                    ordem.push(chave);
+                    continue;
+                }
+
+                var atual = mapa[chave];
+                if (stampNovo > atual.stamp) {
+                    atual.item = item;
+                    atual.stamp = stampNovo;
+                    atual.dataset = datasetNome;
+                }
+            }
+        }
+
+        var resultado = [];
+        for (var o = 0; o < ordem.length; o++) {
+            var key = ordem[o];
+            if (mapa[key] && mapa[key].item) {
+                resultado.push(mapa[key].item);
+            }
+        }
+
+        return resultado.length ? resultado : null;
+    }
+
+    function filtrarFinanceiroPorConfig(lista, canal) {
+        if (!lista || !lista.length) return lista;
+        if (!canal || !canal.quotesPermitidos || !canal.quotesPermitidos.length) return lista;
+
+        var permitidos = {};
+        for (var i = 0; i < canal.quotesPermitidos.length; i++) {
+            var q = canal.quotesPermitidos[i];
+            if (!q) continue;
+            permitidos[String(q).toLowerCase()] = true;
+        }
+
+        var filtrada = [];
+        for (var j = 0; j < lista.length; j++) {
+            var item = lista[j];
+            var quote = item && item.quote ? String(item.quote).toLowerCase() : '';
+            if (quote && permitidos[quote]) {
+                filtrada.push(item);
+            }
+        }
+
+        return filtrada.length ? filtrada : null;
+    }
+
     function emitirLoaded(loader) {
         if (!loader || !loader.loaded || loader._rodapeLoaded) return;
         loader._rodapeLoaded = true;
@@ -560,15 +693,47 @@ window.onload = function () {
                 var parsed = null;
 
                 if (canal.datasets && canal.datasets.length) {
-                    for (var d = 0; d < canal.datasets.length; d++) {
-                        var datasetNome = canal.datasets[d];
-                        var rawDataAtual = loader.data(datasetNome);
-                        if (!rawDataAtual) continue;
-
-                        parsed = modulo.parseEbhtml(rawDataAtual, rawDataSecundario);
+                    if (canal.estrategiaDataset === 'mais-recente' && canal.tipo === 'financeiro') {
+                        parsed = mesclarFinanceiroMaisRecentePorItem(modulo, canal, rawDataSecundario, loader);
                         if (parsed) {
-                            console.log('[Rodape] Canal ' + canal.tipo + ' usando dataset ' + datasetNome);
-                            break;
+                            console.log('[Rodape] Canal financeiro usando mesclagem por item (mais recente por índice).');
+                        }
+                    } else if (canal.estrategiaDataset === 'mais-recente') {
+                        var melhorParsed = null;
+                        var melhorDatasetNome = '';
+                        var melhorStamp = 0;
+
+                        for (var d = 0; d < canal.datasets.length; d++) {
+                            var datasetNomeRecente = canal.datasets[d];
+                            var rawDataRecente = loader.data(datasetNomeRecente);
+                            if (!rawDataRecente) continue;
+
+                            var parsedRecente = modulo.parseEbhtml(rawDataRecente, rawDataSecundario);
+                            if (!parsedRecente) continue;
+
+                            var stampAtual = extrairStampMaisRecente(rawDataRecente);
+                            if (!melhorParsed || stampAtual > melhorStamp) {
+                                melhorParsed = parsedRecente;
+                                melhorDatasetNome = datasetNomeRecente;
+                                melhorStamp = stampAtual;
+                            }
+                        }
+
+                        if (melhorParsed) {
+                            parsed = melhorParsed;
+                            console.log('[Rodape] Canal ' + canal.tipo + ' usando dataset mais recente: ' + melhorDatasetNome);
+                        }
+                    } else {
+                        for (var d = 0; d < canal.datasets.length; d++) {
+                            var datasetNome = canal.datasets[d];
+                            var rawDataAtual = loader.data(datasetNome);
+                            if (!rawDataAtual) continue;
+
+                            parsed = modulo.parseEbhtml(rawDataAtual, rawDataSecundario);
+                            if (parsed) {
+                                console.log('[Rodape] Canal ' + canal.tipo + ' usando dataset ' + datasetNome);
+                                break;
+                            }
                         }
                     }
                 }
@@ -577,6 +742,10 @@ window.onload = function () {
                 if (!parsed) {
                     if (!rawData && !rawDataSecundario) continue;
                     parsed = modulo.parseEbhtml(rawData, rawDataSecundario);
+                }
+
+                if (parsed && canal.tipo === 'financeiro') {
+                    parsed = filtrarFinanceiroPorConfig(parsed, canal);
                 }
 
                 if (parsed) {

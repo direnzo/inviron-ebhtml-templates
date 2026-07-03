@@ -92,8 +92,15 @@ var CONFIG = {
             ativo: true,
             // Escopo atual: analisar e suportar os dois datasets
             datasets: ['D_CAMBIO', 'D_AWESOMEAPI'],
-            // Estratégia: tenta o primeiro da lista e faz fallback no próximo
-            estrategiaDataset: 'fallback'
+            // Estratégia: escolhe automaticamente o dataset com data mais recente.
+            estrategiaDataset: 'mais-recente',
+            // Filtro opcional por quote para controlar quais moedas/índices aparecem.
+            // Exemplo atual: somente dólar comercial, dólar turismo e euro.
+            quotesPermitidos: [
+                'currency:br:dolar-comercial',
+                'currency:br:dolar-turismo',
+                'currency:br:euro'
+            ]
         },
         {
             tipo: 'noticias',

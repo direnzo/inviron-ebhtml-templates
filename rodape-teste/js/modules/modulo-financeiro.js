@@ -3,7 +3,7 @@
  * Dataset: D_MERCADO_FINANCEIRO
  * ES5 puro — Android 7+
  *
- * Campos esperados: M1_NOME, M1_VALOR, M1_VAR, M1_ICONE (emoji)
+ * Campos esperados: M1_NOME, M1_VALOR, M1_VAR, M1_ATUALIZA, M1_ICONE (emoji)
  *                   M2_*, M3_*, ... (até M9)
  *
  * Interface:
@@ -69,6 +69,50 @@ var ModuloFinanceiro = (function () {
         }
 
         return valor;
+    }
+
+    function pad2(n) {
+        return n < 10 ? '0' + n : String(n);
+    }
+
+    function formatarDataHoraPtBr(valor) {
+        if (!valor) return '';
+
+        var str = String(valor).replace(/^\s+|\s+$/g, '');
+        if (!str) return '';
+
+        // Formato ISO-like comum no XML: yyyy-mm-dd hh:mm:ss
+        // Parse manual para evitar deslocamento por timezone do Date().
+        var isoDireto = str.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{1,2}):(\d{1,2})(?::\d{1,2})?)?/);
+        if (isoDireto) {
+            var anoIso = isoDireto[1];
+            var mesIso = pad2(parseInt(isoDireto[2], 10));
+            var diaIso = pad2(parseInt(isoDireto[3], 10));
+            var hhIso = isoDireto[4] ? pad2(parseInt(isoDireto[4], 10)) : '';
+            var mmIso = isoDireto[5] ? pad2(parseInt(isoDireto[5], 10)) : '';
+            return hhIso ? (diaIso + '/' + mesIso + '/' + anoIso + ' ' + hhIso + ':' + mmIso) : (diaIso + '/' + mesIso + '/' + anoIso);
+        }
+
+        // Já em formato brasileiro: dd/mm/aaaa [hh:mm]
+        var br = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})(?:\s+(\d{1,2}):(\d{1,2}))?/);
+        if (br) {
+            var dia = pad2(parseInt(br[1], 10));
+            var mes = pad2(parseInt(br[2], 10));
+            var ano = br[3].length === 2 ? ('20' + br[3]) : br[3];
+            var hh = br[4] ? pad2(parseInt(br[4], 10)) : '';
+            var mm = br[5] ? pad2(parseInt(br[5], 10)) : '';
+            return hh ? (dia + '/' + mes + '/' + ano + ' ' + hh + ':' + mm) : (dia + '/' + mes + '/' + ano);
+        }
+
+        // ISO ou formatos parseáveis pelo Date
+        var isoLike = str.indexOf('T') > -1 ? str : str.replace(' ', 'T');
+        var d = new Date(isoLike);
+        if (!isNaN(d.getTime())) {
+            return pad2(d.getDate()) + '/' + pad2(d.getMonth() + 1) + '/' + d.getFullYear() +
+                ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+        }
+
+        return str;
     }
 
     function animarEntrada(inner, duracao) {
@@ -196,6 +240,8 @@ var ModuloFinanceiro = (function () {
                 valorCampo(rawData, n, 'PCT_CHANGE')
             );
 
+            var atualizadoCampo = valorCampo(rawData, n, 'ATUALIZA');
+
             // Bolsas sem variação útil: omitir
             var varNum = parseVariacaoNumero(variacao);
             var temVariacao = varNum !== null && varNum !== 0;
@@ -212,8 +258,10 @@ var ModuloFinanceiro = (function () {
             lista.push({
                 nome:      nome,
                 tipo:      tipo,
+                quote:     quote,
                 valor:     valor ? formatarValor(valor) : '',
                 variacao:  variacao,
+                atualizadoEm: atualizadoCampo,
                 iconeSvg:  iconeSvg,   // path para <img> (pode ser '')
                 iconeText: iconeTexto  // texto/sigla fallback
             });
@@ -306,6 +354,27 @@ var ModuloFinanceiro = (function () {
                     : 'modulo-fin-var modulo-fin-var-negativo';
                 varEl.textContent = sinal + varNum.toFixed(2).replace('.', ',') + '%';
                 wrap.appendChild(varEl);
+            }
+        }
+
+        // Data/hora de atualização do indicador (Mx_ATUALIZA)
+        if (item.atualizadoEm) {
+            var textoAtualizado = formatarDataHoraPtBr(item.atualizadoEm);
+            if (textoAtualizado) {
+                var atualizaBloco = document.createElement('div');
+                atualizaBloco.className = 'modulo-fin-atualiza-bloco';
+
+                var atualizaLabel = document.createElement('div');
+                atualizaLabel.className = 'modulo-fin-atualiza-label';
+                atualizaLabel.textContent = 'última atualização:';
+                atualizaBloco.appendChild(atualizaLabel);
+
+                var atualizaData = document.createElement('div');
+                atualizaData.className = 'modulo-fin-atualiza-data';
+                atualizaData.textContent = textoAtualizado;
+                atualizaBloco.appendChild(atualizaData);
+
+                wrap.appendChild(atualizaBloco);
             }
         }
 
