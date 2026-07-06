@@ -1,107 +1,53 @@
-# EdgeContents Templates
+# EdgeContents Templates - Guia Atualizado
 
-Sistema de templates HTML para Digital Signage compatível com EdgeContents CMS e navegadores Android 7+.
+Este workspace agora usa um modelo de documentacao consolidado com base no playbook oficial:
+- features-list.md
 
-> � **Documentação completa:** [docs/](docs/)
+Objetivo:
+- reduzir retrabalho
+- padronizar criacao/refatoracao de templates
+- garantir compatibilidade (ES5 + Chromium 78)
+- manter paridade entre runtime e preview
 
----
+## Fonte de verdade
 
-## 🚀 Início Rápido
+Documento principal:
+- features-list.md
 
-```bash
-# 1. Copie o template base
-cp -r _template-base meu-template
-cd meu-template
+Documentacao operacional:
+- docs/README.md
 
-# 2. Inicie TailwindCSS (watch mode)
-npm run dev
+Documentacao legada arquivada:
+- archive/workspace-docs-legacy-2026-07-06/
 
-# 3. Abra no navegador
-# http://localhost:12099/FILES/1/index.html
-```
+## Regras criticas (resumo)
 
-**5 minutos para primeiro template:** [QUICKSTART.md](QUICKSTART.md)
+1. ES5 obrigatorio.
+2. Baseline minimo: Chromium 78.
+3. loader.loaded() apenas em sucesso.
+4. loader.finished() sempre no runtime.
+5. preview.js obrigatorio com mesma logica funcional do runtime.
+6. Diferenca entre preview e runtime: apenas origem dos dados.
+7. Evitar localStorage para logica principal (dataset-first).
+8. Priorizar Tailwind raiz e HTML semantico.
+9. JS para dados/comportamento, nao para montar HTML inteiro por string.
+10. Micro funcoes reutilizaveis como base da arquitetura.
 
----
+## Estrutura de docs (nova)
 
-## 📚 Documentação
+- docs/01-playbook-referencia.md
+- docs/02-dados-ebhtml-rotacao.md
+- docs/03-ui-markup-tailwind.md
+- docs/04-preview-paridade.md
+- docs/05-performance-animacao-video.md
+- docs/06-microfuncoes-reutilizaveis.md
 
-### Para Iniciantes
-- **[QUICKSTART.md](QUICKSTART.md)** - Primeiro template em 5 minutos
-- **[docs/01-getting-started.md](docs/01-getting-started.md)** - Tutorial completo
-- **[docs/GLOSSARY.md](docs/GLOSSARY.md)** - Termos técnicos explicados
+## Inicio rapido
 
-### Para Desenvolvedores
-- **[docs/02-xml-format.md](docs/02-xml-format.md)** - Estrutura XML EdgeContents (EBDATA)
-- **[docs/03-advanced.md](docs/03-advanced.md)** - Animações, performance, múltiplos datasets
-- **[docs/04-troubleshooting.md](docs/04-troubleshooting.md)** - Problemas comuns e soluções
-- **[docs/05-api-reference.md](docs/05-api-reference.md)** - API completa EBHTML
+Ver:
+- QUICKSTART.md
 
----
+## Contribuicao
 
-## ⚙️ Regras Essenciais
-
-### JavaScript ES5 Apenas (Android 7+)
-```javascript
-// ❌ PROIBIDO
-const nome = 'teste';
-const funcao = () => {};
-
-// ✅ PERMITIDO
-var nome = 'teste';
-var funcao = function() {};
-```
-
-### Controle de Playlist
-```javascript
-// ✅ SEMPRE
-if (sucesso) {
-    loader.loaded();   // Apenas em sucesso
-    loader.finished(); // Sempre
-} else {
-    loader.finished(); // Apenas finished em erro
-}
-```
-
----
-
-## 📁 Estrutura
-
-```
-_template-base/
-├── index.html              # Estrutura HTML
-├── package.json            # Scripts NPM (sem dependencies)
-├── tailwind.config.js      # Config TailwindCSS
-├── css/
-│   ├── input.css          # CSS fonte (editar)
-│   └── master.css         # CSS compilado (gerado)
-├── img/                   # Imagens e assets
-└── js/
-    ├── ebhtml.js          # Biblioteca EdgeContents (não editar)
-    ├── master.js          # Lógica do template (editar)
-    └── mock-data.js       # Dados de teste local
-```
-
----
-
-## 🛠️ Build
-
-```bash
-# Desenvolvimento (watch mode)
-npm run dev
-
-# Produção (minificado)
-npm run build
-```
-
----
-
-## 🤝 Contribuindo
-
-Consulte [CONTRIBUTING.md](CONTRIBUTING.md) para diretrizes de contribuição.
-
----
-
-**Versão:** 1.0.0  
-**Licença:** Proprietária  
-**EdgeContents CMS:** [edgecontents.com.br](https://edgecontents.com.br)
+Ver:
+- CONTRIBUTING.md
