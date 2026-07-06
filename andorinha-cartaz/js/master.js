@@ -35,7 +35,7 @@ window.onload = function () {
   } else {
     // EdgeContents CMS
     ebhtml.create2({}, function (loader) {
-      loader.addData(DATASET, false);
+      loader.addData(DATASET, false, "f_category=cartaz");
       loader.autoloaded = false;
       loader.nodataiserror = false;
 

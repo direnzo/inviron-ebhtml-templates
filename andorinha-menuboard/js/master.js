@@ -6,7 +6,7 @@
 
 document.addEventListener("DOMContentLoaded", function () {
   // ─── Configuração ────────────────────────────────────────────────────────
-  var selectedCategory = "bebidas"; // Categoria padrão
+  var selectedCategory = "a_aves"; // Categoria padrão
   var displayDuration = 10000; // 10 segundos porexibição
 
   // ─── Elementos DOM ───────────────────────────────────────────────────────
@@ -266,7 +266,7 @@ document.addEventListener("DOMContentLoaded", function () {
             loader2.addData("D_MENUBOARD_PRICES", true, filtro);
             loader2.nodataiserror = false;
             loader2.autoloaded = false;
-            loader2.loaded();
+            // loader2.loaded();
 
             loader2.load(function () {
               try {
