@@ -528,13 +528,20 @@ function processarDados(spdData, spdSponsor, footballData, teamHome, teamAway, l
    Recebe o loader unificado com D_SPD, D_FOOTBALL, D_FOOTBALL_TEAMS
    ==================================================== */
 function iniciarPlacar(loader) {
-    var listaSpd = loader.datalist('D_SPD');
-    if (!listaSpd || listaSpd.count() === 0) {
-        console.log('[placar] D_SPD vazio — skip');
+    function finalizarSemDadosPlacar(msg) {
+        console.log('[placar] ' + msg);
         mostrarView('placar');
         exibirMensagemAguardando('placar');
         loader.loaded();
-        setTimeout(function() { loader.finished(); _playerViewExecutando = false; }, DURACAO_TOTAL);
+        setTimeout(function() {
+            _playerViewExecutando = false;
+            loader.finished();
+        }, 120);
+    }
+
+    var listaSpd = loader.datalist('D_SPD');
+    if (!listaSpd || listaSpd.count() === 0) {
+        finalizarSemDadosPlacar('D_SPD vazio - skip');
         return;
     }
 
@@ -594,11 +601,7 @@ function iniciarPlacar(loader) {
 
     var spKeys = Object.keys(grupos).sort();
     if (spKeys.length === 0) {
-        console.log('[placar] Nenhum grupo SPECIALPROJECT');
-        mostrarView('placar');
-        exibirMensagemAguardando('placar');
-        loader.loaded();
-        setTimeout(function() { loader.finished(); _playerViewExecutando = false; }, DURACAO_TOTAL);
+        finalizarSemDadosPlacar('Nenhum grupo SPECIALPROJECT');
         return;
     }
 
@@ -627,9 +630,7 @@ function iniciarPlacar(loader) {
     console.log('[placar] SP=' + spAtual + ' item=' + (itemIdx + 1) + '/' + itensGrupo.length + ' partida=' + partidaId);
 
     if (!partidaId) {
-        exibirMensagemAguardando('placar');
-        loader.loaded();
-        setTimeout(function() { loader.finished(); _playerViewExecutando = false; }, DURACAO_TOTAL);
+        finalizarSemDadosPlacar('Partida sem TITLE no D_SPD');
         return;
     }
 
@@ -667,10 +668,7 @@ function iniciarPlacar(loader) {
     }
 
     if (!footballData) {
-        console.log('[placar] D_FOOTBALL sem dados para ID=' + partidaId);
-        exibirMensagemAguardando('placar');
-        loader.loaded();
-        setTimeout(function() { loader.finished(); _playerViewExecutando = false; }, DURACAO_TOTAL);
+        finalizarSemDadosPlacar('D_FOOTBALL sem dados para ID=' + partidaId);
         return;
     }
 

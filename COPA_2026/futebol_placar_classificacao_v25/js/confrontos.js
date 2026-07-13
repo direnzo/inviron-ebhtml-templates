@@ -203,10 +203,16 @@ var TEAMS_SLOT_MAP = {
 function buscarSlotPorTeams(homeId, awayId) {
     var h = String(homeId || '');
     var a = String(awayId || '');
+
+    // Quando os dois IDs existem, exige par completo para evitar
+    // encaixar jogo no slot errado usando apenas 1 time.
     if (h && a) {
         if (TEAMS_SLOT_MAP[h + '|' + a]) { return TEAMS_SLOT_MAP[h + '|' + a]; }
         if (TEAMS_SLOT_MAP[a + '|' + h]) { return TEAMS_SLOT_MAP[a + '|' + h]; }
+        return null;
     }
+
+    // Fallback por ID unico somente quando um dos lados nao veio da API.
     if (h && TEAMS_SLOT_MAP[h]) { return TEAMS_SLOT_MAP[h]; }
     if (a && TEAMS_SLOT_MAP[a]) { return TEAMS_SLOT_MAP[a]; }
     return null;
@@ -242,6 +248,24 @@ function derivarSlotPorChaveamento(teamSlotMap, partida) {
 function atribuirPosicoesBracket(partidas) {
     var result = [];
     var porFase = {};
+    var usadosPorFase = {};
+
+    function usarSlot(categoria, subtitulo) {
+        if (!categoria || !subtitulo) { return false; }
+        var cat = String(categoria);
+        var sub = String(subtitulo);
+        if (!usadosPorFase[cat]) { usadosPorFase[cat] = {}; }
+        if (usadosPorFase[cat][sub]) { return false; }
+        usadosPorFase[cat][sub] = true;
+        return true;
+    }
+
+    function slotJaUsado(categoria, subtitulo) {
+        var cat = String(categoria || '');
+        var sub = String(subtitulo || '');
+        if (!cat || !sub) { return false; }
+        return !!(usadosPorFase[cat] && usadosPorFase[cat][sub]);
+    }
 
     for (var i = 0; i < partidas.length; i++) {
         var p   = partidas[i];
@@ -250,15 +274,17 @@ function atribuirPosicoesBracket(partidas) {
 
         var slot = FIXTURE_SLOT_MAP[String(p.fixtureId)];
         if (slot) {
-            p.CATEGORY = slot.CATEGORY;
-            p.SUBTITULO = slot.SUBTITULO;
-            result.push(p);
-            continue;
+            if (usarSlot(slot.CATEGORY, slot.SUBTITULO)) {
+                p.CATEGORY = slot.CATEGORY;
+                p.SUBTITULO = slot.SUBTITULO;
+                result.push(p);
+                continue;
+            }
         }
 
         if (cat === 'R32') {
             slot = buscarSlotPorTeams(p.homeId, p.awayId);
-            if (slot) {
+            if (slot && usarSlot(slot.CATEGORY, slot.SUBTITULO)) {
                 p.CATEGORY = slot.CATEGORY;
                 p.SUBTITULO = slot.SUBTITULO;
                 result.push(p);
@@ -307,31 +333,41 @@ function atribuirPosicoesBracket(partidas) {
                 partida.CATEGORY = fase;
                 partida.SUBTITULO = String(nextSlot);
                 usedR32Slots[String(nextSlot)] = true;
+                usarSlot(fase, partida.SUBTITULO);
                 nextSlot++;
                 // Atualiza teamSlotR32 com os times do fallback
                 if (partida.homeId) { teamSlotR32[partida.homeId] = parseInt(partida.SUBTITULO, 10); }
                 if (partida.awayId) { teamSlotR32[partida.awayId] = parseInt(partida.SUBTITULO, 10); }
             } else if (fase === 'R16') {
                 var posR16 = derivarSlotPorChaveamento(teamSlotR32, partida);
-                if (posR16 > 0) {
+                if (posR16 > 0 && !slotJaUsado(fase, posR16)) {
                     partida.CATEGORY = fase;
                     partida.SUBTITULO = String(posR16);
                 } else {
                     partida.CATEGORY = fase;
-                    partida.SUBTITULO = String(j + 1);
+                    var livreR16 = j + 1;
+                    while (slotJaUsado(fase, livreR16)) { livreR16++; }
+                    partida.SUBTITULO = String(livreR16);
                 }
+                usarSlot(fase, partida.SUBTITULO);
             } else if (fase === 'QF') {
                 var posQF = derivarSlotPorChaveamento(teamSlotR16, partida);
-                if (posQF > 0) {
+                if (posQF > 0 && !slotJaUsado(fase, posQF)) {
                     partida.CATEGORY = fase;
                     partida.SUBTITULO = String(posQF);
                 } else {
                     partida.CATEGORY = fase;
-                    partida.SUBTITULO = String(j + 1);
+                    var livreQF = j + 1;
+                    while (slotJaUsado(fase, livreQF)) { livreQF++; }
+                    partida.SUBTITULO = String(livreQF);
                 }
+                usarSlot(fase, partida.SUBTITULO);
             } else {
                 partida.CATEGORY = fase;
-                partida.SUBTITULO = String(j + 1);
+                var livre = j + 1;
+                while (slotJaUsado(fase, livre)) { livre++; }
+                partida.SUBTITULO = String(livre);
+                usarSlot(fase, partida.SUBTITULO);
             }
             result.push(partida);
         }
