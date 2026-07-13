@@ -5,24 +5,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/master.css">
+
     <!-- CONFIG_CLIMA — deve vir antes de todos os scripts -->
     <script>
         var CONFIG_CLIMA = {
             iconStyle: 'fill', // 'fill' | 'flat' | 'line' | 'monochrome'
             iconColor: '#ffffff', // só funciona com o estilo 'monochrome'
             textColor: '#ffffff', // cor do texto (opcional)
-            duration: 10000
+            duration: 10000,
+
+            // Sponsor (D_SPD)
+            sponsorEnabled: false, // habilita leitura de D_SPD
+            sponsorRandomTest: false, // alterna sponsor true/false a cada load (teste)
+            sponsorPrerollEnabled: true // exibe FILE_IMAGE1..N antes do conteúdo principal
         };
     </script>
+
     <!-- Mock data (comentar em producao) -->
-    <!-- <script src="js/mock-data.js"></script> -->
+    <script src="js/mock-data.js"></script>
     <script src="js/meteocons-helpers.js"></script>
+    <script src="js/weather-video.js"></script>
+
     <script src="js/ebhtml.js"></script>
     <script src="js/master.js"></script>
     <title>Climatempo Momento</title>
 </head>
 
-<body class="relative flex flex-col h-screen w-full overflow-hidden font-montserrat leading-none font-bold text-[5vmin] superbanner:text-[8vmin] empena:text-[20vmin] opacity-0 transition-opacity duration-800 ease-out px-[2vmin] py-[2vmin]]">
+<body class="relative flex flex-col h-screen w-full overflow-hidden font-montserrat leading-none font-bold text-[5vmin] superbanner:text-[8vmin] empena:text-[20vmin] opacity-0 transition-opacity duration-800 ease-out px-[2vmin] py-[2vmin]">
+
+    <div id="weather-background" class="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+        <video id="weather-video" autoplay muted loop playsinline preload="auto" class="absolute inset-0 w-full h-full object-cover"></video>
+    </div>
+
+    <!-- Pré-roll D_SPD (mídia fullscreen antes do conteúdo) -->
+    <div id="spdPreroll" class="hidden fixed inset-0 z-[9999] bg-black items-center justify-center">
+        <img id="spdPrerollImage" class="hidden w-full h-full object-contain bg-black" src="" alt="Mídia patrocinador" />
+        <video id="spdPrerollVideo" class="hidden w-full h-full object-contain bg-black" muted playsinline webkit-playsinline preload="auto"></video>
+    </div>
 
     <!-- Header: cidade -->
     <header class="w-full flex h-[15vmin] items-center justify-center z-10 py-[2.5vmin]">
@@ -30,7 +49,7 @@
     </header>
 
     <!-- Main: conteudo central -->
-    <main class="flex-1 flex items-center justify-center w-full overflow-hidden p-[2vmin] z-10 bg-black/30 backdrop-fallback rounded-[2vmin]">
+    <main class="flex-1 flex items-center justify-center w-full overflow-hidden p-[2vmin] z-10 bg-slate-900/40 backdrop-blur-2xl backdrop-fallback rounded-[2vmin]">
         <div id="content" class="flex portrait:flex-col items-center justify-center space-y-[2vmin] ls:space-y-0 ls:space-x-[2vmin] ultrawide:space-y-0 ultrawide:space-x-[2vmin] superbanner:space-y-0 superbanner:space-x-[2vmin] w-full h-full
                     ls:flex-row ultrawide:flex-row superbanner:flex-row">
 
@@ -39,7 +58,7 @@
                         portrait:w-full portrait:h-auto portrait:max-h-[40%]
                         ls:w-[45%] ls:h-full
                         ultrawide:w-[40%] ultrawide:h-full">
-                <div id="main-icon" class="w-full h-full min-w-[20vmin] max-w-[50vmin] portrait:max-w-[40vmin] aspect-square flex-shrink-0 shadow-sm"></div>
+                <div id="main-icon" class="w-full h-full min-w-[20vmin] max-w-[50vmin] portrait:max-w-[40vmin] aspect-square flex-shrink-0 drop-shadow-2xl"></div>
             </div>
 
             <!-- Informacoes -->
@@ -49,37 +68,37 @@
                         ultrawide:h-full">
 
                 <!-- Temperatura -->
-                <div id="temp-main" class="text-[450%] portrait:text-[400%] leading-none drop-shadow">--°</div>
+                <div id="temp-main" class="text-[450%] portrait:text-[400%] leading-none drop-shadow-xl">--°</div>
 
                 <!-- Descricao -->
-                <div id="descricao" class="text-[80%] portrait:text-[120%] opacity-90 drop-shadow">--</div>
+                <div id="descricao" class="text-[80%] portrait:text-[120%] opacity-90 drop-shadow-xl">--</div>
 
                 <!-- Sensacao termica -->
-                <div id="sensacao" class="hidden text-[80%] portrait:text-[120%] opacity-90 drop-shadow">--</div>
+                <div id="sensacao" class="hidden text-[80%] portrait:text-[120%] opacity-90 drop-shadow-xl">--</div>
 
                 <!-- Umidade + Vento -->
-                <div id="extra-row" class="flex flex-row portrait:flex-col items-center justify-center space-x-[3vmin] portrait:space-x-0 portrait:space-y-[3vmin] text-[90%]  mt-[1vmin]">
+                <div id="extra-row" class="flex flex-row items-center justify-center space-x-[3vmin] text-[90%]  mt-[1vmin] drop-shadow-lg backdrop:blur-[1.5px] bg-slate-900/20 rounded-[1vmin] p-[1.5vmin]">
 
                     <!-- Umidade -->
                     <div class="flex flex-col items-center space-y-[0.8vmin]">
-                        <span id="humidity-title" class="text-[50%] drop-shadow">Umidade</span>
+                        <span id="humidity-title" class="text-[50%]">Umidade</span>
                         <div class="flex flex-row items-center space-x-[0.8vmin]">
                             <span id="humidity-icon" class="w-[1.4em] h-[1.4em] flex items-center flex-shrink-0"></span>
-                            <span id="humidity-value" class="whitespace-nowrap drop-shadow">--%</span>
+                            <span id="humidity-value" class="whitespace-nowrap">--%</span>
                         </div>
                     </div>
 
                     <!-- Vento -->
                     <div class="flex flex-col items-center space-y-[0.8vmin]">
-                        <span id="wind-title" class="text-[50%] drop-shadow">Vento</span>
-                        <div class="flex flex-row portrait:flex-col items-center space-x-[0.8vmin] portrait:space-x-0 portrait:space-y-[0.8vmin]">
+                        <span id="wind-title" class="text-[50%] ">Vento</span>
+                        <div class="flex flex-row items-center space-x-[0.8vmin] ">
                             <div class="flex flex-row items-center space-x-[0.8vmin]">
                                 <span id="wind-icon" class="w-[1.4em] h-[1.4em] flex items-center flex-shrink-0"></span>
-                                <span id="wind-value" class="whitespace-nowrap drop-shadow">--km/h</span>
+                                <span id="wind-value" class="whitespace-nowrap ">--km/h</span>
                             </div>
                             <div class="flex flex-row items-center space-x-[0.8vmin]">
                                 <span id="wind-dir-icon" class="w-[0.8em] h-[0.8em] flex items-center flex-shrink-0"></span>
-                                <span id="wind-dir-text" class="whitespace-nowrap opacity-70 drop-shadow"></span>
+                                <span id="wind-dir-text" class="text-[70%] font-light whitespace-nowrap opacity-70"></span>
                             </div>
                         </div>
                     </div>
@@ -91,9 +110,13 @@
 
     <!-- Footer: logo climatempo -->
     <footer class="w-full flex h-[10vmin] items-center justify-end p-[1.5vmin] z-10">
-        <img src="img/climatempo.png" alt="Climatempo" class="h-[4vmin] max-w-[20vw] object-contain" />
+        <div id="sponsorBox" class="hidden flex items-center justify-end space-x-[1.2vmin] max-w-[70vw]">
+            <span id="sponsorTag" class="text-[45%] tracking-wide opacity-80">PATROCINADO</span>
+            <img id="sponsorLogo" src="" alt="Patrocinador" class="h-[4vmin] max-w-[24vw] object-contain hidden" />
+            <span id="sponsorText" class="text-[60%] whitespace-nowrap overflow-hidden text-ellipsis max-w-[36vw] hidden"></span>
+        </div>
+        <img id="climatempoLogo" src="img/climatempo.png" alt="Climatempo" class="h-[4vmin] max-w-[20vw] object-contain" />
     </footer>
 
 </body>
-
 </html>
