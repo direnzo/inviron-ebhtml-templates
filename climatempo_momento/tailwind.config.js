@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'montserrat': ['Montserrat', 'sans-serif'],
+        'google-sans-flex': ['Google Sans Flex', 'sans-serif'],
       },
       screens: {
         'empena':    { 'raw': '(max-aspect-ratio: 1/3)' },

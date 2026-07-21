@@ -12,7 +12,7 @@
             iconStyle: 'fill', // 'fill' | 'flat' | 'line' | 'monochrome'
             iconColor: '#ffffff', // só funciona com o estilo 'monochrome'
             textColor: '#ffffff', // cor do texto (opcional)
-            duration: 15000,
+            duration: 10000,
 
             // Sponsor (D_SPD)
             sponsorEnabled: false, // habilita leitura de D_SPD
@@ -31,7 +31,7 @@
     <title>Climatempo Momento</title>
 </head>
 
-<body class="relative flex flex-col h-screen w-full overflow-hidden font-montserrat leading-none font-bold text-[5vmin] superbanner:text-[8vmin] opacity-0 transition-opacity duration-800 ease-out px-[2vmin] py-[2vmin]">
+<body class="relative flex flex-col h-screen w-full overflow-hidden font-google-sans-flex leading-none text-[5vmin] superbanner:text-[8vmin] opacity-0 transition-opacity duration-800 ease-out">
 
     <div id="weather-background" class="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
         <video id="weather-video" autoplay muted loop playsinline preload="auto" class="absolute inset-0 w-full h-full object-cover"></video>
@@ -44,12 +44,12 @@
     </div>
 
     <!-- Header: cidade -->
-    <header class="w-full flex h-[15vmin] items-center justify-center z-10 py-[2.5vmin]">
-        <span id="cidade" class="drop-shadow text-[200%] tracking-wider">--</span>
+    <header class="w-full flex h-[15vmin] items-center justify-center z-10 py-[2.5vmin] bg-gradient-to-b from-slate-900 via-slate-950/60">
+        <span id="cidade" class="drop-shadow-text text-[200%] tracking-wider  rounded-xl px-[3vmin] py-[1vmin] ">--</span>
     </header>
 
     <!-- Main: conteudo central -->
-    <main class="flex-1 flex items-center justify-center w-full overflow-hidden p-[2vmin] z-10 bg-slate-900/40 backdrop-blur-2xl backdrop-fallback rounded-[2vmin]">
+    <main class="flex-1 flex items-center justify-center w-[98vw] portrait:w-[96vw] square:w-[96vw] overflow-hidden p-[2vmin] z-10 bg-slate-900/40 backdrop-blur-2xl backdrop-fallback rounded-[2vmin] mx-[2vmin]">
         <div id="content" class="flex portrait:flex-col items-center justify-center space-y-[2vmin] ls:space-y-0 ls:space-x-[2vmin] ultrawide:space-y-0 ultrawide:space-x-[2vmin] superbanner:space-y-0 superbanner:space-x-[2vmin] w-full h-full
                     ls:flex-row ultrawide:flex-row superbanner:flex-row">
 
@@ -58,7 +58,7 @@
                         portrait:w-full portrait:h-auto portrait:max-h-[40%]
                         ls:w-[45%] ls:h-full
                         ultrawide:w-[40%] ultrawide:h-full">
-                <div id="main-icon" class="w-full h-full min-w-[20vmin] max-w-[50vmin] portrait:max-w-[40vmin] aspect-square flex-shrink-0 drop-shadow-2xl"></div>
+                <div id="main-icon" class="w-full h-full min-w-[20vmin] max-w-[50vmin] portrait:max-w-[40vmin] aspect-square flex-shrink-0 drop-shadow-text"></div>
             </div>
 
             <!-- Informacoes -->
@@ -68,16 +68,16 @@
                         ultrawide:h-full">
 
                 <!-- Temperatura -->
-                <div id="temp-main" class="text-[450%] portrait:text-[400%] leading-none drop-shadow-xl">--°</div>
+                <div id="temp-main" class="text-[450%] portrait:text-[400%] leading-none drop-shadow-text">--°</div>
 
                 <!-- Descricao -->
-                <div id="descricao" class="text-[80%] portrait:text-[120%] opacity-90 drop-shadow-xl">--</div>
+                <div id="descricao" class="text-[80%] text-center portrait:text-[120%] opacity-90 drop-shadow-text">--</div>
 
                 <!-- Sensacao termica -->
-                <div id="sensacao" class="hidden text-[80%] portrait:text-[120%] opacity-90 drop-shadow-xl">--</div>
+                <div id="sensacao" class="hidden text-[80%] portrait:text-[120%] opacity-90 drop-shadow-text">--</div>
 
                 <!-- Umidade + Vento -->
-                <div id="extra-row" class="flex flex-row items-center justify-center space-x-[3vmin] text-[90%]  mt-[1vmin] drop-shadow-lg backdrop:blur-[1.5px] bg-slate-900/20 rounded-[1vmin] p-[1.5vmin]">
+                <div id="extra-row" class="flex flex-row items-center justify-center space-x-[3vmin] text-[90%]  mt-[1vmin] drop-shadow-text backdrop:blur-[1.5px] bg-slate-900/20 rounded-[1vmin] p-[1.5vmin]">
 
                     <!-- Umidade -->
                     <div class="flex flex-col items-center space-y-[0.8vmin]">

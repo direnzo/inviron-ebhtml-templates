@@ -3,8 +3,17 @@
 @tailwind utilities;
 
 @font-face {
-    font-family: "Montserrat";
-    src: url('fonts/Montserrat-VariableFont_wght.ttf');
+    font-family: "Google Sans Flex";
+    src: url('fonts/GoogleSansFlex-VariableFont_GRAD,ROND,opsz,slnt,wdth,wght.ttf') format('truetype');
+    font-optical-sizing: auto;
+    font-style: normal;
+    font-weight: 600 1000;
+    font-variation-settings:
+      "slnt" 0,
+      "wdth" 100,
+      "GRAD" 0,
+      "ROND" 100;
+
 }
 
 /* Fallbacks hex para Android 7 / Chrome < 65 */
@@ -17,9 +26,9 @@
 .drop-shadow { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5)) }
 
 /* Backgrounds tematicos por condicao climatica */
-.bg-sunny { background: linear-gradient(180deg, #007bff 0%, #4cc6f7 50%, #79c8f7 100%) }
+.bg-sunny { background: linear-gradient(180deg, #007bff 0%, #33a8d6 50%, #5cbdf5 100%) }
 .bg-sunny-cloudy { background: linear-gradient(180deg, #667485 0%, #8998a5 50%, #a0abb4 100%) } 
-.bg-cloudy { background: linear-gradient(180deg, #667485 0%, #8998a5 50%, #a0abb4 100%) }
+.bg-cloudy { background: linear-gradient(180deg, #667485 0%, #8998a5 50%, #7f888f 100%) }
 .bg-rainy { background: linear-gradient(180deg, #2c3950 0%, #6b7b8d 50%, #5e6973 100%) }
 .bg-rainy-dark { background: linear-gradient(180deg, #27292e 0%, #000000 50%, #52565d 100%) }
 .bg-storm { background: linear-gradient(180deg, #1a202c 0%, #2d3748 50%, #4a5568 100%) }
@@ -31,6 +40,7 @@
    para evitar que cssnano remova o prefixo ao mesclar regras identicas */
 .backdrop-fallback {
     -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
 }
 @media not all {
   .backdrop-fallback { backdrop-filter: blur(2px); }
@@ -146,5 +156,15 @@
   #sponsorLogo {
     height: 3.2vmin;
     max-width: 40vw;
+  }
+}
+/* For Tailwind v3.x, use the traditional layer syntax instead: */
+@layer utilities {
+
+  .drop-shadow-text {
+    /* Fallback para browsers antigos sem suporte a filter/drop-shadow */
+    text-shadow: 0 2px 2px #000;
+    -webkit-filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 1));
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 1));
   }
 }
