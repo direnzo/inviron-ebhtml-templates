@@ -7,7 +7,11 @@ Template EdgeContents para previsão do tempo, compatível com Android 7+ (WebKi
 - **Responsivo:** Fontes centralizadas no `<body>` via `vmin`, breakpoints por aspect-ratio.
 - **Playlist EBHTML:** Controle correto de `loader.loaded()` e `loader.finished()`.
 - **Mock:** Ative/desative `js/mock-data.js` para testes locais.
-- **Compatibilidade:** Sem ES6+, sem `clamp()`, com fallbacks hex para cores no CSS.
+- **Compatibilidade:** Sem ES6+, sem `clamp()`, com fallbacks hex/gap/inset/min() no CSS para Chromium 78 / WebKit legado.
+- **CONFIG_CLIMA:** Contrato de configuração definido no `<head>` do `index.html` (antes dos demais scripts) — `iconStyle`, `iconColor`, `textColor`, `duration`. O alias `corClimaPrincipal` é mantido temporariamente como fallback de `iconColor`.
+- **Cidades (D_CLIMA_CLIMATEMPO):** a fonte de dados retorna 1 único item com até 3 slots de cidade configuráveis (`C1`/`C2`/`C3`, cada um com 3 dias `D1`/`D2`/`D3`). O template detecta quais slots têm dados e, se houver mais de uma cidade configurada, alterna entre elas por rotação determinística de relógio (`Math.floor(Date.now() / duration) % totalCidades`), sem usar `localStorage` — garante comportamento consistente mesmo com múltiplas telas exibindo o mesmo conteúdo.
+- **Sempre 3 cards:** se um dos 3 dias (hoje/amanhã/depois) não tiver dados na cidade escolhida, o card reaproveita a previsão do dia mais próximo já resolvido (pode ficar "desatualizado", mas nunca falta card).
+- **Descrição do tempo:** exibe `ds_textmin_wea` (campo `DESCRICAO`) no lugar da antiga `extra-info-row` (oculta temporariamente). Auto-ajusta o tamanho da fonte via JS e some quando `window.innerHeight < 200`.
 
 ## Estrutura
 - `index.html` — Estrutura mínima, fundo animado, container dinâmico.

@@ -3,8 +3,17 @@
 @tailwind utilities;
 
 @font-face {
-    font-family: "Montserrat";
-    src: url('fonts/Montserrat-VariableFont_wght.ttf');
+    font-family: "Google Sans Flex";
+    src: url('fonts/GoogleSansFlex-VariableFont_GRAD,ROND,opsz,slnt,wdth,wght.ttf') format('truetype');
+    font-optical-sizing: auto;
+    font-style: normal;
+    /* font-weight: 600 1000; */
+    font-variation-settings:
+      "slnt" 0,
+      "wdth" 100,
+      "GRAD" 0,
+      "ROND" 100;
+
 }
 
 /* Fallbacks hex para Android 7 / Chrome < 65 */
@@ -21,4 +30,84 @@
 .rounded-2xl { border-radius: 16px }
 .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) }
 .drop-shadow { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5)) }
+
+/* ============================================================
+   ESCALA POR CARD (--cvmin)
+   --cvmin e calculado em JS (aplicarEscalaCard, master.js) como
+   min(largura, altura) do PROPRIO card / 100, em pixels. Funciona como um
+   "vmin local" do card — resolve o problema de vmin do viewport inteiro nao
+   caber quando ha varios cards lado a lado, cada um ocupando so uma fracao
+   da tela. --cvmin fica definido no elemento .card (custom property, herda
+   para os filhos). Fallback de 1px evita erro se a var ainda nao foi setada.
+   ============================================================ */
+.card {
+  --cvmin: 1px;
+}
+
+.data {
+  font-size: calc(var(--cvmin) * 6);
+}
+
+.card-texts {
+  font-size: calc(var(--cvmin) * 20); /* 150% maior que o valor anterior (12) */
+}
+
+.icon {
+  width: calc(var(--cvmin) * 46);
+  min-width: calc(var(--cvmin) * 14);
+  max-width: calc(var(--cvmin) * 46);
+  max-height: 100%; /* nunca estoura a altura disponivel na icon-temp-row (evita ficar "achatado") */
+}
+
+/* Direcao do icone + temperaturas baseada no aspect-ratio REAL de cada card
+   (classes .card-horizontal/.card-vertical aplicadas via JS em
+   aplicarOrientacaoCard, master.js) — nao no aspect-ratio da tela inteira.
+   Um card pode ficar largo/baixo mesmo em telas portrait (ex: 3 cards
+   empilhados), entao a tela ficar "ratio-portrait" nao significa que o
+   card individual tambem seja alto/estreito. */
+.icon-temp-row {
+  flex-direction: row;
+}
+.icon-temp-row > * + * {
+  margin-left: 1vmin;
+}
+.card-vertical .icon-temp-row {
+  flex-direction: column;
+}
+.card-vertical .icon-temp-row > * + * {
+  margin-left: 0;
+  margin-top: 1vmin;
+}
+
+/* .card-texts sem w-full no HTML: em card-horizontal (icone ao lado), o
+   card-texts deve ter largura de conteudo, senao "w-full" disputa 100% da
+   linha com o icone e empurra o icone quase a zero (flex-shrink). Em
+   card-vertical (icone empilhado acima), o card-texts pode ocupar a largura
+   toda da linha, ja que nao ha mais ninguem dividindo espaco com ele. */
+.card-vertical .icon-temp-row .card-texts {
+  width: 100%;
+}
+
+/* Bloco de descricao curta do tempo (ds_textmin_wea) — ajuste temporario de layout.
+   O font-size inicial/maximo aqui e so um fallback ate o JS calcular o valor real
+   via --cvmin (ver autofitDescricao em master.js). NAO usar max-height em "em"
+   relativo ao proprio elemento — o limite encolheria na mesma proporcao da fonte
+   durante o autofit e o texto nunca convergiria para caber. */
+.descricao {
+  font-size: calc(var(--cvmin) * 9);
+  line-height: 1.3;
+  overflow: hidden;
+  word-break: break-word;
+  opacity: 0.92;
+}
+
+/* Fallback de inset-0 para Chrome < 87 / WebKit legado (sem suporte ao shorthand "inset") */
+@supports not (inset: 0px) {
+  .inset-0 {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+}
 

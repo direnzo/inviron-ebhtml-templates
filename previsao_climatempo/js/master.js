@@ -23,7 +23,6 @@ function definirClasseAspectRatio() {
   else if (ar < 5)            { cls = 'ratio-ultrawide'; }
   else if (ar < 15)           { cls = 'ratio-superbanner'; }
   else                        { cls = 'ratio-footer'; }
-  console.log('[ASPECT] ar=' + ar.toFixed(4) + ' w=' + window.innerWidth + ' h=' + window.innerHeight + ' -> ' + cls);
   return cls;
 }
 
@@ -43,22 +42,179 @@ function onResize() {
   }
   resizeTimeout = setTimeout(function() {
     aplicarClasseAspectRatio();
+    redesenharCards();
   }, 200);
+}
+
+// Ultimos dados renderizados, guardados para permitir redesenho completo dos
+// cards a cada resize sem precisar recarregar a pagina nem chamar o loader
+// EBHTML de novo (ver redesenharCards mais abaixo).
+var CARDS_DADOS_ATUAIS = null;
+
+// ============================================================
+// ESCALA POR CARD (--cvmin) — dimensionamento relativo ao proprio card,
+// nao ao viewport inteiro. Resolve o problema de vmin global: com 3 cards
+// lado a lado, cada card tem uma fracao da tela, entao fontes/icones
+// dimensionados por vmin do viewport nao cabem no espaco real do card.
+// --cvmin = min(largura, altura) do card / 100, em pixels (equivalente a um
+// "vmin local" do card). Usado via calc(var(--cvmin) * N) no CSS.
+// ============================================================
+function aplicarEscalaCard(card) {
+  if (!card) return 0;
+  var base = Math.min(card.clientWidth, card.clientHeight) / 100;
+  if (base > 0) {
+    card.style.setProperty('--cvmin', base + 'px');
+  }
+  return base;
+}
+
+// Aspect-ratio AUXILIAR — captura o formato de CADA CARD individualmente
+// (nao o aspect-ratio da tela inteira). Um card pode acabar largo/baixo mesmo
+// em telas portrait (ex: 3 cards empilhados), entao a direcao do icone +
+// temperaturas deve responder ao formato real do card, nao a classe global
+// de aspect-ratio da tela (ratio-portrait/ratio-square/etc).
+var CARD_RAZAO_HORIZONTAL = 1.15; // largura/altura >= isso -> icone e temp lado a lado
+
+function aplicarOrientacaoCard(card) {
+  if (!card) return;
+  var w = card.clientWidth;
+  var h = card.clientHeight;
+  if (!w || !h) return;
+  var ar = w / h;
+  if (ar >= CARD_RAZAO_HORIZONTAL) {
+    card.classList.add('card-horizontal');
+    card.classList.remove('card-vertical');
+  } else {
+    card.classList.add('card-vertical');
+    card.classList.remove('card-horizontal');
+  }
+}
+
+function aplicarEscalaTodosCards() {
+  var cards = document.querySelectorAll('.card');
+  var i;
+  for (i = 0; i < cards.length; i++) {
+    aplicarEscalaCard(cards[i]);
+    aplicarOrientacaoCard(cards[i]);
+  }
+}
+
+// ============================================================
+// DESCRICAO (ds_textmin_wea) — visibilidade por tamanho de tela + auto-fit
+// ============================================================
+var DESCRICAO_TELA_MINIMA = 500; // px — abaixo disso (largura OU altura), oculta a descricao
+var DESCRICAO_FONTE_MAX_CVMIN = 11; // multiplicador de --cvmin (tamanho inicial da fonte)
+var DESCRICAO_FONTE_MIN_CVMIN = 5; // multiplicador de --cvmin (piso minimo legivel)
+var DESCRICAO_FONTE_PASSO_CVMIN = 0.3;
+var DESCRICAO_ALTURA_MAX_CVMIN = 26; // multiplicador de --cvmin (espaco maximo reservado)
+
+// Aplica a regra de exibicao por tamanho de tela em todas as descricoes.
+// Retorna true se as descricoes devem ficar visiveis.
+function aplicarVisibilidadeDescricao() {
+  var visivel = window.innerWidth >= DESCRICAO_TELA_MINIMA && window.innerHeight >= DESCRICAO_TELA_MINIMA;
+  var els = document.querySelectorAll('.descricao');
+  var i;
+  for (i = 0; i < els.length; i++) {
+    if (visivel && els[i].getAttribute('data-tem-texto') === '1') {
+      els[i].classList.remove('hidden');
+    } else {
+      els[i].classList.add('hidden');
+    }
+  }
+  return visivel;
+}
+
+// Reduz progressivamente o font-size ate o texto caber no espaco disponivel
+// (sem overflow), respeitando um limite minimo. ES5, sem clamp()/APIs modernas.
+//
+// IMPORTANTE: tanto o tamanho da fonte quanto o limite maximo de altura sao
+// calculados a partir de --cvmin (escala do PROPRIO card, em pixels fixos) —
+// nunca em "em" relativo a si mesmo, senao o limite encolheria na mesma
+// proporcao da fonte e o numero de linhas nunca convergiria.
+function autofitDescricao(el) {
+  if (!el || el.classList.contains('hidden')) return;
+
+  var card = el.parentNode;
+  var cvmin = aplicarEscalaCard(card);
+  if (!cvmin) return;
+
+  var fonte = DESCRICAO_FONTE_MAX_CVMIN;
+  el.style.maxHeight = 'none';
+  el.style.fontSize = (cvmin * fonte) + 'px';
+  el.style.maxHeight = (cvmin * DESCRICAO_ALTURA_MAX_CVMIN) + 'px';
+
+  var tentativas = 0;
+  while (el.scrollHeight > el.clientHeight && fonte > DESCRICAO_FONTE_MIN_CVMIN && tentativas < 40) {
+    fonte -= DESCRICAO_FONTE_PASSO_CVMIN;
+    el.style.fontSize = (cvmin * fonte) + 'px';
+    tentativas++;
+  }
+}
+
+function autofitTodasDescricoes() {
+  if (!aplicarVisibilidadeDescricao()) return;
+  var els = document.querySelectorAll('.descricao');
+  var i;
+  for (i = 0; i < els.length; i++) {
+    autofitDescricao(els[i]);
+  }
+}
+
+// ============================================================
+// SELECAO DE CIDADE (D_CLIMA_CLIMATEMPO tem 1 ITEM com ate 3 slots C1/C2/C3)
+// ============================================================
+var CIDADE_SLOTS = ["C1", "C2", "C3"];
+var CIDADE_DIAS = ["D1", "D2", "D3"];
+
+// Retorna a lista de slots (ex: ["C1","C3"]) que tem pelo menos um dia com dados.
+function detectarSlotsDeCidade(item) {
+  var slotsValidos = [];
+  var s, d, campo, arrStr, parsed;
+  for (s = 0; s < CIDADE_SLOTS.length; s++) {
+    var temDados = false;
+    for (d = 0; d < CIDADE_DIAS.length; d++) {
+      campo = CIDADE_SLOTS[s] + "_" + CIDADE_DIAS[d] + "_DATAARRAY";
+      arrStr = "";
+      try {
+        if (item && typeof item.value === "function") {
+          arrStr = item.value(campo).value;
+        }
+      } catch (e) { arrStr = ""; }
+      if (arrStr) {
+        try {
+          parsed = JSON.parse(arrStr);
+          if (parsed && parsed.length > 0) {
+            temDados = true;
+            break;
+          }
+        } catch (e2) { /* ignora array invalido */ }
+      }
+    }
+    if (temDados) slotsValidos.push(CIDADE_SLOTS[s]);
+  }
+  if (slotsValidos.length === 0) slotsValidos.push("C1");
+  return slotsValidos;
+}
+
+// Escolhe um slot por rotacao deterministica de relogio (sem localStorage):
+// slot = floor(agora / duracao) % total. Com 1 unica cidade configurada,
+// sempre cai no mesmo slot (comportamento identico ao atual).
+function escolherSlotDeCidade(slotsValidos, duracaoMs) {
+  var intervalo = duracaoMs || 10000;
+  var indice = Math.floor(Date.now() / intervalo) % slotsValidos.length;
+  return slotsValidos[indice];
 }
 
 window.onload = function () {
   // Aplica classe de aspect ratio
   aplicarClasseAspectRatio();
+  aplicarVisibilidadeDescricao();
   window.addEventListener('resize', onResize);
 
   if (typeof MOCK_DATA !== "undefined" && MOCK_DATA.enabled) {
     var mockLoader = {
-      loaded: function () {
-        console.log("[Mock] Carregado");
-      },
-      finished: function () {
-        console.log("[Mock] Finalizado");
-      },
+      loaded: function () {},
+      finished: function () {},
     };
     iniciarTemplate(MOCK_DATA.dados, MOCK_DATA.config, mockLoader);
   } else {
@@ -68,14 +224,22 @@ window.onload = function () {
       loader.nodataiserror = false;
       loader.load(function () {
         var dados = [];
-        var config = { duration: 10000 };
+        var duracaoConfig = (typeof CONFIG_CLIMA !== "undefined" && CONFIG_CLIMA.duration) || 10000;
+        var config = { duration: duracaoConfig };
         var item = loader.data("D_CLIMA_CLIMATEMPO");
         var cidade = "";
-        // Busca em todos os arrays disponiveis (C1, C2, C3 com D1, D2, D3)
+
+        // O XML tem 1 unico ITEM com ate 3 slots de cidade configuraveis (C1/C2/C3),
+        // cada slot com 3 dias (D1/D2/D3). Detecta quais slots tem dados validos e
+        // escolhe UM slot por vez (rotacao por relogio, sem localStorage) para nunca
+        // misturar dados de cidades diferentes no mesmo conjunto de 3 cards.
+        var slotsValidos = detectarSlotsDeCidade(item);
+        var slotEscolhido = escolherSlotDeCidade(slotsValidos, duracaoConfig);
+
         var todosArrays = [
-          "C1_D1_DATAARRAY", "C1_D2_DATAARRAY", "C1_D3_DATAARRAY",
-          "C2_D1_DATAARRAY", "C2_D2_DATAARRAY", "C2_D3_DATAARRAY",
-          "C3_D1_DATAARRAY", "C3_D2_DATAARRAY", "C3_D3_DATAARRAY"
+          slotEscolhido + "_D1_DATAARRAY",
+          slotEscolhido + "_D2_DATAARRAY",
+          slotEscolhido + "_D3_DATAARRAY"
         ];
         var agoraTimestamp = Math.floor(new Date().getTime() / 1000);
         var agoraDate = new Date();
@@ -122,45 +286,6 @@ window.onload = function () {
           diasMap[diaKey].push(reg);
         }
         
-        console.log('[CLIMA] Total de registros futuros coletados: ' + todosFuturos.length);
-        
-        // Log detalhado: todos os timestamps agrupados por dia - USA LOCAL TIME (São Paulo)
-        var diasDebug = {};
-        for (var i = 0; i < todosFuturos.length; i++) {
-          var reg = todosFuturos[i];
-          var dt = new Date(reg.dt_date_wea * 1000);
-          var diaKey = dt.getFullYear() + "-" + ("0" + (dt.getMonth() + 1)).slice(-2) + "-" + ("0" + dt.getDate()).slice(-2);
-          if (!diasDebug[diaKey]) diasDebug[diaKey] = [];
-          diasDebug[diaKey].push(dt.getHours() + 'h');
-        }
-        console.log('[CLIMA] Detalhamento por dia:');
-        for (var dk in diasDebug) {
-          if (diasDebug.hasOwnProperty(dk)) {
-            console.log('  ' + dk + ': ' + diasDebug[dk].length + ' registros - horários: ' + diasDebug[dk].join(', '));
-          }
-        }
-        
-        // Log de todos os timestamps (primeiros e ultimos de cada array)
-        console.log('[CLIMA] Timestamps por array:');
-        for (var a = 0; a < todosArrays.length; a++) {
-          var arrNome = todosArrays[a];
-          var registrosArray = [];
-          for (var i = 0; i < todosFuturos.length; i++) {
-            if (todosFuturos[i]._sourceArray === arrNome) {
-              registrosArray.push(todosFuturos[i]);
-            }
-          }
-          if (registrosArray.length > 0) {
-            var primeiro = registrosArray[0];
-            var ultimo = registrosArray[registrosArray.length - 1];
-            var dtPrimeiro = new Date(primeiro.dt_date_wea * 1000);
-            var dtUltimo = new Date(ultimo.dt_date_wea * 1000);
-            console.log('  ' + arrNome + ': ' + registrosArray.length + ' registros | ' +
-              dtPrimeiro.toLocaleString('pt-BR') + ' até ' +
-              dtUltimo.toLocaleString('pt-BR'));
-          }
-        }
-        
         // Funcao auxiliar: busca registro mais proximo do horario alvo - USA LOCAL TIME
         function buscarMelhorHorario(registrosDia, horaAlvo, minAlvo) {
           var melhorReg = null;
@@ -187,47 +312,74 @@ window.onload = function () {
           diasEsperados.push(diaKey);
         }
         
-        console.log('[CLIMA] Dias esperados: ' + diasEsperados.join(', '));
-        console.log('[CLIMA] Dias disponiveis no XML: ' + Object.keys(diasMap).sort().join(', '));
+        console.log('[CLIMA][DATA] Dias esperados (hoje/amanha/depois): ' + diasEsperados.join(', '));
+        console.log('[CLIMA][DATA] Dias disponiveis no XML: ' + Object.keys(diasMap).sort().join(', '));
         
-        // Busca registro para cada dia esperado
+        // Monta o objeto de dados de um card a partir do registro escolhido
+        function montarCardData(melhorReg, indiceCard) {
+          var dataObj = new Date(melhorReg.dt_date_wea * 1000);
+          var diaSemana = ["DOMINGO", "SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SÁBADO"][dataObj.getDay()];
+          var dia = dataObj.getDate();
+          if (dia < 10) dia = "0" + dia;
+          var mes = dataObj.getMonth() + 1;
+          if (mes < 10) mes = "0" + mes;
+          var dataStr = dia + "/" + mes;
+          // Log da data/hora real do registro escolhido para este card (o que efetivamente vai pra tela)
+          console.log('[CLIMA][DATA] Card ' + (indiceCard + 1) + ' -> ' + dataStr + ' ' + ("0" + dataObj.getHours()).slice(-2) + ":" + ("0" + dataObj.getMinutes()).slice(-2) + ' | timestamp=' + melhorReg.dt_date_wea + ' | array=' + (melhorReg._sourceArray || 'N/A'));
+          return {
+            CIDADE: cidade,
+            DIA: diaSemana,
+            DATA: dataStr,
+            HORA: ("0" + dataObj.getHours()).slice(-2) + ":" + ("0" + dataObj.getMinutes()).slice(-2),
+            MAX: melhorReg.nr_max_wea,
+            MIN: melhorReg.nr_min_wea,
+            ICON: melhorReg.nr_icon_wea,
+            QTDE_CHUVA: melhorReg.nr_precipitation_wea,
+            PROB_CHUVA: melhorReg.nr_probrain_wea,
+            VENTO_DIR: melhorReg.ds_winddirection_wea,
+            VENTO_VEL: melhorReg.nr_windavgvelocity_wea,
+            UV: melhorReg.nr_uv_wea,
+            UVLEVEL: melhorReg.ds_uvlevel_wea,
+            DESCRICAO: melhorReg.ds_textmin_wea || ""
+          };
+        }
+
+        // Busca registro para cada dia esperado (hoje, amanha, depois de amanha)
+        var diaResultados = [null, null, null];
         for (var d = 0; d < diasEsperados.length; d++) {
           var diaKey = diasEsperados[d];
           var registrosDia = diasMap[diaKey];
-          
+
           if (!registrosDia || registrosDia.length === 0) {
-            console.warn('[CLIMA] ALERTA: Sem dados para o dia ' + diaKey + ' (Card ' + (d + 1) + ')');
+            console.warn('[CLIMA][DATA] ALERTA: Sem dados para o dia ' + diaKey + ' (Card ' + (d + 1) + ')');
             continue;
           }
-          
+
           var melhorReg = buscarMelhorHorario(registrosDia, horaAlvo, minAlvo);
           if (melhorReg) {
-            var dataObj = new Date(melhorReg.dt_date_wea * 1000);
-            var diaSemana = ["DOMINGO", "SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SÁBADO"][dataObj.getDay()];
-            var dia = dataObj.getDate();
-            if (dia < 10) dia = "0" + dia;
-            var mes = dataObj.getMonth() + 1;
-            if (mes < 10) mes = "0" + mes;
-            var dataStr = dia + "/" + mes;
-            // Log do registro selecionado
-            console.log('[CLIMA] Card ' + (d + 1) + ' | array=' + (melhorReg._sourceArray || 'N/A') + ' | data=' + dataStr + ' ' + ("0" + dataObj.getHours()).slice(-2) + ":" + ("0" + dataObj.getMinutes()).slice(-2) + ' | ts=' + melhorReg.dt_date_wea + ' | icon=' + melhorReg.nr_icon_wea + ' | max=' + melhorReg.nr_max_wea + ' min=' + melhorReg.nr_min_wea + ' | prob_chuva=' + melhorReg.nr_probrain_wea + ' | vento=' + melhorReg.ds_winddirection_wea + ' ' + melhorReg.nr_windavgvelocity_wea + 'km/h | uv=' + melhorReg.nr_uv_wea);
-            dados.push({
-              CIDADE: cidade,
-              DIA: diaSemana,
-              DATA: dataStr,
-              HORA: ("0" + dataObj.getHours()).slice(-2) + ":" + ("0" + dataObj.getMinutes()).slice(-2),
-              MAX: melhorReg.nr_max_wea,
-              MIN: melhorReg.nr_min_wea,
-              ICON: melhorReg.nr_icon_wea,
-              QTDE_CHUVA: melhorReg.nr_precipitation_wea,
-              PROB_CHUVA: melhorReg.nr_probrain_wea,
-              VENTO_DIR: melhorReg.ds_winddirection_wea,
-              VENTO_VEL: melhorReg.nr_windavgvelocity_wea,
-              UV: melhorReg.nr_uv_wea,
-              UVLEVEL: melhorReg.ds_uvlevel_wea
-            });
+            diaResultados[d] = montarCardData(melhorReg, d);
           }
         }
+
+        // Garante sempre 3 cards: reaproveita a previsao mais proxima ja resolvida
+        // (pode ficar "desatualizada" no card preenchido, mas nunca falta card).
+        var g;
+        for (g = 1; g < diaResultados.length; g++) {
+          if (!diaResultados[g] && diaResultados[g - 1]) {
+            console.warn('[CLIMA][DATA] Card ' + (g + 1) + ' sem dados - reaproveitando previsao do card ' + g);
+            diaResultados[g] = diaResultados[g - 1];
+          }
+        }
+        for (g = diaResultados.length - 2; g >= 0; g--) {
+          if (!diaResultados[g] && diaResultados[g + 1]) {
+            console.warn('[CLIMA][DATA] Card ' + (g + 1) + ' sem dados - reaproveitando previsao do card ' + (g + 2));
+            diaResultados[g] = diaResultados[g + 1];
+          }
+        }
+        for (g = 0; g < diaResultados.length; g++) {
+          if (diaResultados[g]) dados.push(diaResultados[g]);
+        }
+
         if (dados.length === 0) {
           loader.finished();
           return;
@@ -238,7 +390,63 @@ window.onload = function () {
   }
 };
 
+// Cor principal dos icones (CONFIG_CLIMA.iconColor e o contrato oficial;
+// corClimaPrincipal e alias temporario mantido para compatibilidade).
+// Extraida em funcao propria para ser reaproveitada tanto no render inicial
+// (iniciarTemplate) quanto no redesenho por resize (redesenharCards).
+function resolverCorClima() {
+  var corClima = "#ffffff"; // padrao
+  if (typeof CONFIG_CLIMA !== "undefined") {
+    if (CONFIG_CLIMA.iconColor) {
+      corClima = CONFIG_CLIMA.iconColor;
+    } else if (CONFIG_CLIMA.corClimaPrincipal) {
+      corClima = CONFIG_CLIMA.corClimaPrincipal;
+    }
+  }
+  return corClima;
+}
+
+// Reconstroi os cards no DOM a partir dos dados ja carregados em memoria
+// (CARDS_DADOS_ATUAIS), sem recarregar a pagina nem chamar o loader EBHTML
+// de novo. Chamada a cada resize (com debounce, ver onResize) para garantir
+// que o layout sempre "redesenhe" do zero e nao acumule estados intermediarios
+// de um redimensionamento anterior.
+function redesenharCards() {
+  if (!CARDS_DADOS_ATUAIS || !CARDS_DADOS_ATUAIS.length) return;
+
+  var cardsContainer = document.getElementById("cards");
+  var template = document.getElementById("card-template");
+  if (!cardsContainer || !template) return;
+
+  var corClima = resolverCorClima();
+
+  // Remove os cards atuais
+  while (cardsContainer.firstChild) {
+    cardsContainer.removeChild(cardsContainer.firstChild);
+  }
+
+  var cardsElements = [];
+  var i;
+  for (i = 0; i < CARDS_DADOS_ATUAIS.length; i++) {
+    var cardClone = template.content.cloneNode(true);
+    var card = cardClone.querySelector(".card");
+    preencherCardClima(card, CARDS_DADOS_ATUAIS[i], corClima);
+    // Redesenho por resize: cards aparecem direto no lugar, sem repetir o
+    // slide-in de entrada (isso e so para o primeiro carregamento).
+    card.classList.remove("-translate-x-[120%]", "opacity-0");
+    card.classList.add("translate-x-0", "opacity-100");
+    card.style.transitionDelay = "0ms";
+    cardsContainer.appendChild(card);
+    cardsElements.push(card);
+  }
+
+  aplicarEscalaTodosCards();
+  autofitTodasDescricoes();
+}
+
 function iniciarTemplate(dados, config, loader) {
+  CARDS_DADOS_ATUAIS = dados;
+
   // Header: cidade
   var cidadeEl = document.getElementById("cidade");
   if (cidadeEl && dados[0] && dados[0].CIDADE) {
@@ -246,11 +454,12 @@ function iniciarTemplate(dados, config, loader) {
   }
 
   // Aplica cor principal dos ícones via variável CSS
-  var corClima = "#fff"; // padrão
-  if (typeof CONFIG_CLIMA !== "undefined" && CONFIG_CLIMA.corClimaPrincipal) {
-    corClima = CONFIG_CLIMA.corClimaPrincipal;
-  }
+  var corClima = resolverCorClima();
   document.body.style.setProperty("--clima-principal", corClima);
+
+  // Aplica cor do texto via CONFIG_CLIMA (fallback: branco)
+  var corTexto = (typeof CONFIG_CLIMA !== "undefined" && CONFIG_CLIMA.textColor) ? CONFIG_CLIMA.textColor : "#ffffff";
+  document.body.style.color = corTexto;
 
   // Criar cards dinamicamente a partir do template
   var cardsContainer = document.getElementById("cards");
@@ -270,19 +479,21 @@ function iniciarTemplate(dados, config, loader) {
     cardsElements.push(card);
   }
 
-  console.log('[CLIMA] Cards renderizados: ' + cardsElements.length);
-
   // Fade in do body
   document.body.classList.remove("opacity-0");
   document.body.classList.add("opacity-100");
 
   // Força reflow antes de animar (para garantir que animação funcione)
   void cardsContainer.offsetHeight;
-  
+
   // Aguarda próximo frame para aplicar animação
   setTimeout(function() {
+    aplicarEscalaTodosCards();
     animarCards(cardsElements, dados.length);
+    autofitTodasDescricoes();
   }, 50);
+
+  var duracaoFinal = (typeof CONFIG_CLIMA !== "undefined" && CONFIG_CLIMA.duration) || (config && config.duration) || 10000;
 
   if (loader) loader.loaded();
   setTimeout(function () {
@@ -291,7 +502,7 @@ function iniciarTemplate(dados, config, loader) {
     setTimeout(function () {
       if (loader) loader.finished();
     }, 1000);
-  }, config.duration || 10000);
+  }, duracaoFinal);
 }
 
 // Função para animar os cards com translate-X + opacity
@@ -314,7 +525,22 @@ function preencherCardClima(card, d, corClima) {
     dataDiv.innerText = d.DIA || "";
   }
   if (dateHourDiv) {
-    dateHourDiv.innerText = d.DATA + " " + (d.HORA || "--");
+    // dateHourDiv.innerText = d.DATA + " " + (d.HORA || "--");
+    dateHourDiv.innerText = d.DATA;
+
+  }
+  // Descrição curta do tempo (ds_textmin_wea) — fallback vazio evita espaço morto
+  var descricaoDiv = card.querySelector(".descricao");
+  if (descricaoDiv) {
+    var textoDescricao = (d.DESCRICAO || "").toString().replace(/^\s+|\s+$/g, "");
+    if (textoDescricao) {
+      descricaoDiv.innerText = textoDescricao;
+      descricaoDiv.setAttribute("data-tem-texto", "1");
+    } else {
+      descricaoDiv.innerText = "";
+      descricaoDiv.setAttribute("data-tem-texto", "0");
+      descricaoDiv.classList.add("hidden");
+    }
   }
   // Ícone principal (Meteocon SVG via XHR)
   var iconDiv = card.querySelector(".icon");
@@ -347,7 +573,7 @@ function preencherCardClima(card, d, corClima) {
           svg.style.width = '100%';
           svg.style.height = '100%';
           svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-          svg.style.color = '#fb923c';
+          svg.style.color = '#f9b71e';
         }
       }
     };
@@ -366,7 +592,7 @@ function preencherCardClima(card, d, corClima) {
           svg.style.width = '100%';
           svg.style.height = '100%';
           svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-          svg.style.color = '#60a5fa';
+          svg.style.color = '#80ace3';
         }
       }
     };
@@ -400,7 +626,7 @@ function preencherCardClima(card, d, corClima) {
   var ventoIcon = card.querySelector(".vento-icon");
   if (ventoIcon) {
     var nomeIconeVento = ventoVelocidadeParaIcone(d.VENTO_VEL);
-    injetarMeteocon(ventoIcon, nomeIconeVento);
+    injetarMeteocon(ventoIcon, nomeIconeVento, corClima);
   }
   var dirVentoSvg = card.querySelector(".dir-vento-svg");
   if (dirVentoSvg && d.VENTO_DIR) {

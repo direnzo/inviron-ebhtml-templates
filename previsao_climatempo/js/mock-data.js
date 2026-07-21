@@ -25,7 +25,8 @@ var MOCK_DATA = {
             VENTO_DIR: "SE",
             VENTO_VEL: "80",
             UV: "5",
-            UVLEVEL: "Moderado"
+            UVLEVEL: "Moderado",
+            DESCRICAO: "Sol com muitas nuvens durante o dia e períodos de céu nublado. Noite com muitas nuvens."
         },
         {
             CIDADE: "São Paulo",
@@ -39,7 +40,8 @@ var MOCK_DATA = {
             VENTO_DIR: "N",
             VENTO_VEL: "8",
             UV: "3",
-            UVLEVEL: "Baixo"
+            UVLEVEL: "Baixo",
+            DESCRICAO: "Céu nublado com possibilidade de garoa o dia todo. À noite as nuvens diminuem devagar."
         },
         {
             CIDADE: "São Paulo",
@@ -53,7 +55,8 @@ var MOCK_DATA = {
             VENTO_DIR: "WSW",
             VENTO_VEL: "15",
             UV: "8",
-            UVLEVEL: "Muito Alto"
+            UVLEVEL: "Muito Alto",
+            DESCRICAO: "Céu nublado com possibilidade de garoa de dia e à noite."
         }
     ]
 };
