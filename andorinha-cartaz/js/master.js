@@ -49,6 +49,7 @@ window.onload = function () {
         var item = loader.data(DATASET);
         var dados = {
           titulo: getField(item, "TITULO"),
+          foto: getField(item, "FOTO"),
           price: getField(item, "PRICE"),
           price2: getField(item, "PRICE2"), // preço antigo (DEPOR/FIDELIDADE) ou preço secundário (APARTIRDE)
           price3: getField(item, "PRICE3"), // preço terciário (FIDELIDADE - preço sem condição)
@@ -69,6 +70,11 @@ function getField(item, fieldName) {
   if (!item) return "";
   var field = item.value(fieldName);
   return field && field.value ? field.value : "";
+}
+
+function limparTexto(valor) {
+  if (!valor) return "";
+  return String(valor).replace(/^\s+|\s+$/g, "");
 }
 
 function formatarPreco(valor) {
@@ -120,7 +126,7 @@ function aplicarBackground(condicao) {
 
   var img = document.createElement("img");
   img.src = bgPath;
-  img.className = "absolute inset-0 w-full h-full object-cover";
+  img.className = "absolute inset-0 w-full h-full object-fit";
   bgContainer.appendChild(img);
 }
 
@@ -129,29 +135,32 @@ function renderizar(dados, loader) {
   console.log("[Renderizar]", dados);
 
   try {
-    // 1. Título
+    // 1. Foto do produto (somente quando FOTO existir)
+    renderizarFoto(dados.foto);
+
+    // 2. Título
     var tituloEl = document.getElementById("titulo");
     if (tituloEl) {
       tituloEl.textContent = dados.titulo || "PRODUTO";
     }
 
-    // 2. Condição
+    // 3. Condição
     var condicao = normalizarCondicao(dados.condicao);
     console.log("[Condição]", condicao);
 
-    // 3. Background
+    // 4. Background
     aplicarBackground(condicao);
 
-    // 4. Preço (usando template HTML)
+    // 5. Preço (usando template HTML)
     renderizarPreco(dados, condicao);
 
-    // 5. Texto legal (rodapé)
+    // 6. Texto legal (rodapé)
     var legalEl = document.getElementById("legal_text");
     if (legalEl && dados.legal) {
       legalEl.textContent = dados.legal;
     }
 
-    // 6. Animação de entrada
+    // 7. Animação de entrada
     var body = document.body;
     var fullContent = document.getElementById("fullContent");
 
@@ -175,6 +184,27 @@ function renderizar(dados, loader) {
     console.error("[ERRO] Falha na renderização:", erro);
     loader.finished(); // ✅ Erro durante renderização - apenas finished
   }
+}
+
+function renderizarFoto(urlFoto) {
+  var wrapperEl = document.getElementById("product_image_wrapper");
+  var imageEl = document.getElementById("product_image");
+  var fotoLimpa = limparTexto(urlFoto);
+
+  if (!wrapperEl || !imageEl) return;
+
+  if (!fotoLimpa) {
+    wrapperEl.classList.add("hidden");
+    imageEl.removeAttribute("src");
+    return;
+  }
+
+  wrapperEl.classList.remove("hidden");
+  imageEl.src = fotoLimpa;
+  imageEl.onerror = function () {
+    wrapperEl.classList.add("hidden");
+    imageEl.removeAttribute("src");
+  };
 }
 
 // ─── RENDERIZAR PREÇO (usando templates HTML) ──────────────────────────────

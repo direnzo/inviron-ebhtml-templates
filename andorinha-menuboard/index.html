@@ -13,7 +13,7 @@
   <script src="js/master.js" defer></script>
 </head>
 
-<body class="w-full h-full flex-col overflow-hidden flex items-center justify-center landscape:bg-[url('../img/bg_menuboard_horizontal.jpg')] portrait:bg-[url('../img/bg_menuboard_vertical.jpg')] bg-cover font-futura-bold text-[4vmin] landscape:text-[3vmin] leading-none p-8 portrait:pt-[11vh] portrait:pb-[6vh] landscape:py-[11vh]  opacity-0 transition-opacity duration-700">
+<body class="w-full h-full flex-col overflow-hidden flex items-center landscape:bg-[url('../img/bg_menuboard_horizontal.jpg')] portrait:bg-[url('../img/bg_menuboard_vertical.jpg')] bg-cover font-futura-bold text-[4vmin] landscape:text-[4vmin] leading-none p-8 portrait:pt-[11vh] portrait:pb-[6vh] landscape:py-[11vh]  opacity-0 transition-opacity duration-700">
 
   <!-- Container Principal -->
   <div id="table-container" class="w-full opacity-0 transition-opacity duration-700 portrait:h-full landscape:max-h-full flex flex-col landscape:flex-row landscape:gap-8 overflow-hidden">
@@ -26,16 +26,16 @@
 
     <!-- Template de linha -->
     <template id="row-template">
-      <div class="flex items-center gap-4 opacity-0 translate-y-4 transform transition-all duration-500 portrait:flex-1">
+      <div class="flex items-start gap-0 opacity-0 translate-y-4 transform transition-all duration-500 portrait:flex-1 w-full">
         
         <!-- Bloco Esquerdo: Descrição -->
-        <div class="bloco-descricao flex-1 flex flex-col justify-center rounded-[2vh] p-4 portrait:py-3 landscape:py-2 portrait:h-full">
-          <span class="titulo font-bold"></span>
+        <div class="bloco-descricao flex-1 w-1/2 flex flex-col justify-center rounded-s-[2vh] p-4 portrait:py-3 landscape:py-4 ">
+          <span class="titulo font-bold truncate"></span>
           <span class="texto1 italic mt-1 opacity-70 hidden"></span>
         </div>
 
         <!-- Bloco Direito: Preços -->
-        <div class="bloco-precos bg-blue-600 rounded-[2vh] flex flex-col justify-center p-4 portrait:py-3 landscape:py-2 portrait:min-w-[22vw] landscape:min-w-[9vw] flex flex-col items-end portrait:h-full">
+        <div class="bloco-precos bg-blue-600 rounded-e-[2vh] -ml-[1px] flex flex-col justify-center p-4 portrait:py-3 landscape:py-4 portrait:min-w-[16vw] landscape:min-w-[8vw] items-end ">
           <!-- Linha 1: TEXTO2 + PRICE -->
           <div class="flex items-baseline gap-2 w-full justify-between">
             <span class="texto2 text-[40%] opacity-70 hidden"></span>

@@ -6,8 +6,23 @@
 
 document.addEventListener("DOMContentLoaded", function () {
   // ─── Configuração ────────────────────────────────────────────────────────
-  var selectedCategory = "a_aves"; // Categoria padrão
+// Menuboard Açougue	menuboard_acougue	
+// Menuboard Bebidas	menuboard_bebidas	
+// Menuboard Café	menuboard_cafe	
+// Menuboard Frango	menuboard_frango	
+// Menuboard Frios	menuboard_frios	
+// Menuboard Leite	menuboard_leite	
+// Menuboard Peixaria	menuboard_peixaria	
+// Menuboard Salgados	menuboard_salgados
+
+  var selectedCategory = "menuboard_peixaria"; // Categoria padrão
   var displayDuration = 10000; // 10 segundos porexibição
+  var CONFIG = {
+    // Limite de caracteres do TITULO (0 ou negativo = sem limite)
+    maxTitleCharsLandscape: 38,
+    maxTitleCharsPortrait: 30,
+    titleTruncateSuffix: "",
+  };
 
   // ─── Elementos DOM ───────────────────────────────────────────────────────
   var contentRowsContainer = document.getElementById("content-rows");
@@ -53,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Calcula font-size proporcional à altura da linha
     // Base: altura linha / 3.5 (ajuste para caber título + preço confortavelmente)
-    var fontSize = Math.floor(alturaLinha / 2.5);
+    var fontSize = Math.floor(alturaLinha / 2.2);
 
     console.log("[INFO] Container height:", containerHeight + "px");
     console.log("[INFO] Altura calculada por linha:", alturaLinha + "px");
@@ -90,6 +105,28 @@ document.addEventListener("DOMContentLoaded", function () {
     return inteiro + "," + centavos;
   }
 
+  function getMaxTitleChars() {
+    return isLandscape()
+      ? CONFIG.maxTitleCharsLandscape
+      : CONFIG.maxTitleCharsPortrait;
+  }
+
+  function limitarTitulo(texto) {
+    var titulo = (texto || "").toUpperCase();
+    var maxChars = getMaxTitleChars();
+    var suffix = CONFIG.titleTruncateSuffix || "";
+
+    if (maxChars <= 0 || titulo.length <= maxChars) {
+      return titulo;
+    }
+
+    if (suffix.length >= maxChars) {
+      return titulo.substring(0, maxChars);
+    }
+
+    return titulo.substring(0, maxChars - suffix.length) + suffix;
+  }
+
   function criarLinha(item, index) {
     // Clona o template
     var row = rowTemplate.content.cloneNode(true);
@@ -118,20 +155,20 @@ document.addEventListener("DOMContentLoaded", function () {
     var linhaPrice2 = row.querySelector(".linha-price2");
 
     // Título (obrigatório)
-    titulo.textContent = item.value("TITULO").value.toUpperCase();
+    titulo.textContent = limitarTitulo(item.value("TITULO").value);
 
     // Subtítulo (opcional - ex: "Lata 269ml")
     var valorTexto1 = item.value("TEXTO1").value;
     if (valorTexto1) {
       texto1.textContent = valorTexto1;
-      texto1.classList.remove("hidden");
+      // texto1.classList.remove("hidden");
     }
 
     // Label do primeiro preço (ex: "UNID.", "KG")
     var valorTexto2 = item.value("TEXTO2").value;
     if (valorTexto2) {
       texto2.textContent = valorTexto2;
-      texto2.classList.remove("hidden");
+      // texto2.classList.remove("hidden");
     }
 
     // Preço principal
@@ -144,7 +181,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (valorPrice2 && valorTexto3) {
       texto3.textContent = valorTexto3;
       price2.textContent = formatarPreco(valorPrice2);
-      linhaPrice2.classList.remove("hidden");
+      // linhaPrice2.classList.remove("hidden");
     }
 
     return row;
@@ -253,8 +290,6 @@ document.addEventListener("DOMContentLoaded", function () {
           var filtro =
             "f_category=" +
             category +
-            "&f_TEXTO2=" +
-            local +
             "&amount=" +
             maxItems +
             "&order=ID&orderkind=id";

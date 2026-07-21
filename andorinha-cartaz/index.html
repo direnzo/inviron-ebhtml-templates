@@ -20,17 +20,24 @@
     <div id="background_container" class="absolute inset-0 z-0"></div>
 
     <!-- Conteúdo principal -->
-    <div id="fullContent" class="relative z-10 w-full h-full flex flex-col opacity-0 transition-opacity duration-300 pt-[28%] text-[7vmin]">
+    <div id="fullContent" class="relative z-10 w-full h-full flex flex-col opacity-0 transition-opacity duration-300 pt-[35%] text-[7vmin]">
 
-        <!-- 1. TÍTULO DO PRODUTO -->
-        <div class="flex-none flex items-center justify-center w-full px-6 py-8 max-h-[22%]">
+        <!-- 1. FOTO DO PRODUTO (opcional) -->
+        <div id="product_image_wrapper" class="hidden flex-none w-full px-6 pb-4">
+            <div class="w-full flex items-center justify-center">
+                <img id="product_image" class="max-h-[45vmin] w-auto max-w-full object-contain" alt="Foto do produto">
+            </div>
+        </div>
+
+        <!-- 2. DESCRIÇÃO DO PRODUTO -->
+        <div class="flex-none flex items-center justify-center w-full px-6 py-6 max-h-[22%]">
             <div id="titulo" class="text-center font-bold leading-tight uppercase"></div>
         </div>
 
-        <!-- 2. PREÇO (preenchido via template) -->
+        <!-- 3. PREÇO (preenchido via template) -->
         <div id="price_display" class="flex-1 flex items-center justify-center w-full px-4 py-2 min-h-0"></div>
 
-        <!-- 3. TEXTO LEGAL (rodapé) -->
+        <!-- 4. TEXTO LEGAL (rodapé) -->
         <div id="legal_text" class="flex-none text-[30%] text-red-700 text-center #FF0000] font-bold px-4 py-3 leading-tight uppercase"></div>
     </div>
 
@@ -139,7 +146,6 @@
 
         </div>
     </template>
-80
 </body>
 
 </html>

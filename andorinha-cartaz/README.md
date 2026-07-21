@@ -41,5 +41,5 @@ Comentar `<script src="js/mock-data.js">` no HTML antes de compilar no ebhtmlbui
 ## Dataset EdgeContents
 
 - Dataset: `D_MENUBOARD_PRICES`
-- Campos: `TITULO`, `PRICE`, `PRICE2`, `TEXTO3` (condição), `TEXTO4` (unidade), `TEXTO5` (legal)
+- Campos: `TITULO`, `FOTO` (URL opcional da imagem), `PRICE`, `PRICE2`, `TEXTO3` (condição), `TEXTO4` (unidade), `TEXTO5` (legal)
 
