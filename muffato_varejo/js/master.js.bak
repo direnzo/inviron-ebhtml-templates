@@ -1,0 +1,712 @@
+// Variáveis globais para controle de localStorage e dados
+var local_storage_id = 'special_project_id_t4';
+var local_storage_type = 'product_type_t4';
+var local_storage_media = 'media_url_t4';
+var special_project = [];
+var midias_para_exibir = [];
+var prox_projeto;  // <-- Prox_projeto declarado globalmente
+
+// Função principal que inicia o player
+function playerView() {
+    window.onload = function () {
+        ebhtml.create2({}, function (loader) {
+            loader.addData('D_SPD', true, 'onlyreceivedfile=0&amount=0&order=SPECIALPROJECT&orderkind=A&f_type=4&ft_file_background=');
+            loader.nodataiserror = false;
+            loader.autoloaded = false;
+            loader.load(function () {
+                docLoader = loader;
+                loadDataXML();
+
+                setTimeout(function () {
+                    docLoader.finished();
+                }, 10000);
+                loader.loaded();
+            });
+        });
+    };
+}
+// Função para carregar dados do XML (Projetos Ativos)
+function loadDataXML() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            var xmlDoc = this.responseXML;
+            readDataXML(xmlDoc);
+        }
+    };
+
+    var url = "http://localhost:13199/CONTENT/DATA/D_SPD?onlyreceivedfile=0&amount=0&order=SPECIALPROJECT&orderkind=A&f_type=4&ft_file_background=";
+    xhttp.open("GET", url, true);
+    xhttp.send();
+}
+// Função para ler o XML e processar os projetos especiais
+function readDataXML(xmlDoc) {
+    var data1 = docLoader.datalist('D_SPD');
+    var qtd_dados = xmlDoc.getElementsByTagName('ITEM').length;
+    var y = 0;
+
+    for (var a = 0; a < qtd_dados; a++) {
+        if (special_project[y - 1] != data1.get(a).value('SPECIALPROJECT').value) {
+            special_project[y] = data1.get(a).value('SPECIALPROJECT').value;
+            y++;
+        }
+    }
+
+    console.log(special_project);
+
+    // Verifica no localStorage qual é o próximo projeto a ser exibido
+    if (localStorage.getItem(local_storage_id) >= special_project.length || localStorage.getItem(local_storage_id) == null) {
+        localStorage.setItem(local_storage_id, 0);
+    }
+
+    prox_projeto = localStorage.getItem(local_storage_id); // <-- Define a variável prox_projeto
+    console.log(prox_projeto);
+
+    var midia_fundo = data1.get(prox_projeto).value('FILE_BACKGROUND').value;
+    var tipo_midia = midia_fundo.split(':')[0];
+    
+    if (tipo_midia === 'http') {
+        var image = document.getElementById('image');
+        image.src = midia_fundo;
+        midia_id = midia_fundo.split('FILES/')[1];
+    } else {
+        var video = document.getElementById('video');
+        midia_id = midia_fundo.split('f_')[1].split('.')[0];
+        video.src = "http://localhost:13199/FILES/" + midia_id;
+        video.play();
+    }
+
+    var pprojeto = parseInt(prox_projeto) + 1;
+    localStorage.setItem(local_storage_id, pprojeto);
+
+    ebhtml.create2({}, function (loader2) {
+        loader2.addData('D_SPD', true, 'onlyreceivedfile=0&amount=0&f_specialproject=' + special_project[prox_projeto] + '&ft_title=');
+        loader2.nodataiserror = false;
+        loader2.autoloaded = false;
+        loader2.load(function () {
+            docLoader2 = loader2;
+            loadData2XML();
+        });
+    });
+}
+// Função para carregar o XML dos produtos do projeto especial atual
+function loadData2XML() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            var xmlDoc = this.responseXML;
+            readData2XML(xmlDoc);
+        }
+    };
+
+    var url = "http://localhost:13199/CONTENT/DATA/D_SPD?onlyreceivedfile=0&amount=0&f_specialproject=" + special_project[prox_projeto] + '&ft_title=';
+    xhttp.open("GET", url, true);
+    xhttp.send();
+}
+
+// Função para ler os dados do projeto especial atual
+function readData2XML(xmlDoc) {
+    var data2 = docLoader2.datalist('D_SPD');
+    var qtd_itens = xmlDoc.getElementsByTagName('ITEM').length;
+
+    var tipo_product = [1, 2, 3, 4];
+    var t0 = [], t1 = [], t2 = [], t3 = [];
+
+    for (var i = 0; i < qtd_itens; i++) {
+        var tipo_product_atual = parseInt(data2.get(i).value('TEXT5').value);
+        if (tipo_product[0] === tipo_product_atual) {
+            t0[i] = i;
+        } else if (tipo_product[1] === tipo_product_atual) {
+            t1[i] = i;
+        } else if (tipo_product[2] === tipo_product_atual) {
+            t2[i] = i;
+        } else if (tipo_product[3] === tipo_product_atual) {
+            t3[i] = i;
+        }
+    }
+
+    var products = [];
+    [t0, t1, t2, t3].forEach(function (t, z) {
+        if (t.length !== 0) {
+            products.push(t.filter(Number.isFinite));
+        }
+    });
+
+    console.log(products);
+
+    if (localStorage.getItem(local_storage_type + prox_projeto) >= products.length || localStorage.getItem(local_storage_type + prox_projeto) == null) {
+        localStorage.setItem(local_storage_type + prox_projeto, 0);
+    }
+
+    prox_tipo = localStorage.getItem(local_storage_type + prox_projeto);
+    getproduct(products, data2);
+
+    var ptipo = parseInt(prox_tipo) + 1;
+    localStorage.setItem(local_storage_type + prox_projeto, ptipo);
+
+    ebhtml.create2({}, function (loaderConfig) {
+        loaderConfig.addData('D_SPD', true, 'f_specialproject=' + special_project[prox_projeto] + '&ft_image_logo=');
+        loaderConfig.nodataiserror = false;
+        loaderConfig.autoloaded = false;
+        loaderConfig.load(function () {
+            readConfig(loaderConfig);
+        });
+    });
+}
+// Função para ler e aplicar a configuração do projeto
+function readConfig(loaderConfig) {
+    var logo = document.getElementById('logo');
+    logo.src = loaderConfig.data('D_SPD').value('IMAGE_LOGO').value;
+
+    var colorFont = loaderConfig.data('D_SPD').value('COLOR1').value;
+    var colorPrice = loaderConfig.data('D_SPD').value('COLOR2').value;
+
+    document.body.style.color = colorFont;
+    document.getElementById('price').style.color = colorPrice;
+}
+
+// Função para buscar e exibir o produto
+function getproduct(products, data2) {
+    var midias = products[prox_tipo];
+
+    if (localStorage.getItem(local_storage_media + prox_projeto + prox_tipo) >= midias.length || localStorage.getItem(local_storage_media + prox_projeto + prox_tipo) == null) {
+        localStorage.setItem(local_storage_media + prox_projeto + prox_tipo, 0);
+    }
+
+    prox_midia = localStorage.getItem(local_storage_media + prox_projeto + prox_tipo);
+
+    console.log('PROX PROJETO: ' + prox_projeto);
+    console.log('PROX TIPO: ' + prox_tipo);
+    console.log('PROX MIDIA: ' + prox_midia);
+
+    var fullContent = document.getElementById('fullContent');
+    fullContent.classList.remove('opacity-0');
+
+    var productImg = document.getElementById('product_img_portrait');
+    var productImg2 = document.getElementById('product_img_landscape');
+    var title = document.getElementById('title');
+    var legal_text = document.getElementById('legal_text');
+
+    var condition = document.getElementById('condition');
+    var unity = 'cada';
+    var currency = 'R$';
+
+    productImg.src = data2.get(midias[prox_midia]).value('FILE_IMAGE1').value;
+    productImg2.src = data2.get(midias[prox_midia]).value('FILE_IMAGE1').value;
+    title.innerText = data2.get(midias[prox_midia]).value('TITLE').value;
+    legal_text.innerText = data2.get(midias[prox_midia]).value('TEXT4').value;
+
+    priceValue = data2.get(midias[prox_midia]).value('TEXT1').value;
+    price2Value = da// Variáveis globais para controle de localStorage e dados
+var local_storage_id = 'special_project_id_t4';
+var local_storage_type = 'product_type_t4';
+var local_storage_media = 'media_url_t4';
+var special_project = [];
+var midias_para_exibir = [];
+var prox_projeto;  // <-- Prox_projeto declarado globalmente
+
+// Função principal que inicia o player
+function playerView() {
+    window.onload = function () {
+        ebhtml.create2({}, function (loader) {
+            loader.addData('D_SPD', true, 'onlyreceivedfile=0&amount=0&order=SPECIALPROJECT&orderkind=A&f_type=4&ft_file_background=');
+            loader.nodataiserror = false;
+            loader.autoloaded = false;
+            loader.load(function () {
+                docLoader = loader;
+                loadDataXML();
+                docLoader.loaded();
+                
+                setTimeout(function () {
+                    docLoader.finished();
+                }, 5000);
+            });
+        });
+    };
+}
+// Função para carregar dados do XML (Projetos Ativos)
+function loadDataXML() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            var xmlDoc = this.responseXML;
+            readDataXML(xmlDoc);
+        }
+    };
+
+    var url = "http://localhost:13199/CONTENT/DATA/D_SPD?onlyreceivedfile=0&amount=0&order=SPECIALPROJECT&orderkind=A&f_type=4&ft_file_background=";
+    xhttp.open("GET", url, true);
+    xhttp.send();
+}
+// Função para ler o XML e processar os projetos especiais
+function readDataXML(xmlDoc) {
+    var data1 = docLoader.datalist('D_SPD');
+    var qtd_dados = xmlDoc.getElementsByTagName('ITEM').length;
+    var y = 0;
+
+    for (var a = 0; a < qtd_dados; a++) {
+        if (special_project[y - 1] != data1.get(a).value('SPECIALPROJECT').value) {
+            special_project[y] = data1.get(a).value('SPECIALPROJECT').value;
+            y++;
+        }
+    }
+
+    console.log(special_project);
+
+    // Verifica no localStorage qual é o próximo projeto a ser exibido
+    if (localStorage.getItem(local_storage_id) >= special_project.length || localStorage.getItem(local_storage_id) == null) {
+        localStorage.setItem(local_storage_id, 0);
+    }
+
+    prox_projeto = localStorage.getItem(local_storage_id); // <-- Define a variável prox_projeto
+    console.log(prox_projeto);
+
+    var midia_fundo = data1.get(prox_projeto).value('FILE_BACKGROUND').value;
+    var tipo_midia = midia_fundo.split(':')[0];
+
+    if (tipo_midia === 'http') {
+        var image = document.getElementById('image');
+        image.src = midia_fundo;
+        midia_id = midia_fundo.split('FILES/')[1];
+    } else {
+        var video = document.getElementById('video');
+        midia_id = midia_fundo.split('f_')[1].split('.')[0];
+        video.src = "http://localhost:13199/FILES/" + midia_id;
+        video.play();
+    }
+
+    var pprojeto = parseInt(prox_projeto) + 1;
+    localStorage.setItem(local_storage_id, pprojeto);
+
+    ebhtml.create2({}, function (loader2) {
+        loader2.addData('D_SPD', true, 'onlyreceivedfile=0&amount=0&f_specialproject=' + special_project[prox_projeto] + '&ft_title=' + '&f_text10=1');
+        loader2.nodataiserror = false;
+        loader2.autoloaded = false;
+        loader2.load(function () {
+            docLoader2 = loader2;
+            loadData2XML();
+        });
+    });
+}
+// Função para carregar o XML dos produtos do projeto especial atual
+function loadData2XML() {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            var xmlDoc = this.responseXML;
+            readData2XML(xmlDoc);
+        }
+    };
+
+    var url = "http://localhost:13199/CONTENT/DATA/D_SPD?onlyreceivedfile=0&amount=0&f_specialproject=" + special_project[prox_projeto] + '&ft_title=' + '&f_text10=1';
+    xhttp.open("GET", url, true);
+    xhttp.send();
+}
+
+// Função para ler os dados do projeto especial atual
+function readData2XML(xmlDoc) {
+    var data2 = docLoader2.datalist('D_SPD');
+    var qtd_itens = xmlDoc.getElementsByTagName('ITEM').length;
+
+    var tipo_product = [1, 2, 3, 4, 5, 6, 7];
+    var t0 = [], t1 = [], t2 = [], t3 = [], t4 = [], t5 = [], t6 = [];
+
+    for (var i = 0; i < qtd_itens; i++) {
+        var tipo_product_atual = parseInt(data2.get(i).value('TEXT5').value);
+        if (tipo_product[0] === tipo_product_atual) {
+            t0[i] = i;
+        } else if (tipo_product[1] === tipo_product_atual) {
+            t1[i] = i;
+        } else if (tipo_product[2] === tipo_product_atual) {
+            t2[i] = i;
+        } else if (tipo_product[3] === tipo_product_atual) {
+            t3[i] = i;
+        } else if (tipo_product[4] === tipo_product_atual) {
+            t4[i] = i;
+        } else if (tipo_product[5] === tipo_product_atual) {
+            t5[i] = i;
+        } else if (tipo_product[6] === tipo_product_atual) {
+            t6[i] = i;
+        }
+
+    }
+
+    var products = [];
+    [t0, t1, t2, t3, t4, t5, t6].forEach(function (t, z) {
+        if (t.length !== 0) {
+            products.push(t.filter(Number.isFinite));
+        }
+    });
+
+    console.log(products);
+
+    if (localStorage.getItem(local_storage_type + prox_projeto) >= products.length || localStorage.getItem(local_storage_type + prox_projeto) == null) {
+        localStorage.setItem(local_storage_type + prox_projeto, 0);
+    }
+
+    prox_tipo = localStorage.getItem(local_storage_type + prox_projeto);
+    getproduct(products, data2);
+
+    var ptipo = parseInt(prox_tipo) + 1;
+    localStorage.setItem(local_storage_type + prox_projeto, ptipo);
+
+    ebhtml.create2({}, function (loaderConfig) {
+        loaderConfig.addData('D_SPD', true, 'f_specialproject=' + special_project[prox_projeto] + '&ft_image_logo=');
+        loaderConfig.nodataiserror = false;
+        loaderConfig.autoloaded = false;
+        loaderConfig.load(function () {
+            readConfig(loaderConfig);
+        });
+    });
+}
+// Função para ler e aplicar a configuração do projeto
+function readConfig(loaderConfig) {
+    var logo = document.getElementById('logo');
+    logo.src = loaderConfig.data('D_SPD').value('IMAGE_LOGO').value;
+
+    // var colorFont = loaderConfig.data('D_SPD').value('COLOR1').value;
+    // var colorPrice = loaderConfig.data('D_SPD').value('COLOR2').value;
+
+    // document.body.style.color = colorFont;
+    // document.getElementById('price').style.color = colorPrice;
+}
+
+// Função para buscar e exibir o produto
+function getproduct(products, data2) {
+    var midias = products[prox_tipo];
+
+    if (localStorage.getItem(local_storage_media + prox_projeto + prox_tipo) >= midias.length || localStorage.getItem(local_storage_media + prox_projeto + prox_tipo) == null) {
+        localStorage.setItem(local_storage_media + prox_projeto + prox_tipo, 0);
+    }
+
+    prox_midia = localStorage.getItem(local_storage_media + prox_projeto + prox_tipo);
+
+    console.log('PROX PROJETO: ' + prox_projeto);
+    console.log('PROX TIPO: ' + prox_tipo);
+    console.log('PROX MIDIA: ' + prox_midia);
+
+    var fullContent = document.getElementById('fullContent');
+    fullContent.classList.remove('opacity-0');
+
+    var productImg = document.getElementById('product_img_portrait');
+    var productImg2 = document.getElementById('product_img_landscape');
+    var title = document.getElementById('title');
+    // var legal_text = document.getElementById('legal_text');
+
+    var condition = document.getElementById('condition');
+    var unity = 'un.';
+    var currency = 'R$';
+
+    productImg.src = data2.get(midias[prox_midia]).value('FILE_IMAGE1').value;
+    productImg2.src = data2.get(midias[prox_midia]).value('FILE_IMAGE1').value;
+    title.innerText = data2.get(midias[prox_midia]).value('TITLE').value.toUpperCase();
+    // legal_text.innerText = data2.get(midias[prox_midia]).value('TEXT4').value;
+
+    price1Value = data2.get(midias[prox_midia]).value('TEXT1').value;
+    price2Value = data2.get(midias[prox_midia]).value('TEXT2').value;
+    price3Value = data2.get(midias[prox_midia]).value('TEXT3').value;
+    unitPack = data2.get(midias[prox_midia]).value('TEXT6').value;
+    // console.log(price1Value)
+    // console.log(price2Value)
+    console.log(price3Value)
+
+    applyPrice(price1Value, currency, unity, 'price');
+    applyPrice(price2Value, currency, unity, 'price2');
+
+
+    var aTipo = data2.get(midias[prox_midia]).value('TEXT5').value;
+    renderCondition(aTipo, price2Value, price3Value);
+
+    var pmidia = parseInt(prox_midia) + parseInt('1');
+
+    localStorage.setItem(local_storage_media + prox_projeto + prox_tipo, pmidia++)
+
+}
+
+// Função para renderizar a condição de preço
+function renderCondition(aTipo, price2Value, price3Value) {
+    var condition = document.getElementById('condition');
+    var pack = document.getElementById('pack');
+    function generateHierarchicalContent(text, textClass = '', animationClass = 'animate-pulseScaleWithDelay') {
+        return `
+            <div class="${animationClass}">
+                <span class="${textClass} mx-2">
+                    ${text}
+                </span>
+            </div>
+        `;
+    }
+
+    switch (aTipo) {
+        case '1':
+            var priceSection = document.getElementById('priceSection');
+            price = document.getElementById('price');
+            varejo = document.getElementById('varejo');
+            price.classList.add('text-red-600');
+            varejo.classList.add('hidden');
+            condition.classList.add('hidden');
+            priceSection.classList.add('scale-150');
+            break;
+        case '2':
+            condition.innerHTML = `
+                DE&nbsp;<span class='diagonal-strike'>
+                    ${generateHierarchicalContent(price2Value, 'text-[150%]')}
+                </span>&nbsp;POR:
+            `;
+            break;
+        case '3':
+            condition.innerHTML = `
+                Desconto de&nbsp;${generateHierarchicalContent(price2Value, 'text-[150%]')}&nbsp;
+            `;
+            break;
+        case '4':
+            condition.innerHTML = `
+                LEVE&nbsp;${generateHierarchicalContent(price2Value, 'text-[150%]')}&nbsp;PAGUE&nbsp;${generateHierarchicalContent(price3Value, 'text-[150%]')}&nbsp;POR APENAS
+            `;
+            break;
+
+        case '5':
+            var pack = document.getElementById('pack');
+            var priceSection = document.getElementById('priceSection');
+            var price2 = document.getElementById('price2');
+
+            if (pack.classList.contains('hidden')) {
+                // Exibir #pack e dividir as divs em 50% da largura
+                pack.classList.remove('hidden');
+                pack.classList.add('w-1/2');
+                priceSection.classList.remove('w-full');
+                priceSection.classList.add('w-1/2');
+                // priceSection.classList.add('scale-50');
+
+                // price2.classList.remove('text-[600%]', 'text-[500%]', 'text-[400%]', 'text-[300%]', 'text-[200%]');
+                // price2.classList.add('text-[270%]');
+
+                var packText = document.getElementById("pack_text");
+                packText.textContent = "NESTA EMBALAGEM A " + unitPack.toUpperCase() + " SAI POR:";
+
+                // Remova as classes com um pequeno delay para garantir que a remoção ocorra corretamente
+                setTimeout(() => {
+                    price2.classList.remove('text-[600%]');
+                }, 100);  // Delay de 100ms para dar tempo de remover as classes
+            } else {
+                // Ocultar #pack e fazer #priceSection ocupar 100% da largura
+                pack.classList.add('hidden');
+                pack.classList.remove('w-1/2');
+                priceSection.classList.remove('w-1/2');
+                priceSection.classList.add('w-full');
+            }
+            break;
+        case '6':
+            var pack = document.getElementById('pack');
+            var priceSection = document.getElementById('priceSection');
+            var price2 = document.getElementById('price2');
+
+            if (pack.classList.contains('hidden')) {
+                // Exibir #pack e dividir as divs em 50% da largura
+                pack.classList.remove('hidden');
+                pack.classList.add('w-1/2');
+                priceSection.classList.remove('w-full');
+                priceSection.classList.add('w-1/2');
+                // priceSection.classList.add('scale-50');
+
+                // price2.classList.remove('text-[600%]', 'text-[500%]', 'text-[400%]', 'text-[300%]', 'text-[200%]');
+                // price2.classList.add('text-[270%]');
+
+                var packText = document.getElementById("pack_text");
+                packText.textContent = "ATACADO OU CREDIFFATO";
+
+                // Remova as classes com um pequeno delay para garantir que a remoção ocorra corretamente
+                setTimeout(() => {
+                    price2.classList.remove('text-[600%]');
+                }, 100);  // Delay de 100ms para dar tempo de remover as classes
+            } else {
+                // Ocultar #pack e fazer #priceSection ocupar 100% da largura
+                pack.classList.add('hidden');
+                pack.classList.remove('w-1/2');
+                priceSection.classList.remove('w-1/2');
+                priceSection.classList.add('w-full');
+            }
+            break;
+        case '7':
+            unity = 'un.'
+            currency = 'R$'
+
+            var pack = document.getElementById('pack');
+            var priceSection = document.getElementById('priceSection');
+            var priceContainer = document.getElementById('price_container');
+            var priceBlock = document.getElementById('priceBlock');
+            var price2 = document.getElementById('price2');
+            priceSection.classList.add('scale-75');
+
+            applyPrice(price1Value, currency, unity, 'price');
+            applyPrice(price3Value, currency, unity, 'price2');
+            applyPrice(price2Value, currency, unity, 'price3');
+            var packCartao = document.getElementById('packCartao');
+
+            packCartao.classList.remove('hidden');
+            // priceBlock.classList.remove('flex');
+
+            if (pack.classList.contains('hidden')) {
+                // Exibir #pack e dividir as divs em 50% da largura
+                pack.classList.remove('hidden');
+                // pack.classList.add('w-1/2');
+                priceSection.classList.remove('w-full');
+                priceSection.classList.add('w-1/2');
+                priceSection.classList.add('scale-50');
+                priceContainer.classList.remove('h-[15vh]');
+                priceContainer.classList.add('h-[10vh]');
+
+
+                // price2.classList.remove('text-[600%]', 'text-[500%]', 'text-[400%]', 'text-[300%]', 'text-[200%]');
+                // price2.classList.add('text-[270%]');
+
+
+                var packText = document.getElementById("pack_text");
+                packText.classList.remove('top-[-60%]');
+                packText.classList.add('top-[-46%]');
+
+                var packText2 = document.getElementById("pack_text2");
+                packText2.classList.remove('text-[60%]');
+                packText2.classList.add('text-[46%]');
+                packText.textContent = "ATACADO OU CREDIFFATO";
+                packText2.textContent = "NESTA EMBALAGEM A " + unitPack.toUpperCase() + " SAI POR:";
+
+                // Remova as classes com um pequeno delay para garantir que a remoção ocorra corretamente
+                setTimeout(() => {
+                    price2.classList.remove('text-[600%]');
+                }, 100);  // Delay de 100ms para dar tempo de remover as classes
+            } else {
+                // Ocultar #pack e fazer #priceSection ocupar 100% da largura
+                pack.classList.add('hidden');
+                pack.classList.remove('w-1/2');
+                priceSection.classList.remove('w-1/2');
+                priceSection.classList.add('w-full');
+            }
+            break;
+
+    }
+}
+
+// Função para aplicar o preço ao HTML
+function applyPrice(priceValue, currency, unity, id) {
+    const price = document.getElementById(id);
+    if (!price) {
+        console.error(`Elemento com ID ${id} não encontrado.`);
+        return;
+    }
+
+    price.classList.remove('text-[600%]', 'text-[400%]', 'text-[300%]', 'text-[200%]');
+
+    if (priceValue.includes(',')) {
+        let [integer, decimal] = priceValue.split(',');
+        setFontSizeByLength(price, integer.length);
+
+        price.innerHTML = `<span class='text-[50%]'>${currency}</span><span>${integer}</span><span class=''><span class=''>,${decimal}</span><span class='text-[50%] '>${unity}</span></span>`;
+    } else {
+        setFontSizeByLength(price, priceValue.length);
+        price.innerHTML = `<span>${priceValue}</span>`;
+    }
+}
+
+// Define o tamanho da fonte de acordo com a quantidade de dígitos do preço
+function setFontSizeByLength(element, length) {
+    if (length <= 3) {
+        element.classList.add('text-[235%]');
+    }
+    else if (length <= 4) {
+        element.classList.add('text-[205%]');
+    }
+    else if (length <= 5) {
+        element.classList.add('text-[205%]');
+    }
+
+    else if (length <= 6) {
+        element.classList.add('text-[300%]');
+    }
+    else if (length <= 7) {
+        element.classList.add('text-[275%]');
+    } else {
+        element.classList.add('text-[200%]');
+    }
+}
+
+a2.get(midias[prox_midia]).value('TEXT2').value;
+    price3Value = data2.get(midias[prox_midia]).value('TEXT3').value;
+
+    applyPrice(priceValue, currency, unity);
+
+    var aTipo = data2.get(midias[prox_midia]).value('TEXT5').value;
+    renderCondition(aTipo, price2Value, price3Value);
+
+    var pmidia = parseInt(prox_midia) + parseInt('1');
+
+    localStorage.setItem(local_storage_media + prox_projeto + prox_tipo, pmidia++)
+
+}
+
+// Função para renderizar a condição de preço
+function renderCondition(aTipo, price2Value, price3Value) {
+    var condition = document.getElementById('condition');
+    function generateHierarchicalContent(text, textClass = '', animationClass = 'animate-pulseScaleWithDelay') {
+        return `
+            <div class="${animationClass}">
+                <span class="${textClass} mx-2">
+                    ${text}
+                </span>
+            </div>
+        `;
+    }
+
+    switch (aTipo) {
+        case '1':
+            condition.classList.add('hidden');
+            break;
+        case '2':
+            condition.innerHTML = `
+                DE&nbsp;<span class='diagonal-strike'>
+                    ${generateHierarchicalContent(price2Value, 'text-[150%]')}
+                </span>&nbsp;POR:
+            `;
+            break;
+        case '3':
+            condition.innerHTML = `
+                Desconto de&nbsp;${generateHierarchicalContent(price2Value, 'text-[150%]')}&nbsp;
+            `;
+            break;
+        case '4':
+            condition.innerHTML = `
+                LEVE&nbsp;${generateHierarchicalContent(price2Value, 'text-[150%]')}&nbsp;PAGUE&nbsp;${generateHierarchicalContent(price3Value, 'text-[150%]')}&nbsp;POR APENAS
+            `;
+            break;
+    }
+}
+
+// Função para aplicar o preço ao HTML
+function applyPrice(priceValue, currency, unity) {
+    const price = document.getElementById('price');
+    price.classList.remove('text-[700%]', 'text-[600%]', 'text-[500%]', 'text-[400%]');
+
+    if (priceValue.includes(',')) {
+        let [integer, decimal] = priceValue.split(',');
+        setFontSizeByLength(price, integer.length);
+
+        price.innerHTML = `<span class='text-20'>${currency}</span><span>${integer}</span><span class='flex flex-col justify-start ml-1 text-[50%]'><span class='underline underline-offset-8 mt-2'>,${decimal}</span><span class='text-20 ml-3 mt-4'>${unity}</span></span>`;
+    } else {
+        setFontSizeByLength(price, priceValue.length);
+        price.innerHTML = `<span>${priceValue}</span>`;
+    }
+}
+
+// Define o tamanho da fonte de acordo com a quantidade de dígitos do preço
+function setFontSizeByLength(element, length) {
+    if (length <= 4) {
+        element.classList.add('text-[800%]');
+    } else if (length <= 6) {
+        element.classList.add('text-[600%]');
+    } else if (length <= 7) {
+        element.classList.add('text-[500%]');
+    } else {
+        element.classList.add('text-[400%]');
+    }
+}
+
