@@ -71,8 +71,8 @@ function readDataXML() {
     localStorage.setItem(local_storage_id, pprojeto);
 
     ebhtml.create2({}, function (loader2) {
-        // loader2.addData('D_SPD', true, 'onlyreceivedfile=0&amount=0&f_specialproject=' + special_project[prox_projeto] + '&ft_title=' + '&f_text10=1');
-       loader2.addData('D_SPD', true, 'onlyreceivedfile=0&amount=0&f_specialproject=' + special_project[prox_projeto] + '&ft_title=');
+        loader2.addData('D_SPD', true, 'onlyreceivedfile=0&amount=0&f_specialproject=' + special_project[prox_projeto] + '&ft_title=' + '&f_text10=1');
+        //loader2.addData('D_SPD', true, 'onlyreceivedfile=0&amount=0&f_specialproject=' + special_project[prox_projeto] + '&ft_title=');
 
         loader2.nodataiserror = false;
         loader2.autoloaded = false;
