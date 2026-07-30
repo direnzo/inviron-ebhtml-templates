@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: 'Futura Bold';
+    src: url('fonts/futura-bold-bt.ttf');
+}
+
+@font-face {
+    font-family: 'Branding Thin';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Branding Thin'), url('fonts/Branding Thin.woff') format('woff');
+}
+
+
+@font-face {
+    font-family: 'Branding Thin Italic';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Branding Thin Italic'), url('fonts/Branding Thin Italic.woff') format('woff');
+}
+
+
+@font-face {
+    font-family: 'Branding Light';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Branding Light'), url('fonts/Branding Light.woff') format('woff');
+}
+
+
+@font-face {
+    font-family: 'Branding Light Italic';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Branding Light Italic'), url('fonts/Branding Light Italic.woff') format('woff');
+}
+
+
+@font-face {
+    font-family: 'Branding Semilight';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Branding Semilight'), url('fonts/Branding Semilight.woff') format('woff');
+}
+
+
+@font-face {
+    font-family: 'Branding Semilight Italic';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Branding Semilight Italic'), url('fonts/Branding Semilight Italic.woff') format('woff');
+}
+
+
+@font-face {
+    font-family: 'Branding Medium';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Branding Medium'), url('fonts/Branding Medium.woff') format('woff');
+}
+
+
+@font-face {
+    font-family: 'Branding Medium Italic';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Branding Medium Italic'), url('fonts/Branding Medium Italic.woff') format('woff');
+}
+
+
+@font-face {
+    font-family: 'Branding Semibold';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Branding Semibold'), url('fonts/Branding Semibold.woff') format('woff');
+}
+
+
+@font-face {
+    font-family: 'Branding Semibold Italic';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Branding Semibold Italic'), url('fonts/Branding Semibold Italic.woff') format('woff');
+}
+
+
+@font-face {
+    font-family: 'Branding Bold';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Branding Bold'), url('fonts/Branding Bold.woff') format('woff');
+}
+
+
+@font-face {
+    font-family: 'Branding Bold Italic';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Branding Bold Italic'), url('fonts/fonts/Branding Bold Italic.woff') format('woff');
+}
+
+
+@font-face {
+    font-family: 'Branding Black';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Branding Black'), url('fonts/Branding Black.woff') format('woff');
+}
+
+
+@font-face {
+    font-family: 'Branding Black Italic';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Branding Black Italic'), url('fonts/Branding Black Italic.woff') format('woff');
+}
+@font-face {
+    font-family: 'Arial Rounded MT Bold';
+    src: url('fonts/arialroundedmtbold.ttf') format('truetype');
+}
+
+
+
+/* classes personalizadas para uso no projeto */
+
+.diagonal-strike {
+    @apply relative inline-block;
+}
+
+.diagonal-strike::after {
+    content: '';
+    position: absolute;
+    height: 0px;
+    width: 0;
+    /* top: 80%; */
+    left: 0;
+    border-top: 1vh solid #cf0e00c7;
+    transform: rotate(-23deg);
+    transform-origin: left top;
+    z-index: 11;
+    animation: growLine 0.5s ease-in-out forwards;
+    /* Animação automática */
+    animation-delay: 1.2s;
+    /* Adiciona um atraso de 1 segundo */
+    bottom: 7%;
+}
+
+.diagonal-strike span {
+    @apply relative z-10;
+}
+
+/* Keyframes para o crescimento da linha */
+@keyframes growLine {
+    to {
+        width: 110%;
+    }
+}
+
+/* Definindo o fade-in para o container */
+@keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* Aplicando a animação de fade-in */
+  .animate-fade-in {
+    animation: fadeIn 1s ease-out forwards;
+  }

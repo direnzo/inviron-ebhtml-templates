@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function getMaxItems() {
-    return isLandscape() ? 20 : 15; // 20 em landscape, 10 em portrait
+    return 10;
   }
 
   // ─── Ajuste Dinâmico de Altura (Landscape) ───────────────────────────────
@@ -130,7 +130,6 @@ document.addEventListener("DOMContentLoaded", function () {
   function criarLinha(item, index) {
     // Clona o template
     var row = rowTemplate.content.cloneNode(true);
-    var rowElement = row.querySelector("div");
 
     // Seleciona os blocos
     var blocoDescricao = row.querySelector(".bloco-descricao");
@@ -147,41 +146,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Popula os dados
     var titulo = row.querySelector(".titulo");
-    var texto1 = row.querySelector(".texto1");
-    var texto2 = row.querySelector(".texto2");
     var price = row.querySelector(".price");
-    var texto3 = row.querySelector(".texto3");
     var price2 = row.querySelector(".price2");
     var linhaPrice2 = row.querySelector(".linha-price2");
 
-    // Título (obrigatório)
-    titulo.textContent = limitarTitulo(item.value("TITULO").value);
+    // Título com quebra de linha (sem truncar)
+    titulo.textContent = (item.value("TITULO").value || "").toUpperCase();
 
-    // Subtítulo (opcional - ex: "Lata 269ml")
-    var valorTexto1 = item.value("TEXTO1").value;
-    if (valorTexto1) {
-      texto1.textContent = valorTexto1;
-      // texto1.classList.remove("hidden");
-    }
-
-    // Label do primeiro preço (ex: "UNID.", "KG")
-    var valorTexto2 = item.value("TEXTO2").value;
-    if (valorTexto2) {
-      texto2.textContent = valorTexto2;
-      // texto2.classList.remove("hidden");
-    }
-
-    // Preço principal
+    // Preço principal (UNID.)
     price.textContent = formatarPreco(item.value("PRICE").value);
 
-    // Preço secundário (opcional - ex: "CX/12")
+    // Preço secundário (CX/12) - exibido apenas quando disponível
     var valorPrice2 = item.value("PRICE2").value;
-    var valorTexto3 = item.value("TEXTO3").value;
-
-    if (valorPrice2 && valorTexto3) {
-      texto3.textContent = valorTexto3;
+    if (valorPrice2) {
       price2.textContent = formatarPreco(valorPrice2);
-      // linhaPrice2.classList.remove("hidden");
+      linhaPrice2.classList.remove("hidden");
     }
 
     return row;

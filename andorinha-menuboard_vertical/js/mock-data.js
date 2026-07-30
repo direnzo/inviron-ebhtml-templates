@@ -179,167 +179,107 @@ var MOCK_DATA = {
         }
     ],
     
-    // Exemplo de produtos com 2 preços (bebidas, por exemplo)
+    // Produtos com preço unitário (UNID.) e preço de caixa (CX/12)
     menuboard_bebidas: [
         {
             TITULO: 'CERVEJA HEINEKEN PURO MALTE LATA 269ML',
-            TEXTO1: 'Lata 269ml',
-            PRICE: '3.79',
-            PRICE2: '45.48',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/12'
+            PRICE: '33.79',
+            PRICE2: '45.48'
         },
         {
             TITULO: 'CERVEJA SKOL PILSEN LATA 350ML',
-            TEXTO1: 'Lata 350ml',
             PRICE: '2.99',
-            PRICE2: '34.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/12'
+            PRICE2: '34.90'
         },
         {
             TITULO: 'CERVEJA BRAHMA CHOPP GARRAFA 600ML',
-            TEXTO1: 'Garrafa 600ml',
             PRICE: '4.99',
-            PRICE2: '58.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/12'
+            PRICE2: '58.90'
         },
         {
             TITULO: 'CERVEJA ANTARCTICA PILSEN LATA 350ML',
-            TEXTO1: 'Lata 350ml',
             PRICE: '2.89',
-            PRICE2: '',
-            TEXTO2: 'UNID.',
-            TEXTO3: ''
+            PRICE2: ''
         },
         {
             TITULO: 'CERVEJA STELLA ARTOIS LONG NECK 330ML',
-            TEXTO1: '',
             PRICE: '4.59',
-            PRICE2: '53.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/12'
+            PRICE2: '53.90'
         },
         {
             TITULO: 'CERVEJA BUDWEISER PURO MALTE LATA 350ML',
-            TEXTO1: 'Lata 350ml',
             PRICE: '3.49',
-            PRICE2: '',
-            TEXTO2: 'UNID.',
-            TEXTO3: ''
+            PRICE2: ''
         },
         {
             TITULO: 'CERVEJA CORONA EXTRA LONG NECK 355ML',
-            TEXTO1: 'Long Neck 355ml',
             PRICE: '5.99',
-            PRICE2: '69.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/12'
+            PRICE2: '69.90'
         },
         {
             TITULO: 'CERVEJA EISENBAHN PILSEN GARRAFA 355ML',
-            TEXTO1: 'Garrafa 355ml',
             PRICE: '4.29',
-            PRICE2: '50.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/12'
+            PRICE2: '50.90'
         },
         {
             TITULO: 'COCA-COLA ORIGINAL REFRIGERANTE LATA 350ML',
-            TEXTO1: 'Lata 350ml',
             PRICE: '3.19',
-            PRICE2: '37.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/12'
+            PRICE2: '37.90'
         },
         {
             TITULO: 'COCA-COLA ZERO ACUCAR REFRIGERANTE PET 2L',
-            TEXTO1: 'PET 2L',
             PRICE: '8.99',
-            PRICE2: '52.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/6'
+            PRICE2: '52.90'
         },
         {
             TITULO: 'GUARANA ANTARCTICA REFRIGERANTE LATA 350ML',
-            TEXTO1: 'Lata 350ml',
             PRICE: '2.79',
-            PRICE2: '32.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/12'
+            PRICE2: '32.90'
         },
         {
             TITULO: 'FANTA LARANJA REFRIGERANTE PET 2L',
-            TEXTO1: 'PET 2L',
             PRICE: '7.99',
-            PRICE2: '46.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/6'
+            PRICE2: '46.90'
         },
         {
             TITULO: 'PEPSI COLA REFRIGERANTE LATA 350ML',
-            TEXTO1: 'Lata 350ml',
             PRICE: '2.69',
-            PRICE2: '31.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/12'
+            PRICE2: '31.90'
         },
         {
             TITULO: 'AGUA CRYSTAL SEM GAS GARRAFA 500ML',
-            TEXTO1: 'Garrafa 500ml',
             PRICE: '1.99',
-            PRICE2: '23.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/12'
+            PRICE2: '23.90'
         },
         {
             TITULO: 'AGUA COM GAS PERRIER GARRAFA 330ML',
-            TEXTO1: 'Garrafa 330ml',
             PRICE: '4.99',
-            PRICE2: '58.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/12'
+            PRICE2: '58.90'
         },
         {
             TITULO: 'SUCO DEL VALLE LARANJA CAIXA 1L',
-            TEXTO1: 'Caixa 1L',
             PRICE: '6.49',
-            PRICE2: '38.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/6'
+            PRICE2: '38.90'
         },
         {
             TITULO: 'SUCO DEL VALLE UVA CAIXA 1L',
-            TEXTO1: 'Caixa 1L',
             PRICE: '6.49',
-            PRICE2: '38.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/6'
+            PRICE2: '38.90'
         },
         {
             TITULO: 'RED BULL ENERGY DRINK LATA 250ML',
-            TEXTO1: 'Lata 250ml',
             PRICE: '8.99',
-            PRICE2: '106.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/12'
+            PRICE2: '106.90'
         },
         {
             TITULO: 'MONSTER ENERGY ENERGETICO LATA 473ML',
-            TEXTO1: 'Lata 473ml',
             PRICE: '9.99',
-            PRICE2: '118.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/12'
+            PRICE2: '118.90'
         },
         {
             TITULO: 'SPRITE LIMAO REFRIGERANTE PET 2L',
-            TEXTO1: 'PET 2L',
             PRICE: '7.99',
-            PRICE2: '46.90',
-            TEXTO2: 'UNID.',
-            TEXTO3: 'CX/6'
+            PRICE2: '46.90'
         }
     ]
 };
