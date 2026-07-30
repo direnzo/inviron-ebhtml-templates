@@ -12,8 +12,24 @@ var CLOCK_CONFIG = {
     forceReducedMode: false, // se true, força modo de performance reduzida (desliga ondas e fundo animado)
     lowPerformanceTickMs: 250, // intervalo de atualização do relógio em ms quando em modo reduzido (normal = 100ms)
     
-    sponsorRandomTest: true, // se true, alterna sponsor true/false a cada load (teste)
-    climateRandomTest: true, // se true, ativa teste aleatório de clima (para desenvolvimento sem D_CLIMA)
+    sponsorRandomTest: false, // se true, alterna sponsor true/false a cada load (teste)
+    climateRandomTest: false, // se true, ativa teste aleatório de clima (para desenvolvimento sem D_CLIMA)
+
+    colorTheme: 3, // índice da paleta em COLOR_PALETTES (0–9), ou -1 para aleatório a cada load
+
+    /*
+    colorTheme: -1,   // aleatório a cada load (comportamento anterior)
+    colorTheme: 0,    // Âmbar/floresta
+    colorTheme: 1,    // Azul/céu
+    colorTheme: 2,    // Roxo
+    colorTheme: 3,    // Laranja/dourado
+    colorTheme: 4,    // Verde/menta
+    colorTheme: 5,    // Azul/petróleo
+    colorTheme: 6,    // Vermelho
+    colorTheme: 7,    // Dourado/quente
+    colorTheme: 8,    // Índigo
+    colorTheme: 9,    // Verde/natureza
+    */
     
     // 5 cores principais — resto é derivado por opacidade
     colors: {
@@ -94,7 +110,13 @@ function applyRandomPalette() {
 
     if (!COLOR_PALETTES || COLOR_PALETTES.length === 0) { return; }
 
-    var idx = Math.floor(Math.random() * COLOR_PALETTES.length);
+    var fixedTheme = parseInt(CLOCK_CONFIG.colorTheme, 10);
+    var idx;
+    if (!isNaN(fixedTheme) && fixedTheme >= 0 && fixedTheme < COLOR_PALETTES.length) {
+        idx = fixedTheme;
+    } else {
+        idx = Math.floor(Math.random() * COLOR_PALETTES.length);
+    }
     var palette = COLOR_PALETTES[idx] || COLOR_PALETTES[0];
     if (!palette) { return; }
 
