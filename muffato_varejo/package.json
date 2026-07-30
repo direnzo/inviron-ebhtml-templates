@@ -10,6 +10,16 @@
   "keywords": [],
   "author": "Eduardo Di Renzo - Inviron Technologies",
   "license": "ISC",
+  "browserslist": [
+    "Chrome >= 65",
+    "Android >= 7",
+    "last 2 ChromeAndroid versions",
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Edge versions",
+    "> 0.2%",
+    "not dead"
+  ],
   "dependencies": {
     "tailwindcss": "^3.4.19"
   }

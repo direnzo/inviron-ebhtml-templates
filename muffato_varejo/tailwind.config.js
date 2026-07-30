@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: ["./**/*.html", "./**/*.js", "./css/*.css"],
   theme: {
     extend: {
@@ -47,7 +47,14 @@ export default {
         },
       },
       animation: {
-        pulseScaleWithDelay: 'pulseScaleWithDelay 5s ease-in-out infinite', // Mantém a duração e efeito de escala
+        pulseScaleWithDelay: 'pulseScaleWithDelay 5s ease-in-out infinite',
+      },
+      screens: {
+        'landscape': { 'raw': '(orientation: landscape)' },
+        'portrait':  { 'raw': '(orientation: portrait)' },
+        'empena':    { 'raw': '(max-aspect-ratio: 1/3)' },
+        'superbanner': { 'raw': '(min-aspect-ratio: 5/1) and (max-aspect-ratio: 15/1)' },
+        'ultrawide': { 'raw': '(min-aspect-ratio: 3/1)' },
       },
     },
   },
