@@ -1,0 +1,20 @@
+{
+  "name": "poder360",
+  "version": "1.0.0",
+  "description": "Template Poder360 para EdgeContents Digital Signage",
+  "scripts": {
+    "dev": "npx tailwindcss -i css/input.css -o css/master.css --watch",
+    "build": "npx tailwindcss -i css/input.css -o css/master.css --minify"
+  },
+  "keywords": ["digital-signage", "edgecontents", "tailwindcss"],
+  "author": "Eduardo Di Renzo - Inviron Technologies",
+  "license": "ISC",
+  "browserslist": [
+    "> 0.2%",
+    "last 2 versions",
+    "not dead",
+    "Android >= 7",
+    "last 2 ChromeAndroid versions",
+    "Chrome >= 78"
+  ]
+}

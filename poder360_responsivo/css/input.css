@@ -1,0 +1,330 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: 'Heebo Bold';
+    src: url('fonts/Heebo-Bold.ttf');
+}
+
+@layer components {
+
+    /* ===== BODY ===== */
+    /* font-size base em vmin — filhos usam em/% */
+    .poder360-body {
+        position: absolute;
+        font-family: 'Heebo Bold', sans-serif;
+        font-weight: 800;
+        font-size: 3.5vmin;
+        width: 100%;
+        height: 100%;
+        color: #fff;
+        overflow: hidden;
+        padding: 0;
+        margin: 0;
+        opacity: 0;
+        -webkit-transition: opacity 0.5s ease;
+        transition: opacity 0.5s ease;
+    }
+
+    .poder360-body.is-ready {
+        opacity: 1;
+    }
+
+    /* ===== PHOTO ===== */
+    /* overflow:hidden evita que foto larga vaze para o painel */
+    #image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 65%;
+        height: 100%;
+        overflow: hidden;
+        z-index: -1;
+        
+    }
+
+    /* height:100%;width:auto preserva aspect-ratio sem distorção */
+    #image img {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        top: 50%;
+        left: 50%;
+        -webkit-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+        object-fit: cover;
+    }
+
+    /* ===== MASK ===== */
+    #mask {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
+
+    /* ===== PAINEL AZUL (direita 25%) ===== */
+    #panel-azul {
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 35%;
+        height: 100%;
+        background-color: #1b3a6b;
+        z-index: 1;
+    }
+
+    /* ===== BARRA LARANJA + TÍTULO ===== */
+    /* right:10% + width:35% = ocupa de 55% a 90% da tela */
+    /* height em vmin escala com menor dimensão — funciona em multiplos formatos */
+    #barra-laranja {
+        position: absolute;
+        right: 10%;
+        top: 18%;
+        width: 35%;
+        height: 12vmin;
+        background-color: #e8641b;
+        z-index: 2;
+        border-radius: 0.5em;
+        text-align: center;
+        font-size: 1.2em;
+        overflow: hidden;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        -webkit-box-pack: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+        padding: 0 2vmin;
+        line-height: 1.2;
+    }
+
+    #barra-laranja p {
+        margin: 0;
+    }
+
+    /* ===== LOGO (topo do painel azul) ===== */
+    #logo {
+        position: absolute;
+        top: 1ch;
+        right: 1.5vmin;
+        width: calc(35% - 3vmin);
+        max-height: 15vmin;
+        z-index: 3;
+        object-fit: contain;
+    }
+
+    /* ===== TEXTO (painel azul, abaixo da barra) ===== */
+    /* top = bar-top(18%) + bar-height(12vmin) + gap(2vmin) */
+    #text {
+        z-index: 3;
+        position: absolute;
+        top: calc(18% + 14vmin);
+        left: calc(65% + 1.5vmin);
+        right: 1.5vmin;
+        bottom: 4vmin;
+        text-align: center;
+        font-size: 1.5em;
+        overflow: hidden;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        -webkit-box-pack: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+    }
+
+    /* ===== FOOTER (fundo do painel azul) ===== */
+    footer {
+        position: absolute;
+        left: calc(65% + 1.5vmin);
+        right: 1.5vmin;
+        bottom: 1.5vmin;
+        font-size: 0.55em;
+        z-index: 3;
+    }
+
+    footer p {
+        display: inline-block;
+        float: left;
+    }
+
+    footer p:nth-child(2) {
+        float: right;
+    }
+
+    /* ===== PORTRAIT (max-aspect-ratio: 3/4) ===== */
+    /* Ex.: 1080x1920 — painel horizontal na metade inferior */
+    @screen portrait {
+        #image {
+            width: 100%;
+            height: 60%;
+        }
+
+        #panel-azul {
+            right: auto;
+            left: 0;
+            top: 60%;
+            width: 100%;
+            height: 40%;
+        }
+
+        /* barra cruza a divisória foto/painel centrada em 60% */
+        #barra-laranja {
+            left: 5%;
+            right: 5%;
+            width: auto;
+            top: calc(60% - 5vmin);
+            height: 10vmin;
+            font-size: 1.8em;
+        }
+
+        /* logo no fundo do painel, acima do footer */
+        #logo {
+            top: auto;
+            bottom: 10vmin;
+            right: 3%;
+            max-width: 30%;
+            max-height: 8vmin;
+            width: auto;
+        }
+
+        /* top = panel-start(60%) + barra-half(5vmin) + gap(2vmin) */
+        #text {
+            top: calc(60% + 7vmin);
+            left: 5%;
+            right: 5%;
+            bottom: 20vmin;
+            font-size: 1.2em;
+        }
+
+        footer {
+            left: 5%;
+            right: 5%;
+            bottom: 1.5vmin;
+            font-size: 0.55em;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-orient: horizontal;
+            -webkit-box-direction: normal;
+            -webkit-flex-direction: row;
+            flex-direction: row;
+            -webkit-box-pack: justify;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+        }
+
+        footer p {
+            float: none;
+        }
+    }
+
+    /* ===== SQUARE (min-aspect-ratio: 3/4 AND max-aspect-ratio: 4/3) ===== */
+    /* Ex.: 1080x1080 — layout horizontal: foto topo 55%, painel fundo 45% */
+    @screen square {
+        #image {
+            width: 100%;
+            height: 55%;
+        }
+
+        #panel-azul {
+            right: auto;
+            left: 0;
+            top: 55%;
+            width: 100%;
+            height: 45%;
+        }
+
+        /* barra cruza a divisória foto/painel centrada em 55% */
+        #barra-laranja {
+            left: 5%;
+            right: 5%;
+            width: auto;
+            top: calc(55% - 6vmin);
+            height: 12vmin;
+            font-size: 1.5em;
+        }
+
+        /* logo no fundo do painel, acima do footer */
+        #logo {
+            top: auto;
+            bottom: 10vmin;
+            right: 3%;
+            max-width: 25%;
+            max-height: 8vmin;
+            width: auto;
+        }
+
+        /* top = panel-start(55%) + barra-half(6vmin) + gap(2vmin) */
+        #text {
+            top: calc(55% + 8vmin);
+            left: 5%;
+            right: 5%;
+            bottom: 18vmin;
+            font-size: 1.3em;
+        }
+
+        footer {
+            left: 5%;
+            right: 5%;
+            bottom: 1.5vmin;
+            font-size: 0.55em;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-orient: horizontal;
+            -webkit-box-direction: normal;
+            -webkit-flex-direction: row;
+            flex-direction: row;
+            -webkit-box-pack: justify;
+            -webkit-justify-content: space-between;
+            justify-content: space-between;
+        }
+
+        footer p {
+            float: none;
+        }
+    }
+
+    /* ===== ULTRAWIDE (min-aspect-ratio: 3/1) ===== */
+    /* Ex.: 3840x1080 — vmin=10.8px (igual 1920x1080), só largura dobra */
+    /* barra e painel proporcionalmente mais compactos para não esticar */
+    @screen ultrawide {
+        #image {
+            width: 72%;
+        }
+
+        #panel-azul {
+            width: 28%;
+        }
+
+        /* barra ocupa 20% da largura, right:8% → de 72% a 92% */
+        #barra-laranja {
+            right: 8%;
+            width: 20%;
+        }
+
+        #logo {
+            width: calc(28% - 3vmin);
+        }
+
+        /* top = bar-top(18%) + bar-height(12vmin) + gap(2vmin) */
+        #text {
+            left: calc(72% + 1.5vmin);
+            right: 1.5vmin;
+        }
+
+        footer {
+            left: calc(72% + 1.5vmin);
+            right: 1.5vmin;
+        }
+    }
+}
