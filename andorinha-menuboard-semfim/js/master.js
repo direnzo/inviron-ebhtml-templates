@@ -6,17 +6,27 @@
 
 document.addEventListener("DOMContentLoaded", function () {
   // ─── Configuração ────────────────────────────────────────────────────────
-// Menuboard Açougue	menuboard_acougue	
-// Menuboard Bebidas	menuboard_bebidas	
-// Menuboard Café	menuboard_cafe	
-// Menuboard Frango	menuboard_frango	
-// Menuboard Frios	menuboard_frios	
-// Menuboard Leite	menuboard_leite	
-// Menuboard Peixaria	menuboard_peixaria	
-// Menuboard Salgados	menuboard_salgados
+// =============Com pack=====================================
+// menuboard_bebidas - Vertical (1080x 1920 ) - com pack	
+// menuboard_bebidas_269 - Vertical (1080x 1920 ) - com pack	
+// menuboard_leite - Vertical (1080x 1920 )	- com pack
+// ==============Simples=====================================
+// menuboard_cafe - Vertical (1080x 1920 )	
+// menuboard_acougue_ouro - Horizontal ( 1920 x 1080 )	
+// menuboard_acougue - (menuboard_acougue_prata) Horizontal ( 1920 x 1080 )	
+// menuboard_frios_carnes - Horizontal ( 1920 x 1080 )	
+// menuboard_frios - (menuboard_frios_queijos) Horizontal ( 1920 x 1080 )	
+// menuboard_salgados - Horizontal ( 1920 x 1080 )	
+// menuboard_peixaria - Horizontal ( 1920 x 1080 )	
+// menuboard_frango - Horizontal ( 1920 x 1080 )
+// menuboard_frango_outros - Horizontal ( 1920 x 1080 )
 
-  var selectedCategory = "menuboard_peixaria"; // Categoria padrão
-  var displayDuration = 30000; // 2 horas por exibição
+//============================================================
+
+  var selectedCategory = "menuboard_cafe"; // Categoria padrão
+  var displayDuration = 1800000; // 30 minutos por exibição
+  var pollInterval = 20000;    // 20 segundos. Intervalo de polling e timeout entre páginas (ms)
+  var TEST_RELOAD_MODE = false;  // true = reload em vez de finished() (simula ciclo de playlist no localhost)
   var CONFIG = {
     // Limite de caracteres do TITULO (0 ou negativo = sem limite)
     maxTitleCharsLandscape: 37,
@@ -36,7 +46,28 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
+  // ─── Card ml no rodápe (portrait, somente bebidas) ─────────────────────────
+  var cardMl = document.getElementById("card-ml");
+  var textoMl = document.getElementById("texto-ml");
+  if (cardMl && textoMl) {
+    if (selectedCategory === "menuboard_bebidas") {
+      textoMl.textContent = "350ml.";
+      cardMl.classList.remove("hidden");
+      cardMl.classList.add("flex");
+    } else if (selectedCategory === "menuboard_bebidas_269") {
+      textoMl.textContent = "269ml.";
+      cardMl.classList.remove("hidden");
+      cardMl.classList.add("flex");
+    }
+  }
+
   var loader2; // Loader EBHTML
+  var pollingIntervalo; // Intervalo de polling para verificar novos dados
+  var conteudoExibido = false; // Guard: evita reload em loop quando não há conteúdo
+  var allItems = []; // Todos os itens em memória
+  var currentPageIndex = 0; // Índice da próxima página a exibir
+  var paginationTimer = null; // setInterval de rotação de páginas
+  var finalizado = false; // Guard contra duplo finished()
 
   // ─── Detecção de Aspect Ratio ────────────────────────────────────────────
 
@@ -46,14 +77,33 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function getMaxItems() {
-    return isLandscape() ? 20 : 15; // 20 em landscape, 10 em portrait
+    if (isLandscape()) return 20;
+    // row h-[140px] + gap-4(16px) + mb-3(12px) entre linhas = 168px/linha
+    var bodyStyle = window.getComputedStyle(body);
+    var pt = parseFloat(bodyStyle.paddingTop) || 0;
+    var pb = parseFloat(bodyStyle.paddingBottom) || 0;
+    var alturaDisponivel = body.offsetHeight - pt - pb - 10; // -10 = mt-[10px]
+    if (alturaDisponivel <= 0) return 8;
+    var n = Math.floor((alturaDisponivel + 28) / 168);
+    console.log("[PORTRAIT] disp=" + Math.round(alturaDisponivel) + "px → " + n + " itens");
+    return Math.max(1, n);
   }
 
   // ─── Ajuste Dinâmico de Altura (Landscape) ───────────────────────────────
 
   function ajustarAlturaLinhas() {
     if (!isLandscape()) {
-      return; // Portrait usa flex-1 no CSS, não precisa calcular
+      // Portrait: remove itens que transbordarem (safety net)
+      var container = contentRowsContainer;
+      var filhos = container.querySelectorAll(':scope > div');
+      while (container.scrollHeight > container.clientHeight && filhos.length > 1) {
+        container.removeChild(filhos[filhos.length - 1]);
+        filhos = container.querySelectorAll(':scope > div');
+      }
+      if (filhos.length !== container.querySelectorAll(':scope > div').length) {
+        console.log("[PORTRAIT] Overflow corrigido: " + filhos.length + " itens");
+      }
+      return;
     }
 
     var container = contentRowsContainer;
@@ -126,17 +176,21 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function criarLinha(item, index) {
-    // Clona o template
     var row = rowTemplate.content.cloneNode(true);
-    var rowElement = row.querySelector("div");
 
     // Seleciona os blocos
     var blocoDescricao = row.querySelector(".bloco-descricao");
     var blocoPrecos = row.querySelector(".bloco-precos");
     blocoDescricao.style.minWidth = "0"; // evita cascata min-width do truncate
 
-    // Classes alternadas para cor de fundo do bloco de descrição
-    if (index % 2 === 0) {
+    // Classes alternadas; DE-POR usa amarelo fixo
+    var texto3Val = (item.value("TEXTO3").value || "").trim();
+    if (texto3Val === "DE-POR") {
+      blocoDescricao.style.backgroundColor = "#e7de43";
+      blocoPrecos.style.backgroundColor = "#e7de43";
+      blocoDescricao.classList.add("text-blue-900");
+      blocoPrecos.classList.add("text-blue-900");
+    } else if (index % 2 === 0) {
       blocoDescricao.classList.add("bg-blue-600", "text-white");
       blocoPrecos.classList.add("bg-blue-600", "text-white");
     } else {
@@ -144,43 +198,47 @@ document.addEventListener("DOMContentLoaded", function () {
       blocoPrecos.classList.add("bg-white", "text-blue-700");
     }
 
-    // Popula os dados
     var titulo = row.querySelector(".titulo");
-    var texto1 = row.querySelector(".texto1");
-    var texto2 = row.querySelector(".texto2");
     var price = row.querySelector(".price");
-    var texto3 = row.querySelector(".texto3");
     var price2 = row.querySelector(".price2");
     var linhaPrice2 = row.querySelector(".linha-price2");
+    var labelPrice2 = row.querySelector(".label-price2");
+    var labelUnid = row.querySelector(".label-unid");
 
-    // Título (obrigatório)
-    titulo.textContent = limitarTitulo(item.value("TITULO").value);
-
-    // Subtítulo (opcional - ex: "Lata 269ml")
-    var valorTexto1 = item.value("TEXTO1").value;
-    if (valorTexto1) {
-      texto1.textContent = valorTexto1;
-      // texto1.classList.remove("hidden");
-    }
-
-    // Label do primeiro preço (ex: "UNID.", "KG")
-    var valorTexto2 = item.value("TEXTO2").value;
-    if (valorTexto2) {
-      texto2.textContent = valorTexto2;
-      // texto2.classList.remove("hidden");
-    }
-
-    // Preço principal
+    titulo.textContent = (item.value("TITULO").value || "").toUpperCase();
     price.textContent = formatarPreco(item.value("PRICE").value);
 
-    // Preço secundário (opcional - ex: "CX/12")
-    var valorPrice2 = item.value("PRICE2").value;
-    var valorTexto3 = item.value("TEXTO3").value;
+    // Preço por caixa: TEXTO5 para bebidas (portrait only), PRICE2 para demais
+    var valorPrice2 = "";
+    var categoriasBebidas = ["menuboard_bebidas", "menuboard_leite", "menuboard_bebidas_269"];
+    var esBebidas = categoriasBebidas.indexOf(selectedCategory) !== -1;
 
-    if (valorPrice2 && valorTexto3) {
-      texto3.textContent = valorTexto3;
-      price2.textContent = formatarPreco(valorPrice2);
-      // linhaPrice2.classList.remove("hidden");
+    if (esBebidas) {
+      var texto5 = (item.value("TEXTO5").value || "").trim();
+      if (texto5) {
+        try {
+          var infoTec = JSON.parse(texto5).informacoesTecnicas;
+          if (infoTec && infoTec.TipoEmbalagem === "CX" && infoTec.QuantidadeEmbalagem) {
+            var qtdCx = parseInt(infoTec.QuantidadeEmbalagem, 10);
+            var precoUnit = parseFloat(item.value("PRICE").value) || 0;
+            valorPrice2 = (qtdCx * precoUnit).toFixed(2);
+            if (labelPrice2) labelPrice2.textContent = "CX/" + qtdCx;
+          }
+        } catch (e) {
+          console.warn("[AVISO] TEXTO5 invalido:", e);
+        }
+      }
+    } else {
+      valorPrice2 = item.value("PRICE2").value;
+    }
+
+    // UNID. sempre visível em portrait; pack só para bebidas
+    if (!isLandscape()) {
+      if (labelUnid) labelUnid.classList.remove("hidden");
+      if (esBebidas && valorPrice2) {
+        price2.textContent = formatarPreco(valorPrice2);
+        linhaPrice2.classList.remove("hidden");
+      }
     }
 
     return row;
@@ -273,9 +331,38 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function finalizarLoader() {
+    if (finalizado) return;
+    finalizado = true;
+    if (pollingIntervalo) {
+      clearInterval(pollingIntervalo);
+      pollingIntervalo = null;
+    }
+    if (paginationTimer) {
+      clearInterval(paginationTimer);
+      paginationTimer = null;
+    }
+    if (TEST_RELOAD_MODE) {
+      location.reload();
+      return;
+    }
     if (loader2) {
       loader2.finished();
     }
+  }
+
+  // Exibe a fatia de allItems correspondente a currentPageIndex e avança o índice
+  function exibirProximaPagina(maxItems) {
+    var offset = currentPageIndex * maxItems;
+    var pagina = allItems.slice(offset, offset + maxItems);
+    if (pagina.length === 0) {
+      currentPageIndex = 0;
+      pagina = allItems.slice(0, maxItems);
+    }
+    var totalPaginas = Math.ceil(allItems.length / maxItems);
+    console.log("[PAGE] Página " + (currentPageIndex + 1) + "/" + totalPaginas + " (offset=" + offset + ", " + pagina.length + " itens)");
+    exibirProdutos(pagina);
+    currentPageIndex++;
+    if (currentPageIndex >= totalPaginas) currentPageIndex = 0;
   }
 
   // ─── Carregamento de Dados (EdgeContents CMS) ────────────────────────────
@@ -283,19 +370,29 @@ document.addEventListener("DOMContentLoaded", function () {
   function carregarDados(category) {
     ebhtml.create2({}, function (loader) {
       loader.addData("D_LOCAL", true);
+      loader.autoloaded = false;
 
       loader.load(function () {
         try {
           var local = loader.data("D_LOCAL").value("SITE_CUSTOMERID").value;
           var maxItems = getMaxItems();
-          var filtro =
-            "f_category=" +
-            category +
-            "&amount=" +
-            maxItems +
-            "&order=ID&orderkind=id";
+          var filtro = "f_category=" + category + "&amount=500";
+          var categoriasAlfabeticas = [
+            "menuboard_acougue_ouro", "menuboard_acougue",
+            "menuboard_frios_carnes", "menuboard_frios",
+            "menuboard_salgados", "menuboard_peixaria", "menuboard_frango"
+          ];
+          var categoriasPreco = [
+            "menuboard_bebidas", "menuboard_bebidas_269",
+            "menuboard_leite", "menuboard_cafe"
+          ];
+          if (categoriasAlfabeticas.indexOf(category) !== -1) {
+            filtro += "&order=TITULO&orderkind=asc";
+          } else if (categoriasPreco.indexOf(category) !== -1) {
+            filtro += "&order=PRICE&orderkind=asc";
+          }
 
-          console.log("[INFO] Filtro: " + filtro);
+          console.log("[INFO] Filtro enviado: " + filtro);
 
           ebhtml.create2({}, function (loaderInstance) {
             loader2 = loaderInstance;
@@ -306,20 +403,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
             loader2.load(function () {
               try {
-                var items = loader2.datalist("D_MENUBOARD_PRICES").f_items;
+                var itensRecebidos = loader2.datalist("D_MENUBOARD_PRICES").f_items;
+                var totalItems = itensRecebidos ? itensRecebidos.length : 0;
+                console.log("[INFO] Total de itens no canal: " + totalItems);
 
-                if (!items || items.length === 0) {
+                if (!itensRecebidos || totalItems === 0) {
                   console.warn("[AVISO] Nenhum item encontrado");
                   finalizarLoader();
                   return;
                 }
 
-                exibirProdutos(items);
+                // Carrega todos em memória e exibe primeira página
+                allItems = itensRecebidos;
+                currentPageIndex = 0;
+                exibirProximaPagina(maxItems);
+                conteudoExibido = true;
+                loader2.loaded(); // Sinaliza conteúdo visível (chamado uma única vez)
 
-                // Finaliza após duração configurada
-                setTimeout(function () {
-                  finalizarLoader();
-                }, displayDuration);
+                if (totalItems > maxItems) {
+                  // Múltiplas páginas — cicla em memória a cada pollInterval
+                  var totalPaginas = Math.ceil(totalItems / maxItems);
+                  console.log("[INFO] " + totalPaginas + " páginas, rotação a cada " + (pollInterval / 1000) + "s");
+                  paginationTimer = setInterval(function () {
+                    exibirProximaPagina(maxItems);
+                  }, pollInterval);
+                } else {
+                  console.log("[INFO] Página única (" + totalItems + " itens), exibindo por " + (displayDuration / 60000) + "min");
+                }
+
+                // finished() apenas após displayDuration — sem reload, sem flash
+                setTimeout(function () { finalizarLoader(); }, displayDuration);
+
               } catch (error) {
                 console.error("[ERRO] Ao carregar itens:", error);
                 finalizarLoader();
@@ -338,35 +452,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function usarMockData(selectedCategory) {
     ebhtml.create2({}, function (loader) {
-        loader = loader; // Referência para o loader mock
       console.log("[MOCK] Usando dados fictícios");
       console.log("[MOCK] Tipo: " + MOCK_DATA.tipo);
 
       var mockDatalist = criarDatalistMock(MOCK_DATA[selectedCategory]);
-      var items = mockDatalist.f_items;
+      var maxItems = getMaxItems();
 
-      console.log("[MOCK] Total de produtos disponíveis: " + items.length);
-
-      exibirProdutos(items);
-
-      // Mock loader
+      allItems = mockDatalist.f_items;
+      currentPageIndex = 0;
+      console.log("[MOCK] Total de produtos: " + allItems.length + " / maxItems: " + maxItems);
 
       var mockLoader = {
-        loaded: function () {
-          console.log("[Mock] Carregado");
-          loader.loaded();
-        },
-        finished: function () {
-          console.log("[Mock] Finalizado");
-          loader.finished();
-        },
+        loaded:   function () { console.log("[Mock] loaded()");   loader.loaded(); },
+        finished: function () { console.log("[Mock] finished()"); loader.finished(); },
       };
       loader2 = mockLoader;
+
+      exibirProximaPagina(maxItems);
       loader2.loaded();
 
-      setTimeout(function () {
-        finalizarLoader();
-      }, displayDuration);
+      if (allItems.length > maxItems) {
+        var totalPaginas = Math.ceil(allItems.length / maxItems);
+        console.log("[MOCK] " + totalPaginas + " páginas, rotação a cada " + (pollInterval / 1000) + "s");
+        paginationTimer = setInterval(function () {
+          exibirProximaPagina(maxItems);
+        }, pollInterval);
+      }
+
+      setTimeout(function () { finalizarLoader(); }, displayDuration);
     });
   }
 

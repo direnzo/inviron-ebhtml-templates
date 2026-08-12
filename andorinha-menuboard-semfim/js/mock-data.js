@@ -179,7 +179,7 @@ var MOCK_DATA = {
         }
     ],
     
-    // Produtos com preço unitário (UNID.) e preço de caixa (CX/12)
+    // Produtos com preço unitário (UNID.) e preço de caixa calculado via TEXTO5
     menuboard_bebidas: [
         {
             TITULO: 'CERVEJA HEINEKEN PURO MALTE LATA 269ML',

@@ -8,7 +8,7 @@
 
   <link rel="stylesheet" href="css/master.css">
   <!-- ⚠️ MOCK DATA: Descomentar linha abaixo para testes locais -->
-  <script src="js/mock-data.js" defer></script>
+  <!-- <script src="js/mock-data.js" defer></script> -->
   <script src="js/ebhtml.js" defer></script>
   <script src="js/master.js" defer></script>
 </head>
@@ -19,23 +19,23 @@
   <div id="table-container" class="w-full mt-[10px] opacity-0 transition-opacity duration-700 portrait:h-full landscape:max-h-full flex flex-col landscape:flex-row landscape:gap-8 overflow-hidden">
 
     <!-- Container de Linhas (Coluna 1 em landscape) -->
-    <div id="content-rows" class="flex flex-col text-white flex-1 gap-4 portrait:h-full"></div>
+    <div id="content-rows" class="flex flex-col text-white flex-1 min-w-0 gap-4 portrait:h-full"></div>
 
     <!-- Container de Linhas (Coluna 2 - apenas landscape) -->
-    <div id="content-rows-2" class="hidden landscape:flex flex-col text-white flex-1 gap-4"></div>
+    <div id="content-rows-2" class="hidden landscape:flex flex-col text-white flex-1 min-w-0 gap-4"></div>
 
     <!-- Template de linha -->
     <template id="row-template">
       <div class="flex items-start gap-0 opacity-0  transform transition-opacity duration-500 w-full mb-[10px] ">
         
         <!-- Bloco Esquerdo: Descrição -->
-        <div class="bloco-descricao flex-1 w-1/2 flex flex-col justify-center rounded-s-[2vh] p-4 portrait:py-8 landscape:py-4 landscape:min-h-[68px]">
+        <div class="bloco-descricao flex-1 min-w-0 w-1/2 flex flex-col justify-center rounded-s-[2vh] ps-4 portrait:py-8 landscape:py-4 landscape:min-h-[68px]">
           <span class="titulo font-bold truncate"></span>
           <span class="texto1 italic mt-1 opacity-70 hidden"></span>
         </div>
 
         <!-- Bloco Direito: Preços -->
-        <div class="bloco-precos bg-blue-600 rounded-e-[2vh] -ml-[1px] flex flex-col justify-center p-4 portrait:py-8 landscape:py-4 portrait:min-w-[16vw] landscape:min-w-[8vw] items-end landscape:min-h-[68px]">
+        <div class="bloco-precos bg-blue-600 rounded-e-[2vh] -ml-[1px] flex flex-col justify-center p-4 portrait:py-8 landscape:py-4 portrait:min-w-[16vw] landscape:min-w-[7vw] items-end landscape:min-h-[68px]">
           <!-- Linha 1: TEXTO2 + PRICE -->
           <div class="flex items-baseline gap-2 w-full justify-end">
             <span class="texto2 text-[40%] opacity-70 hidden"></span>

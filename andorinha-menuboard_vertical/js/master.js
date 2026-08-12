@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // Menuboard Peixaria	menuboard_peixaria	
 // Menuboard Salgados	menuboard_salgados
 
-  var selectedCategory = "menuboard_bebidas"; // Categoria padrão
+  var selectedCategory = "menuboard_frango"; // Categoria padrão
   var displayDuration = 30000; // 30 segundos por exibição
   var CONFIG = {
     // Limite de caracteres do TITULO (0 ou negativo = sem limite)
@@ -56,36 +56,34 @@ document.addEventListener("DOMContentLoaded", function () {
       return; // Portrait usa flex-1 no CSS, não precisa calcular
     }
 
-    // Em landscape: calcular altura de cada linha para caber exatamente
     var container = contentRowsContainer;
-    var containerHeight = container.offsetHeight; // Altura disponível
+    var linhasElem = container.querySelectorAll(':scope > div');
+    if (linhasElem.length === 0) return;
 
-    var numLinhas = 10;
+    // Calcula com 10 slots fixos sobre a altura DISPONÍVEL do viewport
+    // Garante fonte idêntica independente de quantos itens são exibidos
+    var MAX_LINHAS = 10;
     var gap = 16; // gap-4 = 1rem = 16px
-    var totalGaps = gap * (numLinhas - 1); // 9 gaps entre 10 linhas
-
-    var alturaLinha = (containerHeight - totalGaps) / numLinhas;
-
-    // Calcula font-size proporcional à altura da linha
-    // Base: altura linha / 3.5 (ajuste para caber título + preço confortavelmente)
+    var bodyStyle = window.getComputedStyle(body);
+    var paddingTop = parseFloat(bodyStyle.paddingTop) || 0;
+    var paddingBottom = parseFloat(bodyStyle.paddingBottom) || 0;
+    var alturaDisponivel = body.offsetHeight - paddingTop - paddingBottom - 10; // -10 = mt do table-container
+    var alturaLinha = (alturaDisponivel - gap * (MAX_LINHAS - 1)) / MAX_LINHAS;
     var fontSize = Math.floor(alturaLinha / 2.2);
 
-    console.log("[INFO] Container height:", containerHeight + "px");
+    console.log("[INFO] Altura disponível:", alturaDisponivel + "px");
     console.log("[INFO] Altura calculada por linha:", alturaLinha + "px");
     console.log("[INFO] Font-size calculado:", fontSize + "px");
 
-    // Aplica altura e font-size em todas as linhas da coluna 1
-    var linhas = container.querySelectorAll(":scope > div");
-    for (var i = 0; i < linhas.length; i++) {
-      // linhas[i].style.height = alturaLinha + "px";
-      linhas[i].style.fontSize = fontSize + "px";
+    // Aplica font-size em todas as linhas da coluna 1
+    for (var i = 0; i < linhasElem.length; i++) {
+      linhasElem[i].style.fontSize = fontSize + "px";
     }
 
     // Aplica também na coluna 2
     if (contentRowsContainer2) {
       var linhas2 = contentRowsContainer2.querySelectorAll(":scope > div");
       for (var j = 0; j < linhas2.length; j++) {
-        // linhas2[j].style.height = alturaLinha + "px";
         linhas2[j].style.fontSize = fontSize + "px";
       }
     }
@@ -134,9 +132,16 @@ document.addEventListener("DOMContentLoaded", function () {
     // Seleciona os blocos
     var blocoDescricao = row.querySelector(".bloco-descricao");
     var blocoPrecos = row.querySelector(".bloco-precos");
+    blocoDescricao.style.minWidth = "0"; // evita cascata min-width do truncate
 
-    // Classes alternadas para cor de fundo do bloco de descrição
-    if (index % 2 === 0) {
+    // Classes alternadas; DE-POR usa amarelo fixo
+    var texto3 = (item.value("TEXTO3").value || "").trim();
+    if (texto3 === "DE-POR") {
+      blocoDescricao.style.backgroundColor = "#e7de43";
+      blocoPrecos.style.backgroundColor = "#e7de43";
+      blocoDescricao.classList.add("text-blue-900");
+      blocoPrecos.classList.add("text-blue-900");
+    } else if (index % 2 === 0) {
       blocoDescricao.classList.add("bg-blue-600", "text-white");
       blocoPrecos.classList.add("bg-blue-600", "text-white");
     } else {
@@ -149,6 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var price = row.querySelector(".price");
     var price2 = row.querySelector(".price2");
     var linhaPrice2 = row.querySelector(".linha-price2");
+    var labelPrice2 = row.querySelector(".label-price2");
 
     // Título com quebra de linha (sem truncar)
     titulo.textContent = (item.value("TITULO").value || "").toUpperCase();
@@ -156,8 +162,30 @@ document.addEventListener("DOMContentLoaded", function () {
     // Preço principal (UNID.)
     price.textContent = formatarPreco(item.value("PRICE").value);
 
-    // Preço secundário (CX/12) - exibido apenas quando disponível
-    var valorPrice2 = item.value("PRICE2").value;
+    // Preço por caixa: calculado via TEXTO5 (bebidas) ou PRICE2 (demais)
+    var valorPrice2 = "";
+    var categoriasBebidas = ["menuboard_bebidas", "menuboard_leite", "menuboard_bebidas_269"];
+    if (categoriasBebidas.indexOf(selectedCategory) !== -1) {
+      var texto5 = (item.value("TEXTO5").value || "").trim();
+      if (texto5) {
+        try {
+          var infoTec = JSON.parse(texto5).informacoesTecnicas;
+          if (infoTec && infoTec.TipoEmbalagem === "CX" && infoTec.QuantidadeEmbalagem) {
+            var qtdCx = parseFloat(infoTec.QuantidadeEmbalagem);
+            var precoUnit = parseFloat(item.value("PRICE").value) || 0;
+            valorPrice2 = (qtdCx * precoUnit).toFixed(2);
+            if (labelPrice2) {
+              labelPrice2.textContent = "CX/" + qtdCx;
+            }
+          }
+        } catch (e) {
+          console.warn("[AVISO] TEXTO5 invalido:", e);
+        }
+      }
+    } else {
+      valorPrice2 = item.value("PRICE2").value;
+    }
+
     if (valorPrice2) {
       price2.textContent = formatarPreco(valorPrice2);
       linhaPrice2.classList.remove("hidden");
@@ -189,8 +217,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Limpa containers
     contentRowsContainer.innerHTML = "";
+    contentRowsContainer.style.minWidth = "0";
     if (contentRowsContainer2) {
       contentRowsContainer2.innerHTML = "";
+      contentRowsContainer2.style.minWidth = "0";
     }
 
     // Em LANDSCAPE: divide em 2 colunas (10 itens cada)
