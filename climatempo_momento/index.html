@@ -15,14 +15,14 @@
             duration: 10000,
 
             // Sponsor (D_SPD)
-            sponsorEnabled: false, // habilita leitura de D_SPD
+            sponsorEnabled: true, // habilita leitura de D_SPD
             sponsorRandomTest: false, // alterna sponsor true/false a cada load (teste)
             sponsorPrerollEnabled: false // exibe FILE_IMAGE1..N antes do conteúdo principal
         };
     </script>
 
     <!-- Mock data (comentar em producao) -->
-    <!-- <script src="js/mock-data.js"></script> -->
+    <script src="js/mock-data.js"></script>
     <script src="js/meteocons-helpers.js"></script>
     <script src="js/weather-video.js"></script>
 
@@ -109,11 +109,11 @@
     </main>
 
     <!-- Footer: logo climatempo -->
-    <footer class="w-full flex h-[10vmin] items-center justify-end p-[1.5vmin] z-10">
-        <div id="sponsorBox" class="hidden flex items-center justify-end space-x-[1.2vmin] max-w-[70vw]">
-            <span id="sponsorTag" class="text-[45%] tracking-wide opacity-80">PATROCINADO</span>
-            <img id="sponsorLogo" src="" alt="Patrocinador" class="h-[4vmin] max-w-[24vw] object-contain hidden" />
+    <footer class="w-full flex h-[10vmin] items-center justify-between p-[1.5vmin] z-10 bg-black/40 backdrop-blur-2xl backdrop-fallback">
+        <div id="sponsorBox" class="hidden flex items-center justify-start space-x-[1.2vmin] max-w-[70vw]">
+            <!-- <span id="sponsorTag" class="text-[45%] tracking-wide opacity-80">PATROCINADO</span> -->
             <span id="sponsorText" class="text-[60%] whitespace-nowrap overflow-hidden text-ellipsis max-w-[36vw] hidden"></span>
+            <img id="sponsorLogo" src="" alt="Patrocinador" class="h-[4vmin] max-w-[24vw] object-contain hidden" />
         </div>
         <img id="climatempoLogo" src="img/climatempo.png" alt="Climatempo" class="h-[4vmin] max-w-[20vw] object-contain" />
     </footer>

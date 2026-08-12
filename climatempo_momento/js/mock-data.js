@@ -280,3 +280,10 @@ function criarItemMock(condicao) {
 }
 
 MOCK_DATA.dados = [criarItemMock(escolherCondicaoAleatoria())];
+
+MOCK_DATA.sponsor = {
+    text1: 'Apoio:',
+    imageLogo: 'img/logo_sponsor.png',
+    mediaCandidates: ['img/sponsor.mp4', 'img/logo_sponsor.png'],
+    timeoutMs: 5000
+};

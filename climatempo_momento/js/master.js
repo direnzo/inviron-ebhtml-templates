@@ -462,6 +462,8 @@ function showSpdPreroll(spd, onDone) {
   }
 
   timeoutHandle = setTimeout(finish, timeoutMs);
+  // Garante que o body seja visível (sai do opacity-0 inicial) para o overlay aparecer
+  document.body.style.opacity = '1';
   wrapper.className = "fixed inset-0 z-[9999] bg-black flex items-center justify-center";
 
   function showImage(src) {
@@ -590,7 +592,7 @@ function applySponsorFooter(spd) {
   }
 
   sponsorBox.className = "flex items-center justify-end space-x-[1.2vmin] max-w-[70vw]";
-  climatempoLogo.className = "h-[4vmin] max-w-[20vw] object-contain hidden";
+  climatempoLogo.className = "h-[4vmin] max-w-[20vw] object-contain";
 
   if (hasLogo) {
     sponsorLogo.src = spd.imageLogo;
