@@ -9,7 +9,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'google-sans-flex': ['Google Sans Flex', 'sans-serif'],
+        'tt-demibold': ['"TT Rounds Neue DemiBold"', 'sans-serif'],
+        'tt-extrabold': ['"TT Rounds Neue ExtraBold"', 'sans-serif'],
       },
       screens: {
         'empena':    { 'raw': '(max-aspect-ratio: 1/3)' },                                          // ≤ 0.333

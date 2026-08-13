@@ -1,4 +1,29 @@
 // Mapeamento Climatempo para Meteocons — agora em meteocons-helpers.js (METEOCONS_MAP)
+
+// ============================================================
+// DETECCAO DE HARDWARE FRACO
+// Usa APIs de hardware reais (deviceMemory, hardwareConcurrency).
+// Para testar no DevTools: adicione ?hwfraco=1 na URL.
+// ============================================================
+var HARDWARE_FRACO = false;
+
+(function detectarHardwareFraco() {
+  // Override para testes: ?hwfraco=1 na URL
+  if (window.location.search.indexOf('hwfraco=1') !== -1) {
+    HARDWARE_FRACO = true;
+    return;
+  }
+  // RAM <= 1GB = Android de entrada (Chrome 63+, funciona no Chrome 78)
+  if (navigator.deviceMemory && navigator.deviceMemory <= 1) {
+    HARDWARE_FRACO = true;
+    return;
+  }
+  // <= 2 nucleos logicos = definitivamente fraco
+  if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) {
+    HARDWARE_FRACO = true;
+  }
+})();
+
 // ============================================================
 // ASPECT RATIO DETECTION
 // ============================================================
@@ -115,7 +140,8 @@ function aplicarVisibilidadeDescricao() {
   var els = document.querySelectorAll('.descricao');
   var i;
   for (i = 0; i < els.length; i++) {
-    if (visivel && els[i].getAttribute('data-tem-texto') === '1') {
+    if (visivel) {
+      // Sempre mostra (mesmo sem texto) para preservar altura fixa nos 3 cards
       els[i].classList.remove('hidden');
     } else {
       els[i].classList.add('hidden');
@@ -123,14 +149,9 @@ function aplicarVisibilidadeDescricao() {
   }
   return visivel;
 }
-
-// Reduz progressivamente o font-size ate o texto caber no espaco disponivel
-// (sem overflow), respeitando um limite minimo. ES5, sem clamp()/APIs modernas.
-//
-// IMPORTANTE: tanto o tamanho da fonte quanto o limite maximo de altura sao
-// calculados a partir de --cvmin (escala do PROPRIO card, em pixels fixos) —
-// nunca em "em" relativo a si mesmo, senao o limite encolheria na mesma
-// proporcao da fonte e o numero de linhas nunca convergiria.
+// Reduz progressivamente o font-size ate o texto caber na altura fixa reservada.
+// Usa height (nao maxHeight) para que os 3 cards sempre reservem o mesmo espaco,
+// evitando que o bloco de temperaturas varie de posicao entre cards.
 function autofitDescricao(el) {
   if (!el || el.classList.contains('hidden')) return;
 
@@ -138,10 +159,14 @@ function autofitDescricao(el) {
   var cvmin = aplicarEscalaCard(card);
   if (!cvmin) return;
 
+  var alturaFixa = cvmin * DESCRICAO_ALTURA_MAX_CVMIN;
+  el.style.height = alturaFixa + 'px';
+
+  var textoVazio = !el.innerText || el.innerText.replace(/^\s+|\s+$/g, '') === '';
+  if (textoVazio) return;
+
   var fonte = DESCRICAO_FONTE_MAX_CVMIN;
-  el.style.maxHeight = 'none';
   el.style.fontSize = (cvmin * fonte) + 'px';
-  el.style.maxHeight = (cvmin * DESCRICAO_ALTURA_MAX_CVMIN) + 'px';
 
   var tentativas = 0;
   while (el.scrollHeight > el.clientHeight && fonte > DESCRICAO_FONTE_MIN_CVMIN && tentativas < 40) {
@@ -206,8 +231,9 @@ function escolherSlotDeCidade(slotsValidos, duracaoMs) {
 }
 
 window.onload = function () {
-  // Aplica classe de aspect ratio
+  // Aplica classe de aspect ratio e hardware fraco
   aplicarClasseAspectRatio();
+  if (HARDWARE_FRACO) document.body.classList.add('hardware-fraco');
   aplicarVisibilidadeDescricao();
   window.addEventListener('resize', onResize);
 
@@ -479,23 +505,24 @@ function iniciarTemplate(dados, config, loader) {
     cardsElements.push(card);
   }
 
-  // Fade in do body
-  document.body.classList.remove("opacity-0");
-  document.body.classList.add("opacity-100");
-
-  // Força reflow antes de animar (para garantir que animação funcione)
+  // Reflow antes de animar
   void cardsContainer.offsetHeight;
 
   // Aguarda próximo frame para aplicar animação
+  // Em hardware fraco: loader.loaded() só após renderização completa dos cards
   setTimeout(function() {
     aplicarEscalaTodosCards();
     animarCards(cardsElements, dados.length);
     autofitTodasDescricoes();
-  }, 50);
+    if (HARDWARE_FRACO && loader) {
+      // Aguarda icones SVG injetados antes de sinalizar ao CMS
+      aguardarIconesCards(function() { loader.loaded(); }, 4000);
+    }
+  }, HARDWARE_FRACO ? 0 : 50);
 
   var duracaoFinal = (typeof CONFIG_CLIMA !== "undefined" && CONFIG_CLIMA.duration) || (config && config.duration) || 10000;
 
-  if (loader) loader.loaded();
+  if (!HARDWARE_FRACO && loader) loader.loaded();
   setTimeout(function () {
     // document.body.classList.remove('opacity-100');
     // document.body.classList.add('opacity-0');
@@ -505,13 +532,38 @@ function iniciarTemplate(dados, config, loader) {
   }, duracaoFinal);
 }
 
+// Polling: aguarda todos os icones principais (.icon) terem SVG injetado
+function aguardarIconesCards(callback, timeoutMs) {
+  var limite = Date.now() + (timeoutMs || 4000);
+  function verificar() {
+    var icones = document.querySelectorAll('.card .icon');
+    var todos = icones.length > 0;
+    for (var i = 0; i < icones.length; i++) {
+      if (!icones[i].querySelector('svg')) { todos = false; break; }
+    }
+    if (todos || Date.now() >= limite) {
+      callback();
+    } else {
+      setTimeout(verificar, 100);
+    }
+  }
+  setTimeout(verificar, 0);
+}
+
 // Função para animar os cards com translate-X + opacity
 function animarCards(cards, qtd) {
   var delays = [0, 400, 800];
   for (var i = 0; i < cards.length && i < qtd; i++) {
-    cards[i].style.transitionDelay = delays[i] + "ms";
-    cards[i].classList.remove("-translate-x-[120%]", "opacity-0");
-    cards[i].classList.add("translate-x-0", "opacity-100");
+    if (HARDWARE_FRACO) {
+      // Hardware fraco: elimina a transição CSS e mostra direto
+      cards[i].style.transition = 'none';
+      cards[i].classList.remove('-translate-x-[120%]', 'opacity-0', 'transition-all', 'duration-1000', 'ease-out');
+    } else {
+      // Hardware normal: mantém transition-all/duration/ease-out para o slide-in funcionar
+      cards[i].style.transitionDelay = delays[i] + 'ms';
+      cards[i].classList.remove('-translate-x-[120%]', 'opacity-0');
+    }
+    cards[i].classList.add('translate-x-0', 'opacity-100');
   }
 }
 
@@ -539,7 +591,7 @@ function preencherCardClima(card, d, corClima) {
     } else {
       descricaoDiv.innerText = "";
       descricaoDiv.setAttribute("data-tem-texto", "0");
-      descricaoDiv.classList.add("hidden");
+      // Sem hidden: o espaco fixo e reservado pelo autofitDescricao para alinhar os 3 cards
     }
   }
   // Ícone principal (Meteocon SVG via XHR)

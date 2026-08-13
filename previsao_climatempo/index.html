@@ -12,7 +12,7 @@
             iconStyle: 'fill', // 'fill' | 'flat' | 'line' | 'monochrome'
             iconColor: '#ffffff', // só funciona com o estilo 'monochrome'
             textColor: '#ffffff', // cor do texto (opcional)
-            duration: 10000
+            duration: 30000
         };
     </script>
 
@@ -24,7 +24,7 @@
     <title>Previsão do Tempo</title>
 </head>
 
-<body class="relative flex flex-col h-screen w-full overflow-hidden bg-[#009ee3] font-google-sans-flex leading-none font-bold text-white text-[3.5vmin] opacity-0 transition-opacity duration-800 ease-out">
+<body class="relative flex flex-col h-screen w-full overflow-hidden bg-[#009ee3] font-tt-demibold leading-none font-bold text-white text-[3.5vmin]">
     <!-- Fundo animado -->
     <div id="fundo" class="absolute inset-0 -z-10">
         <img src="img/fundo.jpg" class="w-full h-full object-cover" />
@@ -53,7 +53,7 @@
                 <div class="icon flex items-center justify-center aspect-square flex-shrink"></div>
 
                 <!-- Temperaturas com tamanho escalável -->
-                <div class="card-texts flex flex-row flex-wrap font-extrabold items-center justify-evenly flex-shrink-0">
+                <div class="card-texts flex flex-row flex-nowrap font-tt-extrabold items-center justify-evenly flex-shrink-0">
                     <div class="flex flex-row items-center justify-center space-x-[0.5vmin]">
                         <span class="arrow-up-svg w-[0.6em] h-[0.6em] flex-shrink-0"></span>
                         <span class="max text-[#f9b71e] leading-none whitespace-nowrap">--</span>
