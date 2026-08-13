@@ -12,6 +12,8 @@ window.onload = function () {
     var credit = document.querySelector('#credit');
     var body = document.querySelector('body');
 
+    var duracaoMs = 30000; // 10 segundos
+
     var ALL_RATIO_CLASSES = [
         'ratio-portrait',
         'ratio-portrait-mild',
@@ -228,7 +230,7 @@ window.onload = function () {
             loader.loaded();
             setTimeout(function () {
                 loader.finished();
-            }, 15000);
+            }, duracaoMs);
         };
 
         photo.onerror = function () {
@@ -255,6 +257,9 @@ window.onload = function () {
 
         if (MOCK_DATA.config && MOCK_DATA.config.layout) {
             aplicarLayoutConfig(MOCK_DATA.config.layout);
+        }
+        if (MOCK_DATA.config && MOCK_DATA.config.duracao) {
+            duracaoMs = Number(MOCK_DATA.config.duracao);
         }
 
         renderizarTemplate(MOCK_DATA.dados);
