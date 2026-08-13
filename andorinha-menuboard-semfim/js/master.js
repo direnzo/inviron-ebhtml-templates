@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 //============================================================
 
-  var selectedCategory = "menuboard_cafe"; // Categoria padrão
+  var selectedCategory = "menuboard_leite"; // Categoria padrão
   var displayDuration = 1800000; // 30 minutos por exibição
   var pollInterval = 20000;    // 20 segundos. Intervalo de polling e timeout entre páginas (ms)
   var TEST_RELOAD_MODE = false;  // true = reload em vez de finished() (simula ciclo de playlist no localhost)
@@ -59,6 +59,31 @@ document.addEventListener("DOMContentLoaded", function () {
       cardMl.classList.remove("hidden");
       cardMl.classList.add("flex");
     }
+  }
+
+  // ─── Badge de categoria (landscape: acougue_ouro / acougue) ─────────────────
+  var badgeEl = document.getElementById("badge-categoria");
+  var badgeInner = document.getElementById("badge-inner");
+  var textoBadge = document.getElementById("texto-badge");
+  if (badgeEl && badgeInner && textoBadge) {
+    if (selectedCategory === "menuboard_acougue_ouro") {
+      textoBadge.textContent = "OURO";
+      badgeInner.style.backgroundColor = "#D4AF37";
+      textoBadge.style.color = "#1a1a2e";
+      badgeEl.classList.remove("hidden");
+      badgeEl.classList.add("flex");
+    } else if (selectedCategory === "menuboard_acougue") {
+      textoBadge.textContent = "PRATA";
+      badgeInner.style.backgroundColor = "#B8B8C0";
+      textoBadge.style.color = "#1a1a2e";
+      badgeEl.classList.remove("hidden");
+      badgeEl.classList.add("flex");
+    }
+  }
+
+  // ─── Café/Leite portrait: sem badge → reduz padding inferior para caber 10 itens
+  if (selectedCategory === "menuboard_cafe" || selectedCategory === "menuboard_leite") {
+    body.style.paddingBottom = "2vh";
   }
 
   var loader2; // Loader EBHTML
