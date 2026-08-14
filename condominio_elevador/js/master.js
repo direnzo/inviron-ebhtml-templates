@@ -56,6 +56,17 @@ function getBadgeStyle(editoria) {
     return BADGE_STYLES[key] || { bg: '#1c1c1c', text: '#9ca3af', border: '#374151' };
 }
 
+/* Rotação sequencial por localStorage — retorna índice atual e avança */
+function getNextIndex(key, total) {
+    if (!total || total <= 1) { return 0; }
+    var idx = 0;
+    try {
+        idx = (parseInt(localStorage.getItem(key), 10) || 0) % total;
+        localStorage.setItem(key, (idx + 1) % total);
+    } catch (e) { /* localStorage indisponível */ }
+    return idx;
+}
+
 /* Ajusta font-size do título por busca binária até caber em 2 linhas */
 function fitTitulo() {
     var el      = document.getElementById('comunicadoTitulo');
@@ -67,7 +78,7 @@ function fitTitulo() {
     if (el.scrollHeight <= wrapper.clientHeight) { return; }
 
     var lo = MIN, hi = MAX, cur;
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 7; i++) {
         cur = (lo + hi) / 2;
         el.style.fontSize = cur + 'em';
         if (el.scrollHeight <= wrapper.clientHeight) { lo = cur; } else { hi = cur; }
@@ -98,26 +109,28 @@ function showSlide(idx) {
     var titulo = document.getElementById('comunicadoTitulo');
     var texto  = document.getElementById('comunicadoTexto');
 
-    /* Fade out */
+    /* Inicia fade out */
     card.style.opacity = '0';
 
+    /* Atualiza conteúdo e roda fitTitulo enquanto card está invisível.
+       Reflows da busca binária nunca ficam visíveis ao usuário. */
+    var editoria = item.editoria || 'AVISOS';
+    var bs       = getBadgeStyle(editoria);
+
+    badge.textContent           = editoria;
+    badge.style.backgroundColor = bs.bg;
+    badge.style.color           = bs.text;
+    badge.style.borderColor     = bs.border;
+
+    titulo.textContent = item.titulo || '';
+    texto.textContent  = item.texto  || '';
+    fitTitulo();
+    resetProgressBar();
+
+    /* Aguarda a transição de saída concluir antes de revelar o novo conteúdo */
     setTimeout(function () {
-        var editoria = item.editoria || 'AVISOS';
-        var bs       = getBadgeStyle(editoria);
-
-        badge.textContent           = editoria;
-        badge.style.backgroundColor = bs.bg;
-        badge.style.color           = bs.text;
-        badge.style.borderColor     = bs.border;
-
-        titulo.textContent = item.titulo || '';
-        texto.textContent  = item.texto  || '';
-        fitTitulo();
-        resetProgressBar();
-
-        /* Fade in */
         card.style.opacity = '1';
-    }, 380);
+    }, 600);
 }
 
 function nextSlide() {
@@ -135,23 +148,35 @@ function startSlideTimer() {
    Vídeo
    ────────────────────────────────────────────────────────────── */
 
-function setupVideo(videoUrl) {
+/*
+ * Inicia o vídeo e chama onReady(totalDuration) assim que os metadados
+ * estão disponíveis. Handlers são atribuídos ANTES de player.src.
+ */
+function setupVideo(url, loops, onReady) {
     var player      = document.getElementById('videoPlayer');
     var placeholder = document.getElementById('videoPlaceholder');
 
-    if (videoUrl) {
-        /* IMPORTANTE: handlers antes do src para evitar race condition em cache */
-        player.onerror = function () {
-            player.style.display = 'none';
-            placeholder.style.display = '';
-        };
-        player.style.display = '';
-        placeholder.style.display = 'none';
-        player.src = videoUrl;
-        player.play();
-    } else {
+    if (!url) {
         player.style.display = 'none';
+        onReady(config.duration);
+        return;
     }
+
+    /* Handlers ANTES do src — evita race condition em cache (WebKit legado) */
+    player.onloadedmetadata = function () {
+        var ms = player.duration > 0 ? Math.round(player.duration * 1000) : config.duration;
+        onReady(ms * (loops || 1));
+    };
+    player.onerror = function () {
+        player.style.display = 'none';
+        placeholder.style.display = '';
+        onReady(config.duration);
+    };
+
+    placeholder.style.display = 'none';
+    player.style.display = '';
+    player.src = url;
+    player.play();
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -176,69 +201,81 @@ window.onload = function () {
             setTimeout(function () { loader.finished(); }, config.duration);
         }
 
-        /* Watchdog: garante finished() mesmo se callbacks nunca dispararem */
-        var watchdog = setTimeout(concluir, config.duration + 2000);
+        /* Watchdog conservador — cobre falha de rede + video sem metadata */
+        var watchdog = setTimeout(concluir, 65000);
 
         loader.load(
-            /* sucesso */
             function () {
                 clearTimeout(watchdog);
 
                 /* Ler configuração */
-                var cfgData = loader.data(DATASET_CONFIG);
+                var cfgData    = loader.data(DATASET_CONFIG);
+                var videoList  = [];
+                var videoLoops = 1;
+
                 if (cfgData) {
-                    var dur = cfgData.value('DURATION');
-                    if (dur && dur.value) {
-                        config.duration = parseInt(dur.value, 10) || config.duration;
+                    var loops = cfgData.value('VIDEO_LOOPS');
+                    if (loops && loops.value) { videoLoops = parseInt(loops.value, 10) || 1; }
+
+                    /* Coleta VIDEO1 .. VIDEO9 em ordem */
+                    for (var n = 1; n <= 9; n++) {
+                        var vf = cfgData.value('VIDEO' + n);
+                        if (vf && vf.value) { videoList.push(vf.value); }
                     }
-                    var cst = cfgData.value('COMUNICADO_SLIDE_TIME');
-                    if (cst && cst.value) {
-                        config.comunicadoSlideTime = parseInt(cst.value, 10) || config.comunicadoSlideTime;
-                    }
+
                     var nome = cfgData.value('NOME_CONDOMINIO');
                     if (nome && nome.value) {
                         var el = document.getElementById('condoNome');
                         if (el) { el.textContent = nome.value; }
                     }
-                    var vu = cfgData.value('VIDEO_URL');
-                    setupVideo(vu && vu.value ? vu.value : '');
-                } else {
-                    setupVideo('');
                 }
 
-                /* Ler lista de comunicados */
+                /* Carregar todos os comunicados e selecionar um por rotação */
+                var allComunicados = [];
                 var list = loader.datalist(DATASET_COMUNICADOS);
                 if (list) {
                     for (var i = 0; i < list.count(); i++) {
                         var item = list.get(i);
-                        comunicados.push({
+                        allComunicados.push({
                             editoria: item.value('EDITORIA').value,
                             titulo:   item.value('TITULO').value,
                             texto:    item.value('TEXTO').value
                         });
                     }
                 }
-
-                /* Garantia de ao menos um comunicado */
-                if (comunicados.length === 0) {
-                    comunicados.push({
+                if (allComunicados.length === 0) {
+                    allComunicados.push({
                         editoria: 'AVISOS',
                         titulo:   'Sem comunicados disponíveis',
-                        texto:    'Não há comunicados no momento. Aguarde novas informações da administração.',
-                        data:     ''
+                        texto:    'Não há comunicados no momento. Aguarde novas informações da administração.'
                     });
                 }
 
-                showSlide(0);
-                startSlideTimer();
+                /* Rotação independente: vídeo e comunicado */
+                var videoIdx = getNextIndex('cond_elev_video_idx', videoList.length);
+                var comIdx   = getNextIndex('cond_elev_com_idx',   allComunicados.length);
+                comunicados.push(allComunicados[comIdx]);
 
-                /* Fade-in do body */
-                body.style.opacity = '1';
+                /* Watchdog específico para falha de metadata do vídeo */
+                var metaWatchdog = setTimeout(function () {
+                    body.style.opacity = '1';
+                    showSlide(0);
+                    concluir();
+                }, 8000);
 
-                concluir();
+                setupVideo(videoList[videoIdx] || '', videoLoops, function (totalDuration) {
+                    clearTimeout(metaWatchdog);
+
+                    /* Duração real do item = duração do vídeo × loops */
+                    config.duration             = totalDuration;
+                    config.comunicadoSlideTime  = totalDuration;
+
+                    showSlide(0);
+                    body.style.opacity = '1';
+                    concluir();
+                });
             },
 
-            /* erro / sem dados */
             function () {
                 clearTimeout(watchdog);
                 body.style.opacity = '1';

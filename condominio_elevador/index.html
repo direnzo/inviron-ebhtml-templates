@@ -26,11 +26,11 @@
                 <div class="tracking-[0.15em] text-white mt-2" style="opacity:0.06;font-size:0.7em">RESIDENCIAL</div>
             </div>
 
-            <!-- Player de vídeo -->
+            <!-- Player de vídeo principal: contain para exibir sem corte -->
             <video id="videoPlayer"
-                   class="absolute w-full h-full object-cover"
+                   class="absolute w-full h-full"
                    autoplay muted loop playsinline
-                   style="display:none">
+                   style="display:none;object-fit:contain">
             </video>
 
             <!-- Sobreposição: gradiente na borda inferior para integrar com comunicados -->
@@ -58,7 +58,7 @@
             <!-- Card de comunicado (fade ao trocar) -->
             <div id="comunicadoCard"
                  class="flex-1 flex flex-col overflow-hidden"
-                 style="opacity:0;transition:opacity 0.55s ease-in-out">
+                 style="opacity:0;transition:opacity 0.5s ease-in-out">
 
                 <!-- Badge de editoria -->
                 <div class="flex-none" style="margin-bottom:0.9em">
