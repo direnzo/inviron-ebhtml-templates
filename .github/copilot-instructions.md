@@ -127,6 +127,84 @@ screens: { // tailwind.config.js
 
 ---
 
+## ⚠️ PERFORMANCE EM ANDROID (lições aprendidas — previsao_climatempo, 2026-08-14)
+
+### 5. Detectar hardware fraco obrigatoriamente em templates com assets dinâmicos
+
+Android de entrada (Rockchip, Allwinner, etc.) trava com animações CSS, SVGs animados e múltiplos XHRs simultâneos. Detectar no início do script, antes do `window.onload`:
+
+```javascript
+var HARDWARE_FRACO = false;
+(function() {
+  if (window.location.search.indexOf('hwfraco=1') !== -1) { HARDWARE_FRACO = true; return; } // teste via URL
+  if (navigator.userAgent.indexOf('Android') !== -1) { HARDWARE_FRACO = true; return; }
+  if (navigator.deviceMemory && navigator.deviceMemory <= 1) { HARDWARE_FRACO = true; return; }
+  if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) { HARDWARE_FRACO = true; }
+})();
+```
+
+No `window.onload`, aplicar classe e desativar animações SVG:
+```javascript
+if (HARDWARE_FRACO) {
+  document.body.classList.add('hardware-fraco');
+  var s = document.createElement('style');
+  s.innerHTML = '.hardware-fraco .icon svg *, .hardware-fraco .icon svg { animation: none !important; transition: none !important; }';
+  document.head.appendChild(s);
+}
+```
+
+Para testar no DevTools: `?hwfraco=1` na URL + CPU throttle Low-tier mobile 10.5x.
+
+### 6. Nunca revelar conteúdo antes de assets assíncronos estarem prontos
+
+**`opacity-0` no body inteiro é proibido** — esconde o fundo/gradiente e causa flash de `background-color`.  
+Em vez disso: body sempre visível, `opacity: 0` apenas no **container dos dados dinâmicos**.
+
+```javascript
+// NUNCA: <body class="opacity-0">
+// CERTO: esconder só o container de dados
+container.style.opacity = '0';          // antes de montar
+// ... assets carregam no escuro (opacity:0 mantém layout para getBBox) ...
+container.style.transition = 'opacity 0.4s';
+container.style.opacity = '1';          // revela tudo de uma vez
+loader.loaded();                         // loader.loaded() SÓ após revelação
+```
+
+### 7. Cache obrigatório para XHR de assets carregados por item/card
+
+Sem cache, N cards × M assets = N×M requisições. Com cache: M requisições únicas.
+
+```javascript
+var SVG_CACHE = {};
+function carregarSvgCached(url, callback) {
+  if (SVG_CACHE[url]) { callback(null, SVG_CACHE[url]); return; }
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState !== 4) return;
+    if (xhr.status === 200 || xhr.status === 0) { SVG_CACHE[url] = xhr.responseText; callback(null, xhr.responseText); }
+    else { callback('Erro ' + url, null); }
+  };
+  xhr.send();
+}
+```
+
+### 8. Animações de entrada condicionais ao hardware
+
+```javascript
+if (HARDWARE_FRACO) {
+  card.style.transition = 'none';
+  card.classList.remove('transition-all', 'duration-1000', 'ease-out', '-translate-x-[120%]', 'opacity-0');
+} else {
+  card.style.transitionDelay = delay + 'ms'; // slide-in normal com delays escalonados
+  card.classList.remove('-translate-x-[120%]', 'opacity-0');
+  // NUNCA remover transition-all/duration/ease-out no path normal — mata a animação
+}
+card.classList.add('translate-x-0', 'opacity-100');
+```
+
+---
+
 ## 📋 Checklist
 
 - [ ] `js/ebhtml.js` é a versão 2.0.3 (checar linha 2: `// EBHTML version 2.0.3`; se faltar ou arquivo <20KB, copiar de `_template-base/js/ebhtml.js`)
@@ -138,6 +216,11 @@ screens: { // tailwind.config.js
 - [ ] `MOCK_DATA.enabled = false` em produção
 - [ ] Sem `clamp()` / sem `gap-*` em flex / fallbacks hex
 - [ ] `font-size` body em `vmin`, filhos em `em`/`%`
+- [ ] Templates com assets XHR por item: cache `SVG_CACHE` ou equivalente implementado
+- [ ] Body sem `opacity-0` — esconder só o container de dados dinâmicos
+- [ ] Detecção de `HARDWARE_FRACO` presente se template tiver animações ou SVGs dinâmicos
+- [ ] Animações de entrada condicionais a `!HARDWARE_FRACO`
+- [ ] `loader.loaded()` chamado após revelação do conteúdo (não antes)
 
 ---
 

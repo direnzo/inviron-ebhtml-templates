@@ -13,6 +13,11 @@ var HARDWARE_FRACO = false;
     HARDWARE_FRACO = true;
     return;
   }
+  // Android via User-Agent: sempre fraco (WebKit legado, CPU/GPU limitados)
+  if (navigator.userAgent.indexOf('Android') !== -1) {
+    HARDWARE_FRACO = true;
+    return;
+  }
   // RAM <= 1GB = Android de entrada (Chrome 63+, funciona no Chrome 78)
   if (navigator.deviceMemory && navigator.deviceMemory <= 1) {
     HARDWARE_FRACO = true;
@@ -233,7 +238,13 @@ function escolherSlotDeCidade(slotsValidos, duracaoMs) {
 window.onload = function () {
   // Aplica classe de aspect ratio e hardware fraco
   aplicarClasseAspectRatio();
-  if (HARDWARE_FRACO) document.body.classList.add('hardware-fraco');
+  if (HARDWARE_FRACO) {
+    document.body.classList.add('hardware-fraco');
+    // Desativa animacoes CSS dos icones SVG (Meteocons sao pesados em Android)
+    var s = document.createElement('style');
+    s.innerHTML = '.hardware-fraco .icon svg *, .hardware-fraco .icon svg { animation: none !important; transition: none !important; }';
+    document.head.appendChild(s);
+  }
   aplicarVisibilidadeDescricao();
   window.addEventListener('resize', onResize);
 
@@ -491,6 +502,11 @@ function iniciarTemplate(dados, config, loader) {
   var cardsContainer = document.getElementById("cards");
   var template = document.getElementById("card-template");
   var cardsElements = [];
+
+  if (HARDWARE_FRACO) {
+    // Esconde o container inteiro: icones carregam no escuro, sem "montar" em tela
+    cardsContainer.style.opacity = '0';
+  }
   
   for (var i = 0; i < dados.length; i++) {
     // Clona o template
@@ -515,8 +531,12 @@ function iniciarTemplate(dados, config, loader) {
     animarCards(cardsElements, dados.length);
     autofitTodasDescricoes();
     if (HARDWARE_FRACO && loader) {
-      // Aguarda icones SVG injetados antes de sinalizar ao CMS
-      aguardarIconesCards(function() { loader.loaded(); }, 4000);
+      // Aguarda icones e revela tudo de uma vez com fade rapido
+      aguardarIconesCards(function() {
+        cardsContainer.style.transition = 'opacity 0.4s';
+        cardsContainer.style.opacity = '1';
+        loader.loaded();
+      }, 5000);
     }
   }, HARDWARE_FRACO ? 0 : 50);
 
@@ -611,44 +631,34 @@ function preencherCardClima(card, d, corClima) {
     minSpan.innerText = d.MIN ? d.MIN + "°" : "--";
   }
 
-  // Setas SVG inline (arrow-up e arrow-down)
+  // Setas SVG inline — usa cache para nao recarregar a cada card
   var arrowUpEl = card.querySelector(".arrow-up-svg");
   if (arrowUpEl) {
-    var xhrUp = new XMLHttpRequest();
-    xhrUp.open('GET', 'img/arrow-up.svg', true);
-    xhrUp.onreadystatechange = function() {
-      if (xhrUp.readyState !== 4) return;
-      if (xhrUp.status === 200 || xhrUp.status === 0) {
-        arrowUpEl.innerHTML = xhrUp.responseText;
-        var svg = arrowUpEl.querySelector('svg');
-        if (svg) {
-          svg.style.width = '100%';
-          svg.style.height = '100%';
-          svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-          svg.style.color = '#f9b71e';
-        }
+    carregarSvgCached('img/arrow-up.svg', function(err, svgText) {
+      if (err || !svgText) return;
+      arrowUpEl.innerHTML = svgText;
+      var svg = arrowUpEl.querySelector('svg');
+      if (svg) {
+        svg.style.width = '100%';
+        svg.style.height = '100%';
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        svg.style.color = '#f9b71e';
       }
-    };
-    xhrUp.send();
+    });
   }
   var arrowDownEl = card.querySelector(".arrow-down-svg");
   if (arrowDownEl) {
-    var xhrDown = new XMLHttpRequest();
-    xhrDown.open('GET', 'img/arrow-down.svg', true);
-    xhrDown.onreadystatechange = function() {
-      if (xhrDown.readyState !== 4) return;
-      if (xhrDown.status === 200 || xhrDown.status === 0) {
-        arrowDownEl.innerHTML = xhrDown.responseText;
-        var svg = arrowDownEl.querySelector('svg');
-        if (svg) {
-          svg.style.width = '100%';
-          svg.style.height = '100%';
-          svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-          svg.style.color = '#80ace3';
-        }
+    carregarSvgCached('img/arrow-down.svg', function(err, svgText) {
+      if (err || !svgText) return;
+      arrowDownEl.innerHTML = svgText;
+      var svg = arrowDownEl.querySelector('svg');
+      if (svg) {
+        svg.style.width = '100%';
+        svg.style.height = '100%';
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        svg.style.color = '#80ace3';
       }
-    };
-    xhrDown.send();
+    });
   }
 
   // Chuva
@@ -682,27 +692,22 @@ function preencherCardClima(card, d, corClima) {
   }
   var dirVentoSvg = card.querySelector(".dir-vento-svg");
   if (dirVentoSvg && d.VENTO_DIR) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'img/compass.svg', true);
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState !== 4) return;
-      if (xhr.status === 200 || xhr.status === 0) {
-        dirVentoSvg.innerHTML = xhr.responseText;
-        var svg = dirVentoSvg.querySelector('svg');
-        if (svg) {
-          svg.style.width = '100%';
-          svg.style.height = '100%';
-          svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-          var ang = direcaoCardinalParaAngulo(d.VENTO_DIR);
-          // Rotaciona o path inteiro no centro do viewBox (12 12)
-          var path = svg.querySelector('path');
-          if (path) {
-            path.setAttribute('transform', 'rotate(' + ang + ' 12 12)');
-          }
+    carregarSvgCached('img/compass.svg', function(err, svgText) {
+      if (err || !svgText) return;
+      dirVentoSvg.innerHTML = svgText;
+      var svg = dirVentoSvg.querySelector('svg');
+      if (svg) {
+        svg.style.width = '100%';
+        svg.style.height = '100%';
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        var ang = direcaoCardinalParaAngulo(d.VENTO_DIR);
+        // Rotaciona o path inteiro no centro do viewBox (12 12)
+        var path = svg.querySelector('path');
+        if (path) {
+          path.setAttribute('transform', 'rotate(' + ang + ' 12 12)');
         }
       }
-    };
-    xhr.send();
+    });
   }
 
   // UV

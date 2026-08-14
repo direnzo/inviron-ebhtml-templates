@@ -54,6 +54,29 @@ var METEOCONS_MAP = {
 
 /* ---------- FUNCOES ---------- */
 
+// Cache em memoria — elimina XHRs duplicados para o mesmo arquivo SVG
+var METEOCONS_CACHE = {};
+
+// Funcao base com cache: carrega qualquer SVG por URL completa
+function carregarSvgCached(url, callback) {
+  if (METEOCONS_CACHE[url]) {
+    callback(null, METEOCONS_CACHE[url]);
+    return;
+  }
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, true);
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState !== 4) return;
+    if (xhr.status === 200 || xhr.status === 0) {
+      METEOCONS_CACHE[url] = xhr.responseText;
+      callback(null, xhr.responseText);
+    } else {
+      callback('Erro ao carregar SVG: ' + url + ' (status: ' + xhr.status + ')', null);
+    }
+  };
+  xhr.send();
+}
+
 /**
  * Carrega um SVG Meteocon via XHR e chama callback com o conteudo.
  * @param {string} nomeArquivo - Nome do SVG (sem extensao)
@@ -61,17 +84,7 @@ var METEOCONS_MAP = {
  */
 function carregarMeteocon(nomeArquivo, callback) {
   var url = METEOCONS_PATH + '/' + METEOCONS_STYLE + '/' + nomeArquivo + '.svg';
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', url, true);
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState !== 4) return;
-    if (xhr.status === 200 || xhr.status === 0) {
-      callback(null, xhr.responseText);
-    } else {
-      callback('Erro ao carregar SVG: ' + url + ' (status: ' + xhr.status + ')', null);
-    }
-  };
-  xhr.send();
+  carregarSvgCached(url, callback);
 }
 
 /**
