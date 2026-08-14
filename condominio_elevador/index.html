@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Condomínio — Comunicados</title>
+    <link rel="stylesheet" href="css/master.css">
+    <script src="js/ebhtml.js"></script>
+    <script src="js/mock-data.js"></script>
+    <script src="js/master.js"></script>
+</head>
+<!-- Base em vmin para portrait (1080x1920) · filhos em em/% -->
+<body class="font-sans bg-[#0d1117] text-white overflow-hidden text-[3.2vmin] portrait:text-[5vmin] empena:text-[11vmin]"
+      style="opacity:0;transition:opacity 0.8s ease-in-out">
+
+    <div class="w-full h-full flex flex-col">
+
+        <!-- ═══════════════════════════════════════════════════
+             ZONA SUPERIOR — VÍDEO (50% do ecrã)
+        ════════════════════════════════════════════════════ -->
+        <div id="videoZone" class="relative flex-none overflow-hidden" style="height:50%">
+
+            <!-- Fundo animado (mostrado quando não há vídeo) -->
+            <div id="videoPlaceholder" class="absolute inset-0 video-bg-anim flex flex-col items-center justify-center">
+                <div id="condoNome" class="font-bold tracking-[0.25em] uppercase text-white" style="opacity:0.12;font-size:1.8em"></div>
+                <div class="tracking-[0.15em] text-white mt-2" style="opacity:0.06;font-size:0.7em">RESIDENCIAL</div>
+            </div>
+
+            <!-- Player de vídeo -->
+            <video id="videoPlayer"
+                   class="absolute w-full h-full object-cover"
+                   autoplay muted loop playsinline
+                   style="display:none">
+            </video>
+
+            <!-- Sobreposição: gradiente na borda inferior para integrar com comunicados -->
+            <div class="absolute bottom-0 left-0 right-0 pointer-events-none"
+                 style="height:80px;background:linear-gradient(to bottom,transparent,#0d1117)"></div>
+
+            <!-- Sobreposição: badge de status no canto superior esquerdo -->
+            <div id="videoStatusBadge" class="absolute top-5 left-6 flex items-center" style="display:none!important">
+                <span class="inline-block w-2 h-2 rounded-full mr-2" style="background:#22c55e"></span>
+                <span class="text-white text-[0.55em] tracking-widest uppercase" style="opacity:0.7">AO VIVO</span>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+             DIVISOR DOURADO
+        ════════════════════════════════════════════════════ -->
+        <div class="flex-none w-full"
+             style="height:2px;background:linear-gradient(90deg,transparent 0%,#c9a84c 25%,#f0d080 50%,#c9a84c 75%,transparent 100%)"></div>
+
+        <!-- ═══════════════════════════════════════════════════
+             ZONA INFERIOR — COMUNICADOS (~50%)
+        ════════════════════════════════════════════════════ -->
+        <div id="comunicadoZone" class="relative flex-1 flex flex-col overflow-hidden px-10 pt-8 pb-8">
+
+            <!-- Card de comunicado (fade ao trocar) -->
+            <div id="comunicadoCard"
+                 class="flex-1 flex flex-col overflow-hidden"
+                 style="opacity:0;transition:opacity 0.55s ease-in-out">
+
+                <!-- Badge de editoria -->
+                <div class="flex-none" style="margin-bottom:0.9em">
+                    <span id="editoriaBadge"
+                          class="inline-block font-bold uppercase tracking-[0.2em]"
+                          style="font-size:0.72em;padding:6px 18px;border-radius:999px;border-width:1px;border-style:solid"></span>
+                </div>
+
+                <!-- Título: wrapper com altura fixa = 2 linhas ao máximo -->
+                <div id="tituloWrapper"
+                     class="flex-none overflow-hidden"
+                     style="height:4.4em;margin-bottom:0.55em">
+                    <h2 id="comunicadoTitulo"
+                        class="font-bold leading-snug text-white"
+                        style="font-size:1.6em"></h2>
+                </div>
+
+                <!-- Acento dourado -->
+                <div class="flex-none"
+                     style="width:2.2em;height:2px;background:#c9a84c;border-radius:1px;margin-bottom:0.9em"></div>
+
+                <!-- Texto descritivo -->
+                <p id="comunicadoTexto"
+                   class="flex-1 leading-relaxed overflow-hidden"
+                   style="font-size:0.92em;color:#9ca3af"></p>
+            </div>
+
+            <!-- Barra de progresso do slide (colada na borda inferior da tela) -->
+            <div class="absolute bottom-0 left-0 right-0" style="height:4px;background:rgba(255,255,255,0.06)">
+                <div id="progressBar" style="height:100%;width:100%;background:linear-gradient(90deg,#c9a84c,#f0d080)"></div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

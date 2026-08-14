@@ -1,0 +1,12 @@
+{
+  "name": "condominio-elevador",
+  "version": "1.0.0",
+  "description": "Template de comunicados para telas de elevador — EdgeContents Digital Signage",
+  "scripts": {
+    "dev": "tailwindcss -i css/input.css -o css/master.css --watch",
+    "build": "tailwindcss -i css/input.css -o css/master.css --minify"
+  },
+  "keywords": ["digital-signage", "edgecontents", "condominio", "elevador"],
+  "author": "Eduardo Di Renzo - Inviron Technologies",
+  "license": "ISC"
+}
