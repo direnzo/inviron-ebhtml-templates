@@ -1,6 +1,6 @@
 var months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 var dat = new Date();
-var timeFinished = 30000; // 30 segundos
+var timeFinished = 10000; // 15 segundos
 
 var ALL_RATIO_CLASSES = [
     'ratio-portrait',
@@ -10,6 +10,21 @@ var ALL_RATIO_CLASSES = [
     'ratio-superbanner',
     'ratio-footer'
 ];
+
+// Injeta o SVG inline via XHR: <img src="*.svg"> nao renderiza no WebView
+// do EdgeContents (WebKit legado, Android 7+), precisa ir inline no DOM.
+function injetarSvg(el, url) {
+    if (!el) { return; }
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState !== 4) { return; }
+        if (xhr.status === 200 || xhr.status === 0) {
+            el.innerHTML = xhr.responseText;
+        }
+    };
+    xhr.send();
+}
 
 window.onload = function () {
 
@@ -51,6 +66,8 @@ window.onload = function () {
     }
 
     aplicarClasseAspectRatio();
+
+    injetarSvg(document.querySelector('#logo'), 'img/logo_poder360.svg');
 
     function exibirDados(dados, ldr) {
         title.innerText = dados.titulo ? dados.titulo.toUpperCase() : '';
