@@ -170,7 +170,36 @@ container.style.opacity = '1';          // revela tudo de uma vez
 loader.loaded();                         // loader.loaded() SÓ após revelação
 ```
 
-### 7. Cache obrigatório para XHR de assets carregados por item/card
+### 7. SVG sempre inline via XHR — NUNCA `<img src="arquivo.svg">`
+
+Incidente real (poder360_responsivo, 2026-08-14): logo trocado de PNG para SVG usando `<img id="logo" src="img/logo.svg">` — não renderizou em produção. O WebView do EdgeContents (WebKit legado, Android 7+) não é confiável para carregar SVG via `<img src>`; o único jeito garantido é buscar o arquivo via XHR e injetar o markup inline no DOM (`el.innerHTML = xhr.responseText`).
+
+Vale para **qualquer** SVG — logo estático, ícone único, ícone dinâmico por item. Não existe exceção "é só um logo simples".
+
+```javascript
+// ❌ NUNCA
+<img id="logo" src="img/logo.svg" alt="Logo" />
+
+// ✅ SEMPRE — container vazio + injeção via XHR
+// HTML: <div id="logo" role="img" aria-label="Logo"></div>
+function injetarSvg(el, url) {
+    if (!el) { return; }
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState !== 4) { return; }
+        if (xhr.status === 200 || xhr.status === 0) {
+            el.innerHTML = xhr.responseText;
+        }
+    };
+    xhr.send();
+}
+injetarSvg(document.querySelector('#logo'), 'img/logo.svg');
+```
+
+Para SVGs carregados repetidamente por item/card (não estáticos como um logo), ver a regra de cache abaixo.
+
+### 8. Cache obrigatório para XHR de assets carregados por item/card
 
 Sem cache, N cards × M assets = N×M requisições. Com cache: M requisições únicas.
 
@@ -189,7 +218,7 @@ function carregarSvgCached(url, callback) {
 }
 ```
 
-### 8. Animações de entrada condicionais ao hardware
+### 9. Animações de entrada condicionais ao hardware
 
 ```javascript
 if (HARDWARE_FRACO) {
@@ -216,6 +245,7 @@ card.classList.add('translate-x-0', 'opacity-100');
 - [ ] `MOCK_DATA.enabled = false` em produção
 - [ ] Sem `clamp()` / sem `gap-*` em flex / fallbacks hex
 - [ ] `font-size` body em `vmin`, filhos em `em`/`%`
+- [ ] Nenhum `<img src="*.svg">` — todo SVG (logo, ícone) injetado inline via XHR
 - [ ] Templates com assets XHR por item: cache `SVG_CACHE` ou equivalente implementado
 - [ ] Body sem `opacity-0` — esconder só o container de dados dinâmicos
 - [ ] Detecção de `HARDWARE_FRACO` presente se template tiver animações ou SVGs dinâmicos
