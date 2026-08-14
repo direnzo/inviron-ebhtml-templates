@@ -56,6 +56,19 @@ http://localhost:12099/FILES/1/index.html
 
 ## ⚠️ REGRAS CRÍTICAS (NUNCA VIOLAR)
 
+### 0. `ebhtml.js` — SEMPRE a versão 2.0.3, NUNCA reaproveitar de pasta antiga
+
+Incidente real (poder360_responsivo, 2026-08-14): layout novo foi criado em cima de uma pasta já existente que tinha um `ebhtml.js` antigo (9620 bytes, sem marcação de versão) em vez do canônico (24750 bytes, `// EBHTML version 2.0.3` no topo). Isso causou timeout/travamento em produção.
+
+**Antes de codar QUALQUER template, novo ou em cima de pasta existente:**
+1. Abrir `js/ebhtml.js` do template e conferir a 2ª linha: precisa ser `// EBHTML version 2.0.3`. Se não tiver essa linha, ou o arquivo tiver menos de ~20KB, é versão antiga/errada.
+2. Se estiver errado, copiar o arquivo correto de `_template-base/js/ebhtml.js` (fonte canônica) — NUNCA editar/atualizar manualmente o `ebhtml.js`, ele é sempre substituído por cópia integral.
+3. Nunca criar um template novo reaproveitando a pasta de um template antigo sem antes checar essa versão — é a causa raiz mais provável desse tipo de erro.
+
+```bash
+head -3 js/ebhtml.js   # deve mostrar "// EBHTML version 2.0.3" na linha 2
+```
+
 ### 1. Controle de Playlist EBHTML — `finished()` SEMPRE, sem exceção
 
 `loader.finished()` nunca chamado = item trava a playlist = device fica preso até o watchdog reiniciar o hardware. Isso já aconteceu em produção (poder360_responsivo, 2026-08-14). Duas causas raiz recorrentes:
@@ -116,6 +129,7 @@ screens: { // tailwind.config.js
 
 ## 📋 Checklist
 
+- [ ] `js/ebhtml.js` é a versão 2.0.3 (checar linha 2: `// EBHTML version 2.0.3`; se faltar ou arquivo <20KB, copiar de `_template-base/js/ebhtml.js`)
 - [ ] ES5 — sem `let/const/arrow/template strings`
 - [ ] `loader.loaded()` após sucesso, `loader.finished()` sempre
 - [ ] `loader.load()` com 2º argumento (callback de erro) que também chama `finished()`

@@ -8,6 +8,19 @@ description: "Use when: coding EBHTML templates for EdgeContents CMS digital sig
 ## Purpose
 Guia completo para usar a biblioteca `ebhtml.js` em templates de Digital Signage do EdgeContents CMS. Cobre desde o carregamento de dados XML até o controle de playlist e passagem de parâmetros/filtros.
 
+## 🚨 Verificar a versão do `ebhtml.js` ANTES de mexer no template
+
+Incidente real (poder360_responsivo, 2026-08-14): um layout novo foi criado em cima de uma pasta já existente cujo `js/ebhtml.js` era uma versão antiga (9620 bytes, sem cabeçalho de versão) em vez da v2.0.3 (24750 bytes). Isso causou travamento/timeout em produção — comportamento silencioso, sem erro visível durante o desenvolvimento.
+
+**Sempre, ao abrir/criar qualquer template:**
+```bash
+head -3 js/ebhtml.js
+# Correto: linha 2 = "// EBHTML version 2.0.3"
+```
+Se a linha não bater (ou o arquivo tiver bem menos de ~24KB), o `ebhtml.js` está desatualizado. Substituir pelo arquivo inteiro de `_template-base/js/ebhtml.js` (fonte canônica) — nunca editar manualmente, sempre cópia integral do arquivo.
+
+Isso é especialmente crítico ao **reaproveitar uma pasta de template já existente** para um layout novo — a pasta antiga pode ter um `ebhtml.js` de uma versão anterior do CMS.
+
 ## Trigger Keywords
 Use esta skill quando o usuário pedir:
 - EBHTML, ebhtml.js, loader, criar template EdgeContents

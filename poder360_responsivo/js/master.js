@@ -1,6 +1,6 @@
 var months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 var dat = new Date();
-var timeFinished = 10000; // 10 segundos
+var timeFinished = 30000; // 30 segundos
 
 var ALL_RATIO_CLASSES = [
     'ratio-portrait',

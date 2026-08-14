@@ -4,6 +4,7 @@ Este documento resume as diretrizes obrigatorias do workspace.
 
 ## Regras nao negociaveis
 
+- `js/ebhtml.js` sempre na versao 2.0.3 (checar linha 2 do arquivo: `// EBHTML version 2.0.3`). Se a pasta do template for reaproveitada de um projeto antigo, o arquivo pode estar desatualizado — comparar com `_template-base/js/ebhtml.js` (fonte canonica) e substituir por copia integral se divergir. Detalhe: `.github/skills/ebhtml-api/SKILL.md`.
 - ES5 obrigatorio.
 - Baseline minimo: Chromium 78.
 - Runtime: loaded apenas em sucesso e finished sempre.
