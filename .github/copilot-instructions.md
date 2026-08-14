@@ -56,11 +56,33 @@ http://localhost:12099/FILES/1/index.html
 
 ## ⚠️ REGRAS CRÍTICAS (NUNCA VIOLAR)
 
-### 1. Controle de Playlist EBHTML
+### 1. Controle de Playlist EBHTML — `finished()` SEMPRE, sem exceção
+
+`loader.finished()` nunca chamado = item trava a playlist = device fica preso até o watchdog reiniciar o hardware. Isso já aconteceu em produção (poder360_responsivo, 2026-08-14). Duas causas raiz recorrentes:
+
+**a) `loader.load()` sem callback de erro.** Se a XML falhar (timeout de rede, status != 200), o `ebhtml.js` chama `error()` internamente mas **nunca** `finished()`. Sem um 2º callback em `loader.load()`, o item trava para sempre.
 ```javascript
-loader.loaded();   // ✅ SEMPRE (sucesso OU erro)
-loader.finished(); // ✅ SEMPRE (sucesso OU erro)
+function liberar() { loader.loaded(); loader.finished(); }
+loader.load(function () { /* sucesso: renderizar + loaded() + finished() */ }, liberar); // ❌ NUNCA omitir o 2º argumento
 ```
+
+**b) `image.onload`/`onerror` atribuídos DEPOIS de `image.src`.** Se a imagem já está em cache (comum em playlists repetidas), alguns WebKit legados (Android 7+) disparam o evento antes do handler existir — `loaded()`/`finished()` nunca são chamados.
+```javascript
+image.onload = function () { /* ... */ };   // ✅ handlers ANTES do src
+image.onerror = function () { /* ... */ };
+image.src = dados.foto;                     // src por último
+```
+
+**c) Watchdog obrigatório.** Todo template com imagem/mídia assíncrona deve ter um `setTimeout` de segurança que força `loaded()+finished()` caso nenhum evento dispare — rede instável ou edge cases sempre existem.
+```javascript
+var settled = false;
+function concluir() { if (settled) return; settled = true; loader.loaded(); setTimeout(loader.finished, timeFinished); }
+var watchdog = setTimeout(concluir, timeFinished); // fallback se onload/onerror nunca disparar
+image.onload = function () { clearTimeout(watchdog); concluir(); };
+image.onerror = function () { clearTimeout(watchdog); concluir(); };
+```
+
+Checklist ao revisar qualquer template: `loader.load(sucesso, erro)` sempre com 2º argumento • handlers de imagem antes do `src` • watchdog de timeout presente. Ver `.github/skills/ebhtml-api/SKILL.md` seção 6 para o padrão completo.
 
 ### 2. CSS Compatível (Chromium 78)
 | ❌ Proibido | Requer | ✅ Alternativa |
@@ -96,6 +118,9 @@ screens: { // tailwind.config.js
 
 - [ ] ES5 — sem `let/const/arrow/template strings`
 - [ ] `loader.loaded()` após sucesso, `loader.finished()` sempre
+- [ ] `loader.load()` com 2º argumento (callback de erro) que também chama `finished()`
+- [ ] `image.onload`/`onerror` atribuídos ANTES de `image.src`
+- [ ] Watchdog (`setTimeout`) garantindo `finished()` mesmo sem eventos de imagem/mídia
 - [ ] `MOCK_DATA.enabled = false` em produção
 - [ ] Sem `clamp()` / sem `gap-*` em flex / fallbacks hex
 - [ ] `font-size` body em `vmin`, filhos em `em`/`%`

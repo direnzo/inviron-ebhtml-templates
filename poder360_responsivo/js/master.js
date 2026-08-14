@@ -56,22 +56,35 @@ window.onload = function () {
         title.innerText = dados.titulo ? dados.titulo.toUpperCase() : '';
         text.innerText = dados.texto ? dados.texto.toUpperCase() : '';
 
-        image.src = dados.foto;
-        document.querySelector('#image').appendChild(image);
+        var settled = false;
 
-        image.onload = function () {
+        function concluir() {
+            if (settled) { return; }
+            settled = true;
             body.classList.add('is-ready');
             ldr.loaded();
             setTimeout(function () {
                 ldr.finished();
             }, timeFinished);
+        }
+
+        // Watchdog: se a imagem nunca disparar load/error (ex: src vazio,
+        // engine legado disparando o evento antes do handler ser anexado),
+        // garante que o item da playlist não trave o device indefinidamente.
+        var watchdog = setTimeout(concluir, timeFinished);
+
+        image.onload = function () {
+            clearTimeout(watchdog);
+            concluir();
         };
 
         image.onerror = function () {
-            body.classList.add('is-ready');
-            ldr.loaded();
-            ldr.finished();
+            clearTimeout(watchdog);
+            concluir();
         };
+
+        document.querySelector('#image').appendChild(image);
+        image.src = dados.foto;
     }
 
     if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
@@ -87,13 +100,17 @@ window.onload = function () {
         loader.nodataiserror = false;
         loader.autoloaded = false;
 
+        function liberarSemDados() {
+            loader.loaded();
+            loader.finished();
+        }
+
         loader.load(function () {
 
             var item = loader.data('D_PODER360');
 
             if (!item) {
-                loader.loaded();
-                loader.finished();
+                liberarSemDados();
                 return;
             }
 
@@ -102,6 +119,6 @@ window.onload = function () {
                 texto:  item.value('texto').value,
                 foto:   item.value('foto').value
             }, loader);
-        });
+        }, liberarSemDados);
     });
 };

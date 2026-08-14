@@ -197,6 +197,57 @@ loader.load(function() {
 });
 ```
 
+### 🚨 Como `finished()` deixa de ser chamado — causa real de travamento em produção
+
+Incidente real (poder360_responsivo, 2026-08-14): erro de timeout intermitente em produção travava o item na playlist até o device reiniciar sozinho. Causa: `finished()` nunca era chamado em dois caminhos que a maioria dos templates esquece.
+
+**a) `loader.load()` sem 2º argumento (callback de erro).** Internamente, se a XML falhar (rede instável, timeout, status != 200), `ebhtml.js` dispara `error()` — que chama `interface.eberror()` mas **NUNCA `finished()`**. Se você não passar um callback de erro, o item trava esperando `finished()` para sempre.
+```javascript
+function liberar() {
+    loader.loaded();
+    loader.finished();
+}
+loader.load(function () {
+    // sucesso
+}, liberar); // ⚠️ 2º argumento é OBRIGATÓRIO — sem ele, falha de XML = device travado
+```
+
+**b) `image.onload`/`onerror` atribuídos depois de `image.src`.** Se a imagem já estiver em cache do browser (comum em playlists que repetem itens), WebKit legado (Android 7+, comum nos players) pode disparar o evento de load/error **antes** do handler ser atribuído — o evento simplesmente se perde e `loaded()/finished()` nunca rodam.
+```javascript
+// ❌ ERRADO — risco de race condition com cache
+image.src = dados.foto;
+image.onload = function () { ldr.loaded(); ldr.finished(); };
+
+// ✅ CORRETO — handlers sempre antes do src
+image.onload = function () { ldr.loaded(); ldr.finished(); };
+image.onerror = function () { ldr.loaded(); ldr.finished(); };
+image.src = dados.foto;
+```
+
+**c) Watchdog de segurança — obrigatório em qualquer mídia assíncrona.** Mesmo com (a) e (b) corretos, sempre existe borda não prevista (src vazio, engine exótico). Todo template que depende de `image.onload`/`onerror` (ou qualquer evento assíncrono) para chamar `finished()` deve ter um `setTimeout` de fallback:
+```javascript
+var settled = false;
+function concluir() {
+    if (settled) { return; }
+    settled = true;
+    ldr.loaded();
+    setTimeout(function () { ldr.finished(); }, timeFinished);
+}
+
+var watchdog = setTimeout(concluir, timeFinished); // dispara se nenhum evento vier
+
+image.onload = function () { clearTimeout(watchdog); concluir(); };
+image.onerror = function () { clearTimeout(watchdog); concluir(); };
+
+document.querySelector('#image').appendChild(image);
+image.src = dados.foto; // src por último, depois de handlers e watchdog
+```
+
+**Checklist ao revisar qualquer template:**
+- [ ] `loader.load(sucesso, erro)` — 2º argumento sempre presente e também chamando `finished()`
+- [ ] Handlers de imagem/mídia atribuídos ANTES de setar `src`
+- [ ] Watchdog (`setTimeout`) garantindo `finished()` mesmo sem eventos
+
 ### Outros métodos de comunicação:
 ```javascript
 loader.log('mensagem');           // Log para console + EdgeContents
@@ -274,14 +325,19 @@ window.onload = function() {
             loader.autoloaded = false;
             loader.nodataiserror = false;
 
+            function liberarSemDados() {
+                loader.loaded();
+                loader.finished();
+            }
+
             loader.load(function() {
                 var item = loader.data('D_DATASET');
                 if (!item) {
-                    loader.finished();
+                    liberarSemDados();
                     return;
                 }
                 iniciarTemplate(item, loader);
-            });
+            }, liberarSemDados); // ⚠️ callback de erro obrigatório — ver seção 6
         });
     }
 };
