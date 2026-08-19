@@ -28,30 +28,33 @@ if (typeof CONFIG_CLIMA !== 'undefined') {
 
 /* ---------- MAPEAMENTO CLIMATEMPO -> METEOCONS ---------- */
 var METEOCONS_MAP = {
-  '1':   'clear-day',
-  '1n':  'clear-night',
-  '2':   'partly-cloudy-day',
-  '2r':  'partly-cloudy-day-rain',
-  '2n':  'partly-cloudy-night',
-  '2rn': 'partly-cloudy-night-rain',
-  '3':   'cloudy',
-  '3n':  'cloudy',
-  '4':   'overcast-day-rain',
-  '4r':  'extreme-day-rain',
-  '4n':  'overcast-night-rain',
-  '4rn': 'extreme-rain',
-  '4t':  'thunderstorms-day-rain',
-  '4tn': 'thunderstorms-night-rain',
-  '5':   'extreme-rain',
-  '5n':  'extreme-night-rain',
-  '6':   'thunderstorms',
-  '6n':  'thunderstorms-night',
-  '7':   'partly-cloudy-day-snow',
-  '7n':  'partly-cloudy-night-snow',
-  '8':   'snow',
-  '9':   'fog',
-  '11':  'rain'
-
+  '1':   'clear-day', //Sol
+  '1n':  'clear-night', //Noite sem nuvens.
+  '2':   'mostly-clear-day', //Sol com algumas nuvens
+  '2r':  'overcast-day', //Sol com muitas nuvens
+  '2n':  'mostly-clear-night', //Noite com algumas nuvens.
+  '2rn': 'overcast-night', //Noite com muitas nuvens
+  '3':   'overcast-drizzle', //Nublado.
+  '3n':  'overcast-drizzle', //Nublado.
+  '3tm': 'cloudy', //Nublado.
+  '4':   'mostly-clear-day-rain', //Sol e chuva
+  '4r':  'extreme-day-rain', //Sol com muitas nuvens e chuva
+  '4n':  'mostly-clear-night-rain', //Noite chuvosa
+  '4rn': 'extreme-night-rain', //Noite nublada e chuvosa.
+  '4t':  'thunderstorms-day-rain', //Sol entre nuvens e pancadas de chuva, com trovoadas
+  '4tn': 'thunderstorms-night-rain', //Pancadas de chuva durante a noite
+  '5':   'extreme-rain', //Chuvoso.
+  '5n':  'extreme-rain', //Chuvoso.
+  '6':   'extreme-thunderstorms-rain', //Chuva e trovoadas
+  '6n':  'extreme-thunderstorms-rain', //Chuva e trovoadas
+  '7':   'wind-snow', //Geada.
+  '7n':  'wind-snow', //Geada.
+  '8':   'snow', //Neve.
+  '8n':  'mostly-clear-night-snow', //Neve.
+  '9':   'mostly-clear-day-fog', //Nevoeiro
+  '9n':  'mostly-clear-night-fog', //Nevoeiro
+  '10':  'drizzle', //Chuva intensa durante o dia
+  '11':  'overcast-rain', //Índice UV
 };
 
 /* ---------- FUNCOES ---------- */

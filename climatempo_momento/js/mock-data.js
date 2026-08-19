@@ -12,6 +12,9 @@ var MOCK_DATA = {
     dados: []
 };
 
+// Use um codigo especifico (ex: '4t') para fixar um icone, ou null para sequencial.
+var MOCK_ICONE_ATIVO = null;
+
 var MOCK_CONDICOES = [
     { icon: "1", descricao: "Sol." },
     { icon: "1n", descricao: "Noite sem nuvens." },
@@ -33,8 +36,13 @@ var MOCK_CONDICOES = [
     { icon: "6n", descricao: "Chuva e trovoadas." },
     { icon: "7", descricao: "Geada." },
     { icon: "7n", descricao: "Geada." },
-    { icon: "8", descricao: "Neve." },
-    { icon: "9", descricao: "Nevoeiro" }
+    { icon: "8",   descricao: "Neve." },
+    { icon: "8n",  descricao: "Neve à noite." },
+    { icon: "9",   descricao: "Nevoeiro." },
+    { icon: "9n",  descricao: "Nevoeiro à noite." },
+    { icon: "3tm", descricao: "Nublado com névoa." },
+    { icon: "10",  descricao: "Chuva intensa." },
+    { icon: "11",  descricao: "Chuva moderada." }
 ];
 
 function mockAleatorio(min, max) {
@@ -218,6 +226,42 @@ var MOCK_PERFIS_ICONE = {
         ventoMin: 2, ventoMax: 10,
         sensacaoDeltaMin: -2, sensacaoDeltaMax: 0,
         direcoes: ["N", "NE", "E", "NW"]
+    },
+    "9n": {
+        tempAtualMin: 8, tempAtualMax: 17,
+        umidadeMin: 90, umidadeMax: 99,
+        ventoMin: 1, ventoMax: 8,
+        sensacaoDeltaMin: -3, sensacaoDeltaMax: 0,
+        direcoes: ["N", "NE", "E", "NW"]
+    },
+    "3tm": {
+        tempAtualMin: 16, tempAtualMax: 24,
+        umidadeMin: 70, umidadeMax: 92,
+        ventoMin: 4, ventoMax: 16,
+        sensacaoDeltaMin: -2, sensacaoDeltaMax: 1,
+        direcoes: ["S", "SW", "W", "NW"]
+    },
+    "8n": {
+        tempAtualMin: -6, tempAtualMax: 3,
+        umidadeMin: 75, umidadeMax: 97,
+        ventoMin: 6, ventoMax: 18,
+        sensacaoDeltaMin: -8, sensacaoDeltaMax: -3,
+        direcoes: ["S", "SW", "W", "NW"]
+    },
+    "10": {
+        tempAtualMin: 18, tempAtualMax: 26,
+        umidadeMin: 88, umidadeMax: 99,
+        ventoMin: 18, ventoMax: 50,
+        rajadaExtraMin: 12, rajadaExtraMax: 30,
+        sensacaoDeltaMin: -3, sensacaoDeltaMax: 0,
+        direcoes: ["SE", "S", "SW", "W", "NW"]
+    },
+    "11": {
+        tempAtualMin: 20, tempAtualMax: 30,
+        umidadeMin: 72, umidadeMax: 95,
+        ventoMin: 8, ventoMax: 22,
+        sensacaoDeltaMin: -2, sensacaoDeltaMax: 1,
+        direcoes: ["S", "SW", "W", "NW"]
     }
 };
 
@@ -243,8 +287,26 @@ function obterPerfilPorIcone(icon) {
 }
 
 function escolherCondicaoAleatoria() {
-    var indice = Math.floor(Math.random() * MOCK_CONDICOES.length);
-    return MOCK_CONDICOES[indice];
+    if (MOCK_ICONE_ATIVO !== null && MOCK_ICONE_ATIVO !== undefined && MOCK_ICONE_ATIVO !== '') {
+        var i;
+        for (i = 0; i < MOCK_CONDICOES.length; i++) {
+            if (MOCK_CONDICOES[i].icon === String(MOCK_ICONE_ATIVO)) {
+                return MOCK_CONDICOES[i];
+            }
+        }
+    }
+    // Sequencial: avanca um icone a cada reload, percorrendo todos em ordem
+    var chaveLS = 'mock_icone_seq';
+    var indiceAtual = 0;
+    try {
+        indiceAtual = parseInt(localStorage.getItem(chaveLS) || '0', 10);
+        if (isNaN(indiceAtual) || indiceAtual < 0 || indiceAtual >= MOCK_CONDICOES.length) {
+            indiceAtual = 0;
+        }
+    } catch (e) { indiceAtual = 0; }
+    var proximo = (indiceAtual + 1) % MOCK_CONDICOES.length;
+    try { localStorage.setItem(chaveLS, String(proximo)); } catch (e) {}
+    return MOCK_CONDICOES[indiceAtual];
 }
 
 function criarItemMock(condicao) {

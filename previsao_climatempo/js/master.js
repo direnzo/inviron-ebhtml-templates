@@ -184,9 +184,31 @@ function autofitDescricao(el) {
 function autofitTodasDescricoes() {
   if (!aplicarVisibilidadeDescricao()) return;
   var els = document.querySelectorAll('.descricao');
-  var i;
+  var i, fonteMinima;
+
+  // Primeira passagem: calcula o font-size de cada card individualmente
   for (i = 0; i < els.length; i++) {
     autofitDescricao(els[i]);
+  }
+
+  // Segunda passagem: encontra o menor font-size entre os que têm texto
+  fonteMinima = null;
+  for (i = 0; i < els.length; i++) {
+    if (els[i].classList.contains('hidden')) continue;
+    if (!els[i].innerText || els[i].innerText.replace(/^\s+|\s+$/g, '') === '') continue;
+    var fs = parseFloat(els[i].style.fontSize);
+    if (!isNaN(fs) && (fonteMinima === null || fs < fonteMinima)) {
+      fonteMinima = fs;
+    }
+  }
+
+  // Terceira passagem: aplica o menor font-size em todos (uniformiza)
+  if (fonteMinima !== null) {
+    for (i = 0; i < els.length; i++) {
+      if (!els[i].classList.contains('hidden')) {
+        els[i].style.fontSize = fonteMinima + 'px';
+      }
+    }
   }
 }
 
@@ -370,7 +392,7 @@ window.onload = function () {
             HORA: ("0" + dataObj.getHours()).slice(-2) + ":" + ("0" + dataObj.getMinutes()).slice(-2),
             MAX: melhorReg.nr_max_wea,
             MIN: melhorReg.nr_min_wea,
-            ICON: melhorReg.nr_icon_wea,
+            ICON: (melhorReg.ds_moonphase_wea || melhorReg.nr_icon_wea),
             QTDE_CHUVA: melhorReg.nr_precipitation_wea,
             PROB_CHUVA: melhorReg.nr_probrain_wea,
             VENTO_DIR: melhorReg.ds_winddirection_wea,
