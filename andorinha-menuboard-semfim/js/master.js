@@ -23,8 +23,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 //============================================================
 
-  var selectedCategory = "menuboard_leite"; // Categoria padrão
-  var displayDuration = 1800000; // 30 minutos por exibição
+  var selectedCategory = "menuboard_frango"; // Categoria padrão
+  var displayDuration = 20000; // 30 minutos por exibição
   var pollInterval = 20000;    // 20 segundos. Intervalo de polling e timeout entre páginas (ms)
   var TEST_RELOAD_MODE = false;  // true = reload em vez de finished() (simula ciclo de playlist no localhost)
   var CONFIG = {
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ─── Café/Leite portrait: sem badge → reduz padding inferior para caber 10 itens
-  if (selectedCategory === "menuboard_cafe" || selectedCategory === "menuboard_leite") {
+  if (selectedCategory === "menuboard_cafe" || selectedCategory === "menuboard_leite" || selectedCategory === "frios_teste") {
     body.style.paddingBottom = "2vh";
   }
 
@@ -198,6 +198,37 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     return titulo.substring(0, maxChars - suffix.length) + suffix;
+  }
+
+  function gerarFingerprint(items) {
+    var fp = "";
+    for (var i = 0; i < items.length; i++) {
+      fp += items[i].value("TITULO").value + "|" +
+            items[i].value("PRICE").value  + "|" +
+            items[i].value("PRICE2").value + "|";
+    }
+    return fp;
+  }
+
+  // Atualiza apenas o texto das células sem reconstruir o DOM (evita piscar)
+  function atualizarPrecos(items) {
+    var linhas1 = contentRowsContainer.querySelectorAll(':scope > div');
+    var linhas2 = contentRowsContainer2 ? contentRowsContainer2.querySelectorAll(':scope > div') : [];
+    for (var i = 0; i < items.length; i++) {
+      var linhaEl = (isLandscape() && i >= 10 && linhas2.length)
+        ? linhas2[i - 10]
+        : linhas1[i];
+      if (!linhaEl) { continue; }
+      var tituloEl = linhaEl.querySelector('.titulo');
+      var priceEl  = linhaEl.querySelector('.price');
+      var price2El = linhaEl.querySelector('.price2');
+      if (tituloEl) { tituloEl.textContent = (items[i].value('TITULO').value || '').toUpperCase(); }
+      if (priceEl)  { priceEl.textContent  = formatarPreco(items[i].value('PRICE').value); }
+      if (price2El) {
+        var v2 = items[i].value('PRICE2').value;
+        if (v2) { price2El.textContent = formatarPreco(v2); }
+      }
+    }
   }
 
   function criarLinha(item, index) {
@@ -415,6 +446,8 @@ document.addEventListener("DOMContentLoaded", function () {
             filtro += "&order=TITULO&orderkind=asc";
           } else if (categoriasPreco.indexOf(category) !== -1) {
             filtro += "&order=PRICE&orderkind=asc";
+          } else {
+            filtro += "&order=TITULO&orderkind=asc"; // fallback: garante ordem estável
           }
 
           console.log("[INFO] Filtro enviado: " + filtro);
@@ -455,6 +488,44 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                   console.log("[INFO] Página única (" + totalItems + " itens), exibindo por " + (displayDuration / 60000) + "min");
                 }
+
+                // Re-fetch periódico: atualiza allItems com preços frescos do servidor
+                pollingIntervalo = setInterval(function () {
+                  if (finalizado) { clearInterval(pollingIntervalo); return; }
+                  ebhtml.create2({}, function (pollLoader) {
+                    pollLoader.addData("D_MENUBOARD_PRICES", true, filtro);
+                    pollLoader.nodataiserror = false;
+                    pollLoader.autoloaded = false;
+                    pollLoader.load(function () {
+                      try {
+                        var novosItens = pollLoader.datalist("D_MENUBOARD_PRICES").f_items;
+                        if (!novosItens || novosItens.length === 0) { return; }
+                        var fpNovo = gerarFingerprint(novosItens);
+                        var fpAtual = gerarFingerprint(allItems);
+                        if (fpNovo === fpAtual) {
+                          console.log("[POLL] Sem alterações");
+                          return;
+                        }
+                        var countChanged = novosItens.length !== allItems.length;
+                        allItems = novosItens;
+                        console.log("[POLL] Dados alterados" + (countChanged ? " (qtd mudou, remontando)" : " (in-place)"));
+                        if (!paginationTimer) {
+                          if (countChanged) {
+                            // Quantidade de itens mudou: rebuild completo inevitável
+                            currentPageIndex = 0;
+                            exibirProximaPagina(maxItems);
+                            currentPageIndex = 0;
+                          } else {
+                            // Só preços/títulos mudaram: atualiza células sem piscar
+                            atualizarPrecos(novosItens.slice(0, maxItems));
+                          }
+                        }
+                      } catch (e) {
+                        console.warn("[POLL] Erro ao atualizar dados:", e);
+                      }
+                    });
+                  });
+                }, pollInterval);
 
                 // finished() apenas após displayDuration — sem reload, sem flash
                 setTimeout(function () { finalizarLoader(); }, displayDuration);
