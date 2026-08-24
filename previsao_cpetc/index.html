@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="h-full w-full overflow-hidden">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/master.css">
+
+    <!-- CONFIG_CLIMA — deve vir antes de todos os scripts -->
+    <script>
+        var CONFIG_CLIMA = {
+            iconStyle: 'fill', // 'fill' | 'flat' | 'line' | 'monochrome'
+            iconColor: '#ffffff', // só funciona com o estilo 'monochrome'
+            textColor: '#ffffff', // cor do texto (opcional)
+            duration: 30000 // duração da animação de entrada dos cards (em milissegundos) 
+        };
+    </script>
+
+    <!-- Mock data para desenvolvimento (comentar em produção) -->
+    <!-- <script src="js/mock-data.js"></script> -->
+    <script src="js/meteocons-helpers.js"></script>
+    <script src="js/ebhtml.js"></script>
+    <script src="js/master.js"></script>
+    <title>Previsão do Tempo</title>
+</head>
+
+<body class="relative flex flex-col h-screen w-full overflow-hidden bg-[#009ee3] font-tt-demibold leading-none font-bold text-white text-[3.5vmin]">
+    <!-- Fundo animado -->
+    <div id="fundo" class="absolute inset-0 -z-10">
+        <img src="img/fundo.jpg" class="w-full h-full object-cover" />
+    </div>
+    <!-- Header: cidade -->
+    <header class="w-full flex h-[15vmin] items-center justify-center z-10 py-[1.5vmin]">
+        <span id="cidade" class="drop-shadow text-[200%]"></span>
+    </header>
+    <!-- Main: cards de previsão -->
+    <main class="flex h-full justify-center items-center w-full overflow-hidden p-[2vmin]">
+        <div id="cards" class="flex portrait:flex-col justify-center items-stretch content-center space-x-[2vmin] portrait:space-x-0 portrait:space-y-[2vmin] w-full h-full overflow-hidden">
+            <!-- Cards serão inseridos dinamicamente via JS -->
+        </div>
+    </main>
+    
+    <!-- Template de card reutilizável -->
+    <template id="card-template">
+        <div class="card flex flex-1 min-w-0 rounded-[6vmin] flex-col items-center justify-between portrait:min-h-0 bg-black/80 p-[1.8vmin] shadow-lg -translate-x-[120%] opacity-0 transition-all duration-1000 ease-out space-y-[1vmin]">
+
+            <div class="data tracking-wider leading-tight flex-shrink-0">--</div>
+            <div class="date-hour">--</div>
+
+            <!-- Container do ícone + temperaturas com flex dinâmico -->
+            <div class="icon-temp-row flex w-full items-center justify-center flex-1 min-h-0 overflow-hidden">
+                <!-- Ícone principal com tamanho responsivo (viewBox ajustado automaticamente no JS) -->
+                <div class="icon flex items-center justify-center aspect-square flex-shrink"></div>
+
+                <!-- Temperaturas com tamanho escalável -->
+                <div class="card-texts flex flex-row flex-nowrap font-tt-extrabold items-center justify-evenly flex-shrink-0">
+                    <div class="flex flex-row items-center justify-center space-x-[0.5vmin]">
+                        <span class="arrow-up-svg w-[0.6em] h-[0.6em] flex-shrink-0"></span>
+                        <span class="max text-[#f9b71e] leading-none whitespace-nowrap">--</span>
+                    </div>
+                    <div class="flex flex-row items-center justify-center space-x-[0.5vmin]">
+                        <span class="arrow-down-svg w-[0.6em] h-[0.6em] flex-shrink-0"></span>
+                        <span class="min text-[#80ace3] leading-none whitespace-nowrap">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Descrição curta do tempo (ds_textmin_wea) — substitui temporariamente a extra-info-row -->
+            <div class="descricao text-center w-full px-[1vmin] font-semibold flex-shrink-0"></div>
+
+            <!-- Informações extras com texto menor e responsivo (oculto temporariamente) -->
+            <div class="extra-info-row hidden flex-row flex-wrap items-center justify-center w-full text-[min(2.8vmin,0.9em)] portrait:text-[min(2.5vmin,0.85em)] space-x-[2vmin] space-y-[0.5vmin] leading-tight flex-shrink-0">
+                <div class="flex flex-row items-center space-x-[0.4vmin] whitespace-nowrap">
+                    <span class="chuva-icon w-[1.5em] h-[1.5em] flex items-center flex-shrink-0"></span>
+                    <span class="prob_chuva">--%</span>
+                    <span class="quant_chuva">/--mm</span>
+                </div>
+                <div class="flex flex-row items-center space-x-[0.4vmin] whitespace-nowrap">
+                    <span class="vento-icon w-[1.5em] h-[1.5em] flex items-center flex-shrink-0"></span>
+                    <span class="quant_vento">--km/h</span>
+                    <span class="dir-vento-svg w-[1.5em] h-[1.5em] flex-shrink-0"></span>
+                    <span class="dir_vento hidden">--</span>
+                </div>
+                <div class="flex flex-row items-center space-x-[0.4vmin] whitespace-nowrap">
+                    <span class="uv-icon w-[1.5em] h-[1.5em] flex items-center flex-shrink-0"></span>
+                    <span class="indice_uv">UV--</span>
+                    <span class="risco_uv">---</span>
+                </div>
+            </div>
+
+        </div>
+    </template>
+    <!-- Footer: logo cpetc -->
+    <footer class="w-full flex h-[15vmin] items-center justify-end p-[1.5vmin] z-10">
+        <img src="img/logo_CPTEC.png" alt="CPTEC" class="h-[4vmin] max-w-[20vw] object-contain" />
+    </footer>
+</body>
+
+</html>
