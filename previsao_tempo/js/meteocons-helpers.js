@@ -1,8 +1,20 @@
 /**
  * meteocons-helpers.js — ES5, compatível com Android 7+ (WebKit legado)
  *
- * Biblioteca compartilhável para carregar SVGs Meteocons via XHR.
- * Copie este arquivo + a pasta img/meteocons/ para qualquer template.
+ * MOTOR UNIVERSAL de ícones Meteocons — 100% agnóstico de fonte de dados.
+ *
+ * Este arquivo NUNCA deve conter mapeamentos ou lógica específica de uma
+ * fonte de dados (CPTEC, Climatempo, OpenWeather etc.). Ele só sabe
+ * carregar/injetar SVGs Meteocons e converter valores genéricos (índice
+ * UV, velocidade do vento, direção cardinal) em nomes de ícone — coisas
+ * que são iguais não importa de onde vêm os dados.
+ *
+ * A tradução "código bruto da fonte -> nome de ícone Meteocon" fica em
+ * js/provider-<fonte>.js (veja js/provider-cptec.js para o contrato
+ * completo e instruções de como plugar uma nova fonte de dados).
+ *
+ * Por ser genérico, este arquivo pode ser copiado sem alteração para
+ * qualquer outro template + a pasta img/meteocons/.
  *
  * CONFIG (podem ser sobrescritas antes do window.onload):
  *   METEOCONS_PATH   = 'img/meteocons'   (caminho base dos SVGs)
@@ -12,7 +24,6 @@
  * USO:
  *   injetarMeteocon(el, 'clear-day');
  *   injetarMeteocon(el, 'extreme-rain', '#ff0000');
- *   var nome = climaToMeteocon('1'); // retorna 'clear-day'
  */
 
 /* ---------- CONFIGURACOES GLOBAIS ---------- */
@@ -25,37 +36,6 @@ if (typeof CONFIG_CLIMA !== 'undefined') {
     if (CONFIG_CLIMA.iconStyle) { METEOCONS_STYLE = CONFIG_CLIMA.iconStyle; }
     if (CONFIG_CLIMA.iconColor) { METEOCONS_COLOR = CONFIG_CLIMA.iconColor; }
 }
-
-/* ---------- MAPEAMENTO CLIMATEMPO -> METEOCONS ---------- */
-var METEOCONS_MAP = {
-  '1':   'clear-day', //Sol
-  '1n':  'clear-night', //Noite sem nuvens.
-  '2':   'mostly-clear-day', //Sol com algumas nuvens
-  '2r':  'overcast-day', //Sol com muitas nuvens
-  '2n':  'mostly-clear-night', //Noite com algumas nuvens.
-  '2rn': 'overcast-night', //Noite com muitas nuvens
-  '3':   'overcast-drizzle', //Nublado.
-  '3n':  'overcast-drizzle', //Nublado.
-  '3tm': 'cloudy', //Nublado.
-  '4':   'mostly-clear-day-rain', //Sol e chuva
-  '4r':  'extreme-day-rain', //Sol com muitas nuvens e chuva
-  '4n':  'mostly-clear-night-rain', //Noite chuvosa
-  '4rn': 'extreme-night-rain', //Noite nublada e chuvosa.
-  '4t':  'thunderstorms-day-rain', //Sol entre nuvens e pancadas de chuva, com trovoadas
-  '4tn': 'thunderstorms-night-rain', //Pancadas de chuva durante a noite
-  '5':   'extreme-rain', //Chuvoso.
-  '5n':  'extreme-rain', //Chuvoso.
-  '6':   'extreme-thunderstorms-rain', //Chuva e trovoadas
-  '6n':  'extreme-thunderstorms-rain', //Chuva e trovoadas
-  '7':   'wind-snow', //Geada.
-  '7n':  'wind-snow', //Geada.
-  '8':   'snow', //Neve.
-  '8n':  'mostly-clear-night-snow', //Neve.
-  '9':   'mostly-clear-day-fog', //Nevoeiro
-  '9n':  'mostly-clear-night-fog', //Nevoeiro
-  '10':  'drizzle', //Chuva intensa durante o dia
-  '11':  'overcast-rain', //Nuvens e Chuva
-};
 
 /* ---------- FUNCOES ---------- */
 
@@ -146,16 +126,6 @@ function injetarMeteocon(el, nomeArquivo, cor) {
       }
     }
   });
-}
-
-/**
- * Converte codigo numerico Climatempo para nome do arquivo Meteocon.
- * @param {string|number} codigo - Codigo do icone (ex: '1', '2r', '4tn')
- * @returns {string} Nome do arquivo SVG (sem extensao)
- */
-function climaToMeteocon(codigo) {
-  var chave = codigo.toString();
-  return METEOCONS_MAP[chave] || 'cloudy';
 }
 
 /**

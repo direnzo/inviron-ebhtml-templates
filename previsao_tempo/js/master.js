@@ -1,24 +1,8 @@
-// Mapeamento Climatempo para Meteocons — agora em meteocons-helpers.js (METEOCONS_MAP)
-
-// Converte código de ícone CPTEC/Inviron (inteiro 1-11) para código Climatempo,
-// permitindo reusar o METEOCONS_MAP existente sem duplicação.
-var CPTEC_MAP = {
-  '1':  '1',    // Sol
-  '2':  '3',    // Nublado
-  '3':  '6',    // Chuva e trovoadas
-  '4':  '2r',   // Sol com muitas nuvens
-  '5':  '4',    // Sol e chuva
-  '6':  '2',    // Sol com algumas nuvens
-  '7':  '8',    // Neve / geada
-  '9':  '3tm',  // Muito nublado
-  '11': '5'     // Chuva intensa
-};
-
-function cptecToMeteocon(codigoCptec) {
-  var chave = (codigoCptec || '2').toString();
-  var codigoClima = CPTEC_MAP[chave] || '3'; // fallback: nublado
-  return climaToMeteocon(codigoClima);
-}
+// Mapeamento "código bruto da fonte de dados -> ícone Meteocon" foi
+// extraído para js/provider-cptec.js (troque esse arquivo para plugar
+// outra fonte de dados, ex: OpenWeather — ver contrato documentado lá).
+// Este master.js só chama a interface genérica: codigoParaMeteocon()
+// e codigoParaDescricao().
 
 // ============================================================
 // DETECCAO DE HARDWARE FRACO
@@ -237,6 +221,7 @@ function autofitTodasDescricoes() {
 // ============================================================
 var CIDADE_SLOTS = ["C1", "C2", "C3"];
 var CIDADE_DIAS = ["D1", "D2", "D3"];
+var CANAL_TIMEOUT_MS = 300;
 
 // Retorna a lista de slots (ex: ["C1","C3"]) que tem cidade configurada no D1.
 function detectarSlotsDeCidade(item) {
@@ -283,10 +268,33 @@ window.onload = function () {
     iniciarTemplate(MOCK_DATA.dados, MOCK_DATA.config, mockLoader);
   } else {
     ebhtml.create2({}, function (loader) {
+      var playlistEncerrada = false;
+      var loadTimeoutId = null;
+
+      function limparTimeoutCanal() {
+        if (loadTimeoutId) {
+          clearTimeout(loadTimeoutId);
+          loadTimeoutId = null;
+        }
+      }
+
+      function encerrarSemDados(motivo) {
+        if (playlistEncerrada) return;
+        playlistEncerrada = true;
+        limparTimeoutCanal();
+        console.warn('[CPTEC][DATA] Encerrando item sem renderizar: ' + motivo);
+        loader.finished();
+      }
+
       loader.addData("D_CLIMA", false);
       loader.autoloaded = false;
       loader.nodataiserror = false;
+      loadTimeoutId = setTimeout(function () {
+        encerrarSemDados('Timeout ao aguardar resposta do canal D_CLIMA');
+      }, CANAL_TIMEOUT_MS);
+
       loader.load(function () {
+        limparTimeoutCanal();
         var dados = [];
         var duracaoConfig = (typeof CONFIG_CLIMA !== "undefined" && CONFIG_CLIMA.duration) || 10000;
         var config = { duration: duracaoConfig };
@@ -295,7 +303,7 @@ window.onload = function () {
 
         // Sem item = XML ausente ou vazio
         if (!item || typeof item.value !== "function") {
-          loader.finished();
+          encerrarSemDados('Canal D_CLIMA sem item valido');
           return;
         }
 
@@ -314,10 +322,12 @@ window.onload = function () {
 
         // Cidade vazia = item existe mas não tem dados reais
         if (!cidadeNome) {
-          loader.finished();
+          encerrarSemDados('Cidade vazia no slot selecionado');
           return;
         }
 
+        var ultimoDiaRenderizado = '';
+        var validos = 0;
         for (var d = 0; d < CIDADE_DIAS.length; d++) {
           var prefix = slotEscolhido + "_" + CIDADE_DIAS[d] + "_";
           var dateStr = dateStrs[d];
@@ -327,9 +337,31 @@ window.onload = function () {
           var dataFormatada = dataObj ? (("0" + dataObj.getDate()).slice(-2) + "/" + ("0" + (dataObj.getMonth() + 1)).slice(-2)) : "";
           var max = getVal(prefix + "MAX");
           var min = getVal(prefix + "MIN");
+          // A sigla/ícone do CPTEC vem no campo TEXTPT do canal D_CLIMA
+          // (ex: C1_D1_TEXTPT). Quando TEXTPT vem vazio, cai para o
+          // código numérico inteiro do campo ICO (ex: '1'..'11', '99'
+          // como default) — provider-cptec.js resolve os dois formatos.
+          var iconeCodigo = getVal(prefix + "TEXTPT") || getVal(prefix + "ICO");
 
-          // Card sem temperaturas = dado corrompido ou incompleto, ignora
-          if (!max && !min) continue;
+          // Card sem temperaturas = dado corrompido ou incompleto, oculta posição
+          if (!max && !min) {
+            console.warn('[CPTEC][DATA] Card ' + (d + 1) + ' sem temperaturas - renderizando oculto');
+            dados.push({
+              CIDADE: cidadeNome,
+              HIDDEN: true
+            });
+            continue;
+          }
+
+          // Evita mostrar dia repetido em sequência (D2 = D1, D3 = D2, etc).
+          if (dataFormatada && dataFormatada === ultimoDiaRenderizado) {
+            console.warn('[CPTEC][DATA] Card ' + (d + 1) + ' com dia duplicado - renderizando oculto');
+            dados.push({
+              CIDADE: cidadeNome,
+              HIDDEN: true
+            });
+            continue;
+          }
 
           dados.push({
             CIDADE: cidadeNome,
@@ -338,23 +370,28 @@ window.onload = function () {
             HORA: "",
             MAX: max,
             MIN: min,
-            ICON: getVal(prefix + "ICO"),
+            ICON: iconeCodigo,
             QTDE_CHUVA: getVal(prefix + "PRECIPITATION"),
             PROB_CHUVA: "",
             VENTO_DIR: getVal(prefix + "WINDDIRECTION"),
             VENTO_VEL: getVal(prefix + "WINDAVGVELOCITY"),
             UV: getVal(prefix + "UV"),
             UVLEVEL: getVal(prefix + "UVLEVEL"),
-            DESCRICAO: getVal(prefix + "TEXTPT")
+            DESCRICAO: codigoParaDescricao(iconeCodigo)
           });
+          ultimoDiaRenderizado = dataFormatada || ultimoDiaRenderizado;
+          validos++;
         }
 
-        if (dados.length === 0) {
-          loader.finished();
+        if (validos === 0) {
+          encerrarSemDados('Nenhum card valido apos processamento');
           return;
         }
         iniciarTemplate(dados, config, loader);
-      }, function () { loader.finished(); });
+      }, function () {
+        limparTimeoutCanal();
+        encerrarSemDados('Falha no loader.load() para D_CLIMA');
+      });
     });
   }
 };
@@ -413,6 +450,85 @@ function redesenharCards() {
   autofitTodasDescricoes();
 }
 
+var LOADED_DISPARADO = false;
+function sinalizarLoaded(loader) {
+  if (!loader || LOADED_DISPARADO) return;
+  LOADED_DISPARADO = true;
+
+  var overlay = document.getElementById('preload-black');
+  if (overlay) {
+    overlay.style.transition = 'opacity 0.35s';
+    overlay.style.opacity = '0';
+    setTimeout(function () {
+      if (overlay.parentNode) {
+        overlay.parentNode.removeChild(overlay);
+      }
+    }, 400);
+  }
+
+  loader.loaded();
+}
+
+function revelarCardQuandoIconePronto(card, callback) {
+  if (!card) {
+    if (callback) callback();
+    return;
+  }
+  if (card.getAttribute('data-hidden-card') === '1') {
+    if (callback) callback();
+    return;
+  }
+
+  var timeoutMs = HARDWARE_FRACO ? 520 : 360;
+  var limite = Date.now() + timeoutMs;
+
+  card.style.opacity = '0';
+
+  function concluir() {
+    if (HARDWARE_FRACO) {
+      // Sem animacao em hardware fraco: mostra direto.
+      card.classList.remove('-translate-x-[120%]', 'transition-all', 'duration-1000', 'ease-out');
+      card.classList.add('translate-x-0');
+      card.style.opacity = '1';
+    } else {
+      // Hardware normal: inicia o slide-in quando o icone principal estiver pronto.
+      card.classList.remove('-translate-x-[120%]');
+      card.classList.add('translate-x-0');
+      card.style.opacity = '1';
+    }
+    if (callback) callback();
+  }
+
+  function verificar() {
+    if (card.querySelector('.icon svg') || Date.now() >= limite) {
+      concluir();
+    } else {
+      setTimeout(verificar, 35);
+    }
+  }
+
+  setTimeout(verificar, 0);
+}
+
+function revelarCardsQuandoProntos(cards, callbackFinal) {
+  if (!cards || !cards.length) {
+    if (callbackFinal) callbackFinal();
+    return;
+  }
+
+  var pendentes = cards.length;
+  function onCardDone() {
+    pendentes--;
+    if (pendentes <= 0 && callbackFinal) {
+      callbackFinal();
+    }
+  }
+
+  for (var i = 0; i < cards.length; i++) {
+    revelarCardQuandoIconePronto(cards[i], onCardDone);
+  }
+}
+
 function iniciarTemplate(dados, config, loader) {
   CARDS_DADOS_ATUAIS = dados;
 
@@ -435,19 +551,14 @@ function iniciarTemplate(dados, config, loader) {
   var template = document.getElementById("card-template");
   var cardsElements = [];
 
-  if (HARDWARE_FRACO) {
-    // Esconde o container inteiro: icones carregam no escuro, sem "montar" em tela
-    cardsContainer.style.opacity = '0';
-  }
-  
   for (var i = 0; i < dados.length; i++) {
     // Clona o template
     var cardClone = template.content.cloneNode(true);
     var card = cardClone.querySelector(".card");
-    
+
     // Preenche o card com dados
     preencherCardClima(card, dados[i], corClima);
-    
+
     // Adiciona no container
     cardsContainer.appendChild(card);
     cardsElements.push(card);
@@ -456,25 +567,18 @@ function iniciarTemplate(dados, config, loader) {
   // Reflow antes de animar
   void cardsContainer.offsetHeight;
 
-  // Aguarda próximo frame para aplicar animação
-  // Em hardware fraco: loader.loaded() só após renderização completa dos cards
+  // Aplica layout, anima entrada e revela cada card junto com seu ícone.
   setTimeout(function() {
     aplicarEscalaTodosCards();
     animarCards(cardsElements, dados.length);
     autofitTodasDescricoes();
-    if (HARDWARE_FRACO && loader) {
-      // Aguarda icones e revela tudo de uma vez com fade rapido
-      aguardarIconesCards(function() {
-        cardsContainer.style.transition = 'opacity 0.4s';
-        cardsContainer.style.opacity = '1';
-        loader.loaded();
-      }, 5000);
-    }
-  }, HARDWARE_FRACO ? 0 : 50);
+    revelarCardsQuandoProntos(cardsElements, function () {
+      sinalizarLoaded(loader);
+    });
+  }, HARDWARE_FRACO ? 40 : 20);
 
   var duracaoFinal = (typeof CONFIG_CLIMA !== "undefined" && CONFIG_CLIMA.duration) || (config && config.duration) || 10000;
 
-  if (!HARDWARE_FRACO && loader) loader.loaded();
   setTimeout(function () {
     // document.body.classList.remove('opacity-100');
     // document.body.classList.add('opacity-0');
@@ -484,43 +588,33 @@ function iniciarTemplate(dados, config, loader) {
   }, duracaoFinal);
 }
 
-// Polling: aguarda todos os icones principais (.icon) terem SVG injetado
-function aguardarIconesCards(callback, timeoutMs) {
-  var limite = Date.now() + (timeoutMs || 4000);
-  function verificar() {
-    var icones = document.querySelectorAll('.card .icon');
-    var todos = icones.length > 0;
-    for (var i = 0; i < icones.length; i++) {
-      if (!icones[i].querySelector('svg')) { todos = false; break; }
-    }
-    if (todos || Date.now() >= limite) {
-      callback();
-    } else {
-      setTimeout(verificar, 100);
-    }
-  }
-  setTimeout(verificar, 0);
-}
-
-// Função para animar os cards com translate-X + opacity
+// Configura delays e estrategia de entrada. A execucao do slide-in no
+// hardware normal acontece em revelarCardQuandoIconePronto().
 function animarCards(cards, qtd) {
   var delays = [0, 400, 800];
   for (var i = 0; i < cards.length && i < qtd; i++) {
     if (HARDWARE_FRACO) {
-      // Hardware fraco: elimina a transição CSS e mostra direto
-      cards[i].style.transition = 'none';
-      cards[i].classList.remove('-translate-x-[120%]', 'opacity-0', 'transition-all', 'duration-1000', 'ease-out');
+      // Hardware fraco: sem delay e sem animacao de entrada.
+      cards[i].style.transitionDelay = '0ms';
     } else {
-      // Hardware normal: mantém transition-all/duration/ease-out para o slide-in funcionar
+      // Hardware normal: delay por card, slide-in sera disparado no reveal.
       cards[i].style.transitionDelay = delays[i] + 'ms';
-      cards[i].classList.remove('-translate-x-[120%]', 'opacity-0');
     }
-    cards[i].classList.add('translate-x-0', 'opacity-100');
   }
 }
 
 // Preenche um card estático com dados e injeta SVG inline
 function preencherCardClima(card, d, corClima) {
+  // Fallback de dia ausente/duplicado: mantém o card no layout, mas oculto.
+  if (d && d.HIDDEN) {
+    card.setAttribute('data-hidden-card', '1');
+    card.style.opacity = '0';
+    card.style.pointerEvents = 'none';
+    card.setAttribute('aria-hidden', 'true');
+    return;
+  }
+  card.setAttribute('data-hidden-card', '0');
+
   // Data
   var dataDiv = card.querySelector(".data");
   var dateHourDiv = card.querySelector(".date-hour");
@@ -536,7 +630,8 @@ function preencherCardClima(card, d, corClima) {
   // Descrição curta do tempo (ds_textmin_wea) — fallback vazio evita espaço morto
   var descricaoDiv = card.querySelector(".descricao");
   if (descricaoDiv) {
-    var textoDescricao = (d.DESCRICAO || "").toString().replace(/^\s+|\s+$/g, "");
+    var textoDescricaoBruto = d.DESCRICAO || codigoParaDescricao(d.ICON) || "";
+    var textoDescricao = textoDescricaoBruto.toString().replace(/^\s+|\s+$/g, "");
     if (textoDescricao) {
       descricaoDiv.innerText = textoDescricao;
       descricaoDiv.setAttribute("data-tem-texto", "1");
@@ -549,7 +644,7 @@ function preencherCardClima(card, d, corClima) {
   // Ícone principal (Meteocon SVG via XHR)
   var iconDiv = card.querySelector(".icon");
   if (iconDiv) {
-    var nomeIcone = cptecToMeteocon(d.ICON);
+    var nomeIcone = codigoParaMeteocon(d.ICON);
     injetarMeteocon(iconDiv, nomeIcone, corClima);
   }
   // Temperaturas

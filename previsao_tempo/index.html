@@ -12,21 +12,30 @@
             iconStyle: 'fill', // 'fill' | 'flat' | 'line' | 'monochrome'
             iconColor: '#ffffff', // só funciona com o estilo 'monochrome'
             textColor: '#ffffff', // cor do texto (opcional)
-            duration: 30000 // duração da animação de entrada dos cards (em milissegundos) 
+            duration: 10000 // duração da animação de entrada dos cards (em milissegundos) 
         };
     </script>
 
     <!-- Mock data para desenvolvimento (comentar em produção) -->
     <!-- <script src="js/mock-data.js"></script> -->
+    <!-- Motor universal de ícones (agnóstico de fonte de dados) -->
     <script src="js/meteocons-helpers.js"></script>
+    <!-- Adaptador da fonte de dados atual: CPTEC/INPE.
+         Para trocar de fonte (ex: OpenWeather), troque só esta linha
+         por outro js/provider-<fonte>.js que implemente o mesmo
+         contrato (ver comentário no topo de provider-cptec.js). -->
+    <script src="js/provider-cptec.js"></script>
     <script src="js/ebhtml.js"></script>
     <script src="js/master.js"></script>
     <title>Previsão do Tempo</title>
 </head>
 
 <body class="relative flex flex-col h-screen w-full overflow-hidden bg-[#009ee3] font-tt-demibold leading-none font-bold text-white text-[3.5vmin]">
+    <!-- Tela preta inicial: removida somente quando loader.loaded() é disparado -->
+    <div id="preload-black" class="absolute top-0 right-0 bottom-0 left-0 z-50 bg-black"></div>
+
     <!-- Fundo animado -->
-    <div id="fundo" class="absolute inset-0 -z-10">
+    <div id="fundo" class="absolute top-0 right-0 bottom-0 left-0 -z-10">
         <img src="img/fundo.jpg" class="w-full h-full object-cover" />
     </div>
     <!-- Header: cidade -->
@@ -45,7 +54,7 @@
         <div class="card flex flex-1 min-w-0 rounded-[6vmin] flex-col items-center justify-between portrait:min-h-0 bg-black/80 p-[1.8vmin] shadow-lg -translate-x-[120%] opacity-0 transition-all duration-1000 ease-out space-y-[1vmin]">
 
             <div class="data tracking-wider leading-tight flex-shrink-0">--</div>
-            <div class="date-hour">--</div>
+            <div class="date-hour text-[120%]">--</div>
 
             <!-- Container do ícone + temperaturas com flex dinâmico -->
             <div class="icon-temp-row flex w-full items-center justify-center flex-1 min-h-0 overflow-hidden">
@@ -54,13 +63,13 @@
 
                 <!-- Temperaturas com tamanho escalável -->
                 <div class="card-texts flex flex-row flex-nowrap font-tt-extrabold items-center justify-evenly flex-shrink-0">
-                    <div class="flex flex-row items-center justify-center space-x-[0.5vmin]">
+                    <div class="flex flex-row items-center justify-center ">
                         <span class="arrow-up-svg w-[0.6em] h-[0.6em] flex-shrink-0"></span>
-                        <span class="max text-[#f9b71e] leading-none whitespace-nowrap">--</span>
+                        <span class="max text-[#f9b71e] leading-none whitespace-nowrap -ml-[3%]">--</span>
                     </div>
-                    <div class="flex flex-row items-center justify-center space-x-[0.5vmin]">
+                    <div class="flex flex-row items-center justify-center ">
                         <span class="arrow-down-svg w-[0.6em] h-[0.6em] flex-shrink-0"></span>
-                        <span class="min text-[#80ace3] leading-none whitespace-nowrap">--</span>
+                        <span class="min text-[#80ace3] leading-none whitespace-nowrap -ml-[3%]">--</span>
                     </div>
                 </div>
             </div>
@@ -90,9 +99,9 @@
 
         </div>
     </template>
-    <!-- Footer: logo cpetc -->
+    <!-- Footer: fonte -->
     <footer class="w-full flex h-[15vmin] items-center justify-end p-[1.5vmin] z-10">
-        <img src="img/logo_CPTEC.png" alt="CPTEC" class="h-[4vmin] max-w-[20vw] object-contain" />
+        <span class="text-[80%] tracking-wide"><span class="text-[50%]">Fonte:</span> CPTEC / INPE</span>
     </footer>
 </body>
 
