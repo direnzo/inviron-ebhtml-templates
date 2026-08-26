@@ -278,6 +278,14 @@ window.onload = function () {
     iniciarTemplate(MOCK_DATA.dados, MOCK_DATA.config, mockLoader);
   } else {
     ebhtml.create2({}, function (loader) {
+      var playlistEncerrada = false;
+      function encerrarSemDados(motivo) {
+        if (playlistEncerrada) return;
+        playlistEncerrada = true;
+        console.warn('[CLIMA][DATA] Encerrando item sem renderizar: ' + motivo);
+        loader.finished();
+      }
+
       loader.addData("D_CLIMA_CLIMATEMPO", false);
       loader.autoloaded = false;
       loader.nodataiserror = false;
@@ -286,6 +294,10 @@ window.onload = function () {
         var duracaoConfig = (typeof CONFIG_CLIMA !== "undefined" && CONFIG_CLIMA.duration) || 10000;
         var config = { duration: duracaoConfig };
         var item = loader.data("D_CLIMA_CLIMATEMPO");
+        if (!item || typeof item.value !== "function") {
+          encerrarSemDados('Canal D_CLIMA_CLIMATEMPO sem item valido');
+          return;
+        }
         var cidade = "";
 
         // O XML tem 1 unico ITEM com ate 3 slots de cidade configuraveis (C1/C2/C3),
@@ -333,6 +345,11 @@ window.onload = function () {
               todosFuturos.push(arr[i]);
             }
           }
+        }
+
+        if (!todosFuturos.length) {
+          encerrarSemDados('Nenhum registro futuro disponivel no canal');
+          return;
         }
         
         // Agrupa registros futuros por DIA (ignorando hora) - USA LOCAL TIME
@@ -420,30 +437,28 @@ window.onload = function () {
           }
         }
 
-        // Garante sempre 3 cards: reaproveita a previsao mais proxima ja resolvida
-        // (pode ficar "desatualizada" no card preenchido, mas nunca falta card).
+        // Garante sempre 3 cards sem repetir previsao: quando faltar dia,
+        // renderiza um placeholder oculto (opacity 0) para manter o layout.
         var g;
-        for (g = 1; g < diaResultados.length; g++) {
-          if (!diaResultados[g] && diaResultados[g - 1]) {
-            console.warn('[CLIMA][DATA] Card ' + (g + 1) + ' sem dados - reaproveitando previsao do card ' + g);
-            diaResultados[g] = diaResultados[g - 1];
-          }
-        }
-        for (g = diaResultados.length - 2; g >= 0; g--) {
-          if (!diaResultados[g] && diaResultados[g + 1]) {
-            console.warn('[CLIMA][DATA] Card ' + (g + 1) + ' sem dados - reaproveitando previsao do card ' + (g + 2));
-            diaResultados[g] = diaResultados[g + 1];
-          }
-        }
         for (g = 0; g < diaResultados.length; g++) {
-          if (diaResultados[g]) dados.push(diaResultados[g]);
+          if (diaResultados[g]) {
+            dados.push(diaResultados[g]);
+          } else {
+            console.warn('[CLIMA][DATA] Card ' + (g + 1) + ' sem dados - renderizando oculto (opacity 0)');
+            dados.push({
+              CIDADE: cidade,
+              HIDDEN: true
+            });
+          }
         }
 
         if (dados.length === 0) {
-          loader.finished();
+          encerrarSemDados('Nenhum card valido apos processamento');
           return;
         }
         iniciarTemplate(dados, config, loader);
+      }, function () {
+        encerrarSemDados('Falha no loader.load() para D_CLIMA_CLIMATEMPO');
       });
     });
   }
@@ -611,6 +626,14 @@ function animarCards(cards, qtd) {
 
 // Preenche um card estático com dados e injeta SVG inline
 function preencherCardClima(card, d, corClima) {
+  // Fallback de dia ausente: mantém o card no layout, mas oculto.
+  if (d && d.HIDDEN) {
+    card.style.opacity = '0';
+    card.style.pointerEvents = 'none';
+    card.setAttribute('aria-hidden', 'true');
+    return;
+  }
+
   // Data
   var dataDiv = card.querySelector(".data");
   var dateHourDiv = card.querySelector(".date-hour");
