@@ -232,6 +232,43 @@ if (HARDWARE_FRACO) {
 card.classList.add('translate-x-0', 'opacity-100');
 ```
 
+### 10. Vídeo — encoding e escolha de container (lições aprendidas — populari, 2026-08-27)
+
+Incidente real: vinheta `.mp4` (H.264) não tocava no player de teste **Chromium 78 "versão do desenvolvedor"**, mas tocava no Chrome atualizado.
+
+**Causa raiz:** builds **Chromium puros** (sem a marca "Google Chrome") são compilados **sem os codecs proprietários H.264/AAC** — só decodificam **VP8/VP9 em WebM**. O runtime EdgeContents pode ser um desses.
+
+- **Servir vídeo como `.webm` / VP9** (sem áudio). Roda em todo build Chromium, inclusive os sem codec proprietário, e o arquivo fica ~5× menor que o MP4 equivalente.
+- Só manter `.mp4` (além do `.webm`) se algum device de produção comprovadamente tiver decoder **só H.264 por hardware sem VP9**. Nesse caso, escolher a fonte por `video.canPlayType('video/webm; codecs="vp9"')`.
+
+**Se precisar de `.mp4`, o encoding tem que ser o mais conservador possível** (os arquivos "de fábrica" quase sempre vêm errados):
+
+| Item | Errado (quebra no legado) | Certo |
+|---|---|---|
+| Profile | Main / High | **Constrained Baseline** |
+| Largura | qualquer (ex.: 1366) | **múltiplo de 16** (1280, 1088…) — decoder de hardware exige alinhamento de macrobloco |
+| Faixa de áudio | nenhuma | **AAC-LC silenciosa** — Stagefright (Android ≤7) não toca `.mp4` sem trilha de áudio |
+| `pix_fmt` | yuv444/422 | **yuv420p** |
+| B-frames | > 0 | **0** |
+| Container | brand `mp42`, `mdat` 64-bit, sem faststart | `+faststart`, brand `isom` |
+
+```bash
+# WEBM / VP9 (padrão para vinheta)
+ffmpeg -i SRC.mp4 -an -c:v libvpx-vp9 -b:v 0 -crf 30 -pix_fmt yuv420p \
+  -vf "scale=1280:720:flags=lanczos,setsar=1" -r 24 -g 48 -row-mt 1 \
+  -deadline good -cpu-used 2 OUT.webm
+
+# MP4 / H.264 Baseline + AAC silenciosa (só se um device exigir)
+ffmpeg -i SRC.mp4 -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 \
+  -map 0:v:0 -map 1:a:0 -shortest \
+  -c:v libx264 -profile:v baseline -pix_fmt yuv420p \
+  -vf "scale=1280:720:flags=lanczos,setsar=1" -r 24 -bf 0 -g 48 -refs 1 \
+  -b:v 2500k -maxrate 2500k -bufsize 5000k \
+  -c:a aac -b:a 96k -ar 48000 -fps_mode cfr -movflags +faststart OUT.mp4
+```
+
+**Reprodução (sempre):** `playsinline` + `webkit-playsinline`; `video.play()` e, se a Promise rejeitar (política de autoplay, vale também no Chrome 78+), retry com `video.muted = true`; `onended` + fallback por `timeupdate` perto de `duration`; watchdog `setTimeout` + `onerror` sempre chamando `finished()` — vídeo nunca pode travar o ciclo do template. Guardar os arquivos originais fora do runtime (ex.: `img/_source/`).
+
 ---
 
 ## 📋 Checklist
@@ -246,6 +283,8 @@ card.classList.add('translate-x-0', 'opacity-100');
 - [ ] Sem `clamp()` / sem `gap-*` em flex / fallbacks hex
 - [ ] `font-size` body em `vmin`, filhos em `em`/`%`
 - [ ] Nenhum `<img src="*.svg">` — todo SVG (logo, ícone) injetado inline via XHR
+- [ ] Vídeo servido como `.webm`/VP9 (Chromium puro não tem H.264); se houver `.mp4`, é Baseline + largura mod-16 + faixa AAC silenciosa + `+faststart`
+- [ ] Vídeo: `play()` com retry mudo, `onended`+`timeupdate`, watchdog/`onerror` sempre chamando `finished()`
 - [ ] Templates com assets XHR por item: cache `SVG_CACHE` ou equivalente implementado
 - [ ] Body sem `opacity-0` — esconder só o container de dados dinâmicos
 - [ ] Detecção de `HARDWARE_FRACO` presente se template tiver animações ou SVGs dinâmicos
