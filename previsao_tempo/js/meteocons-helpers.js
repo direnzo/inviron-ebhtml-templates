@@ -42,6 +42,32 @@ if (typeof CONFIG_CLIMA !== 'undefined') {
 // Cache em memoria — elimina XHRs duplicados para o mesmo arquivo SVG
 var METEOCONS_CACHE = {};
 
+// Detecta hardware fraco (flag global definida em master.js). Em hardware
+// fraco as animacoes SMIL (<animate*>) sao removidas do markup do SVG antes
+// da injecao: CSS "animation: none" NAO para SMIL, entao cada icone visivel
+// ficaria rodando 1-9 animacoes continuas forcando repaint eterno.
+function _hardwareFraco() {
+  return typeof HARDWARE_FRACO !== 'undefined' && HARDWARE_FRACO;
+}
+
+// Remove elementos <animate>, <animateTransform>, <animateMotion> (auto-
+// fechados ou com tag de fechamento) da string do SVG.
+//
+// Cuidado extra com precipitacao: nos Meteocons, pingos de chuva, flocos de
+// neve e granizo tem opacity="0" FIXO no <path> — eles so ficam visiveis
+// durante a animacao de opacidade. Sem esse tratamento, um icone de chuva/
+// neve/tempestade-com-chuva mostraria so 1 particula (parece garoa). Por
+// isso, apos remover as animacoes, forcamos opacity="0" -> opacity="1".
+// (o flood-opacity="0" dos filtros de bussola NAO casa: exige espaco/aspas
+// antes de "opacity", e ali o caractere anterior e "-".)
+function removerAnimacoesSvg(svgText) {
+  if (!svgText) return svgText;
+  return svgText
+    .replace(/<animate[A-Za-z]*\b[^>]*\/>/gi, '')
+    .replace(/<animate[A-Za-z]*\b[^>]*>[\s\S]*?<\/animate[A-Za-z]*>/gi, '')
+    .replace(/([\s"'])opacity=(["'])0\2/gi, '$1opacity=$2' + '1' + '$2');
+}
+
 // Funcao base com cache: carrega qualquer SVG por URL completa
 function carregarSvgCached(url, callback) {
   if (METEOCONS_CACHE[url]) {
@@ -94,27 +120,36 @@ function injetarMeteocon(el, nomeArquivo, cor) {
       svgExistente.parentNode.removeChild(svgExistente);
     }
 
+    // Hardware fraco: tira as animacoes SMIL antes de o parser tocar no markup
+    if (_hardwareFraco()) {
+      svgContent = removerAnimacoesSvg(svgContent);
+    }
+
     el.innerHTML = svgContent;
 
     var svg = el.querySelector('svg');
     if (svg) {
-      // Ajusta viewBox para remover espaçamento extra (tight fit)
-      try {
-        var bbox = svg.getBBox();
-        if (bbox && bbox.width > 0 && bbox.height > 0) {
-          // Adiciona pequena margem (5% do tamanho) para não cortar bordas
-          var padding = Math.max(bbox.width, bbox.height) * 0.05;
-          var newX = bbox.x - padding;
-          var newY = bbox.y - padding;
-          var newW = bbox.width + (padding * 2);
-          var newH = bbox.height + (padding * 2);
-          svg.setAttribute('viewBox', newX + ' ' + newY + ' ' + newW + ' ' + newH);
+      // Ajusta viewBox para remover espaçamento extra (tight fit).
+      // getBBox() forca reflow sincrono — pulado em hardware fraco, onde o
+      // viewBox nativo dos Meteocons (0 0 128 128) ja e apertado o bastante.
+      if (!_hardwareFraco()) {
+        try {
+          var bbox = svg.getBBox();
+          if (bbox && bbox.width > 0 && bbox.height > 0) {
+            // Adiciona pequena margem (5% do tamanho) para não cortar bordas
+            var padding = Math.max(bbox.width, bbox.height) * 0.05;
+            var newX = bbox.x - padding;
+            var newY = bbox.y - padding;
+            var newW = bbox.width + (padding * 2);
+            var newH = bbox.height + (padding * 2);
+            svg.setAttribute('viewBox', newX + ' ' + newY + ' ' + newW + ' ' + newH);
+          }
+        } catch (e) {
+          // Se getBBox falhar (Firefox em alguns casos), mantém viewBox original
+          console.warn('Não foi possível ajustar viewBox:', e);
         }
-      } catch (e) {
-        // Se getBBox falhar (Firefox em alguns casos), mantém viewBox original
-        console.warn('Não foi possível ajustar viewBox:', e);
       }
-      
+
       svg.style.width = '100%';
       svg.style.height = '100%';
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');

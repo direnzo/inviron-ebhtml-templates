@@ -12,7 +12,7 @@
             iconStyle: 'fill', // 'fill' | 'flat' | 'line' | 'monochrome'
             iconColor: '#ffffff', // só funciona com o estilo 'monochrome'
             textColor: '#ffffff', // cor do texto (opcional)
-            duration: 10000 // duração da animação de entrada dos cards (em milissegundos) 
+            duration: 30000 // duração da animação de entrada dos cards (em milissegundos) 
         };
     </script>
 
@@ -30,7 +30,7 @@
     <title>Previsão do Tempo</title>
 </head>
 
-<body class="relative flex flex-col h-screen w-full overflow-hidden bg-[#009ee3] font-tt-demibold leading-none font-bold text-white text-[3.5vmin]">
+<body class="relative flex flex-col h-screen w-full overflow-hidden bg-black font-tt-demibold leading-none font-bold text-white text-[3.5vmin]">
     <!-- Tela preta inicial: removida somente quando loader.loaded() é disparado -->
     <div id="preload-black" class="absolute top-0 right-0 bottom-0 left-0 z-50 bg-black"></div>
 
@@ -43,7 +43,7 @@
         <span id="cidade" class="drop-shadow text-[200%]"></span>
     </header>
     <!-- Main: cards de previsão -->
-    <main class="flex h-full justify-center items-center w-full overflow-hidden p-[2vmin]">
+    <main class="flex h-full justify-center items-center w-full overflow-hidden p-[2vmin] ">
         <div id="cards" class="flex portrait:flex-col justify-center items-stretch content-center space-x-[2vmin] portrait:space-x-0 portrait:space-y-[2vmin] w-full h-full overflow-hidden">
             <!-- Cards serão inseridos dinamicamente via JS -->
         </div>
@@ -67,7 +67,7 @@
                         <span class="arrow-up-svg w-[0.6em] h-[0.6em] flex-shrink-0"></span>
                         <span class="max text-[#f9b71e] leading-none whitespace-nowrap -ml-[3%]">--</span>
                     </div>
-                    <div class="flex flex-row items-center justify-center ">
+                    <div class="flex flex-row items-center justify-center -ml-[2%]">
                         <span class="arrow-down-svg w-[0.6em] h-[0.6em] flex-shrink-0"></span>
                         <span class="min text-[#80ace3] leading-none whitespace-nowrap -ml-[3%]">--</span>
                     </div>

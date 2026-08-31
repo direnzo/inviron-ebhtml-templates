@@ -221,7 +221,11 @@ function autofitTodasDescricoes() {
 // ============================================================
 var CIDADE_SLOTS = ["C1", "C2", "C3"];
 var CIDADE_DIAS = ["D1", "D2", "D3"];
-var CANAL_TIMEOUT_MS = 300;
+// Rede de seguranca: so dispara se o canal D_CLIMA realmente travar
+// (XHR pendurado). NAO deve competir com a latencia normal da rede —
+// 300ms estourava a cada jitter e fazia o template exibir "sem dados"
+// mesmo com o canal online. 12s da folga para round-trip + parsing.
+var CANAL_TIMEOUT_MS = 12000;
 
 // Retorna a lista de slots (ex: ["C1","C3"]) que tem cidade configurada no D1.
 function detectarSlotsDeCidade(item) {
@@ -687,6 +691,14 @@ function preencherCardClima(card, d, corClima) {
     });
   }
 
+  // A linha extra (chuva / vento / UV) esta oculta no template
+  // (extra-info-row com classe "hidden"). Injetar esses ~5 SVGs por card
+  // — cada um com XHR + parse + getBBox — e puro desperdicio no load,
+  // especialmente em hardware fraco. So processa se a linha estiver visivel.
+  var extraInfoRow = card.querySelector(".extra-info-row");
+  var extraInfoVisivel = extraInfoRow && !extraInfoRow.classList.contains("hidden");
+
+  if (extraInfoVisivel) {
   // Chuva
   var quantChuva = card.querySelector(".quant_chuva");
   if (quantChuva) {
@@ -752,6 +764,7 @@ function preencherCardClima(card, d, corClima) {
   } else if (uvIcon) {
     injetarMeteocon(uvIcon, 'uv-index', '#facc15');
   }
+  } // fim if (extraInfoVisivel)
 }
 
 // Função carregarSvgInline removida — usar injetarMeteocon() do meteocons-helpers.js
