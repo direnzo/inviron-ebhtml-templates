@@ -1,0 +1,264 @@
+/* ============================================================
+   Populari (video primeiro) - template de noticias (EdgeContents)
+   Dataset: D_POPULARI  |  campos: TEXTO, FOTO
+   Formatos alvo: 1366x768 (landscape) e 1080x1920 (portrait)
+   CSS escrito a mao (sem build Tailwind), ES5 / Chromium 78 safe
+
+   Variante da ordem invertida: o video de abertura ocupa a tela
+   (#vinheta, z-index 50) enquanto toca; a noticia so aparece
+   quando o body recebe a classe .news-in (via master.js).
+   ============================================================ */
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+@font-face {
+    font-family: 'Plus Jakarta Sans';
+    src: url('fonts/PlusJakartaSans-VariableFont_wght.ttf');
+    font-weight: 200 500;
+    font-display: swap;
+}
+
+/* ---- variaveis de layout (ajustadas por aspect-ratio) ---- */
+:root {
+    --moldura-cor-topo: #c85a1a;   /* metade de cima da moldura */
+    --moldura-cor-base: #ffffff;   /* metade de baixo da moldura */
+    --moldura-esp: 2.3vmin;        /* espessura da borda */
+    --safe: 4vmin;                 /* respiro interno da moldura */
+    --logo-tam: 11vmin;            /* largura do logo */
+}
+
+.populari-body {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    color: #fff;
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif;
+    font-size: 3.1vmin;
+    opacity: 0;
+    -webkit-transition: opacity 0.6s ease;
+    transition: opacity 0.6s ease;
+}
+
+.populari-body.is-ready {
+    opacity: 1;
+}
+
+#stage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* camadas da noticia: escondidas enquanto o video de abertura toca,
+   entram em fade quando o body recebe .news-in */
+#foto,
+#gradiente,
+#moldura,
+#logo,
+#texto-wrap {
+    opacity: 0;
+    -webkit-transition: opacity 0.5s ease;
+    transition: opacity 0.5s ease;
+}
+
+.populari-body.news-in #foto,
+.populari-body.news-in #gradiente,
+.populari-body.news-in #moldura,
+.populari-body.news-in #logo,
+.populari-body.news-in #texto-wrap {
+    opacity: 1;
+}
+
+/* ===== FOTO (tela cheia, fundo) ===== */
+#foto {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    z-index: 1;
+}
+
+#foto img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    -o-object-fit: cover;
+    object-fit: cover;
+    -o-object-position: center center;
+    object-position: center center;
+    -webkit-transform: scale(1);
+    transform: scale(1);
+}
+
+/* o zoom da foto so comeca quando a noticia entra (depois do video) */
+.populari-body.news-in #foto img {
+    -webkit-animation: populari-zoom 18s linear forwards;
+    animation: populari-zoom 18s linear forwards;
+}
+
+@-webkit-keyframes populari-zoom {
+    to { -webkit-transform: scale(1.08); transform: scale(1.08); }
+}
+
+@keyframes populari-zoom {
+    to { -webkit-transform: scale(1.08); transform: scale(1.08); }
+}
+
+/* ===== DEGRADE atras do texto (preto -> transparent) ===== */
+/* mesma ideia do uol_responsivo_tw: base solida embaixo, some pra cima */
+#gradiente {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 62%;
+    z-index: 2;
+    pointer-events: none;
+    background: -webkit-gradient(linear, left bottom, left top,
+        color-stop(0, rgba(0, 0, 0, 0.92)),
+        color-stop(0.55, rgba(0, 0, 0, 0.72)),
+        color-stop(1, rgba(0, 0, 0, 0)));
+    background: linear-gradient(0deg,
+        rgba(0, 0, 0, 0.92) 0%,
+        rgba(0, 0, 0, 0.72) 55%,
+        rgba(0, 0, 0, 0) 100%);
+}
+
+/* ===== MOLDURA / borda por cima da foto ===== */
+#moldura {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 4;
+    pointer-events: none;
+    box-sizing: border-box;
+    /* fallback: cor unica se o engine ignorar border-image */
+    border: var(--moldura-esp) solid var(--moldura-cor-topo);
+    /* moldura dividida: metade de cima --moldura-cor-topo, metade de baixo --moldura-cor-base */
+    -webkit-border-image: linear-gradient(to bottom,
+        var(--moldura-cor-topo) 0, var(--moldura-cor-topo) 50%,
+        var(--moldura-cor-base) 50%, var(--moldura-cor-base) 100%) 1;
+    border-image: linear-gradient(to bottom,
+        var(--moldura-cor-topo) 0, var(--moldura-cor-topo) 50%,
+        var(--moldura-cor-base) 50%, var(--moldura-cor-base) 100%) 1;
+}
+
+/* ===== LOGO (canto superior direito) ===== */
+#logo {
+    position: absolute;
+    display: block;
+    top: calc(var(--moldura-esp) + var(--safe));
+    right: calc(var(--moldura-esp) + var(--safe));
+    width: var(--logo-tam);
+    height: auto;
+    z-index: 6;
+}
+
+/* ===== VINHETA FINAL (outro) ===== */
+#vinheta {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    -o-object-fit: cover;
+    object-fit: cover;
+    background-color: #000;
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    -webkit-transition: opacity 0.35s ease;
+    transition: opacity 0.35s ease;
+}
+
+#vinheta.is-playing {
+    opacity: 1;
+}
+
+/* ===== TEXTO ===== */
+#texto-wrap {
+    position: absolute;
+    left: calc(var(--moldura-esp) + var(--safe));
+    right: calc(var(--moldura-esp) + var(--safe) + 6vw );
+    bottom: calc(var(--moldura-esp) + var(--safe));
+    max-height: 42%;
+    overflow: hidden;
+    z-index: 5;
+}
+
+#texto {
+    margin: 0;
+    padding: 0;
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif;
+    font-weight: 500;
+    font-size: 1.5em;
+    line-height: 1.4;
+    color: #fff;
+    text-shadow: 0 0.2vmin 1.2vmin rgba(0, 0, 0, 0.55);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* ============================================================
+   PORTRAIT  (ex.: 1080x1920)
+   ============================================================ */
+@media (max-aspect-ratio: 3/4) {
+    :root {
+        --moldura-esp: 2.65vmin;
+        --safe: 5vw;
+        --logo-tam: 20vw;
+    }
+
+    .populari-body {
+        font-size: 4.4vw;
+    }
+
+    #gradiente {
+        height: 55%;
+    }
+
+    #texto-wrap {
+        max-height: 25%;
+    }
+
+    #texto {
+        font-size: 2em;
+        line-height: 1.52;
+    }
+}
+
+/* ============================================================
+   LANDSCAPE amplo / ultrawide (fallback defensivo)
+   ============================================================ */
+@media (min-aspect-ratio: 3/1) {
+    :root {
+        --logo-tam: 9vmin;
+        --safe: 3.5vmin;
+    }
+
+    #gradiente {
+        height: 80%;
+    }
+
+    #texto-wrap {
+        max-height: 60%;
+        right: 45%;
+    }
+}

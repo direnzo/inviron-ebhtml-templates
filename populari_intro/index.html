@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Populari - video primeiro</title>
+    <link rel="stylesheet" href="css/master.css">
+    <script src="js/ebhtml.js"></script>
+    <!-- <script src="js/mock-data.js"></script> --> <!-- descomentar apenas em desenvolvimento -->
+    <script src="js/master.js"></script>
+</head>
+
+<body class="populari-body">
+
+    <div id="stage">
+
+        <!-- Foto em tela cheia (fundo) -->
+        <div id="foto">
+            <img id="foto-img" src="" alt="">
+        </div>
+
+        <!-- Degrade preto -> transparent atras do texto -->
+        <div id="gradiente"></div>
+
+        <!-- Moldura / borda por cima da foto -->
+        <div id="moldura"></div>
+
+        <!-- Logo no canto superior direito -->
+        <img id="logo" src="img/logo_populari.png" alt="Populari">
+
+        <!-- Texto da noticia -->
+        <div id="texto-wrap">
+            <p id="texto"></p>
+        </div>
+
+        <!-- Video de abertura - toca primeiro; a noticia entra quando ele termina -->
+        <video id="vinheta" preload="auto" playsinline webkit-playsinline x5-playsinline></video>
+
+    </div>
+
+</body>
+
+</html>
