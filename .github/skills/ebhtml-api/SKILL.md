@@ -256,10 +256,36 @@ document.querySelector('#image').appendChild(image);
 image.src = dados.foto; // src por último, depois de handlers e watchdog
 ```
 
+**d) `setTimeout`/watchdog externo cancelado ANTES de qualquer exceção poder acontecer.** Padrão comum: um `setTimeout` de segurança é armado antes de `loader.load()` e cancelado (`clearTimeout`) logo na 1ª linha do callback de sucesso — antes de qualquer validação de dados. Se o parsing subsequente (parse de data, acesso a campo inesperado, índice fora do array, etc.) lançar uma exceção não coberta por um `try/catch` pontual, ela sobe sem tratamento e **`finished()` nunca é chamado**, porque o único watchdog que cobriria esse caso já foi cancelado. Isso é ainda mais perigoso que (a)/(b)/(c): não depende de rede ou cache, só de um dado de produção com formato inesperado.
+
+Incidente real (previsao_tempo, 2026-09-04): reproduzido em teste — sem essa proteção, uma exceção simulada no parsing deixava o item travado indefinidamente; com o `try/catch` abaixo, `finished()` disparou em ~350ms.
+
+```javascript
+var watchdogId = setTimeout(function () { encerrarSemDados('timeout'); }, TIMEOUT_MS);
+
+loader.load(function () {
+    clearTimeout(watchdogId); // watchdog cancelado — a partir daqui, SÓ o try/catch protege
+    try {
+        var item = loader.data('D_DATASET');
+        if (!item) { encerrarSemDados('sem item'); return; }
+        // ...todo o parsing/render que pode lançar exceção...
+        renderizar(item);
+        loader.loaded();
+    } catch (erro) {
+        // Rede de seguranca final: qualquer excecao de parsing tambem libera o item.
+        encerrarSemDados('excecao: ' + (erro && erro.message ? erro.message : erro));
+    }
+}, function () {
+    clearTimeout(watchdogId);
+    encerrarSemDados('falha no load');
+});
+```
+
 **Checklist ao revisar qualquer template:**
 - [ ] `loader.load(sucesso, erro)` — 2º argumento sempre presente e também chamando `finished()`
 - [ ] Handlers de imagem/mídia atribuídos ANTES de setar `src`
 - [ ] Watchdog (`setTimeout`) garantindo `finished()` mesmo sem eventos
+- [ ] Todo o parsing/render dentro do callback de sucesso está envolto em `try/catch` que chama `finished()` no `catch` — especialmente se um watchdog/timeout externo é cancelado no início desse callback
 
 ### Outros métodos de comunicação:
 ```javascript

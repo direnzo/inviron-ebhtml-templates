@@ -95,7 +95,22 @@ image.onload = function () { clearTimeout(watchdog); concluir(); };
 image.onerror = function () { clearTimeout(watchdog); concluir(); };
 ```
 
-Checklist ao revisar qualquer template: `loader.load(sucesso, erro)` sempre com 2º argumento • handlers de imagem antes do `src` • watchdog de timeout presente. Ver `.github/skills/ebhtml-api/SKILL.md` seção 6 para o padrão completo.
+**d) `try/catch` obrigatório em volta de todo o parsing dentro do callback de sucesso do `loader.load()`.** Incidente real (previsao_tempo, 2026-09-04): o watchdog externo (`setTimeout` que chamaria `finished()` em caso de timeout) é cancelado (`clearTimeout`) logo na 1ª linha do callback de sucesso — antes de qualquer validação. Se o parsing dos dados (data malformada, campo inesperado, índice fora do array) lançar uma exceção não coberta por um `try/catch` pontual, ela sobe sem tratamento e `finished()` nunca é chamado — o único watchdog que cobriria esse caso já foi cancelado. Reproduzido em teste: sem a proteção, uma exceção simulada travava o item indefinidamente; com o `try/catch`, `finished()` disparou em ~350ms.
+```javascript
+loader.load(function () {
+    clearTimeout(watchdogId); // a partir daqui, SO o try/catch protege contra excecao de parsing
+    try {
+        var item = loader.data('D_DATASET');
+        if (!item) { encerrarSemDados('sem item'); return; }
+        renderizar(item); // qualquer excecao aqui dentro cai no catch abaixo
+        loader.loaded();
+    } catch (erro) {
+        encerrarSemDados('excecao: ' + (erro && erro.message ? erro.message : erro)); // finished() garantido
+    }
+}, function () { encerrarSemDados('falha no load'); });
+```
+
+Checklist ao revisar qualquer template: `loader.load(sucesso, erro)` sempre com 2º argumento • handlers de imagem antes do `src` • watchdog de timeout presente • todo o parsing/render do callback de sucesso envolto em `try/catch` que chama `finished()` no `catch`. Ver `.github/skills/ebhtml-api/SKILL.md` seção 6 para o padrão completo.
 
 ### 2. CSS Compatível (Chromium 78)
 | ❌ Proibido | Requer | ✅ Alternativa |
@@ -277,6 +292,7 @@ ffmpeg -i SRC.mp4 -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 \
 - [ ] ES5 — sem `let/const/arrow/template strings`
 - [ ] `loader.loaded()` após sucesso, `loader.finished()` sempre
 - [ ] `loader.load()` com 2º argumento (callback de erro) que também chama `finished()`
+- [ ] Parsing/render dentro do callback de sucesso do `loader.load()` envolto em `try/catch` que chama `finished()` no `catch` (evita travar se um watchdog externo já foi cancelado antes da exceção)
 - [ ] `image.onload`/`onerror` atribuídos ANTES de `image.src`
 - [ ] Watchdog (`setTimeout`) garantindo `finished()` mesmo sem eventos de imagem/mídia
 - [ ] `MOCK_DATA.enabled = false` em produção
