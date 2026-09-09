@@ -109,8 +109,21 @@ window.onload = function () {
     /* revela a noticia (foto + texto) e a mantem no ar por DURATION_MS,
        so entao finaliza o item da playlist */
     function revelarNoticia(loader) {
-        if (videoEl) { videoEl.className = ''; }
+        // encerra o video "pra valer": engines antigos (e overlay de video por
+        // hardware no Linux) ignoram opacity/z-index do CSS e deixam o retangulo
+        // do <video> furando a tela -> so esconder via className nao basta.
+        if (videoEl) {
+            try { videoEl.pause(); } catch (e) {}
+            videoEl.removeAttribute('autoplay');
+            videoEl.onended = null;
+            videoEl.ontimeupdate = null;
+            videoEl.className = '';
+            videoEl.style.display = 'none';
+            try { videoEl.removeAttribute('src'); videoEl.load(); } catch (e) {}
+        }
         body.classList.add('news-in');
+        // forca o engine a reavaliar a transicao 0 -> 1 das camadas da noticia
+        try { void body.offsetHeight; } catch (e) {}
         ajustarTexto(textoEl, textoWrap, 12);
         setTimeout(function () {
             loader.finished();

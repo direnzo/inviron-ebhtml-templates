@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Populari - video primeiro</title>
+    <title>Populari - abertura GIF (legacy / QtWebKit 534)</title>
     <link rel="stylesheet" href="css/master.css">
     <script src="js/ebhtml.js"></script>
     <!-- <script src="js/mock-data.js"></script> --> <!-- descomentar apenas em desenvolvimento -->
@@ -15,7 +15,9 @@
 
     <div id="stage">
 
-        <!-- Foto em tela cheia (fundo) -->
+        <!-- Foto em tela cheia (fundo). No engine legado a imagem e pintada
+             como background-image de #foto (nao ha object-fit); o <img> abaixo
+             fica oculto e serve so para detectar load/erro. -->
         <div id="foto">
             <img id="foto-img" src="" alt="">
         </div>
@@ -23,8 +25,10 @@
         <!-- Degrade preto -> transparent atras do texto -->
         <div id="gradiente"></div>
 
-        <!-- Moldura / borda por cima da foto -->
+        <!-- Moldura: 2 divs. #moldura = quadro todo laranja;
+             #moldura-base sobrepoe a metade de baixo com branco. -->
         <div id="moldura"></div>
+        <div id="moldura-base"></div>
 
         <!-- Logo no canto superior direito -->
         <img id="logo" src="img/logo_populari.png" alt="Populari">
@@ -34,8 +38,11 @@
             <p id="texto"></p>
         </div>
 
-        <!-- Video de abertura - toca primeiro; a noticia entra quando ele termina -->
-        <video id="vinheta" muted preload="auto" playsinline webkit-playsinline x5-playsinline></video>
+        <!-- Abertura: GIF animado da vinheta em tela cheia por INTRO_MS antes
+             da noticia. O <video> HTML5 nao funciona neste engine; o QtWebKit
+             anima GIF nativamente. <img> (nao background) para animar de forma
+             confiavel. src definido no master.js; onerror cai pro .jpg. -->
+        <div id="intro"><img id="intro-img" src="" alt=""></div>
 
     </div>
 

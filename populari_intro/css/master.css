@@ -21,18 +21,20 @@ body {
 @font-face {
     font-family: 'Plus Jakarta Sans';
     src: url('fonts/PlusJakartaSans-VariableFont_wght.ttf');
-    font-weight: 200 500;
+    font-weight: normal;
     font-display: swap;
 }
 
-/* ---- variaveis de layout (ajustadas por aspect-ratio) ---- */
-:root {
-    --moldura-cor-topo: #c85a1a;   /* metade de cima da moldura */
-    --moldura-cor-base: #ffffff;   /* metade de baixo da moldura */
-    --moldura-esp: 2.3vmin;        /* espessura da borda */
-    --safe: 4vmin;                 /* respiro interno da moldura */
-    --logo-tam: 11vmin;            /* largura do logo */
-}
+/* ------------------------------------------------------------
+   NAO usar CSS Custom Properties (var()) nem depender delas:
+   o alvo aqui e Chromium < 49, que ignora var() e derruba todo
+   o posicionamento (logo/texto sem ancora). Valores fixos abaixo,
+   sobrescritos por aspect-ratio nas @media do fim do arquivo.
+
+   Referencia dos valores (landscape):
+     moldura-esp = 2.3vmin ; safe = 4vmin ; (esp+safe) = 6.3vmin
+     logo-tam    = 11vmin
+   ------------------------------------------------------------ */
 
 .populari-body {
     position: relative;
@@ -61,12 +63,15 @@ body {
 }
 
 /* camadas da noticia: escondidas enquanto o video de abertura toca,
-   entram em fade quando o body recebe .news-in */
+   entram em fade quando o body recebe .news-in.
+   visibility (nao so opacity) porque compositor antigo as vezes prende
+   a transicao 0 -> 1 no valor inicial e a noticia nunca aparece. */
 #foto,
 #gradiente,
 #moldura,
 #logo,
 #texto-wrap {
+    visibility: hidden;
     opacity: 0;
     -webkit-transition: opacity 0.5s ease;
     transition: opacity 0.5s ease;
@@ -77,6 +82,7 @@ body {
 .populari-body.news-in #moldura,
 .populari-body.news-in #logo,
 .populari-body.news-in #texto-wrap {
+    visibility: visible;
     opacity: 1;
 }
 
@@ -149,24 +155,25 @@ body {
     z-index: 4;
     pointer-events: none;
     box-sizing: border-box;
+    -webkit-box-sizing: border-box;
     /* fallback: cor unica se o engine ignorar border-image */
-    border: var(--moldura-esp) solid var(--moldura-cor-topo);
-    /* moldura dividida: metade de cima --moldura-cor-topo, metade de baixo --moldura-cor-base */
+    border: 2.3vmin solid #c85a1a;
+    /* moldura dividida: metade de cima laranja, metade de baixo branca */
     -webkit-border-image: linear-gradient(to bottom,
-        var(--moldura-cor-topo) 0, var(--moldura-cor-topo) 50%,
-        var(--moldura-cor-base) 50%, var(--moldura-cor-base) 100%) 1;
+        #c85a1a 0, #c85a1a 50%,
+        #ffffff 50%, #ffffff 100%) 1;
     border-image: linear-gradient(to bottom,
-        var(--moldura-cor-topo) 0, var(--moldura-cor-topo) 50%,
-        var(--moldura-cor-base) 50%, var(--moldura-cor-base) 100%) 1;
+        #c85a1a 0, #c85a1a 50%,
+        #ffffff 50%, #ffffff 100%) 1;
 }
 
 /* ===== LOGO (canto superior direito) ===== */
 #logo {
     position: absolute;
     display: block;
-    top: calc(var(--moldura-esp) + var(--safe));
-    right: calc(var(--moldura-esp) + var(--safe));
-    width: var(--logo-tam);
+    top: 6.3vmin;
+    right: 6.3vmin;
+    width: 11vmin;
     height: auto;
     z-index: 6;
 }
@@ -182,6 +189,7 @@ body {
     object-fit: cover;
     background-color: #000;
     z-index: 50;
+    visibility: hidden;
     opacity: 0;
     pointer-events: none;
     -webkit-transition: opacity 0.35s ease;
@@ -189,15 +197,16 @@ body {
 }
 
 #vinheta.is-playing {
+    visibility: visible;
     opacity: 1;
 }
 
 /* ===== TEXTO ===== */
 #texto-wrap {
     position: absolute;
-    left: calc(var(--moldura-esp) + var(--safe));
-    right: calc(var(--moldura-esp) + var(--safe) + 6vw );
-    bottom: calc(var(--moldura-esp) + var(--safe));
+    left: 6.3vmin;
+    right: calc(6.3vmin + 6vw);
+    bottom: 6.3vmin;
     max-height: 42%;
     overflow: hidden;
     z-index: 5;
@@ -219,15 +228,20 @@ body {
 /* ============================================================
    PORTRAIT  (ex.: 1080x1920)
    ============================================================ */
+/* portrait: moldura-esp = 2.65vmin ; safe = 5vw ; logo-tam = 20vw */
 @media (max-aspect-ratio: 3/4) {
-    :root {
-        --moldura-esp: 2.65vmin;
-        --safe: 5vw;
-        --logo-tam: 20vw;
-    }
-
     .populari-body {
         font-size: 4.4vw;
+    }
+
+    #moldura {
+        border-width: 2.65vmin;
+    }
+
+    #logo {
+        top: calc(2.65vmin + 5vw);
+        right: calc(2.65vmin + 5vw);
+        width: 20vw;
     }
 
     #gradiente {
@@ -235,6 +249,9 @@ body {
     }
 
     #texto-wrap {
+        left: calc(2.65vmin + 5vw);
+        right: calc(2.65vmin + 11vw);
+        bottom: calc(2.65vmin + 5vw);
         max-height: 25%;
     }
 
@@ -246,11 +263,13 @@ body {
 
 /* ============================================================
    LANDSCAPE amplo / ultrawide (fallback defensivo)
+   safe = 3.5vmin ; logo-tam = 9vmin ; (esp+safe) = 5.8vmin
    ============================================================ */
 @media (min-aspect-ratio: 3/1) {
-    :root {
-        --logo-tam: 9vmin;
-        --safe: 3.5vmin;
+    #logo {
+        top: 5.8vmin;
+        right: 5.8vmin;
+        width: 9vmin;
     }
 
     #gradiente {
@@ -258,7 +277,9 @@ body {
     }
 
     #texto-wrap {
-        max-height: 60%;
+        left: 5.8vmin;
         right: 45%;
+        bottom: 5.8vmin;
+        max-height: 60%;
     }
 }
