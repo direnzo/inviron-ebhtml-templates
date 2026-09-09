@@ -115,3 +115,16 @@
   }
 }
 
+/* Faixa 4:1 (ex: 768x192) — cards ficam baixos e a descricao some (tela < 500px),
+   sobrando altura no card. Aumenta dia-da-semana/data bem mais que o padrao,
+   desacoplando .date-hour do font-size do body (era % herdado) para poder
+   crescer mais sem inflar o resto do texto do card. */
+@media (min-aspect-ratio: 3/1) and (max-aspect-ratio: 5/1) {
+  .data {
+    font-size: calc(var(--cvmin) * 13);
+  }
+  .date-hour {
+    font-size: calc(var(--cvmin) * 13);
+  }
+}
+

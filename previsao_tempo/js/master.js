@@ -96,6 +96,10 @@ var CARDS_DADOS_ATUAIS = null;
 function aplicarEscalaCard(card) {
   if (!card) return 0;
   var base = Math.min(card.clientWidth, card.clientHeight) / 100;
+  var arTela = window.innerWidth / window.innerHeight;
+  if (arTela >= 3 && arTela < 5) {
+    base = base * 1.35;
+  }
   if (base > 0) {
     card.style.setProperty('--cvmin', base + 'px');
   }
@@ -224,8 +228,10 @@ var CIDADE_DIAS = ["D1", "D2", "D3"];
 // Rede de seguranca: so dispara se o canal D_CLIMA realmente travar
 // (XHR pendurado). NAO deve competir com a latencia normal da rede —
 // 300ms estourava a cada jitter e fazia o template exibir "sem dados"
-// mesmo com o canal online. 12s da folga para round-trip + parsing.
-var CANAL_TIMEOUT_MS = 12000;
+// mesmo com o canal online. 8s da folga para round-trip + parsing
+// (reduzido de 12s: falha rapida agora e coberta pelo try/catch abaixo,
+// entao nao precisa mais do teto alto so para exceções de parsing).
+var CANAL_TIMEOUT_MS = 8000;
 
 // Retorna a lista de slots (ex: ["C1","C3"]) que tem cidade configurada no D1.
 function detectarSlotsDeCidade(item) {
@@ -299,6 +305,11 @@ window.onload = function () {
 
       loader.load(function () {
         limparTimeoutCanal();
+        // Todo o parsing fica dentro do try: se QUALQUER excecao ocorrer aqui
+        // (data malformada, campo inesperado, etc.), o catch forca o
+        // finished() na hora, em vez de depender do timeout externo (que ja
+        // foi cancelado por limparTimeoutCanal() e nao dispararia mais).
+        try {
         var dados = [];
         var duracaoConfig = (typeof CONFIG_CLIMA !== "undefined" && CONFIG_CLIMA.duration) || 10000;
         var config = { duration: duracaoConfig };
@@ -392,6 +403,9 @@ window.onload = function () {
           return;
         }
         iniciarTemplate(dados, config, loader);
+        } catch (erroProcessamento) {
+          encerrarSemDados('Excecao ao processar D_CLIMA: ' + (erroProcessamento && erroProcessamento.message ? erroProcessamento.message : erroProcessamento));
+        }
       }, function () {
         limparTimeoutCanal();
         encerrarSemDados('Falha no loader.load() para D_CLIMA');

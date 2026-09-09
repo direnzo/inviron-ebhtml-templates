@@ -18,6 +18,7 @@ module.exports = {
         'square':    { 'raw': '(min-aspect-ratio: 3/4) and (max-aspect-ratio: 4/3)' },              // 0.75-1.333
         'ls':        { 'raw': '(min-aspect-ratio: 4/3) and (max-aspect-ratio: 2/1)' },              // 1.333-2 (landscape puro)
         'ultrawide': { 'raw': '(min-aspect-ratio: 2/1) and (max-aspect-ratio: 5/1)' },              // 2-5
+        'faixa4x1':  { 'raw': '(min-aspect-ratio: 3/1) and (max-aspect-ratio: 5/1)' },              // 3-5 (inclui 768x192)
         'superbanner': { 'raw': '(min-aspect-ratio: 5/1) and (max-aspect-ratio: 15/1)' },           // 5-15
         'footer':    { 'raw': '(min-aspect-ratio: 15/1)' }                                          // ≥ 15
       }

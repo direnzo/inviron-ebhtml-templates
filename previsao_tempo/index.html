@@ -30,7 +30,7 @@
     <title>Previsão do Tempo</title>
 </head>
 
-<body class="relative flex flex-col h-screen w-full overflow-hidden bg-black font-tt-demibold leading-none font-bold text-white text-[3.5vmin]">
+<body class="relative flex flex-col h-screen w-full overflow-hidden bg-black font-tt-demibold leading-none font-bold text-white text-[3.5vmin] faixa4x1:text-[5vmin]">
     <!-- Tela preta inicial: removida somente quando loader.loaded() é disparado -->
     <div id="preload-black" class="absolute top-0 right-0 bottom-0 left-0 z-50 bg-black"></div>
 
@@ -39,8 +39,8 @@
         <img src="img/fundo.jpg" class="w-full h-full object-cover" />
     </div>
     <!-- Header: cidade -->
-    <header class="w-full flex h-[15vmin] items-center justify-center z-10 py-[1.5vmin]">
-        <span id="cidade" class="drop-shadow text-[200%]"></span>
+    <header class="w-full flex h-[15vmin] faixa4x1:h-[22vmin] items-center justify-center z-10 py-[1.5vmin] faixa4x1:py-[0.5vmin]">
+        <span id="cidade" class="drop-shadow text-[200%] faixa4x1:text-[340%]"></span>
     </header>
     <!-- Main: cards de previsão -->
     <main class="flex h-full justify-center items-center w-full overflow-hidden p-[2vmin] ">
@@ -100,8 +100,8 @@
         </div>
     </template>
     <!-- Footer: fonte -->
-    <footer class="w-full flex h-[15vmin] items-center justify-end p-[1.5vmin] z-10">
-        <span class="text-[80%] tracking-wide"><span class="text-[50%]">Fonte:</span> CPTEC / INPE</span>
+    <footer class="w-full flex h-[15vmin] faixa4x1:h-[8vmin] items-center justify-end p-[1.5vmin] faixa4x1:py-[0.3vmin] z-10">
+        <span class="text-[80%] faixa4x1:text-[55%] tracking-wide"><span class="text-[50%]">Fonte:</span> CPTEC / INPE</span>
     </footer>
 </body>
 
