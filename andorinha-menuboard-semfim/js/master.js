@@ -20,13 +20,22 @@ document.addEventListener("DOMContentLoaded", function () {
 // menuboard_peixaria - Horizontal ( 1920 x 1080 )	
 // menuboard_frango - Horizontal ( 1920 x 1080 )
 // menuboard_frango_outros - Horizontal ( 1920 x 1080 )
+// menuboard_acougue_suinos - Horizontal ( 1920 x 1080 ) - exibida junto com menuboard_acougue_ouro (coluna direita)
 
 //============================================================
 
-  var selectedCategory = "menuboard_frango"; // Categoria padrão
+  var selectedCategory = "menuboard_acougue_ouro"; // Categoria padrão
   var displayDuration = 20000; // 30 minutos por exibição
   var pollInterval = 20000;    // 20 segundos. Intervalo de polling e timeout entre páginas (ms)
   var TEST_RELOAD_MODE = false;  // true = reload em vez de finished() (simula ciclo de playlist no localhost)
+  // BUG conhecido do ebhtml.js: com nodataiserror=false, se a categoria retornar 0 itens o loader
+  // trava para sempre (nem sucesso nem erro disparam) — watchdog + retry abaixo garante loaded()/finished()
+  var LOADER_WATCHDOG_MS = 4000;
+  var MAX_TENTATIVAS_LOADER = 3; // tentativas extras além da 1ª, antes de desistir
+  var RETRY_DELAY_MS = 500;
+  // Categorias exibidas simultaneamente em landscape: primária na coluna 1, secundária na coluna 2
+  var CATEGORIA_DUPLA_MAP = { "menuboard_acougue_ouro": "menuboard_acougue_suinos" };
+  var categoriaSecundaria = CATEGORIA_DUPLA_MAP[selectedCategory] || null;
   var CONFIG = {
     // Limite de caracteres do TITULO (0 ou negativo = sem limite)
     maxTitleCharsLandscape: 37,
@@ -93,6 +102,9 @@ document.addEventListener("DOMContentLoaded", function () {
   var currentPageIndex = 0; // Índice da próxima página a exibir
   var paginationTimer = null; // setInterval de rotação de páginas
   var finalizado = false; // Guard contra duplo finished()
+  var modoDuplo = !!categoriaSecundaria && isLandscape(); // duas categorias independentes, uma por coluna
+  var dualColumns = []; // estados independentes de cada coluna no modo duplo
+  var conteudoRevelado = false; // Guard: revela o conteúdo (opacity) uma única vez no modo duplo
 
   // ─── Detecção de Aspect Ratio ────────────────────────────────────────────
 
@@ -229,6 +241,210 @@ document.addEventListener("DOMContentLoaded", function () {
         if (v2) { price2El.textContent = formatarPreco(v2); }
       }
     }
+  }
+
+  // ─── Modo Duplo (2 categorias independentes, 1 por coluna) ──────────────
+
+  function construirFiltro(category) {
+    var filtro = "f_category=" + category + "&amount=500";
+    var categoriasAlfabeticas = [
+      "menuboard_acougue_ouro", "menuboard_acougue", "menuboard_acougue_suinos",
+      "menuboard_frios_carnes", "menuboard_frios",
+      "menuboard_salgados", "menuboard_peixaria", "menuboard_frango"
+    ];
+    var categoriasPreco = [
+      "menuboard_bebidas", "menuboard_bebidas_269",
+      "menuboard_leite", "menuboard_cafe"
+    ];
+    if (categoriasAlfabeticas.indexOf(category) !== -1) {
+      filtro += "&order=TITULO&orderkind=asc";
+    } else if (categoriasPreco.indexOf(category) !== -1) {
+      filtro += "&order=PRICE&orderkind=asc";
+    } else {
+      filtro += "&order=TITULO&orderkind=asc"; // fallback: garante ordem estável
+    }
+    return filtro;
+  }
+
+  // Renderiza uma página de itens em uma única coluna (sem split em 2 sub-colunas)
+  function renderizarColuna(state, itemsToShow) {
+    var container = state.container;
+    container.innerHTML = "";
+    container.style.minWidth = "0";
+    for (var i = 0; i < itemsToShow.length; i++) {
+      var row = criarLinha(itemsToShow[i], i);
+      container.appendChild(row);
+      var rowElement = container.lastElementChild;
+      (function (el, delay) {
+        setTimeout(function () {
+          el.classList.remove("opacity-0", "translate-y-4");
+        }, delay);
+      })(rowElement, 1 * i);
+    }
+  }
+
+  function exibirProximaPaginaColuna(state, maxItemsCol) {
+    var offset = state.currentPageIndex * maxItemsCol;
+    var pagina = state.allItems.slice(offset, offset + maxItemsCol);
+    if (pagina.length === 0) {
+      state.currentPageIndex = 0;
+      pagina = state.allItems.slice(0, maxItemsCol);
+    }
+    var totalPaginas = Math.ceil(state.allItems.length / maxItemsCol) || 1;
+    console.log("[PAGE][" + state.category + "] Página " + (state.currentPageIndex + 1) + "/" + totalPaginas + " (" + pagina.length + " itens)");
+    renderizarColuna(state, pagina);
+    state.currentPageIndex++;
+    if (state.currentPageIndex >= totalPaginas) state.currentPageIndex = 0;
+  }
+
+  function atualizarPrecosColuna(state, items) {
+    var linhas = state.container.querySelectorAll(':scope > div');
+    for (var i = 0; i < items.length; i++) {
+      var linhaEl = linhas[i];
+      if (!linhaEl) { continue; }
+      var tituloEl = linhaEl.querySelector('.titulo');
+      var priceEl  = linhaEl.querySelector('.price');
+      var price2El = linhaEl.querySelector('.price2');
+      if (tituloEl) { tituloEl.textContent = (items[i].value('TITULO').value || '').toUpperCase(); }
+      if (priceEl)  { priceEl.textContent  = formatarPreco(items[i].value('PRICE').value); }
+      if (price2El) {
+        var v2 = items[i].value('PRICE2').value;
+        if (v2) { price2El.textContent = formatarPreco(v2); }
+      }
+    }
+  }
+
+  // Revela o conteúdo (body/table opacity) somente após as 2 colunas terem tentado carregar
+  function verificarRevelacaoDual() {
+    if (conteudoRevelado) { return; }
+    for (var i = 0; i < dualColumns.length; i++) {
+      if (!dualColumns[i].pronto) { return; }
+    }
+    conteudoRevelado = true;
+    tableContainer.classList.remove("opacity-0");
+    body.classList.remove("opacity-0");
+    body.classList.add("opacity-100");
+    setTimeout(function () { ajustarAlturaLinhas(); }, 100);
+  }
+
+  // Busca e mantém uma coluna independente (categoria própria, paginação e poll próprios)
+  function iniciarColuna(category, container, controlaLoader, maxItemsCol) {
+    var state = {
+      category: category, container: container, allItems: [], currentPageIndex: 0,
+      paginationTimer: null, pollingIntervalo: null, pronto: false
+    };
+    dualColumns.push(state);
+    tentarCarregarColuna(state, category, controlaLoader, maxItemsCol, 0);
+  }
+
+  function desistirColuna(state, controlaLoader, motivo) {
+    if (state.pronto) { return; }
+    console.warn("[DESISTIR][" + state.category + "] " + motivo);
+    state.pronto = true;
+    verificarRevelacaoDual();
+    if (controlaLoader) { finalizarLoader(); }
+  }
+
+  // Refaz a busca da coluna (0 itens, exceção ou timeout) até MAX_TENTATIVAS_LOADER antes de desistir.
+  // Necessário porque o ebhtml.js tem um bug: com nodataiserror=false, se vier 0 itens o loader
+  // nem chama sucesso nem erro (trava para sempre) — o watchdog abaixo cobre esse caso.
+  function tentarCarregarColuna(state, category, controlaLoader, maxItemsCol, tentativa) {
+    var resolvido = false; // evita agir 2x nesta tentativa (watchdog x callback tardio)
+
+    function proximaTentativaOuDesistir(motivo) {
+      if (resolvido) { return; }
+      resolvido = true;
+      if (tentativa < MAX_TENTATIVAS_LOADER) {
+        console.warn("[RETRY][" + category + "] tentativa " + (tentativa + 1) + "/" + (MAX_TENTATIVAS_LOADER + 1) + " falhou (" + motivo + "), tentando novamente...");
+        setTimeout(function () {
+          tentarCarregarColuna(state, category, controlaLoader, maxItemsCol, tentativa + 1);
+        }, RETRY_DELAY_MS);
+      } else {
+        desistirColuna(state, controlaLoader, motivo + " (esgotadas as tentativas)");
+      }
+    }
+
+    ebhtml.create2({}, function (loaderInstance) {
+      if (controlaLoader) { loader2 = loaderInstance; }
+      var filtro = construirFiltro(category);
+      loaderInstance.addData("D_MENUBOARD_PRICES", true, filtro);
+      loaderInstance.nodataiserror = false;
+      loaderInstance.autoloaded = false;
+
+      setTimeout(function () {
+        proximaTentativaOuDesistir("watchdog " + LOADER_WATCHDOG_MS + "ms sem resposta");
+      }, LOADER_WATCHDOG_MS);
+
+      loaderInstance.load(function () {
+        try {
+          var itensRecebidos = loaderInstance.datalist("D_MENUBOARD_PRICES").f_items;
+          var totalItems = itensRecebidos ? itensRecebidos.length : 0;
+          console.log("[INFO][" + category + "] Total de itens: " + totalItems);
+
+          if (!itensRecebidos || totalItems === 0) {
+            proximaTentativaOuDesistir("0 itens recebidos");
+            return;
+          }
+          if (resolvido) { return; } // watchdog já desistiu desta tentativa; ignora resposta tardia
+          resolvido = true;
+
+          state.allItems = itensRecebidos;
+          state.currentPageIndex = 0;
+          exibirProximaPaginaColuna(state, maxItemsCol);
+          state.pronto = true;
+          verificarRevelacaoDual();
+          if (controlaLoader) { loaderInstance.loaded(); } // Sinaliza conteúdo visível (chamado uma única vez)
+
+          if (totalItems > maxItemsCol) {
+            var totalPaginas = Math.ceil(totalItems / maxItemsCol);
+            console.log("[INFO][" + category + "] " + totalPaginas + " páginas, rotação a cada " + (pollInterval / 1000) + "s");
+            state.paginationTimer = setInterval(function () {
+              exibirProximaPaginaColuna(state, maxItemsCol);
+            }, pollInterval);
+          }
+
+          // Re-fetch periódico independente desta coluna
+          state.pollingIntervalo = setInterval(function () {
+            if (finalizado) { clearInterval(state.pollingIntervalo); return; }
+            ebhtml.create2({}, function (pollLoader) {
+              pollLoader.addData("D_MENUBOARD_PRICES", true, construirFiltro(category));
+              pollLoader.nodataiserror = false;
+              pollLoader.autoloaded = false;
+              pollLoader.load(function () {
+                try {
+                  var novosItens = pollLoader.datalist("D_MENUBOARD_PRICES").f_items;
+                  if (!novosItens || novosItens.length === 0) { return; }
+                  var fpNovo = gerarFingerprint(novosItens);
+                  var fpAtual = gerarFingerprint(state.allItems);
+                  if (fpNovo === fpAtual) { console.log("[POLL][" + category + "] Sem alterações"); return; }
+                  var countChanged = novosItens.length !== state.allItems.length;
+                  state.allItems = novosItens;
+                  console.log("[POLL][" + category + "] Dados alterados" + (countChanged ? " (qtd mudou, remontando)" : " (in-place)"));
+                  if (!state.paginationTimer) {
+                    if (countChanged) {
+                      state.currentPageIndex = 0;
+                      exibirProximaPaginaColuna(state, maxItemsCol);
+                    } else {
+                      atualizarPrecosColuna(state, novosItens.slice(0, maxItemsCol));
+                    }
+                  }
+                } catch (e) {
+                  console.warn("[POLL][" + category + "] Erro ao atualizar dados:", e);
+                }
+              });
+            });
+          }, pollInterval);
+
+          if (controlaLoader) {
+            setTimeout(function () { finalizarLoader(); }, displayDuration);
+          }
+        } catch (error) {
+          proximaTentativaOuDesistir("exceção: " + (error && error.message ? error.message : error));
+        }
+      }, function () {
+        proximaTentativaOuDesistir("falha no load()");
+      });
+    });
   }
 
   function criarLinha(item, index) {
@@ -389,13 +605,20 @@ document.addEventListener("DOMContentLoaded", function () {
   function finalizarLoader() {
     if (finalizado) return;
     finalizado = true;
-    if (pollingIntervalo) {
-      clearInterval(pollingIntervalo);
-      pollingIntervalo = null;
-    }
-    if (paginationTimer) {
-      clearInterval(paginationTimer);
-      paginationTimer = null;
+    if (modoDuplo) {
+      for (var i = 0; i < dualColumns.length; i++) {
+        if (dualColumns[i].paginationTimer) { clearInterval(dualColumns[i].paginationTimer); dualColumns[i].paginationTimer = null; }
+        if (dualColumns[i].pollingIntervalo) { clearInterval(dualColumns[i].pollingIntervalo); dualColumns[i].pollingIntervalo = null; }
+      }
+    } else {
+      if (pollingIntervalo) {
+        clearInterval(pollingIntervalo);
+        pollingIntervalo = null;
+      }
+      if (paginationTimer) {
+        clearInterval(paginationTimer);
+        paginationTimer = null;
+      }
     }
     if (TEST_RELOAD_MODE) {
       location.reload();
@@ -430,116 +653,131 @@ document.addEventListener("DOMContentLoaded", function () {
 
       loader.load(function () {
         try {
-          var local = loader.data("D_LOCAL").value("SITE_CUSTOMERID").value;
-          var maxItems = getMaxItems();
-          var filtro = "f_category=" + category + "&amount=500";
-          var categoriasAlfabeticas = [
-            "menuboard_acougue_ouro", "menuboard_acougue",
-            "menuboard_frios_carnes", "menuboard_frios",
-            "menuboard_salgados", "menuboard_peixaria", "menuboard_frango"
-          ];
-          var categoriasPreco = [
-            "menuboard_bebidas", "menuboard_bebidas_269",
-            "menuboard_leite", "menuboard_cafe"
-          ];
-          if (categoriasAlfabeticas.indexOf(category) !== -1) {
-            filtro += "&order=TITULO&orderkind=asc";
-          } else if (categoriasPreco.indexOf(category) !== -1) {
-            filtro += "&order=PRICE&orderkind=asc";
-          } else {
-            filtro += "&order=TITULO&orderkind=asc"; // fallback: garante ordem estável
+          if (modoDuplo) {
+            console.log("[INFO] Modo duplo: " + selectedCategory + " (coluna 1) + " + categoriaSecundaria + " (coluna 2)");
+            iniciarColuna(selectedCategory, contentRowsContainer, true, 10);
+            iniciarColuna(categoriaSecundaria, contentRowsContainer2, false, 10);
+            return;
           }
 
+          var maxItems = getMaxItems();
+          var filtro = construirFiltro(category);
           console.log("[INFO] Filtro enviado: " + filtro);
-
-          ebhtml.create2({}, function (loaderInstance) {
-            loader2 = loaderInstance;
-            loader2.addData("D_MENUBOARD_PRICES", true, filtro);
-            loader2.nodataiserror = false;
-            loader2.autoloaded = false;
-            // loader2.loaded();
-
-            loader2.load(function () {
-              try {
-                var itensRecebidos = loader2.datalist("D_MENUBOARD_PRICES").f_items;
-                var totalItems = itensRecebidos ? itensRecebidos.length : 0;
-                console.log("[INFO] Total de itens no canal: " + totalItems);
-
-                if (!itensRecebidos || totalItems === 0) {
-                  console.warn("[AVISO] Nenhum item encontrado");
-                  finalizarLoader();
-                  return;
-                }
-
-                // Carrega todos em memória e exibe primeira página
-                allItems = itensRecebidos;
-                currentPageIndex = 0;
-                exibirProximaPagina(maxItems);
-                conteudoExibido = true;
-                loader2.loaded(); // Sinaliza conteúdo visível (chamado uma única vez)
-
-                if (totalItems > maxItems) {
-                  // Múltiplas páginas — cicla em memória a cada pollInterval
-                  var totalPaginas = Math.ceil(totalItems / maxItems);
-                  console.log("[INFO] " + totalPaginas + " páginas, rotação a cada " + (pollInterval / 1000) + "s");
-                  paginationTimer = setInterval(function () {
-                    exibirProximaPagina(maxItems);
-                  }, pollInterval);
-                } else {
-                  console.log("[INFO] Página única (" + totalItems + " itens), exibindo por " + (displayDuration / 60000) + "min");
-                }
-
-                // Re-fetch periódico: atualiza allItems com preços frescos do servidor
-                pollingIntervalo = setInterval(function () {
-                  if (finalizado) { clearInterval(pollingIntervalo); return; }
-                  ebhtml.create2({}, function (pollLoader) {
-                    pollLoader.addData("D_MENUBOARD_PRICES", true, filtro);
-                    pollLoader.nodataiserror = false;
-                    pollLoader.autoloaded = false;
-                    pollLoader.load(function () {
-                      try {
-                        var novosItens = pollLoader.datalist("D_MENUBOARD_PRICES").f_items;
-                        if (!novosItens || novosItens.length === 0) { return; }
-                        var fpNovo = gerarFingerprint(novosItens);
-                        var fpAtual = gerarFingerprint(allItems);
-                        if (fpNovo === fpAtual) {
-                          console.log("[POLL] Sem alterações");
-                          return;
-                        }
-                        var countChanged = novosItens.length !== allItems.length;
-                        allItems = novosItens;
-                        console.log("[POLL] Dados alterados" + (countChanged ? " (qtd mudou, remontando)" : " (in-place)"));
-                        if (!paginationTimer) {
-                          if (countChanged) {
-                            // Quantidade de itens mudou: rebuild completo inevitável
-                            currentPageIndex = 0;
-                            exibirProximaPagina(maxItems);
-                            currentPageIndex = 0;
-                          } else {
-                            // Só preços/títulos mudaram: atualiza células sem piscar
-                            atualizarPrecos(novosItens.slice(0, maxItems));
-                          }
-                        }
-                      } catch (e) {
-                        console.warn("[POLL] Erro ao atualizar dados:", e);
-                      }
-                    });
-                  });
-                }, pollInterval);
-
-                // finished() apenas após displayDuration — sem reload, sem flash
-                setTimeout(function () { finalizarLoader(); }, displayDuration);
-
-              } catch (error) {
-                console.error("[ERRO] Ao carregar itens:", error);
-                finalizarLoader();
-              }
-            });
-          });
+          tentarCarregarPrincipal(category, filtro, maxItems, 0);
         } catch (error) {
           console.error("[ERRO] Ao carregar dados do local:", error);
           finalizarLoader();
         }
+      });
+    });
+  }
+
+  // Mesmo mecanismo de retry/watchdog da coluna dupla, aplicado à busca de categoria única
+  function tentarCarregarPrincipal(category, filtro, maxItems, tentativa) {
+    var resolvido = false;
+
+    function proximaTentativaOuDesistir(motivo) {
+      if (resolvido) { return; }
+      resolvido = true;
+      if (tentativa < MAX_TENTATIVAS_LOADER) {
+        console.warn("[RETRY] tentativa " + (tentativa + 1) + "/" + (MAX_TENTATIVAS_LOADER + 1) + " falhou (" + motivo + "), tentando novamente...");
+        setTimeout(function () {
+          tentarCarregarPrincipal(category, filtro, maxItems, tentativa + 1);
+        }, RETRY_DELAY_MS);
+      } else {
+        console.warn("[DESISTIR] " + motivo + " (esgotadas as tentativas)");
+        finalizarLoader();
+      }
+    }
+
+    ebhtml.create2({}, function (loaderInstance) {
+      loader2 = loaderInstance;
+      loader2.addData("D_MENUBOARD_PRICES", true, filtro);
+      loader2.nodataiserror = false;
+      loader2.autoloaded = false;
+      // loader2.loaded();
+
+      setTimeout(function () {
+        proximaTentativaOuDesistir("watchdog " + LOADER_WATCHDOG_MS + "ms sem resposta");
+      }, LOADER_WATCHDOG_MS);
+
+      loader2.load(function () {
+        try {
+          var itensRecebidos = loader2.datalist("D_MENUBOARD_PRICES").f_items;
+          var totalItems = itensRecebidos ? itensRecebidos.length : 0;
+          console.log("[INFO] Total de itens no canal: " + totalItems);
+
+          if (!itensRecebidos || totalItems === 0) {
+            proximaTentativaOuDesistir("0 itens recebidos");
+            return;
+          }
+          if (resolvido) { return; } // watchdog já desistiu desta tentativa; ignora resposta tardia
+          resolvido = true;
+
+          // Carrega todos em memória e exibe primeira página
+          allItems = itensRecebidos;
+          currentPageIndex = 0;
+          exibirProximaPagina(maxItems);
+          conteudoExibido = true;
+          loader2.loaded(); // Sinaliza conteúdo visível (chamado uma única vez)
+
+          if (totalItems > maxItems) {
+            // Múltiplas páginas — cicla em memória a cada pollInterval
+            var totalPaginas = Math.ceil(totalItems / maxItems);
+            console.log("[INFO] " + totalPaginas + " páginas, rotação a cada " + (pollInterval / 1000) + "s");
+            paginationTimer = setInterval(function () {
+              exibirProximaPagina(maxItems);
+            }, pollInterval);
+          } else {
+            console.log("[INFO] Página única (" + totalItems + " itens), exibindo por " + (displayDuration / 60000) + "min");
+          }
+
+          // Re-fetch periódico: atualiza allItems com preços frescos do servidor
+          pollingIntervalo = setInterval(function () {
+            if (finalizado) { clearInterval(pollingIntervalo); return; }
+            ebhtml.create2({}, function (pollLoader) {
+              pollLoader.addData("D_MENUBOARD_PRICES", true, filtro);
+              pollLoader.nodataiserror = false;
+              pollLoader.autoloaded = false;
+              pollLoader.load(function () {
+                try {
+                  var novosItens = pollLoader.datalist("D_MENUBOARD_PRICES").f_items;
+                  if (!novosItens || novosItens.length === 0) { return; }
+                  var fpNovo = gerarFingerprint(novosItens);
+                  var fpAtual = gerarFingerprint(allItems);
+                  if (fpNovo === fpAtual) {
+                    console.log("[POLL] Sem alterações");
+                    return;
+                  }
+                  var countChanged = novosItens.length !== allItems.length;
+                  allItems = novosItens;
+                  console.log("[POLL] Dados alterados" + (countChanged ? " (qtd mudou, remontando)" : " (in-place)"));
+                  if (!paginationTimer) {
+                    if (countChanged) {
+                      // Quantidade de itens mudou: rebuild completo inevitável
+                      currentPageIndex = 0;
+                      exibirProximaPagina(maxItems);
+                      currentPageIndex = 0;
+                    } else {
+                      // Só preços/títulos mudaram: atualiza células sem piscar
+                      atualizarPrecos(novosItens.slice(0, maxItems));
+                    }
+                  }
+                } catch (e) {
+                  console.warn("[POLL] Erro ao atualizar dados:", e);
+                }
+              });
+            });
+          }, pollInterval);
+
+          // finished() apenas após displayDuration — sem reload, sem flash
+          setTimeout(function () { finalizarLoader(); }, displayDuration);
+
+        } catch (error) {
+          proximaTentativaOuDesistir("exceção: " + (error && error.message ? error.message : error));
+        }
+      }, function () {
+        proximaTentativaOuDesistir("falha no load()");
       });
     });
   }
