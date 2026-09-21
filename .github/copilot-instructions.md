@@ -7,6 +7,8 @@ Sistema de templates HTML para Digital Signage via EdgeContents CMS. Android 7+ 
 - **NUNCA** `git commit` sem permissão explícita
 - **NUNCA** `npm run build` — use `npm run dev` (watch mode, compila automático)
 - **ES5 OBRIGATÓRIO** — zero tolerância para ES6+ (WebKit legado)
+- **Branch temática obrigatória** antes de qualquer edição — ver `.github/BRANCHING.md`
+- **Criação/manutenção de template**: seguir o briefing em `.github/skills/edgecontents-template-workflow/SKILL.md`
 
 ### 🔴 TESTE — URL OBRIGATÓRIA (NUNCA USAR file:///)
 
@@ -45,29 +47,32 @@ http://localhost:12099/FILES/1/index.html
 
 ### 📚 Docs de referência
 
-- `/docs/README.md` — índice geral
-- `/docs/02-xml-format.md` — estrutura XML/EBDATA
-- `/docs/05-api-reference.md` — API EBHTML
-- `/docs/04-troubleshooting.md` — debug
-- `.github/skills/ebhtml-api/SKILL.md` — skill completo da API EBHTML
-- `.github/skills/frontend-tailwind-golden-ratio/SKILL.md` — skill de layout/fontes
+- `docs/00-governanca-e-arquitetura.md` — global vs tenant, fontes de verdade
+- `docs/README.md` — índice geral
+- `.github/skills/ebhtml-api/SKILL.md` — API/ciclo de playlist EBHTML
+- `.github/skills/frontend-tailwind-golden-ratio/SKILL.md` — layout/tipografia responsiva
+- `.github/skills/edgecontents-template-workflow/SKILL.md` — briefing e workflow completo
 
 ---
 
 ## ⚠️ REGRAS CRÍTICAS (NUNCA VIOLAR)
 
-### 0. `ebhtml.js` — SEMPRE a versão 2.0.3, NUNCA reaproveitar de pasta antiga
+### 0. `ebhtml.js` — SEMPRE a versão canônica de `_template-base`, NUNCA reaproveitar de pasta antiga
 
-Incidente real (poder360_responsivo, 2026-08-14): layout novo foi criado em cima de uma pasta já existente que tinha um `ebhtml.js` antigo (9620 bytes, sem marcação de versão) em vez do canônico (24750 bytes, `// EBHTML version 2.0.3` no topo). Isso causou timeout/travamento em produção.
+Incidente real (poder360_responsivo, 2026-08-14): layout novo foi criado em cima de uma pasta já existente que tinha um `ebhtml.js` antigo (9620 bytes, sem marcação de versão) em vez do canônico. Isso causou timeout/travamento em produção.
+
+**Templates novos usam EBHTML 2.0.7** (`_template-base/js/ebhtml.js` é a fonte canônica local). Templates existentes na 2.0.3 migram individualmente, por branch própria (`chore/<tenant-template>-ebhtml-2.0.7`), com testes de regressão — nunca em substituição em massa.
 
 **Antes de codar QUALQUER template, novo ou em cima de pasta existente:**
-1. Abrir `js/ebhtml.js` do template e conferir a 2ª linha: precisa ser `// EBHTML version 2.0.3`. Se não tiver essa linha, ou o arquivo tiver menos de ~20KB, é versão antiga/errada.
+1. Abrir `js/ebhtml.js` do template e conferir a 2ª linha (`// EBHTML version X.X.X`) e o tamanho do arquivo contra `_template-base/js/ebhtml.js`. Divergência = versão antiga/errada.
 2. Se estiver errado, copiar o arquivo correto de `_template-base/js/ebhtml.js` (fonte canônica) — NUNCA editar/atualizar manualmente o `ebhtml.js`, ele é sempre substituído por cópia integral.
 3. Nunca criar um template novo reaproveitando a pasta de um template antigo sem antes checar essa versão — é a causa raiz mais provável desse tipo de erro.
 
 ```bash
-head -3 js/ebhtml.js   # deve mostrar "// EBHTML version 2.0.3" na linha 2
+head -3 js/ebhtml.js   # comparar com _template-base/js/ebhtml.js
 ```
+
+**Bug conhecido, ainda presente na 2.0.7 anexada:** em `EBBrowser.prototype.browserdata_checkloaded`, quando `nodataiserror = false` e o dataset retorna 0 itens, o código acessa `this.browser.nodataiserror` — mas `this` já é o `EBBrowser`; `this.browser` é `undefined`. A exceção resultante é engolida no `onreadystatechange` do XHR e **nem `loaded()` nem `finished()` disparam** — o item trava. Nunca editar `ebhtml.js` para corrigir isso; mitigar sempre com watchdog + retry no template (ver `.github/skills/ebhtml-api/SKILL.md` e referência em `andorinha-menuboard-semfim`).
 
 ### 1. Controle de Playlist EBHTML — `finished()` SEMPRE, sem exceção
 
@@ -288,7 +293,7 @@ ffmpeg -i SRC.mp4 -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 \
 
 ## 📋 Checklist
 
-- [ ] `js/ebhtml.js` é a versão 2.0.3 (checar linha 2: `// EBHTML version 2.0.3`; se faltar ou arquivo <20KB, copiar de `_template-base/js/ebhtml.js`)
+- [ ] `js/ebhtml.js` idêntico ao canônico de `_template-base/js/ebhtml.js` (mesma versão/tamanho; 2.0.7 para templates novos)
 - [ ] ES5 — sem `let/const/arrow/template strings`
 - [ ] `loader.loaded()` após sucesso, `loader.finished()` sempre
 - [ ] `loader.load()` com 2º argumento (callback de erro) que também chama `finished()`

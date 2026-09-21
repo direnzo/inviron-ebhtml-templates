@@ -4,6 +4,7 @@ Indice oficial da documentacao ativa do workspace.
 
 ## Ordem de leitura
 
+0. 00-governanca-e-arquitetura.md — comece aqui: global vs tenant, fontes de verdade, versao do EBHTML
 1. 01-playbook-referencia.md
 2. 02-dados-ebhtml-rotacao.md
 3. 03-ui-markup-tailwind.md
@@ -11,9 +12,13 @@ Indice oficial da documentacao ativa do workspace.
 5. 05-performance-animacao-video.md
 6. 06-microfuncoes-reutilizaveis.md
 
-## Documento principal
+## Briefing e workflow de criacao/manutencao
 
-- ../features-list.md
+- ../.github/skills/edgecontents-template-workflow/SKILL.md
+
+## Documento historico (em consolidacao)
+
+- ../features-list.md — conteudo valido sendo absorvido pelos docs 00-06; em caso de conflito, os docs numerados e as skills prevalecem
 
 ## Legado arquivado
 
@@ -21,7 +26,7 @@ Indice oficial da documentacao ativa do workspace.
 
 ## Mapa por objetivo
 
-- Criar template novo: 01 + 02 + 03
-- Garantir preview funcional: 04
+- Criar template novo: 00 + 01 + 02 + 03 + briefing (workflow skill)
+- Garantir preview funcional (quando aplicavel): 04
 - Ajustar performance/hardware antigo: 05
 - Refatorar para composicao reutilizavel: 06

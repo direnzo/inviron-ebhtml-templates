@@ -1,53 +1,38 @@
-# EdgeContents Templates - Guia Atualizado
+# EdgeContents Templates — Repositorio Oficial
 
-Este workspace agora usa um modelo de documentacao consolidado com base no playbook oficial:
-- features-list.md
+Repositorio oficial de criacao, correcao e manutencao de templates para o EdgeContents CMS. Todo trabalho aqui existe para produzir um `.eh5` homologado, sem travamentos, interrupcoes, telas pretas ou dados desatualizados no sistema de playlists.
 
 Objetivo:
-- reduzir retrabalho
-- padronizar criacao/refatoracao de templates
-- garantir compatibilidade (ES5 + Chromium 78)
-- manter paridade entre runtime e preview
+- padronizar criacao/correcao de templates via briefing obrigatorio
+- separar claramente o que e global (nucleo reutilizavel) do que e especifico de tenant/cliente
+- garantir compatibilidade (ES5 + perfil de browser declarado por template)
+- manter o EBHTML sempre na versao canonica aprovada
+
+## Comece aqui
+
+1. docs/00-governanca-e-arquitetura.md — global vs tenant, fontes de verdade
+2. .github/BRANCHING.md — toda mudanca nasce em branch tematica
+3. .github/skills/edgecontents-template-workflow/SKILL.md — briefing e fluxo completo ate o `.eh5`
 
 ## Fonte de verdade
 
-Documento principal:
-- features-list.md
+- Regras universais: .github/copilot-instructions.md
+- API/ciclo de playlist EBHTML: .github/skills/ebhtml-api/SKILL.md
+- Layout/tipografia responsiva: .github/skills/frontend-tailwind-golden-ratio/SKILL.md
+- Playbook operacional: docs/README.md
 
-Documentacao operacional:
-- docs/README.md
-
-Documentacao legada arquivada:
-- archive/workspace-docs-legacy-2026-07-06/
+features-list.md e QUICKSTART.md sao material historico em consolidacao; em conflito, os documentos acima prevalecem.
 
 ## Regras criticas (resumo)
 
 1. ES5 obrigatorio.
-2. Baseline minimo: Chromium 78.
-3. loader.loaded() apenas em sucesso.
-4. loader.finished() sempre no runtime.
-5. preview.js obrigatorio com mesma logica funcional do runtime.
-6. Diferenca entre preview e runtime: apenas origem dos dados.
-7. Evitar localStorage para logica principal (dataset-first).
-8. Priorizar Tailwind raiz e HTML semantico.
-9. JS para dados/comportamento, nao para montar HTML inteiro por string.
-10. Micro funcoes reutilizaveis como base da arquitetura.
-
-## Estrutura de docs (nova)
-
-- docs/01-playbook-referencia.md
-- docs/02-dados-ebhtml-rotacao.md
-- docs/03-ui-markup-tailwind.md
-- docs/04-preview-paridade.md
-- docs/05-performance-animacao-video.md
-- docs/06-microfuncoes-reutilizaveis.md
-
-## Inicio rapido
-
-Ver:
-- QUICKSTART.md
+2. `ebhtml.js` sempre copiado integralmente de `_template-base/js/ebhtml.js` (EBHTML 2.0.7 para templates novos) — nunca editado manualmente.
+3. `loader.loaded()` apenas em sucesso; `loader.finished()` sempre, exatamente uma vez por ciclo.
+4. Teste sempre em http://localhost:12099/FILES/1/index.html — nunca file:///.
+5. Branch tematica obrigatoria antes de qualquer edicao.
+6. Preview, `localStorage` e hardware fraco sao decisoes de briefing por template, nao regras universais (ver docs/00).
+7. Tipografia com autofit dentro de containers, limites definidos e sem loop sem limite.
 
 ## Contribuicao
 
-Ver:
-- CONTRIBUTING.md
+Ver CONTRIBUTING.md.
