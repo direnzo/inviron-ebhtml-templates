@@ -1,5 +1,5 @@
 //
-// EBHTML version 2.0.3
+// EBHTML version 2.0.7
 //
 window.ebhtml = (function() {
     var EBBrowser_defconfig = {
@@ -236,6 +236,23 @@ window.ebhtml = (function() {
         this.config.log('[resettimeout '+timeout+']');
     };
 
+    EBBrowser.prototype.changeVolume = function(volume)
+    {
+        volume = typeof volume != 'undefined' ? volume : "";
+
+        this.interface.ebchangevolume(volume);
+        this.config.log('[changevolume '+volume+']');
+    };
+
+    EBBrowser.prototype.speak = function(text)
+    {
+        text = typeof text != 'undefined' ? text : "";
+
+        this.interface.ebspeak(text);
+        this.config.log('[speak '+text+']');
+    };
+
+
     EBBrowser.prototype.getQueryParams = function (qs) {
 
         qs = qs.split('+').join(' ');
@@ -373,14 +390,42 @@ window.ebhtml = (function() {
         {
             if (request.readyState === READYSTATE_COMPLETE)
             {
-                
-                if (request.status === 200 && request.responseXML != undefined)
+                if (request.status === 200)
                 {
-                    curebdata.XMLLoaded(request.responseXML);
-                }
-                else if(request.status === 200 && request.responseText != undefined && request.responseText != '')
-                {
-                    curebdata.XMLLoaded( parser.parseFromString(request.responseText.trim(), "text/xml") );
+                    var responseText = request.responseText != undefined ? request.responseText.trim() : '';
+
+                    // Prefer explicit JSON payloads before XML parsing fallback.
+                    if (responseText !== '')
+                    {
+                        var contentType = request.getResponseHeader('Content-Type') || '';
+                        if (contentType.toLowerCase().indexOf('application/json') !== -1 ||
+                            responseText.charAt(0) === '{' || responseText.charAt(0) === '[')
+                        {
+                            try
+                            {
+                                curebdata.JSONLoaded(JSON.parse(responseText));
+                                return;
+                            }
+                            catch (e)
+                            {
+                                curebdata.XMLError('Invalid JSON response');
+                                return;
+                            }
+                        }
+                    }
+
+                    if (request.responseXML != undefined)
+                    {
+                        curebdata.XMLLoaded(request.responseXML);
+                    }
+                    else if (responseText !== '')
+                    {
+                        curebdata.XMLLoaded(parser.parseFromString(responseText, "text/xml"));
+                    }
+                    else
+                    {
+                        curebdata.XMLError('Empty response body');
+                    }
                 }
                 else
                 {
@@ -468,6 +513,76 @@ window.ebhtml = (function() {
             this.browser.log(this.f_items.length + ' XML records');
 
             // call browser
+            this.browser.browserdata_loaded(this);
+        }
+    };
+
+    EBBrowserData.prototype.JSONLoaded = function(AJSON)
+    {
+        var i;
+
+        // Accept either an array payload or an object containing a list-like field.
+        var records = [];
+        if (Object.prototype.toString.call(AJSON) === '[object Array]')
+        {
+            records = AJSON;
+        }
+        else if (AJSON && Object.prototype.toString.call(AJSON) === '[object Object]')
+        {
+            if (Object.prototype.toString.call(AJSON.data) === '[object Array]')
+                records = AJSON.data;
+            else if (Object.prototype.toString.call(AJSON.items) === '[object Array]')
+                records = AJSON.items;
+            else
+                records = [AJSON];
+        }
+
+        for (i = 0; i < records.length; i++)
+        {
+            if (records[i] && Object.prototype.toString.call(records[i]) === '[object Object]')
+            {
+                var item = new EBBrowserDataItem(this);
+                for (var key in records[i])
+                {
+                    if (Object.prototype.hasOwnProperty.call(records[i], key))
+                    {
+                        var value = records[i][key];
+                        if (value === null || typeof value === 'undefined')
+                            value = '';
+                        else if (typeof value === 'object')
+                            value = JSON.stringify(value);
+                        else
+                            value = value.toString();
+
+                        item.setValue(key, this.processString(value));
+                    }
+                }
+                this.add(item);
+            }
+        }
+
+        this.isloaded = true;
+
+        if (this.required && this.f_items.length <= 0)
+        {
+            if (this.browser.nodataiserror)
+            {
+                this.iserror = true;
+                this.errorObject = 'No data found to be loaded';
+                this.browser.browserdata_error(this, this.errorObject);
+            }
+            else
+            {
+                this.browser.log('No data found to be loaded');
+                this.browser.finished();
+            }
+        }
+        else
+        {
+            this.iserror = false;
+            this.errorObject = null;
+
+            this.browser.log(this.f_items.length + ' JSON records');
             this.browser.browserdata_loaded(this);
         }
     };
@@ -565,8 +680,7 @@ window.ebhtml = (function() {
 
     EBBrowserDataItemValue.prototype.toInt = function()
     {
-        // TODO convert to int
-        return this.value;
+        return parseInt(this.value);
     };
 
     EBBrowserDataItemValue.prototype.formatDatetime = function()
@@ -767,6 +881,12 @@ window.ebhtml = (function() {
         },
         ebresettimeout: function(timeout) {
             //console.log('--EBRESETTIMEOUT: '+timeout);
+        },
+        ebchangevolume: function(volume) {
+            //console.log('--EBCHANGEVOLUME: '+volume);
+        },
+        ebspeak: function(text) {
+            //console.log('--EBSPEAK: '+text);
         }
     };
 
@@ -784,7 +904,7 @@ window.ebhtml = (function() {
         eberror: function(message) {
 
             if(window.frameElement) {
-                window.frameElement.dispatchEvent(new CustomEvent('@EBERROR', {message: message} ));
+                window.frameElement.dispatchEvent(new CustomEvent('@EBERROR', {detail: {message: message}}));
             } else {
                 parent.postMessage('@EBERROR '+message, '*');
             }
@@ -792,7 +912,7 @@ window.ebhtml = (function() {
         eblog: function(message) {
 
             if(window.frameElement) {
-                window.frameElement.dispatchEvent(new CustomEvent('@EBLOG', {message: message} ));
+                window.frameElement.dispatchEvent(new CustomEvent('@EBLOG', {detail: {message: message}}));
             } else {
                 parent.postMessage('@EBLOG '+message, '*');
             }
@@ -824,9 +944,25 @@ window.ebhtml = (function() {
         ebresettimeout: function(timeout) {
 
             if(window.frameElement) {
-                window.frameElement.dispatchEvent(new CustomEvent('@EBRESETTIMEOUT', {timeout: timeout}));
+                window.frameElement.dispatchEvent(new CustomEvent('@EBRESETTIMEOUT', {detail: {timeout: timeout}}));
             } else {
                 parent.postMessage('@EBRESETTIMEOUT ', '*');
+            }
+        },
+        ebchangevolume: function(volume) {
+
+            if(window.frameElement) {
+                window.frameElement.dispatchEvent(new CustomEvent('@EBCHANGEVOLUME', {detail: {volume: volume}}));
+            } else {
+                parent.postMessage('@EBCHANGEVOLUME '+volume, '*');
+            }
+        },
+        ebspeak: function(text) {
+
+            if(window.frameElement) {
+                window.frameElement.dispatchEvent(new CustomEvent('@EBSPEAK', {detail: {text: text}}));
+            } else {
+                parent.postMessage('@EBSPEAK '+text, '*');
             }
         },
     };
