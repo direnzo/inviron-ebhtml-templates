@@ -57,17 +57,22 @@
 
   <!-- Rodapé dinâmico -->
   <div class="absolute bottom-0 portrait:bottom-[30px] left-0 w-full pointer-events-none">
-    <!-- Landscape: rodapé com badge centralizado e frase à direita -->
-    <div class="landscape:flex portrait:hidden h-[9vh] w-full items-center">
-      <div class="flex-1"></div>
-      <div id="badge-categoria" class="hidden items-center justify-center">
+    <!-- Landscape: badges alinhados abaixo das respectivas colunas -->
+    <div class="landscape:flex portrait:hidden h-[0vh] w-full items-center landscape:gap-8 landscape:-translate-y-[4vh]">
+      <div id="badge-categoria" class="hidden flex-1 items-center justify-center">
         <div id="badge-inner" class="rounded-[1.5vh] px-[3.5vw] py-[0.8vh]">
           <span id="texto-badge" class="font-futura-bold text-[4vmin] leading-none tracking-widest"></span>
         </div>
       </div>
-      <div class="flex-1 flex justify-end pr-[3vw]">
-        <span class="text-white text-[2.8vmin] font-futura-bold">Produtos a granel expostos diariamente</span>
+      <div class="w-[6px] shrink-0"></div>
+      <div id="badge-categoria-suinos" class="hidden flex-1 items-center justify-center">
+        <div id="badge-inner-suinos" class="rounded-[1.5vh] px-[3.5vw] py-[0.8vh] bg-[#e7de43]">
+          <span id="texto-badge-suinos" class="font-futura-bold text-[3.2vmin] leading-none tracking-widest text-blue-900"></span>
+        </div>
       </div>
+    </div>
+    <div class="landscape:flex portrait:hidden h-[3vh] w-full items-center justify-center max-w-[20vw] text-center mx-auto mb-[3vh]">
+      <span class="text-white text-[2.8vmin] font-futura-bold">Produtos a granel expostos diariamente</span>
     </div>
     <!-- Portrait: card ml — preenchido via JS para menuboard_bebidas e menuboard_bebidas_269 -->
     <div id="card-ml" class="landscape:hidden hidden h-[8vh] w-full items-center justify-center">

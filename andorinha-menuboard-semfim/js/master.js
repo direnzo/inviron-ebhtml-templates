@@ -74,6 +74,8 @@ document.addEventListener("DOMContentLoaded", function () {
   var badgeEl = document.getElementById("badge-categoria");
   var badgeInner = document.getElementById("badge-inner");
   var textoBadge = document.getElementById("texto-badge");
+  var badgeSuinosEl = document.getElementById("badge-categoria-suinos");
+  var textoBadgeSuinos = document.getElementById("texto-badge-suinos");
   if (badgeEl && badgeInner && textoBadge) {
     if (selectedCategory === "menuboard_acougue_ouro") {
       textoBadge.textContent = "OURO";
@@ -88,6 +90,11 @@ document.addEventListener("DOMContentLoaded", function () {
       badgeEl.classList.remove("hidden");
       badgeEl.classList.add("flex");
     }
+  }
+  if (badgeSuinosEl && textoBadgeSuinos && selectedCategory === "menuboard_acougue_ouro") {
+    textoBadgeSuinos.textContent = "CARNE SUÍNA";
+    badgeSuinosEl.classList.remove("hidden");
+    badgeSuinosEl.classList.add("flex");
   }
 
   // ─── Café/Leite portrait: sem badge → reduz padding inferior para caber 10 itens
@@ -114,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function getMaxItems() {
-    if (isLandscape()) return 20;
+    if (isLandscape()) return modoDuplo ? 18 : 20;
     // row h-[140px] + gap-4(16px) + mb-3(12px) entre linhas = 168px/linha
     var bodyStyle = window.getComputedStyle(body);
     var pt = parseFloat(bodyStyle.paddingTop) || 0;
@@ -149,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Calcula com 10 slots fixos sobre a altura DISPONÍVEL do viewport
     // Garante fonte idêntica independente de quantos itens são exibidos
-    var MAX_LINHAS = 10;
+    var MAX_LINHAS = modoDuplo ? 9 : 10;
     var gap = 16; // gap-4 = 1rem = 16px
     var bodyStyle = window.getComputedStyle(body);
     var paddingTop = parseFloat(bodyStyle.paddingTop) || 0;
@@ -655,8 +662,8 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
           if (modoDuplo) {
             console.log("[INFO] Modo duplo: " + selectedCategory + " (coluna 1) + " + categoriaSecundaria + " (coluna 2)");
-            iniciarColuna(selectedCategory, contentRowsContainer, true, 10);
-            iniciarColuna(categoriaSecundaria, contentRowsContainer2, false, 10);
+            iniciarColuna(selectedCategory, contentRowsContainer, true, 9);
+            iniciarColuna(categoriaSecundaria, contentRowsContainer2, false, 9);
             return;
           }
 

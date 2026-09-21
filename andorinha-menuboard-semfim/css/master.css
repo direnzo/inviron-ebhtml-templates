@@ -677,6 +677,11 @@ video {
   margin-right: 1.25rem;
 }
 
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .mb-3 {
   margin-bottom: 0.75rem;
 }
@@ -707,6 +712,10 @@ video {
 
 .mt-\[10px\] {
   margin-top: 10px;
+}
+
+.mb-\[3vh\] {
+  margin-bottom: 3vh;
 }
 
 .block {
@@ -748,6 +757,14 @@ video {
 
 .h-full {
   height: 100%;
+}
+
+.h-\[3vh\] {
+  height: 3vh;
+}
+
+.h-\[0vh\] {
+  height: 0vh;
 }
 
 .max-h-full {
@@ -798,16 +815,12 @@ video {
   width: 20rem;
 }
 
-.w-\[2px\] {
-  width: 2px;
+.w-\[6px\] {
+  width: 6px;
 }
 
 .w-full {
   width: 100%;
-}
-
-.w-\[6px\] {
-  width: 6px;
 }
 
 .min-w-0 {
@@ -818,8 +831,24 @@ video {
   min-width: 15rem;
 }
 
+.max-w-\[30vw\] {
+  max-width: 30vw;
+}
+
+.max-w-\[20vw\] {
+  max-width: 20vw;
+}
+
 .flex-1 {
   flex: 1 1 0%;
+}
+
+.flex-shrink {
+  flex-shrink: 1;
+}
+
+.shrink-0 {
+  flex-shrink: 0;
 }
 
 .border-collapse {
@@ -1006,6 +1035,11 @@ video {
   border-color: rgb(209 213 219 / var(--tw-border-opacity, 1));
 }
 
+.bg-\[\#2563eb\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(37 99 235 / var(--tw-bg-opacity, 1));
+}
+
 .bg-\[\#e7de43\] {
   --tw-bg-opacity: 1;
   background-color: rgb(231 222 67 / var(--tw-bg-opacity, 1));
@@ -1059,15 +1093,6 @@ video {
 .bg-white {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
-}
-
-.bg-white\/30 {
-  background-color: rgb(255 255 255 / 0.3);
-}
-
-.bg-\[\#2563eb\] {
-  --tw-bg-opacity: 1;
-  background-color: rgb(37 99 235 / var(--tw-bg-opacity, 1));
 }
 
 .bg-opacity-50 {
@@ -1179,10 +1204,6 @@ video {
   padding-bottom: 1vh;
 }
 
-.pr-\[3vw\] {
-  padding-right: 3vw;
-}
-
 .ps-10 {
   padding-inline-start: 2.5rem;
 }
@@ -1226,8 +1247,8 @@ video {
   font-size: 0.70em;
 }
 
-.text-\[2\.8vmin\] {
-  font-size: 2.8vmin;
+.text-\[3\.2vmin\] {
+  font-size: 3.2vmin;
 }
 
 .text-\[4vmin\] {
@@ -1246,6 +1267,10 @@ video {
 .text-lg {
   font-size: 1.125rem;
   line-height: 1.75rem;
+}
+
+.text-\[2\.8vmin\] {
+  font-size: 2.8vmin;
 }
 
 .font-bold {
@@ -1668,6 +1693,11 @@ video {
 
   .landscape\:min-w-\[6vw\] {
     min-width: 6vw;
+  }
+
+  .landscape\:-translate-y-\[4vh\] {
+    --tw-translate-y: -4vh;
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
   }
 
   .landscape\:flex-row {
