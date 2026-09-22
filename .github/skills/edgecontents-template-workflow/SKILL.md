@@ -58,7 +58,7 @@ Ver separação global/tenant em `docs/00-governanca-e-arquitetura.md` antes de 
 - Body nunca oculto por inteiro — só o container de dados dinâmicos.
 - SVG sempre injetado inline via XHR.
 - Tipografia: escala base em `vmin` no body, `em`/`%` nos filhos; autofit por busca binária limitada (7-10 medições), nunca loop decremental sem limite; medir com o elemento em `opacity:0`, nunca `display:none`; definir tamanho mínimo e política de overflow/truncamento explícita; recalcular no resize com debounce.
-- Hardware fraco, preview e `localStorage`: aplicar somente quando o briefing indicou necessidade real (ver `docs/00-governanca-e-arquitetura.md`).
+- Hardware fraco, preview e `localStorage`: aplicar somente quando o briefing indicou necessidade real (ver `docs/00-governanca-e-arquitetura.md`). Retry de loader não é universal: em conteúdo opcional ou ausente, erro/vazio/timeout deve chamar `finished()` e liberar o próximo item; retry limitado só cabe quando o briefing confirma que os dados deveriam existir e a falha transitória é recuperável.
 
 ## 4. Gates — nada é "concluído" sem isto
 
@@ -87,7 +87,7 @@ Ver separação global/tenant em `docs/00-governanca-e-arquitetura.md` antes de 
 - [ ] EBHTML == `_template-base` (2.0.7 para templates novos)
 - [ ] ES5 sem regressão
 - [ ] `loaded()/finished()` corretos em todos os caminhos, incluindo erro e exceção
-- [ ] Watchdog/retry presentes onde aplicável
+- [ ] Watchdog presente; retry somente quando a recuperação de dados estiver justificada no briefing
 - [ ] Body visível; só dados dinâmicos ocultos durante carregamento
 - [ ] SVG inline via XHR
 - [ ] Tipografia com autofit e limites definidos

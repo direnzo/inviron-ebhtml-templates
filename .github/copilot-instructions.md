@@ -72,7 +72,7 @@ Incidente real (poder360_responsivo, 2026-08-14): layout novo foi criado em cima
 head -3 js/ebhtml.js   # comparar com _template-base/js/ebhtml.js
 ```
 
-**Bug conhecido, ainda presente na 2.0.7 anexada:** em `EBBrowser.prototype.browserdata_checkloaded`, quando `nodataiserror = false` e o dataset retorna 0 itens, o código acessa `this.browser.nodataiserror` — mas `this` já é o `EBBrowser`; `this.browser` é `undefined`. A exceção resultante é engolida no `onreadystatechange` do XHR e **nem `loaded()` nem `finished()` disparam** — o item trava. Nunca editar `ebhtml.js` para corrigir isso; mitigar sempre com watchdog + retry no template (ver `.github/skills/ebhtml-api/SKILL.md` e referência em `andorinha-menuboard-semfim`).
+**Bug conhecido, ainda presente na 2.0.7 anexada:** em `EBBrowser.prototype.browserdata_checkloaded`, quando `nodataiserror = false` e o dataset obrigatório retorna 0 itens, o código acessa `this.browser.nodataiserror` — mas `this` já é o `EBBrowser`; `this.browser` é `undefined`. A exceção resultante pode ser engolida no `onreadystatechange` do XHR e impedir callbacks. Nunca editar `ebhtml.js` para corrigir isso. Mitigar com watchdog; usar retry somente quando o briefing confirmar que os dados deveriam existir e a falha é recuperável. Se o conteúdo for opcional, vazio ou inválido, chamar `finished()` diretamente para liberar o próximo item (ver `.github/skills/ebhtml-api/SKILL.md`).
 
 ### 1. Controle de Playlist EBHTML — `finished()` SEMPRE, sem exceção
 

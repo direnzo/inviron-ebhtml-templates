@@ -295,7 +295,7 @@ Em `EBBrowser.prototype.browserdata_checkloaded`, no ramo de "dataset obrigatór
 
 Nunca editar `ebhtml.js` para corrigir isso (regra do repositório: cópia integral, sem patch manual). Mitigar sempre no template:
 - Watchdog curto (~4-8s) por tentativa de `loader.load()`.
-- Retry automático (recriar o loader, ~3 tentativas extras, delay curto ~500ms) antes de desistir de vez — o bug costuma ser transitório; os dados geralmente existem no servidor.
+- Retry automático (recriar o loader, ~3 tentativas extras, delay curto ~500ms) **somente quando o briefing confirmar que os dados deveriam existir e a falha é recuperável**. Para dataset opcional, conteúdo vazio ou item sem dados válidos, chamar `finished()` diretamente para liberar o próximo item da playlist.
 - Referência de implementação testada: `andorinha-menuboard-semfim/js/master.js` (função de retry com watchdog cobrindo essa falha silenciosa).
 
 ### Outros métodos de comunicação:
