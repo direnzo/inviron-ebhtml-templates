@@ -1,104 +1,186 @@
-function renderDica(titleEl, textEl, imageEl, item) {
-    titleEl.textContent = item.value('TITULO').value.toUpperCase();
-    textEl.textContent  = item.value('TEXTO').value;
-    imageEl.src         = item.value('FOTO').value;
-        
+var DATASET = 'D_PERSONARE';
+var DISPLAY_DURATION_MS = 10000;
+var LOAD_TIMEOUT_MS = 4000;
+var IMAGE_TIMEOUT_MS = 6000;
+var HARDWARE_FRACO = false;
+
+(function () {
+    if (window.location.search.indexOf('hwfraco=1') !== -1) { HARDWARE_FRACO = true; return; }
+    if (navigator.userAgent.indexOf('Android') !== -1) { HARDWARE_FRACO = true; return; }
+    if (navigator.deviceMemory && navigator.deviceMemory <= 1) { HARDWARE_FRACO = true; return; }
+    if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) { HARDWARE_FRACO = true; }
+}());
+
+function getField(item, fieldName) {
+    if (!item || typeof item.value !== 'function') { return ''; }
+    try {
+        var field = item.value(fieldName);
+        return field && typeof field.value !== 'undefined' && field.value !== null ? String(field.value) : '';
+    } catch (error) {
+        return '';
+    }
 }
 
-function renderDicaMock(titleEl, textEl, imageEl, dado) {
-    titleEl.textContent = dado.TITULO.toUpperCase();
-    textEl.textContent  = dado.TEXTO;
-    imageEl.src         = dado.FOTO;
-
-
-}
-var autoSizeText;
-
-autoSizeText = function() {
-  var el, elements, _i, _len, _results;
-  elements = document.getElementsByClassName('resize');
-  console.log(elements);
-  if (elements.length < 0) {
-    return;
-  }
-  _results = [];
-  for (_i = 0, _len = elements.length; _i < _len; _i++) {
-    el = elements[_i];
-    _results.push((function(el) {
-      var resizeText, _results1;
-      resizeText = function() {
-        var elNewFontSize;
-        elNewFontSize = (parseInt(window.getComputedStyle(el).fontSize.slice(0, -2)) - 1) + 'px';
-        el.style.fontSize = elNewFontSize;
-      };
-      _results1 = [];
-      while (el.scrollHeight > el.offsetHeight) {
-        _results1.push(resizeText());
-      }
-       return _results1;
-    })(el));
-  }
-  return _results;
-};
-
-
-function iniciarTemplate(config, imageEl, loader) {
-    var body = document.querySelector('body');
-
-    imageEl.onload = function () {
-        body.classList.remove('opacity-0');
-        body.classList.add('opacity-100');
-
-        loader.loaded();
-
-        setTimeout(function () {
-            loader.finished();
-        }, config.duration);
+function normalizeItem(item) {
+    return {
+        title: getField(item, 'TITULO'),
+        text: getField(item, 'TEXTO'),
+        image: getField(item, 'FOTO')
     };
+}
 
-    imageEl.onerror = function () {
-        console.error('[dicas] Erro ao carregar imagem.');
+function fitText(element, container, minEm, maxEm) {
+    if (!element || !container || !element.textContent) { return; }
+
+    var low = minEm;
+    var high = maxEm;
+    var best = minEm;
+    var attempt;
+
+    for (attempt = 0; attempt < 9; attempt++) {
+        var current = (low + high) / 2;
+        element.style.fontSize = current + 'em';
+        if (element.scrollHeight <= container.clientHeight && element.scrollWidth <= container.clientWidth) {
+            best = current;
+            low = current;
+        } else {
+            high = current;
+        }
+    }
+
+    element.style.fontSize = best.toFixed(3) + 'em';
+}
+
+function fitContent() {
+    fitText(document.querySelector('#titulo p'), document.getElementById('titulo'), 0.85, 1.65);
+    fitText(document.getElementById('texto'), document.getElementById('texto-container'), 0.58, 1.08);
+}
+
+function renderContent(data) {
+    var titleElement = document.querySelector('#titulo p');
+    var textElement = document.getElementById('texto');
+
+    titleElement.textContent = data.title ? data.title.toUpperCase() : '';
+    textElement.textContent = data.text || '';
+    fitContent();
+}
+
+function startTemplate(data, loader, duration) {
+    var shell = document.getElementById('conteudo-dinamico');
+    var image = document.getElementById('imagem');
+    var settled = false;
+    var finished = false;
+    var imageWatchdog = null;
+
+    function finish() {
+        if (finished) { return; }
+        finished = true;
         loader.finished();
-    };
-}
+    }
 
+    function reveal() {
+        if (settled) { return; }
+        settled = true;
+        if (imageWatchdog) { clearTimeout(imageWatchdog); }
+        shell.classList.remove('opacity-0');
+        shell.classList.add('opacity-100');
+        fitContent();
+        loader.loaded();
+        setTimeout(finish, duration);
+    }
 
-window.onload = function () {
-    var titleEl = document.querySelector('#titulo p');
-    var textEl  = document.querySelector('#texto');
-    var imageEl = document.getElementById('imagem');
+    function failImage() {
+        if (settled) { return; }
+        settled = true;
+        if (imageWatchdog) { clearTimeout(imageWatchdog); }
+        console.error('[personare_dicas] Imagem indisponivel.');
+        finish();
+    }
 
-    if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
-        var mockLoader = {
-            loaded:   function () { console.log('[Mock] loaded()'); },
-            finished: function () { console.log('[Mock] finished()'); }
-        };
-        renderDicaMock(titleEl, textEl, imageEl, MOCK_DATA.dados[0]);
-        iniciarTemplate(MOCK_DATA.config, imageEl, mockLoader);
+    renderContent(data);
+
+    if (!data.image) {
+        failImage();
         return;
     }
 
+    image.onload = reveal;
+    image.onerror = failImage;
+    imageWatchdog = setTimeout(failImage, IMAGE_TIMEOUT_MS);
+    image.src = data.image;
+}
+
+function loadRuntime() {
     ebhtml.create2({}, function (loader) {
-        loader.addData('D_PERSONARE', false);
+        var resolved = false;
+        var watchdog = null;
+
+        function finishWithError(reason) {
+            if (resolved) { return; }
+            resolved = true;
+            if (watchdog) { clearTimeout(watchdog); }
+            console.warn('[personare_dicas] ' + reason + '; liberando o proximo item.');
+            loader.finished();
+        }
+
+        loader.addData(DATASET, false);
         loader.autoloaded = false;
         loader.nodataiserror = false;
+        watchdog = setTimeout(function () { finishWithError('timeout do canal ' + DATASET); }, LOAD_TIMEOUT_MS);
 
         loader.load(function () {
-            var item = loader.data('D_PERSONARE');
+            if (resolved) { return; }
+            if (watchdog) { clearTimeout(watchdog); }
 
-            if (item == undefined) {
-                console.error('[dicas] Sem dados.');
-                loader.finished();
-                return;
+            try {
+                var item = loader.data(DATASET);
+                if (!item) {
+                    finishWithError('canal sem item');
+                    return;
+                }
+
+                var data = normalizeItem(item);
+                if (!data.title || !data.text || !data.image) {
+                    finishWithError('campos obrigatorios ausentes');
+                    return;
+                }
+
+                startTemplate(data, loader, DISPLAY_DURATION_MS);
+                resolved = true;
+            } catch (error) {
+                finishWithError('excecao no processamento: ' + (error && error.message ? error.message : error));
             }
-
-            renderDica(titleEl, textEl, imageEl, item);
-            iniciarTemplate({ duration: 10000 }, imageEl, loader);
-
-             return autoSizeText();
-       
-
-
+        }, function () {
+            finishWithError('falha no loader.load()');
         });
     });
+}
+
+window.onload = function () {
+    var resizeTimer = null;
+
+    if (HARDWARE_FRACO) {
+        document.body.classList.add('hardware-fraco');
+    }
+
+    window.onresize = function () {
+        if (resizeTimer) { clearTimeout(resizeTimer); }
+        resizeTimer = setTimeout(fitContent, 120);
+    };
+
+    if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
+        var mockLoader = {
+            loaded: function () { console.log('[Mock] loaded()'); },
+            finished: function () { console.log('[Mock] finished()'); }
+        };
+        var mockItem = MOCK_DATA.dados[0] || {};
+        startTemplate({
+            title: mockItem.TITULO || '',
+            text: mockItem.TEXTO || '',
+            image: mockItem.FOTO || ''
+        }, mockLoader, MOCK_DATA.config.duration || DISPLAY_DURATION_MS);
+        return;
+    }
+
+    loadRuntime();
 };
