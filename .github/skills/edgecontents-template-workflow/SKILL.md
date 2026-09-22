@@ -11,6 +11,15 @@ Orquestrar o ciclo completo de um template EdgeContents: briefing -> branch tem�
 
 Ver separação global/tenant em `docs/00-governanca-e-arquitetura.md` antes de classificar qualquer decisão.
 
+## Estrutura manual dos templates
+
+- `_template-base/` permanece canônico na raiz e é a única fonte para copiar a base executável.
+- `GLOBAL/<template>/` recebe templates reutilizáveis ou sem tenant definido.
+- `CLIENTES/<TENANT>/<template>/` recebe templates específicos de cliente.
+- `sandbox/`, `_EH5/` e `archive/` permanecem em suas pastas atuais.
+
+Classificar o template antes de implementar. Esta regra não exige mover templates existentes; qualquer migração de pasta deve ser uma tarefa explícita e independente.
+
 ## 0. Antes de qualquer edição
 
 1. Confirmar branch atual e alterações pendentes. Se houver mudanças de outro tema no working tree, não descartar — sinalizar e manter fora do escopo desta branch.
