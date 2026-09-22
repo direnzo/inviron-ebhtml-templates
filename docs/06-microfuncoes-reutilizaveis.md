@@ -408,8 +408,7 @@ Objetivo:
 - usar a mesma pipeline de render do runtime no preview
 - mudar apenas a origem dos dados (formulario/browser)
 
-Regra obrigatoria:
-- todo template deve ter preview.js
+Quando o briefing exigir preview:
 - preview.js nao deve duplicar regra de negocio do master.js
 
 ### getPreviewLoader(realLoader)
@@ -558,6 +557,6 @@ Todo agent deve:
 - explicar microfuncoes novas propostas
 - justificar por que sao genericas
 - evitar montagem integral de HTML via JS
-- entregar preview.js com paridade funcional ao runtime
+- entregar preview.js com paridade funcional ao runtime quando o briefing o exigir
 
-Esse documento complementa o playbook principal em features-list.md.
+Esse documento complementa `docs/01-playbook-referencia.md`.

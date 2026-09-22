@@ -21,7 +21,7 @@ Objetivo:
 - Layout/tipografia responsiva: .github/skills/frontend-tailwind-golden-ratio/SKILL.md
 - Playbook operacional: docs/README.md
 
-features-list.md e QUICKSTART.md sao material historico em consolidacao; em conflito, os documentos acima prevalecem.
+Os resumos legados ficam em `archive/`; em caso de conflito, os documentos acima prevalecem.
 
 ## Regras criticas (resumo)
 
