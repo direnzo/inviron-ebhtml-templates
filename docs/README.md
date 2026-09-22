@@ -16,13 +16,11 @@ Indice oficial da documentacao ativa do workspace.
 
 - ../.github/skills/edgecontents-template-workflow/SKILL.md
 
-## Documento historico (em consolidacao)
-
-- ../features-list.md — conteudo valido sendo absorvido pelos docs 00-06; em caso de conflito, os docs numerados e as skills prevalecem
-
 ## Legado arquivado
 
 - ../archive/workspace-docs-legacy-2026-07-06/
+- ../archive/features-list-legacy-2026-09-22.md
+- ../archive/QUICKSTART-legacy-2026-09-22.md
 
 ## Mapa por objetivo
 

@@ -29,7 +29,7 @@ Nunca usar dados, assets ou contratos privados de um cliente como exemplo em doc
 - Playbook operacional detalhado: `docs/01` a `docs/06` (ver [`docs/README.md`](README.md))
 - Templates de validação do fluxo (não são entrega de tenant): [`sandbox/README.md`](../sandbox/README.md)
 
-`features-list.md` e `QUICKSTART.md` continuam existindo como material histórico de consolidação; em caso de conflito, este documento e as skills acima prevalecem.
+Os resumos legados foram arquivados em `archive/`; em caso de conflito, este documento e as skills acima prevalecem.
 
 ## Regras não negociáveis (resumo)
 

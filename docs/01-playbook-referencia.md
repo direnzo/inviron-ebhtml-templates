@@ -4,7 +4,7 @@ Este documento resume as diretrizes obrigatorias do workspace.
 
 ## Regras nao negociaveis
 
-- `js/ebhtml.js` sempre na versao 2.0.3 (checar linha 2 do arquivo: `// EBHTML version 2.0.3`). Se a pasta do template for reaproveitada de um projeto antigo, o arquivo pode estar desatualizado — comparar com `_template-base/js/ebhtml.js` (fonte canonica) e substituir por copia integral se divergir. Detalhe: `.github/skills/ebhtml-api/SKILL.md`.
+- Templates novos usam `js/ebhtml.js` na versao 2.0.7. Se a pasta for reaproveitada de um projeto antigo, comparar o arquivo com `_template-base/js/ebhtml.js` (fonte canonica) e substituir por copia integral se divergir. Templates existentes migram individualmente, com regressao validada. Detalhe: `.github/skills/ebhtml-api/SKILL.md`.
 - ES5 obrigatorio.
 - Baseline minimo: Chromium 78.
 - Runtime: loaded apenas em sucesso e finished sempre.
@@ -12,7 +12,7 @@ Este documento resume as diretrizes obrigatorias do workspace.
   - handlers de imagem/midia (`onload`/`onerror`) sempre ANTES de setar `src` — WebKit legado pode disparar o evento antes do handler existir se a imagem estiver em cache.
   - todo template com midia assincrona precisa de um watchdog (`setTimeout`) que force `finished()` mesmo sem eventos.
   - detalhe completo e codigo de referencia: `.github/skills/ebhtml-api/SKILL.md` secao 6.
-- Preview: mesma logica do runtime, mudando so a origem dos dados.
+- Preview, quando exigido pelo briefing: mesma logica do runtime, mudando so a origem dos dados.
 - Evitar localStorage em regra principal (dataset-first).
 
 ## Arquitetura recomendada
@@ -38,8 +38,11 @@ Este documento resume as diretrizes obrigatorias do workspace.
 - visual
 - dados
 - performance
-- paridade preview/runtime
+- paridade preview/runtime, quando aplicavel
 
-## Fonte completa
+## Fontes complementares
 
-- ../features-list.md
+- `docs/02-dados-ebhtml-rotacao.md`
+- `docs/03-ui-markup-tailwind.md`
+- `docs/04-preview-paridade.md`, quando aplicavel
+- `docs/05-performance-animacao-video.md`, quando aplicavel

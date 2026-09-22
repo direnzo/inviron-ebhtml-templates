@@ -1,13 +1,12 @@
 # 04 - Preview.js com Paridade de Runtime
 
-## Regra principal
+## Decisão por briefing
 
-Todo template deve ter preview.js.
+`preview.js` só é necessário quando o CMS ou tenant exige pré-visualização configurável pela extranet. Quando aplicável, deve manter paridade com o runtime.
 
 ## Objetivo
 
-Preview deve se comportar igual ao runtime.
-A unica diferenca permitida e a origem dos dados.
+Preview deve se comportar igual ao runtime. A unica diferenca permitida é a origem dos dados e a supressão de `finished()` para manter a visualização ativa.
 
 ## Ordem de origem de dados no preview
 
