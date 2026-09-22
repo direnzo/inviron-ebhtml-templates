@@ -20,6 +20,13 @@ Ver separação global/tenant em `docs/00-governanca-e-arquitetura.md` antes de 
 
 Classificar o template antes de implementar. Esta regra não exige mover templates existentes; qualquer migração de pasta deve ser uma tarefa explícita e independente.
 
+## Toolchain local
+
+- Templates não armazenam `node_modules/` nem `package-lock.json`.
+- TailwindCSS é usado pela instalação global do workspace: os scripts devem chamar `tailwindcss` diretamente, sem `npx` e sem `devDependencies` locais.
+- Antes de iniciar o watcher, confirmar `Get-Command tailwindcss` ou `tailwindcss --version`. Se o comando global não existir, sinalizar o bloqueio; não executar `npm install` dentro da pasta do template.
+- O watcher permitido é `npm run dev`; não executar `npm run build` neste repositório.
+
 ## 0. Antes de qualquer edição
 
 1. Confirmar branch atual e alterações pendentes. Se houver mudanças de outro tema no working tree, não descartar — sinalizar e manter fora do escopo desta branch.
