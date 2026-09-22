@@ -1,5 +1,7 @@
 # Playbook Completo de Templates EdgeContents
 
+> 📚 **Material histórico em consolidação.** A fonte de verdade atual é `docs/00-governanca-e-arquitetura.md` + `docs/01-06` + `.github/skills/`. Em caso de conflito, os documentos numerados e as skills prevalecem sobre este arquivo.
+
 Objetivo deste documento:
 - consolidar o que funcionou no workspace
 - padronizar criacao, debug, analise e encerramento

@@ -1,10 +1,12 @@
 # Quickstart - Novo Padrao
 
+> 📚 Para o fluxo oficial completo (briefing, branch temática, gates, `.eh5`), use `.github/skills/edgecontents-template-workflow/SKILL.md`. Este arquivo é um resumo rápido, não a fonte de verdade.
+
 ## 1) Base do template
 
 1. Copie _template-base para uma nova pasta de template.
 2. Mantenha estrutura semantica no HTML.
-3. Crie preview.js desde o inicio.
+3. Crie preview.js desde o inicio, quando o template exigir preview/extranet.
 
 ## 2) Regras tecnicas minimas
 

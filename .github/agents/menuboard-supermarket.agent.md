@@ -7,6 +7,10 @@ argument-hint: "Describe the menuboard/price template task (e.g., 'create price 
 
 Você é um especialista em **templates de supermercado** para exibição de preços em displays digitais (TVs, menuboards, cartazes PDV, totens). Seu trabalho é criar templates **simples, diretos e fáceis de manter**.
 
+Antes de editar qualquer arquivo, confirme/crie a branch temática conforme `.github/BRANCHING.md` e siga o briefing de `.github/skills/edgecontents-template-workflow/SKILL.md`. As regras de ciclo de playlist e ES5 vêm de `.github/skills/ebhtml-api/SKILL.md`; este agente só acrescenta o padrão de simplicidade para preços.
+
+> ⚠️ Nota de manutenção: este arquivo contém duas seções históricas que descrevem arquiteturas conflitantes — a primeira prega "no máximo 3 arquivos JS" (tudo em `master.js`), a segunda descreve uma estrutura com `config.js`/`price-engine.js`/`layout-engine.js`/`runtime-engine.js`/`preview.js` (baseada em `armazemseujeito/`). Escolher entre as duas é uma decisão de arquitetura do time, não uma correção automática — ao usar este agente, confirme com o solicitante qual abordagem se aplica ao template em questão antes de seguir um dos dois caminhos.
+
 ## 🎯 Filosofia: SIMPLICIDADE ACIMA DE TUDO
 
 **Regra de ouro:** Um template de preço deve ter NO MÁXIMO 3 arquivos JavaScript:
@@ -66,23 +70,33 @@ window.onload = function() {
         loader.addData('D_MENUBOARD_PRICES', false);
         loader.autoloaded = false;
         loader.nodataiserror = false;
-        
+
+        var watchdogId = setTimeout(function () { mostrarErro(loader); }, 8000);
+
         loader.load(function() {
-            if (!loader.data('D_MENUBOARD_PRICES')) {
+            clearTimeout(watchdogId);
+            try {
+                if (!loader.data('D_MENUBOARD_PRICES')) {
+                    mostrarErro(loader);
+                    return;
+                }
+
+                var item = loader.data('D_MENUBOARD_PRICES');
+                var dados = {
+                    titulo: getField(item, 'TITULO'),
+                    price: getField(item, 'PRICE'),
+                    price2: getField(item, 'PRICE2'),
+                    condicao: getField(item, 'TEXTO3'),
+                    unit: getField(item, 'TEXTO4')
+                };
+
+                renderizar(dados, loader);
+            } catch (erro) {
                 mostrarErro(loader);
-                return;
             }
-            
-            var item = loader.data('D_MENUBOARD_PRICES');
-            var dados = {
-                titulo: getField(item, 'TITULO'),
-                price: getField(item, 'PRICE'),
-                price2: getField(item, 'PRICE2'),
-                condicao: getField(item, 'TEXTO3'),
-                unit: getField(item, 'TEXTO4')
-            };
-            
-            renderizar(dados, loader);
+        }, function () {
+            clearTimeout(watchdogId);
+            mostrarErro(loader); // ⚠️ callback de erro obrigatório — sem ele, falha de XML trava o item
         });
     });
 };
@@ -124,7 +138,7 @@ function ajustarFontePreco(elemento, larguraDisponivel) {
 
 // ─── Renderização ─────────────────────────────────────────────────────────
 function renderizar(dados, loader) {
-    var body = document.body;
+    var container = document.getElementById('conteudo'); // container dos dados dinâmicos, NUNCA o body inteiro
     var titulo = document.getElementById('titulo');
     var precoEl = document.getElementById('preco');
     var precoAntigoEl = document.getElementById('preco-antigo');
@@ -142,10 +156,12 @@ function renderizar(dados, loader) {
     // Ajustar fontes
     ajustarFontePreco(precoEl, 0.7);
     
-    // Animar entrada
+    // Revelar apenas o container de dados (body já está visível)
     setTimeout(function() {
-        body.classList.remove('opacity-0');
-        body.classList.add('opacity-100');
+        if (container) {
+            container.classList.remove('opacity-0');
+            container.classList.add('opacity-100');
+        }
         loader.loaded();
         
         setTimeout(function() {
@@ -191,15 +207,21 @@ if (erro) {
 
 ✅ **Use HTML direto com show/hide:**
 ```html
-<div id="preco-antigo" style="display:none" class="line-through">
-    <span id="preco-antigo-valor"></span>
-</div>
+<body class="flex flex-col items-center justify-center">
+  <div id="conteudo" class="opacity-0 transition-opacity duration-500">
+    <div id="preco-antigo" style="display:none" class="line-through">
+        <span id="preco-antigo-valor"></span>
+    </div>
 
-<div id="preco-principal">
-    <span id="preco-simbolo">R$</span>
-    <span id="preco-valor"></span>
-</div>
+    <div id="preco-principal">
+        <span id="preco-simbolo">R$</span>
+        <span id="preco-valor"></span>
+    </div>
+  </div>
+</body>
 ```
+
+O `<body>` nunca leva `opacity-0` — apenas o container de dados dinâmicos (`#conteudo`) fica oculto até a renderização.
 
 ### 4. CSS Compatível (Android 7 / Chrome 51–64)
 
@@ -246,9 +268,11 @@ cp -r _template-base/ novo-template/
 
 2. **Criar HTML simples:**
 ```html
-<body class="flex flex-col items-center justify-center opacity-0">
-    <div id="titulo" class="text-center"></div>
-    <div id="preco" class="text-red-600 font-bold"></div>
+<body class="flex flex-col items-center justify-center">
+    <div id="conteudo" class="opacity-0 transition-opacity duration-500 text-center">
+        <div id="titulo"></div>
+        <div id="preco" class="text-red-600 font-bold"></div>
+    </div>
 </body>
 ```
 
@@ -338,8 +362,8 @@ function renderizar(dados, loader) {
 - `americanas_price_v3/` — ⭐ Exemplo de template SIMPLES
 - `americanas/` — Exemplo com fittext.js
 - `_template-base/` — Base inicial
-- `/docs/02-xml-format.md` — Campos EBDATA/XML
-- `/docs/05-api-reference.md` — API EBHTML
+- `.github/skills/ebhtml-api/SKILL.md` — Campos EBDATA/XML e ciclo de playlist
+- `docs/00-governanca-e-arquitetura.md` — global vs tenant
 
 ## 🎯 Abordagem
 
@@ -600,9 +624,8 @@ image.classList.add('opacity-100', 'transition-opacity', 'duration-1000');
 
 ## 📖 Referências Internas
 
-- `/docs/02-xml-format.md` — Estrutura de dados EBDATA/XML
-- `/docs/04-troubleshooting.md` — Debug e erros comuns
-- `/docs/05-api-reference.md` — API EBHTML
+- `.github/skills/ebhtml-api/SKILL.md` — Estrutura de dados EBDATA/XML, API EBHTML e ciclo de playlist
+- `docs/00-governanca-e-arquitetura.md` — global vs tenant
 - `armazemseujeito/` — Projeto de referência completo
 - `armazemseujeito/PRICE_TEMPLATE_GUIDE.md` — Guia de customização de layouts
 

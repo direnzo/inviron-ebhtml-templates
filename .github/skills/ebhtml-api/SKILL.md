@@ -1,23 +1,25 @@
 ---
 name: ebhtml-api
-description: "Use when: coding EBHTML templates for EdgeContents CMS digital signage, including data loading with addData/parameters, playlist control (loaded/finished/error), XML data access via loader.data/datalist, parameter filtering (amount, f_ filters, order), and ES5-compatible patterns for legacy WebKit on Android 7+."
+description: "Use when: coding EBHTML templates for EdgeContents CMS digital signage, including data loading with addData/parameters, playlist control (loaded/finished/error), XML/JSON data access via loader.data/datalist, parameter filtering (amount, f_ filters, order), and ES5-compatible patterns for legacy WebKit on Android 7+."
 ---
 
-# EBHTML API v2.0.3 — Skill de Uso
+# EBHTML API v2.0.7 — Skill de Uso
 
 ## Purpose
-Guia completo para usar a biblioteca `ebhtml.js` em templates de Digital Signage do EdgeContents CMS. Cobre desde o carregamento de dados XML até o controle de playlist e passagem de parâmetros/filtros.
+Guia completo para usar a biblioteca `ebhtml.js` em templates de Digital Signage do EdgeContents CMS. Cobre desde o carregamento de dados XML/JSON até o controle de playlist e passagem de parâmetros/filtros.
 
 ## 🚨 Verificar a versão do `ebhtml.js` ANTES de mexer no template
 
-Incidente real (poder360_responsivo, 2026-08-14): um layout novo foi criado em cima de uma pasta já existente cujo `js/ebhtml.js` era uma versão antiga (9620 bytes, sem cabeçalho de versão) em vez da v2.0.3 (24750 bytes). Isso causou travamento/timeout em produção — comportamento silencioso, sem erro visível durante o desenvolvimento.
+Incidente real (poder360_responsivo, 2026-08-14): um layout novo foi criado em cima de uma pasta já existente cujo `js/ebhtml.js` era uma versão antiga (9620 bytes, sem cabeçalho de versão) em vez da canônica. Isso causou travamento/timeout em produção — comportamento silencioso, sem erro visível durante o desenvolvimento.
 
 **Sempre, ao abrir/criar qualquer template:**
 ```bash
 head -3 js/ebhtml.js
-# Correto: linha 2 = "// EBHTML version 2.0.3"
+# Comparar linha 2 e tamanho do arquivo com _template-base/js/ebhtml.js
 ```
-Se a linha não bater (ou o arquivo tiver bem menos de ~24KB), o `ebhtml.js` está desatualizado. Substituir pelo arquivo inteiro de `_template-base/js/ebhtml.js` (fonte canônica) — nunca editar manualmente, sempre cópia integral do arquivo.
+Se divergir do canônico local (`_template-base/js/ebhtml.js`, EBHTML 2.0.7), o arquivo está desatualizado. Substituir pelo arquivo inteiro — nunca editar manualmente, sempre cópia integral.
+
+Templates novos usam **2.0.7**. Templates existentes na 2.0.3 migram individualmente, em branch própria, com testes de regressão (nunca substituição em massa) — ver `.github/BRANCHING.md`.
 
 Isso é especialmente crítico ao **reaproveitar uma pasta de template já existente** para um layout novo — a pasta antiga pode ter um `ebhtml.js` de uma versão anterior do CMS.
 
@@ -287,6 +289,15 @@ loader.load(function () {
 - [ ] Watchdog (`setTimeout`) garantindo `finished()` mesmo sem eventos
 - [ ] Todo o parsing/render dentro do callback de sucesso está envolto em `try/catch` que chama `finished()` no `catch` — especialmente se um watchdog/timeout externo é cancelado no início desse callback
 
+### 🐛 Bug conhecido — ainda presente na 2.0.7: dataset vazio com `nodataiserror = false` pode travar o loader
+
+Em `EBBrowser.prototype.browserdata_checkloaded`, no ramo de "dataset obrigatório com 0 itens", o código faz `this.browser.nodataiserror` — mas `this` já é o próprio `EBBrowser`, então `this.browser` é `undefined`. Isso lança uma exceção dentro do `onreadystatechange` do XHR que é engolida silenciosamente: **nem o callback de sucesso nem o de erro disparam**, e o loader trava para sempre.
+
+Nunca editar `ebhtml.js` para corrigir isso (regra do repositório: cópia integral, sem patch manual). Mitigar sempre no template:
+- Watchdog curto (~4-8s) por tentativa de `loader.load()`.
+- Retry automático (recriar o loader, ~3 tentativas extras, delay curto ~500ms) **somente quando o briefing confirmar que os dados deveriam existir e a falha é recuperável**. Para dataset opcional, conteúdo vazio ou item sem dados válidos, chamar `finished()` diretamente para liberar o próximo item da playlist.
+- Referência de implementação testada: `andorinha-menuboard-semfim/js/master.js` (função de retry com watchdog cobrindo essa falha silenciosa).
+
 ### Outros métodos de comunicação:
 ```javascript
 loader.log('mensagem');           // Log para console + EdgeContents
@@ -410,8 +421,8 @@ function iniciarTemplate(item, loader) {
 ---
 
 ## Referências
-- Código fonte: `js/ebhtml.js` (em cada template)
-- Documentação completa: `/docs/05-api-reference.md`
-- Formato XML: `/docs/02-xml-format.md`
-- Exemplos XML: `/examples/D_*.xml`
-- Templates reais: `agro_link/`, `preco_prismaturismo/`, `climatempo_momento/`
+- Código fonte canônico: `_template-base/js/ebhtml.js`
+- Governança e versão aprovada: `docs/00-governanca-e-arquitetura.md`
+- Briefing e workflow completo: `.github/skills/edgecontents-template-workflow/SKILL.md`
+- Exemplos XML reais por canal: `examples/D_*.xml`
+- Templates de referência: `preco_prismaturismo/`, `previsao_tempo/`, `tempo_momento/`

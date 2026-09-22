@@ -32,3 +32,48 @@
    ========================================= */
 .text-white          { color: #ffffff }
 .bg-\[\#343a67\]     { background-color: #343a67 }
+
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    position: relative;
+}
+
+.hardware-fraco .animate-expande {
+    animation: none !important;
+}
+
+@media (max-aspect-ratio: 3/4) {
+    #titulo p {
+        font-size: 1.35em;
+    }
+
+    #texto-container {
+        max-height: none;
+    }
+}
+
+@media (min-aspect-ratio: 3/1) {
+    #titulo p {
+        font-size: 1.15em;
+    }
+
+    #texto-container {
+        max-height: 42vh;
+    }
+}
+
+@media (max-aspect-ratio: 1/3) {
+    #conteudo-dinamico {
+        flex-direction: column;
+    }
+
+    #conteudo-dinamico > div:first-child,
+    #conteudo-dinamico > div:last-child {
+        width: 100%;
+    }
+}
