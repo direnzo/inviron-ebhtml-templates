@@ -1,30 +1,30 @@
-# TEMPLATE BASE - EdgeContents Digital Signage
+# Template Base - EdgeContents Digital Signage
 
-Template HTML base simplificado para displays digitais usando EdgeContents CMS.
+Base executavel para novos templates EdgeContents. Derive-a somente em branch tematica e adapte dataset, campos e layout ao briefing do tenant.
 
 ## 📋 Características
 
 - **JavaScript ES5 obrigatório** - Compatível com Android 7+ (WebKit legado)
 - **TailwindCSS v3** - Framework CSS pré-configurado com fallbacks para Chrome < 65
 - **Breakpoints por Aspect Ratio** - Layout inteligente para portrait (≤3:4), landscape (4:3 a 2:1), ultrawide (≥3:1), superbanner (5:1 a 15:1), empena (≤1:3)
-- **Mock compatível** - Desenvolvimento sem backend via EBHTML shim
-- **Detecção automática de hardware** - Degradação para dispositivos fracos (`.reduced`)
+- **Mock compatível** - Desenvolvimento via EBHTML shim, desativado antes do empacotamento
+- **Detecção de hardware fraco** - Degradação para dispositivos fracos (`.reduced`)
 - **Centralização de tipografia** - Font-size via `vmin` no body, filhos escalonam com `em`
 
 ## 🚀 Uso
 
 ### Desenvolvimento com Mock
-1. Ative `MOCK_DATA.enabled = true` em `js/mock-data.js`
-2. Abra `index.html` diretamente no navegador
+1. Ajuste `MOCK_DATA.enabled = true` em `js/mock-data.js`.
+2. Rode `npm run dev` nesta pasta para atualizar `css/master.css`.
+3. Teste em `http://localhost:12099/FILES/1/index.html` pelo `ebcliente4.exe`.
 
 ### Produção com EdgeContents
-1. Comente `<script src="js/mock-data.js"></script>` no HTML
-2. Use `ebhtmlbuilder4` para compilar com EdgeContents CMS
+1. Defina `MOCK_DATA.enabled = false` em `js/mock-data.js`.
+2. Use o builder EdgeContents para gerar e validar o `.eh5`.
 
 ### Configuração Tailwind
 ```bash
 npm run dev      # modo watch CSS
-npm run build    # CSS minificado produção
 ```
 
 ## ⚡ Regras Críticas
@@ -64,7 +64,7 @@ _template-base/
 │   ├── input.css        # CSS com fallbacks + .reduced
 │   └── master.css       # Compilado (não editar)
 └── js/
-    ├── ebhtml.js        # Biblioteca EBHTML v2.0.3
+    ├── ebhtml.js        # Biblioteca EBHTML v2.0.7 canônica
     ├── master.js        # Lógica principal (ES5)
     └── mock-data.js     # Dados mock (descomentar)
 ```
@@ -101,24 +101,23 @@ IDs HTML fixos para populaçãol:
 
 ## 🚨 Erros Comuns
 
-1. **Playlist trava** - Faltou chamar `loader.loaded()` após sucesso OU chamou `loader.loaded()` em erro
-2. **CSS não carrega** - Tailwind não compilou, execute `npm run dev`
-3. **Cores invisíveis** - Fallbacks hex faltando no `input.css`
-4. **Texto não escala** - `portrait:`/`landscape:` espalhados nos filhos em vez de `vmin` no body
+1. **Playlist trava** - Verifique callbacks de erro, watchdogs e `finished()` em todos os caminhos.
+2. **CSS não carrega** - Mantenha `npm run dev` ativo durante o desenvolvimento.
+3. **Cores invisíveis** - Adicione fallbacks hex no `input.css`.
+4. **Texto não escala** - Use `vmin` no body e `em`/`%` nos filhos.
 
 ## 📋 Checklist Pronto para Produção
 
-- [ ] `MOCK_DATA.enabled = false` (comentar script no HTML)
-- [ ] `npm run build` executado (CSS minificado)
+- [ ] `MOCK_DATA.enabled = false`
+- [ ] `css/master.css` atualizado pelo `npm run dev`
 - [ ] Sem `const`/`let`/`arrow functions`/`template strings`
 - [ ] Fallbacks hex no `input.css` para todas as cores usadas
 - [ ] `font-size` no body via `vmin`
-- [ ] `loader.loaded()` apenas após sucesso
-- [ ] `loader.finished()` sempre (com ou sem erro)
+- [ ] `loader.loaded()` apenas após sucesso e revelação do conteúdo
+- [ ] `loader.finished()` exatamente uma vez em sucesso, erro, vazio, timeout e exceção
+- [ ] Watchdogs de loader e mídia presentes; handlers de mídia definidos antes de `src`
+- [ ] Body visível; somente `#dynamicContent` oculto durante o carregamento
 
 ## 📚 Documentação Completa
 
-Veja `/docs/` para:
-- `02-xml-format.md` - Estrutura XML completa
-- `05-api-reference.md` - API EBHTML
-- `04-troubleshooting.md` - Debug avançado
+Consulte `docs/00-governanca-e-arquitetura.md`, `.github/skills/ebhtml-api/SKILL.md` e `.github/skills/edgecontents-template-workflow/SKILL.md`.

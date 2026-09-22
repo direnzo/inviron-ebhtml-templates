@@ -11,155 +11,114 @@
  * - Evite o uso excessivo de console.log
  */
 
-// Dataset principal (altere conforme necessário)
 var DATASET = 'D_INSTITUCIONAL';
+var LOAD_TIMEOUT = 8000;
+var MEDIA_TIMEOUT = 8000;
+var config = { duration: 15000, debug: true };
+var HARDWARE_FRACO = false;
 
-// Configurações
-var config = {
-    duration: 15000,    // tempo total (ms) - pode ser sobrescrito por DURATION
-    slideTime: 5000,    // tempo por slide (se lista)
-    maxItems: 10,       // máximo de itens (se lista)
-    debug: true         // exibir logs no console
-};
+(function() {
+    if (window.location.search.indexOf('hwfraco=1') !== -1) { HARDWARE_FRACO = true; return; }
+    if (navigator.userAgent.indexOf('Android') !== -1) { HARDWARE_FRACO = true; return; }
+    if (navigator.deviceMemory && navigator.deviceMemory <= 1) { HARDWARE_FRACO = true; return; }
+    if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) { HARDWARE_FRACO = true; }
+})();
 
-// Função para ajustar fonte até caber no container
-function fitDescriptionFont(el, container, minFont, maxFont) {
-    if (!el || !container) { return; }
-    if (!minFont) { minFont = 10; }
-    if (!maxFont) { maxFont = 100; }
-    if (!el.innerHTML || el.innerHTML.replace(/\s/g, '') === '') { return; }
-
-    try {
-        el.style.fontSize = maxFont + 'px';
-        var fontSize = maxFont;
-        var cw = container.clientWidth;
-        var ch = container.clientHeight;
-        if (cw <= 0 || ch <= 0) { return; }
-
-        while (fontSize > minFont) {
-            if (el.scrollWidth <= cw && el.scrollHeight <= ch) { break; }
-            fontSize -= 1;
-            el.style.fontSize = fontSize + 'px';
-        }
-    } catch (e) {
-        el.style.fontSize = '16px';
+function fitFont(el, container, minEm, maxEm) {
+    var low = minEm;
+    var high = maxEm;
+    var attempt;
+    var middle;
+    if (!el || !container || !el.textContent) { return; }
+    for (attempt = 0; attempt < 8; attempt += 1) {
+        middle = (low + high) / 2;
+        el.style.fontSize = middle + 'em';
+        if (el.scrollWidth <= container.clientWidth && el.scrollHeight <= container.clientHeight) { low = middle; }
+        else { high = middle; }
     }
+    el.style.fontSize = low + 'em';
 }
 
-// Detecção de plataforma
-function isAndroid() {
-    return /Android/i.test(navigator.userAgent);
-}
-
-function isWeakDevice() {
-    var dpr = window.devicePixelRatio || 1;
-    var w = window.innerWidth || 0;
-    return isAndroid() && (dpr <= 1 || w <= 1280);
+function fieldValue(data, name) {
+    var field = data.value(name);
+    return field && field.value ? field.value : '';
 }
 
 window.onload = function() {
     var body = document.body;
-    
-    // Degradação para hardware fraco
-    if (isWeakDevice()) {
-        body.classList.add('reduced');
-        if (config.debug) console.log('[Base] Hardware fraco detectado; aplicando .reduced');
-    }
-    
+    var dynamicContent = document.getElementById('dynamicContent');
     var image = document.getElementById('image');
     var titleEl = document.getElementById('title');
     var descEl = document.getElementById('description');
-    var logoWrap = document.getElementById('logoWrap');
     var titleBox = document.getElementById('titleBox');
     var descBox = document.getElementById('descBox');
-    var qrWrap = document.getElementById('qrWrap');
     var footerText = document.getElementById('footerText');
-    var photoLayer = document.getElementById('photoLayer');
-    
-    // ════════════════════════════════════════════════════════════════════
-    // FLUXO PRINCIPAL EBHTML
-    // ════════════════════════════════════════════════════════════════════
+    if (HARDWARE_FRACO) { body.classList.add('reduced'); }
+
     ebhtml.create2({}, function(loader) {
-        loader.addData(DATASET, false); // false = não obrigatório
-        loader.nodataiserror = false;   // sem dados não é erro
-        loader.autoloaded = false;      // controle manual
-        
-        loader.load(function() {
-            var data = loader.data(DATASET);
-            if (data == undefined) {
-                console.error('[Base] ERRO: dataset indefinido');
-                loader.finished(); // apenas finished(), sem loaded()
-                return;
+        var finished = false;
+        var loaded = false;
+        var loadWatchdog = null;
+        var mediaWatchdog = null;
+        var finishTimer = null;
+
+        function clearTimers() {
+            clearTimeout(loadWatchdog);
+            clearTimeout(mediaWatchdog);
+        }
+        function finish(reason) {
+            if (finished) { return; }
+            finished = true;
+            clearTimers();
+            clearTimeout(finishTimer);
+            if (config.debug) { console.log('[Base] Finalizado: ' + reason); }
+            loader.finished();
+        }
+        function completeSuccess(reason) {
+            if (finished || loaded) { return; }
+            clearTimeout(mediaWatchdog);
+            fitFont(titleEl, titleBox, 0.9, 1.8);
+            fitFont(descEl, descBox, 0.7, 1);
+            if (dynamicContent) {
+                dynamicContent.classList.remove('opacity-0');
+                dynamicContent.classList.add('transition-opacity', 'duration-500', 'opacity-100');
             }
-            
-            // Ler configurações opcionais do dataset
+            loaded = true;
+            loader.loaded();
+            finishTimer = setTimeout(function() { finish('duracao concluida'); }, config.duration);
+            if (config.debug) { console.log('[Base] Carregado: ' + reason); }
+        }
+        function loadImage(url) {
+            if (!url || !image) { completeSuccess('sem imagem'); return; }
+            mediaWatchdog = setTimeout(function() { completeSuccess('timeout da imagem'); }, MEDIA_TIMEOUT);
+            image.onload = function() { completeSuccess('imagem carregada'); };
+            image.onerror = function() { completeSuccess('imagem indisponivel'); };
+            image.src = url;
+        }
+
+        loader.addData(DATASET, false);
+        loader.nodataiserror = false;
+        loader.autoloaded = false;
+        loadWatchdog = setTimeout(function() { finish('timeout do loader'); }, LOAD_TIMEOUT);
+        loader.load(function() {
+            clearTimeout(loadWatchdog);
             try {
-                var durationData = data.value('DURATION');
-                if (durationData && durationData.value) {
-                    config.duration = parseInt(durationData.value, 10) || config.duration;
-                }
-            } catch (e) {}
-            
-            try {
-                var slideData = data.value('SLIDE_TIME');
-                if (slideData && slideData.value) {
-                    config.slideTime = parseInt(slideData.value, 10) || config.slideTime;
-                }
-            } catch (e) {}
-            
-            // Campos obrigatórios (padrão EdgeContents)
-            var titulo = data.value('TITULO') ? data.value('TITULO').value : '';
-            var texto = data.value('TEXTO') ? data.value('TEXTO').value : '';
-            var fotoUrl = data.value('FOTO') ? data.value('FOTO').value : '';
-            var cor = data.value('COR') ? data.value('COR').value : '';
-            var footer = data.value('FOOTER') ? data.value('FOOTER').value : '';
-            
-            // Popular elementos DOM
-            if (titleEl) titleEl.innerHTML = titulo;
-            if (descEl) descEl.innerHTML = texto;
-            if (footerText && footer) footerText.innerHTML = footer;
-            if (cor && titleBox) titleBox.style.backgroundColor = cor;
-            
-            // Imagem de fundo
-            image.onload = function() {
-                // Fade-in do body
-                body.classList.remove('opacity-0');
-                body.classList.add('opacity-100');
-                
-                // Animações (somente se não for hardware fraco)
-                if (!body.classList.contains('reduced')) {
-                    image.classList.remove('scale-100');
-                    image.classList.add('scale-110');
-                    if (photoLayer) photoLayer.classList.add('translate-x-1/5');
-                    if (logoWrap) logoWrap.classList.add('wipeIntro');
-                    if (titleBox) titleBox.classList.add('wipeIntro');
-                    if (descBox) descBox.classList.add('wipeIntro');
-                    if (qrWrap) qrWrap.classList.add('wipeIntro');
-                    if (footerText) footerText.classList.add('wipeIntro');
-                }
-                
-                // Ajuste tipográfico
-                fitDescriptionFont(titleEl, titleBox, 12, 110); // título 12-110px
-                fitDescriptionFont(descEl, descBox, 10, 90);    // descrição 10-90px
-                
-                // ⚠️ OBRIGATÓRIO: loaded() apenas em sucesso
-                loader.loaded();
-                
-                // Agendar finalização
-                setTimeout(function() {
-                    loader.finished();
-                }, config.duration);
-                
-                if (config.debug) console.log('[Base] Carregado com sucesso; finaliza em ' + config.duration + 'ms');
-            };
-            
-            image.onerror = function() {
-                console.error('[Base] Erro ao carregar imagem');
-                // ❌ NÃO CHAMA loaded() em erro
-                loader.finished();
-            };
-            
-            image.src = fotoUrl;
+                var data = loader.data(DATASET);
+                var duration;
+                if (!data) { finish('dataset vazio'); return; }
+                duration = parseInt(fieldValue(data, 'DURATION'), 10);
+                if (duration > 0) { config.duration = duration; }
+                if (titleEl) { titleEl.textContent = fieldValue(data, 'TITULO'); }
+                if (descEl) { descEl.textContent = fieldValue(data, 'TEXTO'); }
+                if (footerText) { footerText.textContent = fieldValue(data, 'FOOTER'); }
+                if (titleBox && fieldValue(data, 'COR')) { titleBox.style.backgroundColor = fieldValue(data, 'COR'); }
+                loadImage(fieldValue(data, 'FOTO'));
+            } catch (error) {
+                finish('excecao: ' + (error && error.message ? error.message : error));
+            }
+        }, function() {
+            clearTimeout(loadWatchdog);
+            finish('falha no load');
         });
     });
 };

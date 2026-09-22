@@ -652,6 +652,10 @@ video {
   display: block;
 }
 
+.inline {
+  display: inline;
+}
+
 .flex {
   display: flex;
 }
@@ -801,8 +805,8 @@ video {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
 }
 
-.bg-white\/10 {
-  background-color: rgb(255 255 255 / 0.1);
+.bg-opacity-10 {
+  --tw-bg-opacity: 0.1;
 }
 
 .bg-opacity-50 {
@@ -864,6 +868,30 @@ video {
 
 .font-sans {
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.text-\[0\.55em\] {
+  font-size: 0.55em;
+}
+
+.text-\[0\.75em\] {
+  font-size: 0.75em;
+}
+
+.text-\[0\.9em\] {
+  font-size: 0.9em;
+}
+
+.text-\[1\.2em\] {
+  font-size: 1.2em;
+}
+
+.text-\[1\.8em\] {
+  font-size: 1.8em;
+}
+
+.text-\[1em\] {
+  font-size: 1em;
 }
 
 .text-\[3\.2vmin\] {
@@ -1011,6 +1039,10 @@ video {
 
 .duration-1000 {
   transition-duration: 1000ms;
+}
+
+.duration-500 {
+  transition-duration: 500ms;
 }
 
 .duration-700 {

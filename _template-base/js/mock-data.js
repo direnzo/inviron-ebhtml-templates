@@ -60,7 +60,7 @@ var MOCK_DATA = {
                         }
                     };
                 },
-                load: function(done) {
+                load: function(done, fail) {
                     // Injeta dados de MOCK_DATA.datasets
                     if (MOCK_DATA.datasets) {
                         for (var k in MOCK_DATA.datasets) {
@@ -74,7 +74,7 @@ var MOCK_DATA = {
                             }
                         }
                     }
-                    done();
+                    if (typeof done === 'function') { done(); }
                 },
                 loaded: function() { console.log('[Mock] loader.loaded()'); },
                 finished: function() { console.log('[Mock] loader.finished()'); }

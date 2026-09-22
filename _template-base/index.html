@@ -12,9 +12,9 @@
     <script src="js/master.js"></script>
 
 </head>
-<body class="font-sans bg-black text-white text-[3.2vmin] superbanner:text-[5vmin] empena:text-[11vmin] opacity-0 transition-opacity duration-700 ease-in-out">
-    <!-- Container principal -->
-    <div class="relative w-full h-full overflow-hidden">
+<body class="font-sans bg-black text-white text-[3.2vmin] superbanner:text-[5vmin] empena:text-[11vmin]">
+    <!-- Apenas o conteudo dinamico aguarda os dados; o fundo nunca fica oculto. -->
+    <div id="dynamicContent" class="relative w-full h-full overflow-hidden opacity-0">
         <!-- Imagem de fundo (opcional) -->
         <img id="image" class="absolute w-full h-full object-cover transition-all duration-[15000ms] ease-linear scale-100" style="object-position: center; left: 50%; top: 50%; transform: translate(-50%, -50%);">
         <!-- Layer para gradiente ou efeito -->
@@ -22,20 +22,20 @@
         
         <!-- Container do título -->
         <div id="titleBox" class="absolute top-8 left-8 right-8 px-6 py-4 bg-black bg-opacity-70 rounded-xl backdrop-blur-sm">
-            <h1 id="title" class="font-bold leading-tight"></h1>
+            <h1 id="title" class="text-[1.8em] font-bold leading-tight"></h1>
         </div>
         
         <!-- Container da descrição -->
         <div id="descBox" class="absolute bottom-32 left-8 right-8 px-6 py-4 bg-black bg-opacity-70 rounded-xl backdrop-blur-sm">
-            <p id="description" class="leading-snug"></p>
+            <p id="description" class="text-[1em] leading-snug"></p>
         </div>
         
         <!-- Logo/rodapé -->
         <div id="logoWrap" class="absolute bottom-8 left-8 right-8 flex items-center justify-between">
-            <div class="text-sm opacity-80" id="footerText"></div>
-            <div id="qrWrap" class="w-16 h-16 bg-white/10 rounded-lg flex items-center justify-center">
+            <div class="text-[0.75em] opacity-80" id="footerText"></div>
+            <div id="qrWrap" class="w-16 h-16 bg-white bg-opacity-10 rounded-lg flex items-center justify-center">
                 <!-- QR code placeholder -->
-                <div class="text-xs text-center">QR</div>
+                <div class="text-[0.55em] text-center">QR</div>
             </div>
         </div>
     </div>
@@ -43,8 +43,8 @@
     <!-- Template para listas (opcional) -->
     <template id="tpl-item">
         <article class="item bg-black bg-opacity-50 p-4 rounded-lg mb-4">
-            <h2 class="item-title font-bold text-lg mb-2"></h2>
-            <p class="item-desc text-sm opacity-90"></p>
+            <h2 class="item-title text-[1.2em] font-bold mb-2"></h2>
+            <p class="item-desc text-[0.9em] opacity-90"></p>
             <img class="item-img w-full h-48 object-cover rounded mt-2">
         </article>
     </template>
