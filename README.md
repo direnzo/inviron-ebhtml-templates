@@ -23,6 +23,15 @@ Objetivo:
 
 Os resumos legados ficam em `archive/`; em caso de conflito, os documentos acima prevalecem.
 
+## Estrutura manual
+
+- `_template-base/` — base canonica executavel na raiz; nao e template de tenant.
+- `GLOBAL/<template>/` — templates reutilizaveis ou sem tenant definido.
+- `CLIENTES/<TENANT>/<template>/` — templates especificos de cliente.
+- `sandbox/`, `_EH5/` e `archive/` — permanecem em suas pastas atuais.
+
+Novos templates devem ser classificados nessa estrutura antes da implementacao. Nenhum template deve ser movido apenas para adequar documentacao.
+
 ## Regras criticas (resumo)
 
 1. ES5 obrigatorio.

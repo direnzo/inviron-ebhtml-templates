@@ -45,5 +45,5 @@ Usar o checklist completo em .github/pull_request_template.md. Resumo:
 
 ## Fonte de verdade
 
-- features-list.md
+- docs/00-governanca-e-arquitetura.md
 - docs/README.md

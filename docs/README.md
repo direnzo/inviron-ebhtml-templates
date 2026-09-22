@@ -2,6 +2,13 @@
 
 Indice oficial da documentacao ativa do workspace.
 
+## Estrutura dos templates
+
+- `_template-base/` — base canonica na raiz.
+- `GLOBAL/<template>/` — template reutilizavel ou sem tenant definido.
+- `CLIENTES/<TENANT>/<template>/` — template especifico de cliente.
+- `sandbox/`, `_EH5/` e `archive/` — pastas com finalidade propria, mantidas no lugar atual.
+
 ## Ordem de leitura
 
 0. 00-governanca-e-arquitetura.md — comece aqui: global vs tenant, fontes de verdade, versao do EBHTML

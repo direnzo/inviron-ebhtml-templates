@@ -19,6 +19,19 @@ Regra prática: uma decisão só entra no núcleo global quando for estrutural a
 
 Nunca usar dados, assets ou contratos privados de um cliente como exemplo em documentação global.
 
+## Estrutura manual do workspace
+
+```text
+_template-base/                         # base canonica na raiz
+GLOBAL/<template>/                      # reutilizavel ou sem tenant definido
+CLIENTES/<TENANT>/<template>/           # especifico de cliente
+sandbox/                                # validacao local
+_EH5/                                   # pacotes homologados
+archive/                                # legado arquivado
+```
+
+`_template-base/` permanece como a única base canônica na raiz. `GLOBAL/` recebe templates reutilizáveis ou ainda sem tenant definido; templates específicos devem ficar em `CLIENTES/<TENANT>/<template>/`. `sandbox/`, `_EH5/` e `archive/` não mudam de lugar. A classificação é manual e não autoriza mover templates existentes sem uma tarefa própria.
+
 ## Fontes de verdade
 
 - Regras universais inegociáveis: [`.github/copilot-instructions.md`](../.github/copilot-instructions.md)
