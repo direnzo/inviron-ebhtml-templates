@@ -117,6 +117,10 @@ loader.load(function () {
 
 Checklist ao revisar qualquer template: `loader.load(sucesso, erro)` sempre com 2º argumento • handlers de imagem antes do `src` • watchdog de timeout presente • todo o parsing/render do callback de sucesso envolto em `try/catch` que chama `finished()` no `catch`. Ver `.github/skills/ebhtml-api/SKILL.md` seção 6 para o padrão completo.
 
+### 1.1 Polling com múltiplas categorias e paginação
+
+Quando o template exibir categorias em colunas independentes, cada coluna deve manter seu próprio loader, intervalo de polling, `allItems` e índice da página visível. O polling deve comparar um fingerprint dos itens e atualizar a página atualmente renderizada imediatamente quando houver alteração — mesmo que o intervalo de paginação continue ativo. Nunca usar `if (!paginationTimer)` como condição para renderizar a alteração: o timer controla apenas a rotação, não a atualização dos dados. Se a quantidade de itens mudar, limitar a página visível ao novo total e recalcular o próximo índice da rotação. Ver `andorinha-menuboard-semfim/js/master.js` como referência.
+
 ### 2. CSS Compatível (Chromium 78)
 | ❌ Proibido | Requer | ✅ Alternativa |
 |---|---|---|

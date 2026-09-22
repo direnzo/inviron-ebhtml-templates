@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
 //============================================================
 
   var selectedCategory = "menuboard_acougue_ouro"; // Categoria padrão
-  var displayDuration = 20000; // 30 minutos por exibição
+  var displayDuration = 30 * 60 * 1000; // 30 minutos por exibição
   var pollInterval = 20000;    // 20 segundos. Intervalo de polling e timeout entre páginas (ms)
   var TEST_RELOAD_MODE = false;  // true = reload em vez de finished() (simula ciclo de playlist no localhost)
   // BUG conhecido do ebhtml.js: com nodataiserror=false, se a categoria retornar 0 itens o loader
@@ -299,6 +299,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     var totalPaginas = Math.ceil(state.allItems.length / maxItemsCol) || 1;
     console.log("[PAGE][" + state.category + "] Página " + (state.currentPageIndex + 1) + "/" + totalPaginas + " (" + pagina.length + " itens)");
+    state.displayedPageIndex = state.currentPageIndex;
     renderizarColuna(state, pagina);
     state.currentPageIndex++;
     if (state.currentPageIndex >= totalPaginas) state.currentPageIndex = 0;
@@ -338,7 +339,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function iniciarColuna(category, container, controlaLoader, maxItemsCol) {
     var state = {
       category: category, container: container, allItems: [], currentPageIndex: 0,
-      paginationTimer: null, pollingIntervalo: null, pronto: false
+      displayedPageIndex: 0, paginationTimer: null, pollingIntervalo: null, pronto: false
     };
     dualColumns.push(state);
     tentarCarregarColuna(state, category, controlaLoader, maxItemsCol, 0);
@@ -427,13 +428,20 @@ document.addEventListener("DOMContentLoaded", function () {
                   var countChanged = novosItens.length !== state.allItems.length;
                   state.allItems = novosItens;
                   console.log("[POLL][" + category + "] Dados alterados" + (countChanged ? " (qtd mudou, remontando)" : " (in-place)"));
-                  if (!state.paginationTimer) {
-                    if (countChanged) {
-                      state.currentPageIndex = 0;
-                      exibirProximaPaginaColuna(state, maxItemsCol);
-                    } else {
-                      atualizarPrecosColuna(state, novosItens.slice(0, maxItemsCol));
+                  if (state.paginationTimer) {
+                    var totalPaginasAtualizadas = Math.ceil(state.allItems.length / maxItemsCol) || 1;
+                    if (state.displayedPageIndex >= totalPaginasAtualizadas) {
+                      state.displayedPageIndex = totalPaginasAtualizadas - 1;
                     }
+                    var inicioPaginaAtual = state.displayedPageIndex * maxItemsCol;
+                    renderizarColuna(state, state.allItems.slice(inicioPaginaAtual, inicioPaginaAtual + maxItemsCol));
+                    state.currentPageIndex = state.displayedPageIndex + 1;
+                    if (state.currentPageIndex >= totalPaginasAtualizadas) { state.currentPageIndex = 0; }
+                  } else if (countChanged) {
+                    state.currentPageIndex = 0;
+                    exibirProximaPaginaColuna(state, maxItemsCol);
+                  } else {
+                    atualizarPrecosColuna(state, novosItens.slice(0, maxItemsCol));
                   }
                 } catch (e) {
                   console.warn("[POLL][" + category + "] Erro ao atualizar dados:", e);

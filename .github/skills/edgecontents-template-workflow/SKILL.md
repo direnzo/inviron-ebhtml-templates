@@ -53,6 +53,7 @@ Ver separação global/tenant em `docs/00-governanca-e-arquitetura.md` antes de 
 - ES5 puro.
 - `loader.load(sucesso, erro)` sempre com os dois argumentos.
 - Todo o parsing/render do callback de sucesso dentro de `try/catch` que finaliza no `catch`.
+- Em layouts com múltiplas categorias, manter polling e paginação independentes por coluna; paginação não pode bloquear o re-render da página visível quando o fingerprint dos dados mudar.
 - Handlers de imagem/mídia antes do `src`.
 - Watchdog de segurança para loader e para mídia assíncrona.
 - Body nunca oculto por inteiro — só o container de dados dinâmicos.

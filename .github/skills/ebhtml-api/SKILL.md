@@ -298,6 +298,10 @@ Nunca editar `ebhtml.js` para corrigir isso (regra do repositório: cópia integ
 - Retry automático (recriar o loader, ~3 tentativas extras, delay curto ~500ms) **somente quando o briefing confirmar que os dados deveriam existir e a falha é recuperável**. Para dataset opcional, conteúdo vazio ou item sem dados válidos, chamar `finished()` diretamente para liberar o próximo item da playlist.
 - Referência de implementação testada: `andorinha-menuboard-semfim/js/master.js` (função de retry com watchdog cobrindo essa falha silenciosa).
 
+### Polling com categorias independentes e paginação
+
+Quando duas categorias forem exibidas simultaneamente, cada coluna deve ter estado independente para loader, intervalo de polling, itens recebidos e página visível. Após comparar um fingerprint, o polling deve re-renderizar imediatamente a página que está na tela, inclusive quando `paginationTimer` estiver ativo; esse timer deve controlar somente a troca periódica de página. Em caso de mudança na quantidade de itens, ajustar a página visível ao novo total e manter `currentPageIndex` apontando para a próxima página válida. A referência testada está em `andorinha-menuboard-semfim/js/master.js`.
+
 ### Outros métodos de comunicação:
 ```javascript
 loader.log('mensagem');           // Log para console + EdgeContents
