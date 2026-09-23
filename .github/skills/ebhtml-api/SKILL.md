@@ -298,6 +298,29 @@ Nunca editar `ebhtml.js` para corrigir isso (regra do repositório: cópia integ
 - Retry automático (recriar o loader, ~3 tentativas extras, delay curto ~500ms) **somente quando o briefing confirmar que os dados deveriam existir e a falha é recuperável**. Para dataset opcional, conteúdo vazio ou item sem dados válidos, chamar `finished()` diretamente para liberar o próximo item da playlist.
 - Referência de implementação testada: `andorinha-menuboard-semfim/js/master.js` (função de retry com watchdog cobrindo essa falha silenciosa).
 
+### 🐛 Bug ainda mais crítico — `interface` do EBBrowser é global por página, um loader secundário com 0 registros finaliza o item de verdade
+
+Incidente real (assaifarma_varejo, 2026-09-23): item tocava e sumia quase instantaneamente mesmo com `CONFIG.timing.duration` e `setTimeout(finished, duration)` corretos no loader principal.
+
+`EBBrowser.prototype.finished()`/`.error()` chamam `this.interface.ebfinished()`/`.eberror()` — e `this.interface` vem de objetos **globais por página** (`ebflashinterface`/`ebmessageinterface`/`ebdefaultinterface`), não por instância de `EBBrowser`. Ou seja: mesmo cada `ebhtml.create2()` criando um `EBBrowser` novo, todos falam com o **mesmo canal nativo real** do player. Se um loader secundário/decorativo (ex.: uma consulta só para buscar um logo opcional que pode legitimamente não existir no canal) retornar 0 registros com `nodataiserror = false`, o bug acima (`browserdata_checkloaded`) chama `this.browser.finished()` — que dispara o `ebfinished()` **global**, encerrando o item de verdade e sobrepondo o `setTimeout` do loader principal. Diferente do bug de travamento: aqui o item **não trava, ele finaliza silenciosamente e cedo demais** — só aparece investigando o próprio `ebhtml.js` (o `[finished]` no console é literal, gerado pela própria lib).
+
+**Regra:** nunca abrir um `ebhtml.create2()` dedicado só para um campo/asset que pode estar ausente (logo, cor, config opcional, badge secundário). Ler esse campo do MESMO registro/loader que já carregou com sucesso:
+```javascript
+// ❌ NUNCA — loader extra só para um campo opcional; 0 registros = finished()/error() globais prematuros
+ebhtml.create2({}, function (loaderConfig) {
+    loaderConfig.addData('D_SPD', true, 'f_specialproject=' + id + '&ft_image_logo=');
+    loaderConfig.nodataiserror = false;
+    loaderConfig.load(function () { logo.src = loaderConfig.data('D_SPD').value('IMAGE_LOGO').value; });
+});
+
+// ✅ SEMPRE — ler do registro que já carregou com sucesso, sem 2º loader
+function aplicarLogo(item) {
+    var campo = item.value('IMAGE_LOGO');
+    if (logo && campo && campo.value) { logo.src = campo.value; }
+}
+aplicarLogo(data2.get(idx)); // idx do produto já carregado, dentro do loader principal
+```
+
 ### Polling com categorias independentes e paginação
 
 Quando duas categorias forem exibidas simultaneamente, cada coluna deve ter estado independente para loader, intervalo de polling, itens recebidos e página visível. Após comparar um fingerprint, o polling deve re-renderizar imediatamente a página que está na tela, inclusive quando `paginationTimer` estiver ativo; esse timer deve controlar somente a troca periódica de página. Em caso de mudança na quantidade de itens, ajustar a página visível ao novo total e manter `currentPageIndex` apontando para a próxima página válida. A referência testada está em `andorinha-menuboard-semfim/js/master.js`.
