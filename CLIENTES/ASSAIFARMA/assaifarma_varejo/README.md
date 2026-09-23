@@ -19,11 +19,13 @@ Derivado de `CLIENTES/MUFFATO/muffato_varejo`. Mesma estrutura de dados e das 14
 - **Área segura calibrada pelo design real do fundo**: cabeçalho fixo de 245px e rodapé de 120px num fundo de 1080px de altura (22.685vh / 11.111vh). `#fullContent` é posicionado com `absolute inset-x-0 top-[22.685vh] bottom-[11.111vh]` — todo conteúdo dinâmico (título, preço, imagem, texto legal) fica estritamente dentro dessa faixa, nunca sobre o cabeçalho/rodapé do fundo. `#logo_container` foi movido para fora dessa faixa seguindo o cabeçalho (fica sempre invisível — a marca já está no fundo).
 - Containers de altura fixa (`title_container`, `price_container`, `img_container_landscape`) usam `shrink-0` para não encolherem de forma inconsistente dentro do flexbox; os templates de preço (tipos 5,6,8,9,10,12,13) tiveram `h-full`/`justify-around` removidos (causavam gap grande entre título e preço).
 - **`js/config.js`** novo: único objeto `CONFIG` (timing, dataset, layout/área segura, colors) aplicado via `aplicarConfigVisual()` no início de `playerView()`. Cores do preço/título viraram CSS custom properties (`--cor-preco`, `--cor-texto`) referenciadas via `text-[color:var(--cor-preco)]` no lugar de `text-red-600`/`text-black` fixos. Padrão documentado em `.github/copilot-instructions.md` (seção 5) e `docs/01-playbook-referencia.md` para uso em templates futuros.
+- **Filtro `f_text10=1` removido da query de produtos** (`readDataXML`): herdado do Muffato, exigia um campo `TEXT10=1` que o canal real do ASSAI-FARMA não preenche — a query sempre retornava 0 itens ("No data found to be loaded") e o produto nunca renderizava. Confirmado com dados reais: sem o filtro, os 14 itens do canal aparecem normalmente.
+- **Rotação de item restaurada via `localStorage`** (`readDataXML`/`readData2XML`): testado com dados reais — a consulta ao canal (lista de projetos especiais → filtro por projeto) sempre retorna a lista completa na mesma ordem a cada reload, sem cursor de "próximo item" no lado do dado. Sem persistir o índice, o template sempre reexibia o mesmo produto (índice 0). Esse é o caso de exceção documentado em `docs/00-governanca-e-arquitetura.md` ("rotação precisa persistir entre reloads e não há equivalente no canal de dados") — `localStorage` guarda só o índice do próximo projeto/produto, nunca o conteúdo em si.
 
 ## Pendências
 - Substituir cores/fontes/logo pelo material oficial do ASSAI-FARMA.
-- Confirmar filtros reais do canal `D_SPD` (ou equivalente) para o tenant.
-- `MOCK_DATA.enabled = false` antes de gerar o `.eh5` de produção.
+- **Logo real (`IMAGE_LOGO`) não carrega**: a 3ª consulta (`readConfig`/`loaderConfig`) também retorna 0 itens no canal atual — mesmo sintoma do filtro de produtos, mas sem impacto visual porque `#logo_container` já fica sempre invisível (a marca já está no fundo). Investigar os filtros dessa consulta junto ao tenant se algum dia precisar do logo dinâmico.
+- `MOCK_DATA.enabled = false` antes de gerar o `.eh5` de produção (mock já comentado no `index.html`).
 
 ## Teste
 `http://localhost:12099/FILES/1/index.html` — nunca `file:///`.

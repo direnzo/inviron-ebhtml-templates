@@ -1,5 +1,9 @@
-// Variáveis globais de dados. Rotação/ordem vêm sempre do dataset (order=SPECIALPROJECT),
-// nunca de localStorage — ver docs/00-governanca-e-arquitetura.md e docs/02-dados-ebhtml-rotacao.md.
+// Variáveis globais de dados. Seleção/conteúdo de cada item vêm do dataset;
+// o ÍNDICE de rotação usa localStorage — exceção documentada (docs/00-governanca-e-arquitetura.md):
+// a consulta (lista de projetos -> filtro por projeto) não tem cursor de "próximo item" no canal de dados,
+// confirmado com dados reais do ASSAI-FARMA (sem isso, sempre reexibia o mesmo produto).
+var local_storage_projeto = 'assaifarma_prox_projeto';
+var local_storage_produto = 'assaifarma_prox_produto_';
 var special_project = [];
 var midias_para_exibir = [];
 var prox_projeto;  // <-- Prox_projeto declarado globalmente
@@ -72,8 +76,10 @@ function readDataXML() {
 
     console.log(special_project);
 
-    // Sempre o primeiro projeto especial da lista — a ordem/seleção é responsabilidade do dataset (order=SPECIALPROJECT)
-    prox_projeto = 0;
+    // Avanca para o proximo projeto especial a cada reload (persistido em localStorage)
+    prox_projeto = parseInt(localStorage.getItem(local_storage_projeto) || '0', 10);
+    if (isNaN(prox_projeto) || prox_projeto >= special_project.length) { prox_projeto = 0; }
+    localStorage.setItem(local_storage_projeto, (prox_projeto + 1) % special_project.length);
     console.log(prox_projeto);
 
     var midia_fundo = data1.get(prox_projeto).value('FILE_BACKGROUND').value;
@@ -91,8 +97,7 @@ function readDataXML() {
     }
 
     ebhtml.create2({}, function (loader2) {
-        loader2.addData(CONFIG.dataset.name, true, 'onlyreceivedfile=0&amount=0&f_specialproject=' + special_project[prox_projeto] + '&ft_title=' + '&f_text10=1');
-        //loader2.addData(CONFIG.dataset.name, true, 'onlyreceivedfile=0&amount=0&f_specialproject=' + special_project[prox_projeto] + '&ft_title=');
+        loader2.addData(CONFIG.dataset.name, true, 'onlyreceivedfile=0&amount=0&f_specialproject=' + special_project[prox_projeto] + '&ft_title=');
 
         loader2.nodataiserror = false;
         loader2.autoloaded = false;
@@ -121,8 +126,11 @@ function readData2XML() {
 
     console.log('Produtos encontrados: ' + allProducts.length);
 
-    // Sempre o primeiro produto da lista — a ordem/seleção é responsabilidade do dataset
-    var prox_midia = 0;
+    // Avanca para o proximo produto do projeto atual a cada reload (persistido em localStorage, por projeto)
+    var chaveProduto = local_storage_produto + prox_projeto;
+    var prox_midia = parseInt(localStorage.getItem(chaveProduto) || '0', 10);
+    if (isNaN(prox_midia) || prox_midia >= allProducts.length) { prox_midia = 0; }
+    localStorage.setItem(chaveProduto, (prox_midia + 1) % allProducts.length);
     console.log('Exibindo produto index: ' + prox_midia);
 
     getproduct(allProducts, data2, prox_midia);
