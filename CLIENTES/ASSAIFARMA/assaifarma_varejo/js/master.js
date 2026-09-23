@@ -15,6 +15,24 @@ function encerrarItem() {
     }
 }
 
+// localStorage pode estar bloqueado/restrito em alguns players (kiosk WebView) —
+// nunca deixar esse acesso derrubar o parsing principal (ver readDataXML/readData2XML).
+function lerIndiceStorage(chave) {
+    try {
+        return parseInt(localStorage.getItem(chave) || '0', 10);
+    } catch (erro) {
+        console.warn('[storage] leitura falhou, usando indice 0: ' + (erro && erro.message ? erro.message : erro));
+        return 0;
+    }
+}
+function gravarIndiceStorage(chave, valor) {
+    try {
+        localStorage.setItem(chave, valor);
+    } catch (erro) {
+        console.warn('[storage] gravacao falhou (rotacao pode nao avancar): ' + (erro && erro.message ? erro.message : erro));
+    }
+}
+
 // Função principal que inicia o player
 function playerView() {
     window.onload = function () {
@@ -66,10 +84,12 @@ function readDataXML() {
     var data1 = docLoader.datalist(CONFIG.dataset.name);
     var qtd_dados = data1.count();
     var y = 0;
+    var special_project_raw_index = []; // indice em data1 (lista crua) do 1o registro de cada projeto distinto
 
     for (var a = 0; a < qtd_dados; a++) {
         if (special_project[y - 1] != data1.get(a).value('SPECIALPROJECT').value) {
             special_project[y] = data1.get(a).value('SPECIALPROJECT').value;
+            special_project_raw_index[y] = a;
             y++;
         }
     }
@@ -77,23 +97,22 @@ function readDataXML() {
     console.log(special_project);
 
     // Avanca para o proximo projeto especial a cada reload (persistido em localStorage)
-    prox_projeto = parseInt(localStorage.getItem(local_storage_projeto) || '0', 10);
+    prox_projeto = lerIndiceStorage(local_storage_projeto);
     if (isNaN(prox_projeto) || prox_projeto >= special_project.length) { prox_projeto = 0; }
-    localStorage.setItem(local_storage_projeto, (prox_projeto + 1) % special_project.length);
+    gravarIndiceStorage(local_storage_projeto, (prox_projeto + 1) % special_project.length);
     console.log(prox_projeto);
 
-    var midia_fundo = data1.get(prox_projeto).value('FILE_BACKGROUND').value;
-    var tipo_midia = midia_fundo.split(':')[0];
+    // data1 e a lista crua (1 linha por produto) — usar o raw-index salvo, nao prox_projeto direto
+    var midia_fundo = data1.get(special_project_raw_index[prox_projeto]).value('FILE_BACKGROUND').value;
+    var tipo_midia = (midia_fundo || '').split(':')[0].toLowerCase();
 
-    if (tipo_midia === 'http') {
+    if (tipo_midia === 'http' || tipo_midia === 'https') {
         var image = document.getElementById('image');
         image.src = midia_fundo;
         midia_id = midia_fundo.split('FILES/')[1];
-    } else {
-        var video = document.getElementById('video');
-        midia_id = midia_fundo.split('f_')[1].split('.')[0];
-        video.src = "http://localhost:13199/FILES/" + midia_id;
-        video.play();
+    } else if (midia_fundo) {
+        // Este template nao tem <video>; midia_fundo com formato inesperado (ex.: sem http/https) cai aqui.
+        console.warn('[readDataXML] FILE_BACKGROUND em formato nao suportado (sem video no template): ' + midia_fundo);
     }
 
     ebhtml.create2({}, function (loader2) {
@@ -128,38 +147,23 @@ function readData2XML() {
 
     // Avanca para o proximo produto do projeto atual a cada reload (persistido em localStorage, por projeto)
     var chaveProduto = local_storage_produto + prox_projeto;
-    var prox_midia = parseInt(localStorage.getItem(chaveProduto) || '0', 10);
+    var prox_midia = lerIndiceStorage(chaveProduto);
     if (isNaN(prox_midia) || prox_midia >= allProducts.length) { prox_midia = 0; }
-    localStorage.setItem(chaveProduto, (prox_midia + 1) % allProducts.length);
+    gravarIndiceStorage(chaveProduto, (prox_midia + 1) % allProducts.length);
     console.log('Exibindo produto index: ' + prox_midia);
 
     getproduct(allProducts, data2, prox_midia);
-
-    ebhtml.create2({}, function (loaderConfig) {
-        loaderConfig.addData(CONFIG.dataset.name, true, 'f_specialproject=' + special_project[prox_projeto] + '&ft_image_logo=');
-        loaderConfig.nodataiserror = false;
-        loaderConfig.autoloaded = false;
-        loaderConfig.load(function () {
-            try {
-                readConfig(loaderConfig);
-            } catch (erro) {
-                console.error('[readData2XML] excecao ao ler config/logo: ' + (erro && erro.message ? erro.message : erro));
-            }
-        }, function () {
-            console.error('[readData2XML] falha no load da config/logo');
-        });
-    });
 }
-// Função para ler e aplicar a configuração do projeto
-function readConfig(loaderConfig) {
+// Aplica o logo lido do proprio registro do produto (mesmo data2 ja carregado).
+// NUNCA usar um 3o ebhtml.create2() so pra isso: o `interface` do EBBrowser e global
+// por pagina, entao um loader separado que retorne 0 registros dispara finished()/error()
+// REAIS pro player nativo, encerrando o item na hora — mesmo com docLoader com setTimeout ativo.
+function aplicarLogo(item) {
     var logo = document.getElementById('logo');
-    logo.src = loaderConfig.data(CONFIG.dataset.name).value('IMAGE_LOGO').value;
-
-    // var colorFont = loaderConfig.data('D_SPD').value('COLOR1').value;
-    // var colorPrice = loaderConfig.data('D_SPD').value('COLOR2').value;
-
-    // document.body.style.color = colorFont;
-    // document.getElementById('price').style.color = colorPrice;
+    var campo = item.value('IMAGE_LOGO');
+    if (logo && campo && campo.value) {
+        logo.src = campo.value;
+    }
 }
 
 // Função para buscar e exibir o produto
@@ -179,6 +183,8 @@ function getproduct(allProducts, data2, prox_midia) {
 
     var unity = 'un.';
     var currency = 'R$';
+
+    aplicarLogo(data2.get(idx));
 
     productImg.src = data2.get(idx).value('FILE_IMAGE1').value;
     productImg2.src = data2.get(idx).value('FILE_IMAGE1').value;

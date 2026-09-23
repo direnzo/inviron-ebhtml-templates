@@ -35,10 +35,11 @@ var MOCK_DATA = {
             img: 'img/produtos/shampoo.webp'
         },
         // ── Tipo 4 — Leve X Pague Y por apenas ────────────────────────────────
+        // TEXT2 = pague, TEXT3 = leve (confirmado com dado real do canal)
         {
             tipo: '4',
             title: 'ÁGUA MINERAL 500ML',
-            price1: '2,49', price2: '3', price3: '2',
+            price1: '2,49', price2: '2', price3: '3',
             unitPack: '', text7: '',
             img: 'img/produtos/agua_mineral.webp'
         },
@@ -79,11 +80,11 @@ var MOCK_DATA = {
             img: 'img/produtos/vitamina_c.webp'
         },
         // ── Tipo 9 — ClubeFFato Leve X Pague Y + Preço Embalagem ──────────────
-        // TEXT1 = preço, TEXT2 = leve, TEXT3 = pague, TEXT6 = preço/un embalagem
+        // TEXT1 = preço, TEXT2 = pague, TEXT3 = leve, TEXT6 = preço/un embalagem
         {
             tipo: '9',
             title: 'FIO DENTAL 50M',
-            price1: '6,99', price2: '3', price3: '2',
+            price1: '6,99', price2: '2', price3: '3',
             unitPack: '4,90', text7: '',
             img: 'img/produtos/fio_dental.webp'
         },
