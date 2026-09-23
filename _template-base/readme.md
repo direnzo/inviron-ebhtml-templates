@@ -8,6 +8,7 @@ Base executavel para novos templates EdgeContents. Derive-a somente em branch te
 - **TailwindCSS v3** - Framework CSS pré-configurado com fallbacks para Chrome < 65
 - **Breakpoints por Aspect Ratio** - Layout inteligente para portrait (≤3:4), landscape (4:3 a 2:1), ultrawide (≥3:1), superbanner (5:1 a 15:1), empena (≤1:3)
 - **Mock compatível** - Desenvolvimento via EBHTML shim, desativado antes do empacotamento
+- **`js/config.js`** - Variáveis globais (timing, dataset, área segura, cores) centralizadas, aplicadas via `aplicarConfigVisual()`
 - **Detecção de hardware fraco** - Degradação para dispositivos fracos (`.reduced`)
 - **Centralização de tipografia** - Font-size via `vmin` no body, filhos escalonam com `em`
 
@@ -65,6 +66,7 @@ _template-base/
 │   └── master.css       # Compilado (não editar)
 └── js/
     ├── ebhtml.js        # Biblioteca EBHTML v2.0.7 canônica
+    ├── config.js        # CONFIG (timing, dataset, layout, colors) — editar aqui, não espalhar literais no master.js
     ├── master.js        # Lógica principal (ES5)
     └── mock-data.js     # Dados mock (descomentar)
 ```

@@ -11,10 +11,8 @@
  * - Evite o uso excessivo de console.log
  */
 
-var DATASET = 'D_INSTITUCIONAL';
 var LOAD_TIMEOUT = 8000;
 var MEDIA_TIMEOUT = 8000;
-var config = { duration: 15000, debug: true };
 var HARDWARE_FRACO = false;
 
 (function() {
@@ -45,6 +43,7 @@ function fieldValue(data, name) {
 }
 
 window.onload = function() {
+    aplicarConfigVisual();
     var body = document.body;
     var dynamicContent = document.getElementById('dynamicContent');
     var image = document.getElementById('image');
@@ -71,7 +70,7 @@ window.onload = function() {
             finished = true;
             clearTimers();
             clearTimeout(finishTimer);
-            if (config.debug) { console.log('[Base] Finalizado: ' + reason); }
+            if (CONFIG.debug) { console.log('[Base] Finalizado: ' + reason); }
             loader.finished();
         }
         function completeSuccess(reason) {
@@ -85,8 +84,8 @@ window.onload = function() {
             }
             loaded = true;
             loader.loaded();
-            finishTimer = setTimeout(function() { finish('duracao concluida'); }, config.duration);
-            if (config.debug) { console.log('[Base] Carregado: ' + reason); }
+            finishTimer = setTimeout(function() { finish('duracao concluida'); }, CONFIG.timing.duration);
+            if (CONFIG.debug) { console.log('[Base] Carregado: ' + reason); }
         }
         function loadImage(url) {
             if (!url || !image) { completeSuccess('sem imagem'); return; }
@@ -96,18 +95,18 @@ window.onload = function() {
             image.src = url;
         }
 
-        loader.addData(DATASET, false);
+        loader.addData(CONFIG.dataset.name, false);
         loader.nodataiserror = false;
         loader.autoloaded = false;
         loadWatchdog = setTimeout(function() { finish('timeout do loader'); }, LOAD_TIMEOUT);
         loader.load(function() {
             clearTimeout(loadWatchdog);
             try {
-                var data = loader.data(DATASET);
+                var data = loader.data(CONFIG.dataset.name);
                 var duration;
                 if (!data) { finish('dataset vazio'); return; }
                 duration = parseInt(fieldValue(data, 'DURATION'), 10);
-                if (duration > 0) { config.duration = duration; }
+                if (duration > 0) { CONFIG.timing.duration = duration; }
                 if (titleEl) { titleEl.textContent = fieldValue(data, 'TITULO'); }
                 if (descEl) { descEl.textContent = fieldValue(data, 'TEXTO'); }
                 if (footerText) { footerText.textContent = fieldValue(data, 'FOOTER'); }
