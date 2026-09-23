@@ -1,7 +1,5 @@
-// Variáveis globais para controle de localStorage e dados
-var local_storage_id = 'special_project_id_assaifarma';
-var local_storage_type = 'product_type_assaifarma';
-var local_storage_media = 'media_url_assaifarma';
+// Variáveis globais de dados. Rotação/ordem vêm sempre do dataset (order=SPECIALPROJECT),
+// nunca de localStorage — ver docs/00-governanca-e-arquitetura.md e docs/02-dados-ebhtml-rotacao.md.
 var special_project = [];
 var midias_para_exibir = [];
 var prox_projeto;  // <-- Prox_projeto declarado globalmente
@@ -16,24 +14,37 @@ function encerrarItem() {
 // Função principal que inicia o player
 function playerView() {
     window.onload = function () {
+        aplicarConfigVisual();
+
+        // Mock roda antes de qualquer chamada real ao ebhtml — não depende de dataset no ar
+        if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
+            docLoader = {
+                loaded: function () { console.log('[Mock] loaded'); },
+                finished: function () { console.log('[Mock] finished'); }
+            };
+            try {
+                runMock();
+            } catch (erro) {
+                console.error('[playerView] excecao no mock: ' + (erro && erro.message ? erro.message : erro));
+            }
+            docLoader.loaded();
+            setTimeout(function () { docLoader.finished(); }, CONFIG.timing.duration);
+            return;
+        }
+
         ebhtml.create2({}, function (loader) {
-            loader.addData('D_SPD', true, 'onlyreceivedfile=0&amount=0&order=SPECIALPROJECT&orderkind=A&f_type=4&ft_file_background=');
+            loader.addData(CONFIG.dataset.name, true, 'onlyreceivedfile=0&amount=0&order=SPECIALPROJECT&orderkind=A&f_type=' + CONFIG.dataset.typeFilter + '&ft_file_background=');
             loader.nodataiserror = false;
             loader.autoloaded = false;
             loader.load(function () {
                 docLoader = loader;
                 try {
                     docLoader.loaded();
-
-                    if (typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) {
-                        runMock();
-                    } else {
-                        readDataXML();
-                    }
+                    readDataXML();
 
                     setTimeout(function () {
                         docLoader.finished();
-                    }, 5000);
+                    }, CONFIG.timing.duration);
                 } catch (erro) {
                     console.error('[playerView] excecao no parsing: ' + (erro && erro.message ? erro.message : erro));
                     encerrarItem();
@@ -48,7 +59,7 @@ function playerView() {
 }
 // Função para ler o XML e processar os projetos especiais
 function readDataXML() {
-    var data1 = docLoader.datalist('D_SPD');
+    var data1 = docLoader.datalist(CONFIG.dataset.name);
     var qtd_dados = data1.count();
     var y = 0;
 
@@ -61,12 +72,8 @@ function readDataXML() {
 
     console.log(special_project);
 
-    // Verifica no localStorage qual é o próximo projeto a ser exibido
-    if (localStorage.getItem(local_storage_id) >= special_project.length || localStorage.getItem(local_storage_id) == null) {
-        localStorage.setItem(local_storage_id, 0);
-    }
-
-    prox_projeto = localStorage.getItem(local_storage_id); // <-- Define a variável prox_projeto
+    // Sempre o primeiro projeto especial da lista — a ordem/seleção é responsabilidade do dataset (order=SPECIALPROJECT)
+    prox_projeto = 0;
     console.log(prox_projeto);
 
     var midia_fundo = data1.get(prox_projeto).value('FILE_BACKGROUND').value;
@@ -83,12 +90,9 @@ function readDataXML() {
         video.play();
     }
 
-    var pprojeto = parseInt(prox_projeto) + 1;
-    localStorage.setItem(local_storage_id, pprojeto);
-
     ebhtml.create2({}, function (loader2) {
-        loader2.addData('D_SPD', true, 'onlyreceivedfile=0&amount=0&f_specialproject=' + special_project[prox_projeto] + '&ft_title=' + '&f_text10=1');
-        //loader2.addData('D_SPD', true, 'onlyreceivedfile=0&amount=0&f_specialproject=' + special_project[prox_projeto] + '&ft_title=');
+        loader2.addData(CONFIG.dataset.name, true, 'onlyreceivedfile=0&amount=0&f_specialproject=' + special_project[prox_projeto] + '&ft_title=' + '&f_text10=1');
+        //loader2.addData(CONFIG.dataset.name, true, 'onlyreceivedfile=0&amount=0&f_specialproject=' + special_project[prox_projeto] + '&ft_title=');
 
         loader2.nodataiserror = false;
         loader2.autoloaded = false;
@@ -106,7 +110,7 @@ function readDataXML() {
 }
 // Função para ler os dados do projeto especial atual
 function readData2XML() {
-    var data2 = docLoader2.datalist('D_SPD');
+    var data2 = docLoader2.datalist(CONFIG.dataset.name);
     var qtd_itens = data2.count();
     console.log('Total itens: ' + qtd_itens);
 
@@ -117,20 +121,14 @@ function readData2XML() {
 
     console.log('Produtos encontrados: ' + allProducts.length);
 
-    if (localStorage.getItem(local_storage_media + prox_projeto) >= allProducts.length || localStorage.getItem(local_storage_media + prox_projeto) == null) {
-        localStorage.setItem(local_storage_media + prox_projeto, 0);
-    }
-
-    var prox_midia = localStorage.getItem(local_storage_media + prox_projeto);
+    // Sempre o primeiro produto da lista — a ordem/seleção é responsabilidade do dataset
+    var prox_midia = 0;
     console.log('Exibindo produto index: ' + prox_midia);
 
     getproduct(allProducts, data2, prox_midia);
 
-    var pmidia = parseInt(prox_midia) + 1;
-    localStorage.setItem(local_storage_media + prox_projeto, pmidia);
-
     ebhtml.create2({}, function (loaderConfig) {
-        loaderConfig.addData('D_SPD', true, 'f_specialproject=' + special_project[prox_projeto] + '&ft_image_logo=');
+        loaderConfig.addData(CONFIG.dataset.name, true, 'f_specialproject=' + special_project[prox_projeto] + '&ft_image_logo=');
         loaderConfig.nodataiserror = false;
         loaderConfig.autoloaded = false;
         loaderConfig.load(function () {
@@ -147,7 +145,7 @@ function readData2XML() {
 // Função para ler e aplicar a configuração do projeto
 function readConfig(loaderConfig) {
     var logo = document.getElementById('logo');
-    logo.src = loaderConfig.data('D_SPD').value('IMAGE_LOGO').value;
+    logo.src = loaderConfig.data(CONFIG.dataset.name).value('IMAGE_LOGO').value;
 
     // var colorFont = loaderConfig.data('D_SPD').value('COLOR1').value;
     // var colorPrice = loaderConfig.data('D_SPD').value('COLOR2').value;

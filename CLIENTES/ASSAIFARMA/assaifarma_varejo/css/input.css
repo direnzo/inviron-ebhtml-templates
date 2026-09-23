@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Fallback antes do config.js aplicar os valores reais em runtime (ver js/config.js) */
+:root {
+    --cor-preco: #dc2626;
+    --cor-texto: #000000;
+}
+
 /* Registrar as fontes personalizadas */
 @font-face {
     font-family: 'Roboto Medium';
