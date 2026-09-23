@@ -116,11 +116,34 @@ loader.load(function () {
 }, function () { encerrarSemDados('falha no load'); });
 ```
 
-Checklist ao revisar qualquer template: `loader.load(sucesso, erro)` sempre com 2º argumento • handlers de imagem antes do `src` • watchdog de timeout presente • todo o parsing/render do callback de sucesso envolto em `try/catch` que chama `finished()` no `catch`. Ver `.github/skills/ebhtml-api/SKILL.md` seção 6 para o padrão completo.
+Checklist ao revisar qualquer template: `loader.load(sucesso, erro)` sempre com 2º argumento • handlers de imagem antes do `src` • watchdog de timeout presente • todo o parsing/render do callback de sucesso envolto em `try/catch` que chama `finished()` no `catch` • nenhum `ebhtml.create2()` extra só para campo/asset opcional secundário (ver 1.2). Ver `.github/skills/ebhtml-api/SKILL.md` seção 6 para o padrão completo.
 
 ### 1.1 Polling com múltiplas categorias e paginação
 
 Quando o template exibir categorias em colunas independentes, cada coluna deve manter seu próprio loader, intervalo de polling, `allItems` e índice da página visível. O polling deve comparar um fingerprint dos itens e atualizar a página atualmente renderizada imediatamente quando houver alteração — mesmo que o intervalo de paginação continue ativo. Nunca usar `if (!paginationTimer)` como condição para renderizar a alteração: o timer controla apenas a rotação, não a atualização dos dados. Se a quantidade de itens mudar, limitar a página visível ao novo total e recalcular o próximo índice da rotação. Ver `andorinha-menuboard-semfim/js/master.js` como referência.
+
+### 1.2 `interface` do EBBrowser é global por página — nunca criar um `ebhtml.create2()` extra só para um campo/asset opcional
+
+Incidente real (assaifarma_varejo, 2026-09-23): item tocava e sumia quase instantaneamente, mesmo com `CONFIG.timing.duration` correto e o loader principal com `setTimeout(finished, duration)` certo.
+
+Causa: `EBBrowser.prototype.finished()`/`.error()` chamam `this.interface.ebfinished()`/`.eberror()`, e `this.interface` é atribuído a partir de objetos **globais por página** (`ebflashinterface`/`ebmessageinterface`/`ebdefaultinterface`) — não por instância. Mesmo criando um `EBBrowser` novo a cada `ebhtml.create2()`, todos compartilham o mesmo canal nativo real com o player. Isso significa que **qualquer** loader secundário/decorativo (ex.: uma consulta só para buscar um logo opcional que pode legítimamente não existir no canal) que retorne 0 registros com `nodataiserror = false` aciona internamente `this.browser.finished()` (ver bug documentado acima em `browserdata_checkloaded`) — chamando o `ebfinished()` GLOBAL e encerrando o item de verdade, **sobrepondo o `setTimeout` do loader principal**. Não trava (como o bug de dataset vazio) — pior: finaliza o item silenciosamente, e só aparece investigando o próprio código-fonte do `ebhtml.js` (o `[finished]` no console é literal).
+
+**Regra:** nunca abrir um `ebhtml.create2()` dedicado só para um campo/asset que pode estar ausente (logo, cor, config opcional). Ler esse campo do MESMO registro/loader que já carregou com sucesso.
+```javascript
+// ❌ NUNCA — loader extra só para um campo opcional; 0 registros = finished()/error() globais prematuros
+ebhtml.create2({}, function (loaderConfig) {
+    loaderConfig.addData('D_SPD', true, 'f_specialproject=' + id + '&ft_image_logo=');
+    loaderConfig.nodataiserror = false;
+    loaderConfig.load(function () { logo.src = loaderConfig.data('D_SPD').value('IMAGE_LOGO').value; });
+});
+
+// ✅ SEMPRE — ler do registro que ja carregou com sucesso, sem 2o loader
+function aplicarLogo(item) {
+    var campo = item.value('IMAGE_LOGO');
+    if (logo && campo && campo.value) { logo.src = campo.value; }
+}
+aplicarLogo(data2.get(idx)); // idx do produto ja carregado, dentro do loader principal
+```
 
 ### 2. CSS Compatível (Chromium 78)
 | ❌ Proibido | Requer | ✅ Alternativa |
@@ -332,6 +355,7 @@ ffmpeg -i SRC.mp4 -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 \
 - [ ] `loader.loaded()` após sucesso, `loader.finished()` sempre
 - [ ] `loader.load()` com 2º argumento (callback de erro) que também chama `finished()`
 - [ ] Parsing/render dentro do callback de sucesso do `loader.load()` envolto em `try/catch` que chama `finished()` no `catch` (evita travar se um watchdog externo já foi cancelado antes da exceção)
+- [ ] Nenhum `ebhtml.create2()` extra dedicado a um campo/asset opcional (logo, cor, config) — o `interface` do EBBrowser é global por página; um loader secundário com 0 registros finaliza o item de verdade (ver seção 1.2)
 - [ ] `image.onload`/`onerror` atribuídos ANTES de `image.src`
 - [ ] Watchdog (`setTimeout`) garantindo `finished()` mesmo sem eventos de imagem/mídia
 - [ ] `MOCK_DATA.enabled = false` em produção

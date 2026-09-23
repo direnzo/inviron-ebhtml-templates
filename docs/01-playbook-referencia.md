@@ -11,6 +11,7 @@ Este documento resume as diretrizes obrigatorias do workspace.
   - "sempre" inclui o caminho de erro: `loader.load(sucesso, erro)` precisa do 2o argumento, senao falha de XML trava o item pra sempre (ebhtml.js chama error() mas nunca finished() sozinho).
   - handlers de imagem/midia (`onload`/`onerror`) sempre ANTES de setar `src` — WebKit legado pode disparar o evento antes do handler existir se a imagem estiver em cache.
   - todo template com midia assincrona precisa de um watchdog (`setTimeout`) que force `finished()` mesmo sem eventos.
+  - nunca abrir um `ebhtml.create2()` extra so para um campo/asset opcional (logo, cor, config): o `interface` do EBBrowser e global por pagina, e um loader secundario com 0 registros dispara `finished()`/`error()` reais, encerrando o item cedo demais (ver `.github/skills/ebhtml-api/SKILL.md`).
   - detalhe completo e codigo de referencia: `.github/skills/ebhtml-api/SKILL.md` secao 6.
 - Preview, quando exigido pelo briefing: mesma logica do runtime, mudando so a origem dos dados.
 - Evitar localStorage em regra principal (dataset-first).
