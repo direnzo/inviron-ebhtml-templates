@@ -19,33 +19,6 @@
     src: url('fonts/Roboto-Black.ttf');
 }
 
-@font-face {
-    font-family: 'Open Sans';
-    src: url('fonts/OpenSans-VariableFont_wdth_wght.ttf');
-}
-@font-face {
-    font-family: 'Open Sans Italic';
-    src: url('fonts/OpenSans-Italic-VariableFont_wdth_wght.ttf');
-}
-
-@font-face {
-    font-family: 'Inter';
-    src: url('fonts/Inter-VariableFont_opsz_wght.ttf');
-}
-@font-face {
-    font-family: 'Inter Italic';
-    src: url('fonts/Inter-Italic-VariableFont_opsz_wght.ttf');
-}
-
-@font-face {
-    font-family: 'Work Sans';
-    src: url('fonts/WorkSans-VariableFont_wght.ttf');
-}
-@font-face {
-    font-family: 'Work Sans Italic';
-    src: url('fonts/WorkSans-Italic-VariableFont_wght.ttf');
-}
-
 /* classes personalizadas para uso no projeto */
 /* Classe personalizada diagonal-strike */
 .diagonal-strike {

@@ -24,7 +24,7 @@
     </script>
 </head>
 
-<body class="bg-black overflow-hidden font-inter text-[2vh] landscape:text-[2vw] text-[color:var(--cor-texto)]">
+<body class="bg-black overflow-hidden font-roboto-medium text-[2vh] landscape:text-[2vw] text-[color:var(--cor-texto)]">
     <div id="size" class="absolute top-0 left-0 z-50 bg-yellow-400 text-red-600 text-3xl p-5 hidden"></div>
     <!-- Fundo para a foto com animação de fade-in e scale -->
     <div id="backgroundImage" class="absolute top-0 right-0 bottom-0 left-0 bg-cover bg-center z-0 w-full h-full">
@@ -46,7 +46,7 @@
                 <!-- Título -->
                 <div id="title_container"
                     class="shrink-0 flex items-center justify-center h-[10vh] landscape:h-[18vh] ">
-                    <div id="title" class="text-[180%] font-black text-center mx-2 text-[color:var(--cor-texto)]"></div>
+                    <div id="title" class="text-[180%] font-roboto-black text-center mx-2 text-[color:var(--cor-texto)]"></div>
                 </div>
 
                 <!-- Imagem Container (no portrait está entre o título e o preço) -->
@@ -78,7 +78,7 @@
     <!-- Tipo 1: Preco simples — destaque total -->
     <template id="cond-1">
         <div class="flex flex-col items-center justify-center w-full scale-125">
-            <div data-fill="price1" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)] animate-pulseScaleWithDelay"></div>
+            <div data-fill="price1" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)] animate-pulseScaleWithDelay"></div>
         </div>
     </template>
 
@@ -86,9 +86,9 @@
     <template id="cond-2">
         <div class="flex flex-col items-center justify-center w-full">
             <div class="text-[110%] font-black flex flex-row items-center self-start ml-5 mb-2 text-[color:var(--cor-texto)]">
-                DE&nbsp;<span data-fill="price2-raw" class="text-[150%] mx-1 diagonal-strike"></span>&nbsp;POR:
+                DE&nbsp;<span data-fill="price2-raw" class="font-roboto-black text-[150%] mx-1 diagonal-strike"></span>&nbsp;POR:
             </div>
-            <div data-fill="price1" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)] animate-pulseScaleWithDelay"></div>
+            <div data-fill="price1" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)] animate-pulseScaleWithDelay"></div>
         </div>
     </template>
 
@@ -96,9 +96,9 @@
     <template id="cond-3">
         <div class="flex flex-col items-center justify-center w-full">
             <div class="text-[110%] font-black flex flex-row items-center self-start ml-5 mb-2 text-[color:var(--cor-texto)]">
-                Desconto de&nbsp;<span data-fill="price2-pct" class="text-[150%] mx-1"></span>
+                Desconto de&nbsp;<span data-fill="price2-pct" class="font-roboto-black text-[150%] mx-1"></span>
             </div>
-            <div data-fill="price1" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)] animate-pulseScaleWithDelay"></div>
+            <div data-fill="price1" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)] animate-pulseScaleWithDelay"></div>
         </div>
     </template>
 
@@ -106,9 +106,9 @@
     <template id="cond-4">
         <div class="flex flex-col items-center justify-center w-full">
             <div class="text-[105%] font-black flex flex-row items-center flex-wrap self-center ml-5 mb-2 text-[color:var(--cor-texto)] leading-tight">
-                LEVE&nbsp;<span data-fill="price3-raw" class="text-[150%] mx-1"></span>&nbsp;PAGUE&nbsp;<span data-fill="price2-raw" class="text-[150%] mx-1"></span>&nbsp;POR APENAS
+                LEVE&nbsp;<span data-fill="price3-raw" class="font-roboto-black text-[150%] mx-1"></span>&nbsp;PAGUE&nbsp;<span data-fill="price2-raw" class="font-roboto-black text-[150%] mx-1"></span>&nbsp;POR APENAS
             </div>
-            <div data-fill="price1" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)] animate-pulseScaleWithDelay"></div>
+            <div data-fill="price1" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)] animate-pulseScaleWithDelay"></div>
         </div>
     </template>
 
@@ -118,7 +118,7 @@
             <div class="flex flex-col items-center justify-center w-1/2 px-2">
                 <div class="text-[80%] font-bold text-[color:var(--cor-texto)] mb-1">VAREJO</div>
                 <div class="text-[70%]">
-                    <div data-fill="price1" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                    <div data-fill="price1" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                 </div>
             </div>
             <div class="flex flex-col items-center justify-center w-1/2 px-2 text-[color:var(--cor-texto)]">
@@ -126,7 +126,7 @@
                     NESTA EMBALAGEM A <span data-fill="unitpack"></span> SAI POR:
                 </div>
                 <div class="text-[120%]">
-                    <div data-fill="price2" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                    <div data-fill="price2" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                 </div>
             </div>
         </div>
@@ -138,13 +138,13 @@
             <div class="flex flex-col items-center justify-center w-1/2 px-2">
                 <div class="text-[80%] font-bold text-[color:var(--cor-texto)] mb-1">VAREJO</div>
                 <div class="text-[70%]">
-                    <div data-fill="price1" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                    <div data-fill="price1" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                 </div>
             </div>
             <div class="flex flex-col items-center justify-center w-1/2 px-2 text-[color:var(--cor-texto)]">
                 <div class="text-[75%] font-bold text-center leading-tight mb-1">ATACADO OU FIDELIDADE</div>
                 <div class="text-[120%]">
-                    <div data-fill="price2" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                    <div data-fill="price2" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                 </div>
             </div>
         </div>
@@ -156,20 +156,20 @@
             <div class="flex flex-col items-center justify-center px-2">
                 <div class="text-[72%] font-bold text-[color:var(--cor-texto)] mb-1">VAREJO</div>
                 <div class="text-[72%]">
-                    <div data-fill="price1" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                    <div data-fill="price1" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                 </div>
             </div>
             <div class="flex flex-col items-center justify-center px-2 text-[color:var(--cor-texto)] space-y-2">
                 <div class="flex flex-col items-center">
                     <div class="text-[72%] font-bold text-center leading-tight">ATACADO OU FIDELIDADE</div>
                     <div class="text-[72%]">
-                        <div data-fill="price3" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                        <div data-fill="price3" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                     </div>
                 </div>
                 <div class="flex flex-col items-center">
                     <div class="text-[65%] font-bold text-center leading-tight">NESTA EMBALAGEM A <span data-fill="unitpack"></span> SAI POR:</div>
                     <div class="text-[65%]">
-                        <div data-fill="price2" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                        <div data-fill="price2" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                     </div>
                 </div>
             </div>
@@ -182,13 +182,13 @@
             <div class="flex flex-col items-center justify-center w-1/2 px-2">
                 <div class="text-[80%] font-bold text-[color:var(--cor-texto)] mb-1">VAREJO</div>
                 <div class="text-[70%]">
-                    <div data-fill="price1" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                    <div data-fill="price1" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                 </div>
             </div>
             <div class="flex flex-col items-center justify-center w-1/2 px-2 text-[color:var(--cor-texto)]">
                 <div class="text-[75%] font-bold text-center leading-tight mb-1">CLIENTE ASSAÍ</div>
                 <div class="text-[120%]">
-                    <div data-fill="price2" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                    <div data-fill="price2" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                 </div>
             </div>
         </div>
@@ -200,17 +200,17 @@
             <div class="flex flex-col items-center justify-center w-1/2 px-2">
                 <div class="text-[80%] font-bold text-[color:var(--cor-texto)] mb-1">VAREJO</div>
                 <div class="text-[62%]">
-                    <div data-fill="price1" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                    <div data-fill="price1" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                 </div>
                 <div class="text-[80%] font-black text-[color:var(--cor-texto)] mt-1 leading-tight">
-                    LEVE <span data-fill="price3-raw" class="text-[130%]"></span>
-                    PAGUE <span data-fill="price2-raw" class="text-[130%]"></span>
+                    LEVE <span data-fill="price3-raw" class="font-roboto-black text-[130%]"></span>
+                    PAGUE <span data-fill="price2-raw" class="font-roboto-black text-[130%]"></span>
                 </div>
             </div>
             <div class="flex flex-col items-center justify-center w-1/2 px-2 text-[color:var(--cor-texto)]">
                 <div class="text-[75%] font-bold text-center leading-tight mb-1">CLIENTE CLUBEFATO</div>
                 <div class="text-[102%]">
-                    <div data-fill="price-unitpack" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                    <div data-fill="price-unitpack" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                 </div>
             </div>
         </div>
@@ -222,13 +222,13 @@
             <div class="flex flex-col items-center justify-center w-1/2 px-2">
                 <div class="text-[80%] font-bold text-[color:var(--cor-texto)] mb-1">VAREJO</div>
                 <div class="text-[100%]">
-                    <div data-fill="price1" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                    <div data-fill="price1" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                 </div>
             </div>
             <div class="flex flex-col items-center justify-center w-1/2 px-2 text-[color:var(--cor-texto)]">
                 <div class="text-[75%] font-bold text-center leading-tight mb-1">CLIENTE CLUBEFATO</div>
                 <div class="text-[70%]">
-                    <div data-fill="price2-pct" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                    <div data-fill="price2-pct" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                 </div>
                 <div class="text-[70%] font-bold text-center leading-tight mt-1">de desconto na 2ª un.</div>
             </div>
@@ -241,21 +241,21 @@
             <div class="flex flex-col items-center justify-center px-2">
                 <div class="text-[72%] font-bold text-[color:var(--cor-texto)] mb-1">VAREJO</div>
                 <div class="text-[72%]">
-                    <div data-fill="price1" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                    <div data-fill="price1" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                 </div>
             </div>
             <div class="flex flex-col items-center justify-center px-2 text-[color:var(--cor-texto)] space-y-2">
                 <div class="flex flex-col items-center">
                     <div class="text-[65%] font-bold text-center leading-tight">CLIENTE CLUBEFATO</div>
                     <div class="text-[65%]">
-                        <div data-fill="price2-pct" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                        <div data-fill="price2-pct" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                     </div>
                     <div class="text-[60%] font-bold text-center leading-tight">de desconto na 2ª un.</div>
                 </div>
                 <div class="flex flex-col items-center">
                     <div class="text-[60%] font-bold text-center leading-tight">NESTA EMBALAGEM SAI POR:</div>
                     <div class="text-[65%]">
-                        <div data-fill="price-unitpack" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                        <div data-fill="price-unitpack" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                     </div>
                 </div>
             </div>
@@ -268,15 +268,15 @@
             <div class="flex flex-col items-center justify-center w-1/2 px-2">
                 <div class="text-[80%] font-bold text-[color:var(--cor-texto)] mb-1">VAREJO</div>
                 <div class="text-[70%]">
-                    <div data-fill="price1" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                    <div data-fill="price1" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                 </div>
             </div>
             <div class="flex flex-col items-center justify-center w-1/2 px-2 text-[color:var(--cor-texto)]">
                 <div class="text-[80%] font-bold text-center leading-tight mb-1">
-                    <span data-fill="price2-raw"></span> UNIDADES POR:
+                    <span data-fill="price2-raw" class="font-roboto-black"></span> UNIDADES POR:
                 </div>
                 <div class="text-[100%]">
-                    <div data-fill="price3-no-unit" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                    <div data-fill="price3-no-unit" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                 </div>
             </div>
         </div>
@@ -288,15 +288,15 @@
             <div class="flex flex-col items-center justify-center w-1/2 px-2">
                 <div class="text-[80%] font-bold text-[color:var(--cor-texto)] mb-1">VAREJO</div>
                 <div class="text-[60%]">
-                    <div data-fill="price1" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                    <div data-fill="price1" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                 </div>
             </div>
             <div class="flex flex-col items-center justify-center w-1/2 px-2 text-[color:var(--cor-texto)]">
                 <div class="text-[80%] font-bold text-center leading-tight mb-1">
-                    <span data-fill="price2-raw"></span>x DE:
+                    <span data-fill="price2-raw" class="font-roboto-black"></span>x DE:
                 </div>
                 <div class="text-[100%]">
-                    <div data-fill="price3-no-unit" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
+                    <div data-fill="price3-no-unit" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)]"></div>
                 </div>
                 <div data-fill="text7" class="text-[60%] font-semibold text-center mt-1 leading-tight"></div>
             </div>
@@ -309,7 +309,7 @@
             <div class="text-[110%] font-black flex flex-row items-center self-start ml-5 mb-2 text-[color:var(--cor-texto)]">
                 A PARTIR DE:
             </div>
-            <div data-fill="price1-no-unit" class="font-black flex flex-row items-start leading-none text-[color:var(--cor-preco)] animate-pulseScaleWithDelay"></div>
+            <div data-fill="price1-no-unit" class="font-roboto-black flex flex-row items-start leading-none text-[color:var(--cor-preco)] animate-pulseScaleWithDelay"></div>
         </div>
     </template>
 

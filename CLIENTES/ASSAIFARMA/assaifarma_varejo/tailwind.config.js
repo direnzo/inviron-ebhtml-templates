@@ -6,13 +6,6 @@ module.exports = {
       fontFamily: {
         'roboto-medium': ['Roboto Medium', 'sans-serif'],
         'roboto-black': ['Roboto Black', 'sans-serif'],
-        'open-sans': ['Open Sans', 'sans-serif'],
-        'open-sans-italic': ['Open Sans Italic', 'sans-serif'],
-        'inter': ['Inter', 'sans-serif'],
-        'inter-italic': ['Inter Italic', 'sans-serif'],
-        'work': ['Work Sans', 'sans-serif'],
-        'work-italic': ['Work Sans Italic', 'sans-serif'],
-
       },
       fontWeight: {
         thin: '100',
