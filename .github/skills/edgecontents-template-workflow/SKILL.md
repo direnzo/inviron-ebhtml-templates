@@ -67,6 +67,7 @@ Classificar o template antes de implementar. Esta regra não exige mover templat
 ## 3. Implementação — regras que não têm exceção
 
 - ES5 puro.
+- `js/config.js` com um único objeto `CONFIG` (timing, dataset, layout/área segura, colors), carregado antes de `master.js`, aplicado via `aplicarConfigVisual()` antes de revelar o conteúdo. Ver `.github/copilot-instructions.md` seção 5.
 - `loader.load(sucesso, erro)` sempre com os dois argumentos.
 - Todo o parsing/render do callback de sucesso dentro de `try/catch` que finaliza no `catch`.
 - Em layouts com múltiplas categorias, manter polling e paginação independentes por coluna; paginação não pode bloquear o re-render da página visível quando o fingerprint dos dados mudar.
@@ -81,7 +82,8 @@ Classificar o template antes de implementar. Esta regra não exige mover templat
 
 1. Briefing fechado e registrado no README do template (único arquivo, sem docs concorrentes locais).
 2. `ebhtml.js` conferido contra `_template-base` (mesma versão/hash).
-3. ES5 e padrões proibidos ausentes.
+3. `js/config.js` presente com `CONFIG` cobrindo timing/dataset/layout/colors, sem literais soltos equivalentes no HTML/master.js.
+4. ES5 e padrões proibidos ausentes.
 4. Todo caminho assíncrono finaliza exatamente uma vez: sucesso, erro, timeout, exceção de parsing, imagem em cache, imagem quebrada, mídia sem evento.
 5. Reload agressivo (F5 repetido) não trava o item.
 6. Formatos prioritários do briefing validados visualmente.
@@ -102,6 +104,7 @@ Classificar o template antes de implementar. Esta regra não exige mover templat
 - [ ] Branch temática única para este tema
 - [ ] Briefing completo ou reduzido registrado
 - [ ] EBHTML == `_template-base` (2.0.7 para templates novos)
+- [ ] `js/config.js` com `CONFIG` (timing/dataset/layout/colors) aplicado via `aplicarConfigVisual()`
 - [ ] ES5 sem regressão
 - [ ] `loaded()/finished()` corretos em todos os caminhos, incluindo erro e exceção
 - [ ] Watchdog presente; retry somente quando a recuperação de dados estiver justificada no briefing

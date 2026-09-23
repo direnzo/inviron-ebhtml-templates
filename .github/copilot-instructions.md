@@ -150,13 +150,41 @@ screens: { // tailwind.config.js
 }
 ```
 
+### 5. `js/config.js` — variáveis globais do template (obrigatório em templates novos)
+
+Todo template novo (ou derivado) tem um `js/config.js`, carregado **antes** de `master.js` (e antes de `mock-data.js`, se houver), com um único objeto `CONFIG` — o lugar único para o cliente/editor ajustar tempo, dataset, área segura e cores sem tocar em lógica de HTML/JS. Nunca espalhar esses valores como literais soltos no meio do `master.js` ou do HTML.
+
+Seções mínimas de `CONFIG`:
+- **`timing`**: `duration` (tempo de exibição de cada item/produto em ms) e `fadeDuration` (duração do fade-in do conteúdo em ms).
+- **`dataset`**: nome do dataset EBHTML (`name`) e filtros usados no `addData` (ex.: `typeFilter`).
+- **`layout`**: área segura do fundo quando houver cabeçalho/rodapé fixos na arte (`safeAreaTopVh`/`safeAreaBottomVh`, calculados como `(px do cabeçalho ou rodapé / altura total do fundo em px) * 100`) — nunca cravar esses números direto nas classes Tailwind do HTML.
+- **`colors`**: cores que o cliente pode querer trocar (destaque/preço, texto), aplicadas via CSS custom properties (`--cor-*` em `:root`), nunca direto em `text-red-600` etc.
+
+Padrão de aplicação (uma função `aplicarConfigVisual()` em `config.js`, chamada uma única vez no início de `playerView()`/`window.onload`, antes de revelar o conteúdo):
+```javascript
+function aplicarConfigVisual() {
+    var root = document.documentElement.style;
+    root.setProperty('--cor-preco', CONFIG.colors.preco);
+    // ...demais cores
+
+    var fullContent = document.getElementById('fullContent');
+    if (fullContent) {
+        fullContent.style.top = CONFIG.layout.safeAreaTopVh + 'vh';
+        fullContent.style.bottom = CONFIG.layout.safeAreaBottomVh + 'vh';
+        fullContent.style.transitionDuration = CONFIG.timing.fadeDuration + 'ms';
+    }
+}
+```
+No HTML, usar Tailwind arbitrário referenciando a CSS var em vez da cor fixa: `text-[color:var(--cor-preco)]` em vez de `text-red-600`. Declarar um fallback em `input.css` (`:root { --cor-preco: #dc2626; }`) para o caso de o JS ainda não ter rodado. Referência completa: `CLIENTES/ASSAIFARMA/assaifarma_varejo/js/config.js`.
+
 ---
 
 ## ⚠️ PERFORMANCE EM ANDROID (lições aprendidas — previsao_climatempo, 2026-08-14)
 
-### 5. Detectar hardware fraco obrigatoriamente em templates com assets dinâmicos
+### 6. Detectar hardware fraco obrigatoriamente em templates com assets dinâmicos
 
 Android de entrada (Rockchip, Allwinner, etc.) trava com animações CSS, SVGs animados e múltiplos XHRs simultâneos. Detectar no início do script, antes do `window.onload`:
+
 
 ```javascript
 var HARDWARE_FRACO = false;
@@ -180,7 +208,7 @@ if (HARDWARE_FRACO) {
 
 Para testar no DevTools: `?hwfraco=1` na URL + CPU throttle Low-tier mobile 10.5x.
 
-### 6. Nunca revelar conteúdo antes de assets assíncronos estarem prontos
+### 7. Nunca revelar conteúdo antes de assets assíncronos estarem prontos
 
 **`opacity-0` no body inteiro é proibido** — esconde o fundo/gradiente e causa flash de `background-color`.  
 Em vez disso: body sempre visível, `opacity: 0` apenas no **container dos dados dinâmicos**.
@@ -195,7 +223,7 @@ container.style.opacity = '1';          // revela tudo de uma vez
 loader.loaded();                         // loader.loaded() SÓ após revelação
 ```
 
-### 7. SVG sempre inline via XHR — NUNCA `<img src="arquivo.svg">`
+### 8. SVG sempre inline via XHR — NUNCA `<img src="arquivo.svg">`
 
 Incidente real (poder360_responsivo, 2026-08-14): logo trocado de PNG para SVG usando `<img id="logo" src="img/logo.svg">` — não renderizou em produção. O WebView do EdgeContents (WebKit legado, Android 7+) não é confiável para carregar SVG via `<img src>`; o único jeito garantido é buscar o arquivo via XHR e injetar o markup inline no DOM (`el.innerHTML = xhr.responseText`).
 
@@ -224,7 +252,7 @@ injetarSvg(document.querySelector('#logo'), 'img/logo.svg');
 
 Para SVGs carregados repetidamente por item/card (não estáticos como um logo), ver a regra de cache abaixo.
 
-### 8. Cache obrigatório para XHR de assets carregados por item/card
+### 9. Cache obrigatório para XHR de assets carregados por item/card
 
 Sem cache, N cards × M assets = N×M requisições. Com cache: M requisições únicas.
 
@@ -243,7 +271,7 @@ function carregarSvgCached(url, callback) {
 }
 ```
 
-### 9. Animações de entrada condicionais ao hardware
+### 10. Animações de entrada condicionais ao hardware
 
 ```javascript
 if (HARDWARE_FRACO) {
@@ -257,7 +285,7 @@ if (HARDWARE_FRACO) {
 card.classList.add('translate-x-0', 'opacity-100');
 ```
 
-### 10. Vídeo — encoding e escolha de container (lições aprendidas — populari, 2026-08-27)
+### 11. Vídeo — encoding e escolha de container (lições aprendidas — populari, 2026-08-27)
 
 Incidente real: vinheta `.mp4` (H.264) não tocava no player de teste **Chromium 78 "versão do desenvolvedor"**, mas tocava no Chrome atualizado.
 
@@ -299,6 +327,7 @@ ffmpeg -i SRC.mp4 -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 \
 ## 📋 Checklist
 
 - [ ] `js/ebhtml.js` idêntico ao canônico de `_template-base/js/ebhtml.js` (mesma versão/tamanho; 2.0.7 para templates novos)
+- [ ] `js/config.js` presente com `CONFIG` (timing, dataset, layout/área segura, colors) aplicado via `aplicarConfigVisual()` antes de revelar o conteúdo
 - [ ] ES5 — sem `let/const/arrow/template strings`
 - [ ] `loader.loaded()` após sucesso, `loader.finished()` sempre
 - [ ] `loader.load()` com 2º argumento (callback de erro) que também chama `finished()`

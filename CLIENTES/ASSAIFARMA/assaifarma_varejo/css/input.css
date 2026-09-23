@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Registrar as fontes personalizadas */
+@font-face {
+    font-family: 'Roboto Medium';
+    src: url('fonts/Roboto-Medium.ttf');
+}
+
+@font-face {
+    font-family: 'Roboto Black';
+    src: url('fonts/Roboto-Black.ttf');
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url('fonts/OpenSans-VariableFont_wdth,wght.ttf');
+}
+@font-face {
+    font-family: 'Open Sans Italic';
+    src: url('fonts/OpenSans-Italic-VariableFont_wdth,wght.ttf');
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('fonts/Inter-VariableFont_opsz,wght.ttf');
+}
+@font-face {
+    font-family: 'Inter Italic';
+    src: url('fonts/Inter-Italic-VariableFont_opsz,wght.ttf');
+}
+
+@font-face {
+    font-family: 'Work Sans';
+    src: url('fonts/WorkSans-VariableFont_wght.ttf');
+}
+@font-face {
+    font-family: 'Work Sans Italic';
+    src: url('fonts/WorkSans-Italic-VariableFont_wght.ttf');
+}
+
+/* classes personalizadas para uso no projeto */
+/* Classe personalizada diagonal-strike */
+.diagonal-strike {
+    @apply relative inline-block; /* Usa utilidades do Tailwind */
+}
+
+.diagonal-strike {
+    @apply relative inline-block;
+}
+
+.diagonal-strike::after {
+    content: '';
+    position: absolute;
+    height: 0px;
+    width: 0;
+    top: 80%;
+    left: 0;
+    border-top: 6px solid #cf0e00c7;
+    transform: rotate(-20deg);
+    transform-origin: left top;
+    z-index: 11;
+    animation: growLine 0.5s ease-in-out forwards; /* Animação automática */
+    animation-delay: 1.2s; /* Adiciona um atraso de 1 segundo */
+}
+
+.diagonal-strike span {
+    @apply relative z-10;
+}
+
+/* Keyframes para o crescimento da linha */
+@keyframes growLine {
+    to {
+        width: 110%;
+    }
+}

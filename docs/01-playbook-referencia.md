@@ -25,6 +25,10 @@ Este documento resume as diretrizes obrigatorias do workspace.
 6. Orquestracao
 7. Tratamento de erro
 
+### Camada de Config (`js/config.js`)
+
+Templates novos ou derivados tem `js/config.js`, carregado antes de `master.js`, com um unico objeto `CONFIG`: `timing` (duration, fadeDuration), `dataset` (name, filtros), `layout` (area segura do fundo em vh quando houver cabecalho/rodape fixos na arte) e `colors` (aplicadas via CSS custom properties, nunca direto em classes Tailwind fixas tipo `text-red-600`). Uma funcao `aplicarConfigVisual()` aplica tudo no DOM antes de revelar o conteudo. Detalhe completo e codigo de referencia: `.github/copilot-instructions.md` secao 5, exemplo em `CLIENTES/ASSAIFARMA/assaifarma_varejo/js/config.js`.
+
 ## UI e implementacao
 
 - Priorizar Tailwind raiz.
