@@ -1,6 +1,6 @@
 var CONFIG = {
     fraseFixa: 'SEU SUCESSO COMEÇA COM A ESCOLHA CERTA DE MÍDIA',
-    telefone: '(19) 92005-0381',
+    telefone: '(19) 92015-9230',
     tempoTotalExibicao: 60000, // 1 minutos. tempo total de exibição em milissegundos
     itemDuracao: 5500, // duração de cada item em milissegundos
     fadeDuracao: 350,   // duração do efeito de transição em milissegundos
