@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: 'Roboto Bold';
+    src: url('./fonts/Roboto-Bold.ttf');
+}
+
+/* Base fullscreen (player) */
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+/* Tokens do template (fallback caso config.js ainda nao tenha rodado) */
+:root {
+    --cor-fundo: #141414;
+    --cor-texto: #ffffff;
+    --cor-pill-0: #FF4173;
+    --cor-pill-1: #F35F38;
+}
+
+/* Fundo texturizado Atlantida (asset oficial, resolucao 1:1 com o canvas) */
+.atlantida-bg {
+    background-color: var(--cor-fundo);
+    background-image: url('../img/fundo_hor.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+@media (max-aspect-ratio: 3/4) {
+    .atlantida-bg { background-image: url('../img/fundo_vert.jpg'); }
+}
+
+/* Selo Atlantida: estrela + logo "a" sobrepostos, trocando por orientacao */
+.badge-star {
+    background-image: url('../img/estrela_horizontal.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+@media (max-aspect-ratio: 3/4) {
+    .badge-star { background-image: url('../img/estrela_vert.png'); }
+}
+
+/* Cores alternadas das pilulas de categoria (item 0 = rosa, item 1 = laranja) */
+.category-pill { color: #000000; }
+.category-pill--0 { background-color: var(--cor-pill-0); }
+.category-pill--1 { background-color: var(--cor-pill-1); }
+
+/* =============================================================================
+   Animacao de entrada (replica a sequencia observada nos videos de referencia):
+   foto + pilula + titulo entram em fade/slide, card1 com leve atraso sobre o
+   card0, e o botao de CTA aparece por ultimo com um "pop". Disparado uma unica
+   vez quando #dynamicContent recebe .opacity-100 (ver master.js).
+   ============================================================================= */
+.photo-wrap {
+    opacity: 0;
+    transform: scale(1.08);
+    transition: opacity .6s ease-out, transform .6s ease-out;
+    transition-delay: .05s;
+}
+.category-pill {
+    opacity: 0;
+    transform: translateY(0.5em);
+    transition: opacity .45s ease-out, transform .45s ease-out;
+    transition-delay: .2s;
+}
+.news-title {
+    opacity: 0;
+    transform: translateY(0.6em);
+    transition: opacity .5s ease-out, transform .5s ease-out;
+    transition-delay: .32s;
+    /* Seguranca: nunca deixa uma palavra vazar da coluna de texto, mesmo com
+       fonte grande numa coluna estreita (ex.: retrato 9x16). */
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+#card1 .photo-wrap    { transition-delay: .22s; }
+#card1 .category-pill { transition-delay: .38s; }
+#card1 .news-title    { transition-delay: .5s; }
+
+.cta-pill {
+    opacity: 0;
+    transform: scale(0.82);
+    transition: opacity .5s cubic-bezier(.34,1.56,.64,1), transform .5s cubic-bezier(.34,1.56,.64,1);
+    transition-delay: .8s;
+}
+
+#dynamicContent.opacity-100 .photo-wrap,
+#dynamicContent.opacity-100 .category-pill,
+#dynamicContent.opacity-100 .news-title {
+    opacity: 1;
+    transform: none;
+}
+#dynamicContent.opacity-100 .cta-pill {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Hardware fraco: sem animacao, conteudo aparece direto */
+.reduced .photo-wrap,
+.reduced .category-pill,
+.reduced .news-title,
+.reduced .cta-pill {
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+/* Fallbacks hex para cores (Android 7 - Chrome < 65) */
+/* Após @tailwind utilities, fora de @layer, para sobrescrever */
+.text-white          { color: #ffffff; }
+.text-black          { color: #000000; }
+.bg-white            { background-color: #ffffff; }
+.bg-black            { background-color: #000000; }
+.border-white        { border-color: #ffffff; }
+.bg-black\/40        { background-color: rgba(0,0,0,0.4); }
+
+/* Degradação para hardware fraco */
+.reduced .shadow-none,
+.reduced .shadow-sm,
+.reduced .shadow-md,
+.reduced .shadow-lg,
+.reduced .shadow-xl,
+.reduced .shadow-2xl,
+.reduced .shadow-inner,
+.reduced .shadow    { box-shadow: none !important; }
+.reduced .blur-sm,
+.reduced .blur-md,
+.reduced .blur-lg,
+.reduced .blur-xl,
+.reduced .blur-2xl,
+.reduced .blur-3xl  { filter: none !important; }
+.reduced .transition-none,
+.reduced .transition,
+.reduced .transition-all,
+.reduced .transition-opacity,
+.reduced .transition-colors,
+.reduced .transition-transform { transition: none !important; }
+.reduced .scale-100,
+.reduced .scale-105,
+.reduced .scale-110,
+.reduced .scale-125 { transform: none !important; }
+.reduced .translate-x-0,
+.reduced .translate-x-1,
+.reduced .translate-x-1\/2,
+.reduced .translate-x-1\/3,
+.reduced .translate-x-2\/3,
+.reduced .translate-x-full,
+.reduced .translate-y-0,
+.reduced .translate-y-1\/2,
+.reduced .translate-y-full { transform: none !important; }
+.reduced .wipeIntro   { animation: none !important; }
+
+/* Obs: nunca usar clamp() - requer Chrome 79+ */
