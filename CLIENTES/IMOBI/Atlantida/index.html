@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMOBI Atlantida - Noticias</title>
+    <link rel="stylesheet" href="css/master.css">
+    <script src="js/ebhtml.js"></script>
+    <script src="js/config.js"></script>
+    <!-- <script src="js/mock-data.js"></script> -->
+    <script src="js/master.js"></script>
+</head>
+<body class="font-roboto-bold text-white text-[3.4vmin] portrait:text-[4.6vmin]">
+    <div id="dynamicContent" class="atlantida-bg relative w-full h-full overflow-hidden opacity-0 flex flex-col">
+        <div id="badge" class="badge-star absolute top-0 right-0 w-[30vmin] aspect-[284/248] portrait:w-[35vmin] portrait:aspect-[238/236] flex items-center justify-center pointer-events-none select-none">
+            <img class="w-[38%] h-auto ml-[12vmin] mb-[10vmin]" src="img/logo.png" alt="Atl&acirc;ntida">
+        </div>
+        <main id="cardsWrap" class="flex-1 flex flex-col justify-center gap-[4vmin] portrait:gap-[5vmin] min-h-0 pl-[4vmin] pt-[10vmin] landscape:pr-[18vmin] portrait:pt-[26vmin]">
+            <article id="card0" class="flex-1 flex flex-row items-stretch gap-[2.5vmin] min-h-0 max-h-[42%]">
+                <div class="photo-wrap shrink-0 self-center w-[33.6vmin] aspect-square overflow-hidden bg-black/40">
+                    <img id="photo0" class="w-full h-full object-cover" src="" alt="">
+                </div>
+                <div id="textWrap0" class="flex-1 min-w-0 min-h-0 flex flex-col justify-center gap-[1.2vmin] overflow-hidden">
+                    <span id="category0" class="category-pill category-pill--0 inline-block self-start px-[1.3em] py-[0.4em] rounded-full text-[1.15em] portrait:text-[0.8em] tracking-wide uppercase leading-none"></span>
+                    <p id="title0" class="news-title text-[2.3em] portrait:text-[1.2em] leading-snug"></p>
+                </div>
+                <p id="credit0" class="hidden text-[2.5em] opacity-70"></p>
+            </article>
+            <article id="card1" class="flex-1 flex flex-row items-stretch gap-[2.5vmin] min-h-0 max-h-[42%]">
+                <div class="photo-wrap shrink-0 self-center w-[33.6vmin] aspect-square overflow-hidden bg-black/40">
+                    <img id="photo1" class="w-full h-full object-cover" src="" alt="">
+                </div>
+                <div id="textWrap1" class="flex-1 min-w-0 min-h-0 flex flex-col justify-center gap-[1.2vmin] overflow-hidden">
+                    <span id="category1" class="category-pill category-pill--1 inline-block self-start px-[1.3em] py-[0.4em] rounded-full text-[1.15em] portrait:text-[0.8em] tracking-wide uppercase leading-none"></span>
+                    <p id="title1" class="news-title text-[2.3em] portrait:text-[1.2em] leading-snug"></p>
+                </div>
+                <p id="credit1" class="hidden text-[2.5em] opacity-70"></p>
+            </article>
+        </main>
+        <footer class="shrink-0 flex items-center justify-center mb-2">
+            <div class="cta-pill inline-flex items-center border-2 border-white rounded-full px-[0.8em] py-[0.35em]">
+                <span id="ctaText" class="text-[1.2em] tracking-wide uppercase"></span>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
