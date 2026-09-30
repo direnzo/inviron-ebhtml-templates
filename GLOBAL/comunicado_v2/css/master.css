@@ -1,0 +1,96 @@
+/* Comunicado v2 - CSS puro (sem build). Cores/raios dinamicos vem de config.js via custom properties. */
+:root { --accent: #f58220; --rt: 0.4em; --rd: 0.4em; }
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #0d1b2a; }
+body { font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 3.2vmin; color: #fff; }
+
+#stage { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; background: #0d1b2a; opacity: 0; transition: opacity 500ms; }
+#stage.ready { opacity: 1; }
+#stage:before { content: ""; position: absolute; right: -20%; top: -30%; width: 80%; height: 120%;
+  background: radial-gradient(closest-side, rgba(255,255,255,0.13), rgba(255,255,255,0)); }
+.noglow #stage:before { display: none; }
+
+/* fundo desfocado (so quando a foto sozinha nao preenche a tela) */
+#bg { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; display: none; }
+#bg img { position: absolute; left: -10%; top: -10%; width: 120%; height: 120%; object-fit: cover;
+  -webkit-filter: blur(3vmin) brightness(0.55); filter: blur(3vmin) brightness(0.55); }
+
+/* foto */
+#media { position: absolute; overflow: hidden; display: none; }
+#media img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; }
+#media.contain img { object-fit: contain; }
+
+/* texto */
+#textbox { position: absolute; display: none; box-sizing: border-box; padding: 7vmin; flex-direction: column; justify-content: center; }
+#inner { width: 100%; }
+#titlebox, #descbox { display: inline-block; max-width: 100%; box-sizing: border-box; }
+.tbox #titlebox, .dbox #descbox { padding: 0.45em 0.8em; }
+.tbox #titlebox { border-radius: var(--rt); }
+.dbox #descbox { border-radius: var(--rd); }
+#title { margin: 0; font-size: 2.4em; font-weight: 800; line-height: 1.1; letter-spacing: -0.01em; word-wrap: break-word; overflow-wrap: break-word; }
+.rule { width: 2.4em; height: 0.2em; margin: 0.9em 0; border-radius: 0.2em; background: var(--accent); }
+.tbox .rule, .dbox .rule { display: none; }
+.tbox #titlewrap { margin-bottom: 0.7em; }
+#desc { font-size: 1.15em; line-height: 1.45; word-wrap: break-word; overflow-wrap: break-word; }
+#desc p { margin: 0 0 0.6em 0; }
+#desc p:last-child { margin-bottom: 0; }
+#desc strong, #desc b { color: inherit; font-weight: 700; }
+#desc ul, #desc ol { margin: 0 0 0.6em 0; padding-left: 1.2em; }
+.ql-align-center { text-align: center; }
+.ql-align-right { text-align: right; }
+.ql-align-justify { text-align: justify; }
+.is-hidden { display: none !important; }
+
+/* filete desligado (FILETE=false): esconde todos os detalhes de destaque */
+.noline .rule, .noline #inner:after, .noline #stage:after, .noline #media:before { display: none !important; }
+
+/* ---------- 1) so titulo ---------- */
+.m-title #textbox { display: flex; left: 0; top: 0; right: 0; bottom: 0; padding: 9vmin; text-align: center; align-items: center; }
+.m-title #title { font-size: 3.6em; }
+.m-title #inner:after { content: ""; display: block; width: 2.4em; height: 0.2em; margin: 0.9em auto 0; background: var(--accent); border-radius: 0.2em; }
+.tbox.m-title #inner:after { display: none; }
+
+/* ---------- 2) so descricao ---------- */
+.m-desc #textbox { display: flex; left: 0; top: 0; right: 0; bottom: 0; padding: 9vmin; text-align: center; align-items: center; }
+.m-desc #desc { font-size: 1.9em; line-height: 1.4; font-weight: 500; }
+
+/* ---------- 3) so foto ---------- */
+.m-image #bg { display: block; }
+.m-image #media { display: block; left: 0; top: 0; right: 0; bottom: 0; }
+
+/* ---------- 4) titulo + descricao ---------- */
+.m-title-desc #textbox { display: flex; left: 0; top: 0; right: 0; bottom: 0; padding: 9vmin 9vmin 9vmin 12vmin; text-align: left; }
+.m-title-desc #inner { max-width: 82%; }
+.m-title-desc #title { font-size: 2.9em; }
+.m-title-desc #desc { font-size: 1.3em; }
+.m-title-desc #stage:after { content: ""; position: absolute; left: 6vmin; top: 9vmin; bottom: 9vmin; width: 0.9vmin; border-radius: 1vmin; background: var(--accent); }
+
+/* ---------- 5) titulo + foto ---------- */
+.m-title-image #media { display: block; left: 0; top: 0; right: 0; bottom: 0; }
+.m-title-image #media:after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; top: 25%;
+  background: linear-gradient(to bottom, rgba(8,14,26,0), rgba(8,14,26,0.92)); }
+.m-title-image #textbox { display: flex; left: 0; right: 0; bottom: 0; top: 45%; justify-content: flex-end; padding: 7vmin; text-align: left; }
+.m-title-image #title { font-size: 2.9em; }
+.m-title-image #inner:after { content: ""; display: block; width: 2.4em; height: 0.2em; margin-top: 0.8em; background: var(--accent); border-radius: 0.2em; }
+.tbox.m-title-image #inner:after { display: none; }
+
+/* ---------- 6) descricao + foto  /  7) titulo + descricao + foto ---------- */
+.m-desc-image #media, .m-all #media { display: block; right: 0; top: 0; bottom: 0; width: 42%; }
+.m-desc-image #textbox, .m-all #textbox { display: flex; left: 0; top: 0; bottom: 0; width: 58%; padding: 7vmin 6vmin 7vmin 8vmin; text-align: left; }
+.m-desc-image #desc { font-size: 1.55em; line-height: 1.4; font-weight: 500; }
+.m-all #title { font-size: 2.3em; }
+.m-all #desc { font-size: 1.1em; }
+.m-desc-image #media:before, .m-all #media:before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 0.8vmin; background: var(--accent); z-index: 2; }
+
+/* retrato / quadrado: empilha foto (topo) + texto */
+@media (max-aspect-ratio: 1/1) {
+  .m-desc-image #media, .m-all #media { left: 0; right: 0; top: 0; bottom: auto; width: auto; height: 42%; }
+  .m-desc-image #media:before, .m-all #media:before { top: auto; bottom: 0; left: 0; right: 0; width: auto; height: 0.8vmin; }
+  .m-desc-image #textbox, .m-all #textbox { left: 0; right: 0; top: 42%; bottom: 0; width: auto; padding: 6vmin 8vmin; }
+  .m-title-desc #inner { max-width: 100%; }
+  .m-title-desc #textbox { padding-left: 11vmin; }
+}
+/* ultrawide / superbanner */
+@media (min-aspect-ratio: 5/2) {
+  .m-title #textbox, .m-desc #textbox { padding: 6vmin 12vw; }
+  .m-title-desc #inner { max-width: 70%; }
+}

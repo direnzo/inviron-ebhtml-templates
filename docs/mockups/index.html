@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comunicado v2 - Laboratório</title>
+<style>
+body { margin: 0; background: #0a0f1a; color: #e8edf5; font-family: "Segoe UI", Roboto, Arial, sans-serif; }
+#panel { position: sticky; top: 0; z-index: 10; background: #0f1626; border-bottom: 1px solid #22304a; padding: 12px 24px; }
+#panel h1 { margin: 0 0 8px; font-size: 18px; }
+.row { display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 6px; }
+.grp { display: flex; align-items: center; margin: 0 22px 6px 0; font-size: 12px; color: #b7c3d9; }
+.grp b { color: #f58220; margin-right: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+.grp label { display: flex; align-items: center; margin-right: 10px; white-space: nowrap; }
+.grp input[type=color] { width: 30px; height: 22px; padding: 0; border: 1px solid #33425f; background: none; margin-left: 5px; }
+.grp input[type=range] { width: 80px; margin-left: 5px; }
+.grp input[type=checkbox] { margin-right: 4px; }
+select, button { background: #1a2540; color: #e8edf5; border: 1px solid #33425f; border-radius: 6px; padding: 4px 8px; font-size: 12px; cursor: pointer; }
+button:hover { border-color: #f58220; }
+.presets button { margin-right: 6px; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: middle; border: 1px solid rgba(255,255,255,.4); }
+#json { display: none; width: 100%; box-sizing: border-box; height: 170px; background: #0a0f1a; color: #9fe3b0; border: 1px solid #33425f; border-radius: 6px; font: 12px Consolas, monospace; padding: 8px; }
+#main { padding: 8px 24px 40px; }
+h2 { margin: 28px 0 14px; font-size: 16px; color: #f58220; }
+.grid { display: flex; flex-wrap: wrap; margin: -10px; }
+.card { margin: 10px; background: #131b2b; border-radius: 10px; padding: 12px; box-sizing: border-box; }
+.card h3 { margin: 0 0 2px; font-size: 14px; }
+.card small { display: block; margin-bottom: 10px; color: #93a1b8; font-size: 12px; }
+.shot { position: relative; background: #000; }
+.shot iframe { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: 0; }
+.w16x9 { width: 460px; } .w16x9 .shot { padding-top: 56.25%; }
+.w9x16 { width: 250px; } .w9x16 .shot { padding-top: 177.78%; }
+.w1x1 { width: 340px; } .w1x1 .shot { padding-top: 100%; }
+.w21x9 { width: 640px; } .w21x9 .shot { padding-top: 42.86%; }
+</style>
+</head>
+<body>
+<div id="panel">
+  <h1>Comunicado v2 - laboratório de configuração</h1>
+  <div class="row presets" id="presets"><span class="grp"><b>Temas</b></span></div>
+  <div class="row">
+    <div class="grp"><b>Fundo</b>
+      <label><select id="bgType"><option value="gradient">Gradiente</option><option value="solid">Chapado</option></select></label>
+      <label id="lblColor">cor<input type="color" id="bgColor" value="#0d1b2a"></label>
+      <label id="lblFrom">de<input type="color" id="bgFrom" value="#0d1b2a"></label>
+      <label id="lblTo">até<input type="color" id="bgTo" value="#1d2f4d"></label>
+      <label id="lblAngle">ângulo<input type="range" id="bgAngle" min="0" max="360" value="135"></label>
+      <label><input type="checkbox" id="bgGlow" checked>brilho</label>
+    </div>
+    <div class="grp"><b>Destaque</b>
+      <label><input type="checkbox" id="line" checked>filete</label>
+      <label>cor<input type="color" id="accent" value="#f58220"></label>
+    </div>
+  </div>
+  <div class="row">
+    <div class="grp"><b>Título</b>
+      <label>texto<input type="color" id="tColor" value="#ffffff"></label>
+      <label><input type="checkbox" id="tBox">caixa</label>
+      <label>cor caixa<input type="color" id="tBoxColor" value="#f58220"></label>
+      <label>opac.<input type="range" id="tBoxOp" min="0" max="1" step="0.05" value="1"></label>
+      <label>cantos<input type="range" id="tRadius" min="0" max="1.5" step="0.05" value="0.4"></label>
+    </div>
+    <div class="grp"><b>Descrição</b>
+      <label>texto<input type="color" id="dColor" value="#ffffff"></label>
+      <label><input type="checkbox" id="dBox">caixa</label>
+      <label>cor caixa<input type="color" id="dBoxColor" value="#000000"></label>
+      <label>opac.<input type="range" id="dBoxOp" min="0" max="1" step="0.05" value="0.35"></label>
+      <label>cantos<input type="range" id="dRadius" min="0" max="1.5" step="0.05" value="0.4"></label>
+    </div>
+    <div class="grp"><button id="btnJson">Ver / copiar TEXTO10</button></div>
+  </div>
+  <textarea id="json" readonly></textarea>
+</div>
+
+<div id="main"></div>
+
+<script>
+var T = 'Manutenção preventiva dos elevadores';
+var D = '<p>Os elevadores da <strong>Torre B</strong> passarão por manutenção preventiva no <strong>sábado, dia 04/10</strong>, das 8h às 12h.</p><p>Utilize os demais elevadores ou a escada de emergência. Agradecemos a compreensão.</p>';
+var D_SHORT = '<p>Dia 04/10, das 8h às 12h, um dos elevadores estará em manutenção.</p>';
+var T_LONG = 'Comunicado importante sobre a mudança nos horários de funcionamento e utilização dos elevadores do condomínio';
+
+var PRESETS = [
+  { name: 'Azul noturno', dot: '#1d2f4d', c: { bg: { type: 'gradient', from: '#0d1b2a', to: '#1d2f4d', angle: 135, glow: true }, accent: '#f58220', title: { color: '#ffffff', box: false }, desc: { color: '#ffffff', box: false } } },
+  { name: 'Preto chapado', dot: '#000', c: { bg: { type: 'solid', color: '#000000', glow: false }, accent: '#f58220', title: { color: '#ffffff', box: false }, desc: { color: '#d9d9d9', box: false } } },
+  { name: 'Branco limpo', dot: '#fff', c: { bg: { type: 'solid', color: '#f4f5f7', glow: false }, accent: '#e0651a', title: { color: '#14213d', box: false }, desc: { color: '#333b4d', box: false } } },
+  { name: 'Laranja → vinho', dot: '#f58220', c: { bg: { type: 'gradient', from: '#f58220', to: '#7a1f3d', angle: 160, glow: true }, accent: '#ffffff', title: { color: '#ffffff', box: false }, desc: { color: '#ffffff', box: false } } },
+  { name: 'Verde + caixas', dot: '#0f5c4a', c: { bg: { type: 'gradient', from: '#0b3d33', to: '#127a5f', angle: 120, glow: true }, accent: '#ffd166', title: { color: '#0b3d33', box: true, boxColor: '#ffd166', boxOpacity: 1, radius: 0.5 }, desc: { color: '#ffffff', box: true, boxColor: '#000000', boxOpacity: 0.3, radius: 0.5 } } },
+  { name: 'Roxo + caixa vidro', dot: '#5b2a86', c: { bg: { type: 'gradient', from: '#2b1055', to: '#7597de', angle: 145, glow: true }, accent: '#ff8fb1', title: { color: '#ffffff', box: true, boxColor: '#ffffff', boxOpacity: 0.16, radius: 0.9 }, desc: { color: '#ffffff', box: true, boxColor: '#ffffff', boxOpacity: 0.12, radius: 0.9 } } },
+  { name: 'Corporativo claro + caixa', dot: '#e9eef7', c: { bg: { type: 'solid', color: '#e9eef7', glow: false }, accent: '#0a5cff', title: { color: '#ffffff', box: true, boxColor: '#0a2a66', boxOpacity: 1, radius: 0.2 }, desc: { color: '#1b2438', box: true, boxColor: '#ffffff', boxOpacity: 1, radius: 0.2 } } }
+];
+
+var $ = function (id) { return document.getElementById(id); };
+
+// Controles -> objeto de configuracao (o que vai no campo TEXTO10 do canal; JSON plano, valores em string)
+function bs(v) { return v ? 'true' : 'false'; }
+function readCfg() {
+  return {
+    BG_TIPO: $('bgType').value === 'solid' ? 'chapado' : 'gradiente',
+    BG_COR: $('bgColor').value, BG_COR_DE: $('bgFrom').value, BG_COR_PARA: $('bgTo').value,
+    BG_ANGULO: String($('bgAngle').value), BG_BRILHO: bs($('bgGlow').checked),
+    COR_DESTAQUE: $('accent').value, FILETE: bs($('line').checked),
+    TITULO_COR: $('tColor').value, TITULO_CAIXA: bs($('tBox').checked), TITULO_CAIXA_COR: $('tBoxColor').value,
+    TITULO_CAIXA_OPACIDADE: String(Math.round($('tBoxOp').value * 100)), TITULO_CAIXA_RAIO: String(Math.round($('tRadius').value / 0.015)),
+    DESC_COR: $('dColor').value, DESC_CAIXA: bs($('dBox').checked), DESC_CAIXA_COR: $('dBoxColor').value,
+    DESC_CAIXA_OPACIDADE: String(Math.round($('dBoxOp').value * 100)), DESC_CAIXA_RAIO: String(Math.round($('dRadius').value / 0.015))
+  };
+}
+// Preset (formato antigo de config) -> controles
+function writeConfig(c) {
+  var bg = c.bg || {}, t = c.title || {}, d = c.desc || {};
+  function set(id, v) { if (v !== undefined) { if ($(id).type === 'checkbox') $(id).checked = v; else $(id).value = v; } }
+  set('bgType', bg.type); set('bgColor', bg.color); set('bgFrom', bg.from); set('bgTo', bg.to); set('bgAngle', bg.angle); set('bgGlow', bg.glow);
+  set('accent', c.accent); set('line', c.line !== undefined ? c.line : true);
+  set('tColor', t.color); set('tBox', t.box); set('tBoxColor', t.boxColor !== undefined ? t.boxColor : '#f58220'); set('tBoxOp', t.boxOpacity !== undefined ? t.boxOpacity : 1); set('tRadius', t.radius !== undefined ? t.radius : 0.4);
+  set('dColor', d.color); set('dBox', d.box); set('dBoxColor', d.boxColor !== undefined ? d.boxColor : '#000000'); set('dBoxOp', d.boxOpacity !== undefined ? d.boxOpacity : 0.35); set('dRadius', d.radius !== undefined ? d.radius : 0.4);
+}
+
+var frames = [];
+function send(frame) {
+  var rec = { TITULO: frame.content.t, TEXTO: frame.content.d, FOTO: frame.content.i ? 'img/sample.svg' : '', TEXTO10: JSON.stringify(readCfg()) };
+  try { frame.win.postMessage({ type: 'comunicado-lab', record: rec }, '*'); } catch (e) {}
+}
+function refresh() {
+  var solid = $('bgType').value === 'solid';
+  $('lblColor').style.display = solid ? '' : 'none';
+  $('lblFrom').style.display = $('lblTo').style.display = $('lblAngle').style.display = solid ? 'none' : '';
+  for (var n = 0; n < frames.length; n++) if (frames[n].win) send(frames[n]);
+  if ($('json').style.display === 'block') $('json').value = JSON.stringify(readCfg());
+}
+
+function card(cls, title, note, t, d, i) {
+  var div = document.createElement('div');
+  div.className = 'card ' + cls;
+  div.innerHTML = '<h3>' + title + '</h3><small>' + note + '</small><div class="shot"><iframe src="../../GLOBAL/comunicado_v2/index.html?lab=1"></iframe></div>';
+  var iframe = div.getElementsByTagName('iframe')[0];
+  var fr = { win: null, content: { t: t, d: d, i: i } };
+  iframe.onload = function () { fr.win = iframe.contentWindow; setTimeout(function () { send(fr); }, 150); };
+  frames.push(fr);
+  return div;
+}
+function section(title, cards) {
+  var h = document.createElement('h2'); h.appendChild(document.createTextNode(title));
+  var g = document.createElement('div'); g.className = 'grid';
+  for (var n = 0; n < cards.length; n++) g.appendChild(cards[n]);
+  $('main').appendChild(h); $('main').appendChild(g);
+}
+
+section('Os 7 casos (16:9)', [
+  card('w16x9', '1. Só título', 'Destaque total', T, '', ''),
+  card('w16x9', '2. Só descrição', 'Texto grande, autofit', '', D_SHORT, ''),
+  card('w16x9', '3. Só foto', 'Tela cheia', '', '', 'sample'),
+  card('w16x9', '4. Título + descrição', 'Editorial', T, D, ''),
+  card('w16x9', '5. Título + foto', 'Título sobre a foto', T, '', 'sample'),
+  card('w16x9', '6. Descrição + foto', 'Foto lateral + texto', '', D, 'sample'),
+  card('w16x9', '7. Título + descrição + foto', 'Composição completa', T, D, 'sample')
+]);
+section('Mesmo conteúdo em outras telas (caso 7)', [
+  card('w9x16', 'Retrato 9:16', '', T, D, 'sample'),
+  card('w1x1', 'Quadrado 1:1', '', T, D, 'sample'),
+  card('w21x9', 'Ultrawide 21:9', '', T, D, 'sample')
+]);
+section('Outras telas', [
+  card('w9x16', 'Título + foto 9:16', '', T, '', 'sample'),
+  card('w9x16', 'Só título 9:16', '', T, '', ''),
+  card('w1x1', 'Título + descrição 1:1', '', T, D, '')
+]);
+section('Texto longo (autofit)', [
+  card('w16x9', 'Título + descrição longos', 'A fonte reduz até caber', T_LONG, D + D + D, '')
+]);
+
+// presets
+(function () {
+  var box = $('presets');
+  for (var n = 0; n < PRESETS.length; n++) (function (p) {
+    var b = document.createElement('button');
+    b.innerHTML = '<span class="sw" style="background:' + p.dot + '"></span>' + p.name;
+    b.onclick = function () { writeConfig(p.c); refresh(); };
+    box.appendChild(b);
+  })(PRESETS[n]);
+})();
+
+var inputs = document.querySelectorAll('#panel input, #panel select');
+for (var k = 0; k < inputs.length; k++) { inputs[k].oninput = refresh; inputs[k].onchange = refresh; }
+$('btnJson').onclick = function () {
+  var j = $('json');
+  j.style.display = j.style.display === 'block' ? 'none' : 'block';
+  j.value = JSON.stringify(readCfg());
+  if (j.style.display === 'block') { j.select(); try { document.execCommand('copy'); } catch (e) {} }
+};
+writeConfig(PRESETS[/^#p(\d+)$/.test(location.hash) && PRESETS[+location.hash.slice(2)] ? +location.hash.slice(2) : 0].c);
+refresh();
+</script>
+</body>
+</html>
