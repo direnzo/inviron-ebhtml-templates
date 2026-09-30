@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comunicado</title>
+    <link rel="stylesheet" href="css/master.css">
+
+    <!-- Scripts -->
+    <script src="js/ebhtml.js"></script>
+    <script src="js/config.js"></script>
+    <!-- Dev: so age com ?mock=N na URL. Remover do pacote .eh5 -->
+    <!-- <script src="js/mock-data.js"></script>  -->
+    <script src="js/master.js"></script>
+</head>
+<body>
+    <!-- Apenas #stage aguarda os dados (opacity 0 -> 1); o body nunca fica oculto. -->
+    <div id="root">
+        <div id="stage">
+            <div id="bg"><img id="bgimg" alt=""></div>
+            <div id="media"><img id="photo" alt=""></div>
+            <div id="textbox">
+                <div id="inner">
+                    <div id="titlewrap"><div id="titlebox"><h1 id="title"></h1></div></div>
+                    <div class="rule" id="rule"></div>
+                    <div id="descwrap"><div id="descbox"><div id="desc"></div></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
