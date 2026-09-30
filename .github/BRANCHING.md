@@ -34,5 +34,6 @@ Exemplos: `feat/populari-intro-video`, `fix/andorinha-menuboard-loader`, `chore/
 4. Não reutilizar branch já mesclada/encerrada para um tema novo.
 5. Commits pequenos e semanticamente coerentes com o tema da branch.
 6. Commit e merge exigem autorização explícita — nunca automáticos.
+   Mensagens de commit e descrições de PR não levam coautoria nem atribuição de IA (`Co-Authored-By: Claude`, `Generated with Claude Code` etc.).
 7. Alterações locais pendentes de outro tema não são descartadas; ficam de fora do commit desta branch e são sinalizadas para uma branch própria.
 8. Cada entrega relevante registra: tenant, template, branch, tipo de mudança, versão do EBHTML, perfil de compatibilidade, canais, formatos e `.eh5` gerado (ver checklist de PR).
