@@ -5,6 +5,7 @@ Sistema de templates HTML para Digital Signage via EdgeContents CMS. Android 7+ 
 ## 🚫 REGRAS ABSOLUTAS
 
 - **NUNCA** `git commit` sem permissão explícita
+- **NUNCA** incluir coautoria/atribuição de IA em commits ou PRs (sem `Co-Authored-By: Claude`, sem `Generated with Claude Code` ou equivalente) — a mensagem contém só o conteúdo do commit
 - **NUNCA** `npm run build` — use `npm run dev` (watch mode, compila automático)
 - **NUNCA** `npm install` dentro de uma pasta de template — TailwindCSS é global; scripts devem chamar `tailwindcss` diretamente, sem `npx`, `node_modules` ou `package-lock.json` local
 - **ES5 OBRIGATÓRIO** — zero tolerância para ES6+ (WebKit legado)
