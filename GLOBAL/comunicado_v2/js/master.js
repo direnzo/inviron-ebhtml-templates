@@ -312,38 +312,54 @@ window.onload = function () {
             log('finished: ' + reason);
             loader.finished();
         }
+        // loaded() SEMPRE antes de finished(): encerrar sem loaded() conta como "play error" no ebclient
+        function complete(ms) {
+            if (finished || loaded) { return; }
+            loaded = true;
+            loader.loaded();
+            finishTimer = setTimeout(function () { finish('duracao concluida'); }, ms);
+            log('loaded, duracao ' + ms + 'ms');
+        }
+        // Sem dados validos (canal vazio, erro, timeout, excecao): pula quase invisivel.
+        // Nada e desenhado (stage oculto); loaded() e finished() em sequencia evitam o "play error".
+        function completeEmpty(reason) {
+            if (finished || loaded) { return; }
+            clearTimeout(loadWatchdog);
+            log('sem dados, pulando: ' + reason);
+            try { getUi().stage.style.display = 'none'; } catch (e) { }
+            loaded = true;
+            loader.loaded();
+            finishTimer = setTimeout(function () { finish('sem dados: ' + reason); }, CONFIG.empty.delay);
+        }
 
-        loader.addData(CONFIG.dataset.name, false);
-        loader.nodataiserror = false;
+        loader.addData(CONFIG.dataset.name, false);   // nao obrigatorio: dataset vazio chega ao callback de sucesso
+        loader.nodataiserror = false;                 // true + obrigatorio faria o ebhtml chamar error() => "play error"
         loader.autoloaded = false;
-        loadWatchdog = setTimeout(function () { finish('timeout do loader'); }, LOAD_TIMEOUT);
+        loadWatchdog = setTimeout(function () { completeEmpty('timeout do loader'); }, LOAD_TIMEOUT);
 
         loader.load(function () {
+            if (finished || loaded) { return; }
             clearTimeout(loadWatchdog);
             try {
                 var data = loader.data(CONFIG.dataset.name);
                 var view;
-                if (!data) { finish('dataset vazio'); return; }
+                if (!data) { completeEmpty('dataset vazio'); return; }
                 view = buildView(readRecord(data));
-                if (!view.t && !plainText(view.d) && !view.i) { finish('sem conteudo'); return; }
+                if (!view.t && !plainText(view.d) && !view.i) { completeEmpty('sem conteudo'); return; }
                 renderView(view, function (hasContent) {
                     try {
                         if (finished || loaded) { return; }
-                        if (!hasContent) { finish('foto indisponivel e sem texto'); return; }
-                        loaded = true;
-                        loader.loaded();
-                        finishTimer = setTimeout(function () { finish('duracao concluida'); }, view.duration);
-                        log('loaded, duracao ' + view.duration + 'ms');
+                        if (!hasContent) { completeEmpty('foto indisponivel e sem texto'); return; }
+                        complete(view.duration);
                     } catch (e2) {
-                        finish('excecao no render: ' + (e2 && e2.message ? e2.message : e2));
+                        completeEmpty('excecao no render: ' + (e2 && e2.message ? e2.message : e2));
                     }
                 });
             } catch (error) {
-                finish('excecao: ' + (error && error.message ? error.message : error));
+                completeEmpty('excecao: ' + (error && error.message ? error.message : error));
             }
         }, function () {
-            clearTimeout(loadWatchdog);
-            finish('falha no load');
+            completeEmpty('falha no load');
         });
     });
 };
