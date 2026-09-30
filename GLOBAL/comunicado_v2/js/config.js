@@ -9,10 +9,17 @@ var CONFIG = {
 
     // Temporizacao
     timing: {
-        duration: 30000,   // exibicao padrao (ms) - sobrescrito por DURACAO (segundos) do canal
+        duration: 30000,   // exibicao padrao (ms) quando DURACAO nao vem no TEXTO10; DURACAO (segundos) e convertida para ms
         minSeconds: 3,     // limites aceitos para DURACAO
         maxSeconds: 300,
         fadeDuration: 500  // fade-in do conteudo (ms)
+    },
+
+    // Canal vazio / erro / timeout: o template PULA sem desenhar nada. O ebclient conta "play errors"
+    // consecutivos e REINICIA a maquina ao passar de 15, e encerrar sem loaded() conta como erro;
+    // por isso chama loaded() e, apos este atraso, finished(). A tela nao e pintada (invisivel).
+    empty: {
+        delay: 200         // ms entre loaded() e finished() quando nao ha dados validos (0 = imediato)
     },
 
     // Dataset EBHTML

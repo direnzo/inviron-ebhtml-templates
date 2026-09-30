@@ -5,7 +5,7 @@ Template global de comunicados para elevadores/telas de circulação. Um único 
 - Classificação: `GLOBAL` (sem tenant). Criação nova; substitui visualmente o `GLOBAL/comunicado` (que permanece intacto).
 - EBHTML 2.0.7 (cópia integral de `_template-base/js/ebhtml.js`), ES5 puro, perfil Chromium 78.
 - Formatos: qualquer proporção (retrato, quadrado, paisagem, ultrawide). Tipografia em `vmin` no body e `em` nos filhos.
-- Ciclo: um item por execução; `loaded()` após renderizar, `finished()` uma vez após `DURACAO` do `TEXTO10` (padrão 30 s) ou em qualquer erro/vazio/timeout.
+- Ciclo: um item por execução; `loaded()` após renderizar, `finished()` uma vez após `DURACAO` do `TEXTO10` (segundos, convertidos para ms; padrão em `CONFIG.timing.duration`, hoje 30 s). Sem dados válidos (canal vazio, erro, timeout) o template não desenha nada e pula a playlist em ~200 ms — ver seção 1.1.
 
 ## 1. Como o layout é escolhido
 
@@ -20,10 +20,32 @@ O template decide sozinho pelo que existir no registro (texto vazio, só espaço
 | ✔ | – | ✔ | Foto ocupa tudo, título sobre degradê escuro na base |
 | – | ✔ | ✔ | Foto lateral (topo em telas retrato/quadradas) + descrição |
 | ✔ | ✔ | ✔ | Foto lateral (topo em retrato) + título + descrição |
-| – | – | – | Nada a mostrar: libera a playlist (`finished()`) sem exibir |
+| – | – | – | Nada a mostrar: não desenha nada e pula a playlist em ~200 ms (seção 1.1) |
 
-Se a foto falhar ao carregar (URL inválida, timeout de 8 s), o layout recalcula sem foto. Se sobrar nada, o item é liberado.
+Se a foto falhar ao carregar (URL inválida, timeout de 8 s), o layout recalcula sem foto. Se sobrar nada, vale o comportamento de canal vazio (seção 1.1).
 Texto longo: a fonte do bloco reduz automaticamente (mínimo 30 % do tamanho) até caber.
+
+### 1.1 Canal vazio, erro e timeout — pulo invisível e proteção contra reinício
+
+Sem dados válidos, o template **não desenha nada** (`html`/`body` transparentes e `#stage` com opacidade 0, sem fade; o que aparece é o fundo da própria janela do player) e pula o item: chama `loaded()` e, `CONFIG.empty.delay` ms depois (200 ms), `finished()`.
+
+Por que `loaded()` antes de `finished()`: o `ebclient` conta "play errors" consecutivos (`Play error N of 15`) e **reinicia a máquina** ao passar de 15 (`Maximum play errors in sequence reached (16 / 15), rebooting machine`). Um template que encerra sem ter avisado `loaded()` aparece no log como `PLAY EVENT: ERROR` (hipótese consistente com o log de produção; **validar no ebclient**, ver abaixo).
+
+| Situação | Comportamento |
+|---|---|
+| Canal sem item (`D_COMUNICADO` vazio) | pula (`loaded()` + `finished()` em ~200 ms), sem desenhar |
+| Item sem título, descrição e foto válidos | idem |
+| Foto indisponível e sem texto | idem |
+| Falha de rede/HTTP no canal, timeout do loader (8 s), exceção no parse/render | idem |
+| Item válido | `loaded()` após renderizar, `finished()` após `DURACAO` |
+
+Regras que não podem ser quebradas ao manter o template:
+- Nunca chamar `loader.error()` nem usar `nodataiserror = true` com dataset obrigatório (o `ebhtml.js` chamaria `error()` = "play error"). O dataset é registrado como **não obrigatório** e o vazio é tratado em `master.js`.
+- Nunca chamar `loader.finished()` direto; usar `finish()`/`complete()`/`completeEmpty()` (garantem `loaded()` antes e uma única chamada).
+
+**Como validar/monitorar:** no ECLog (aba `ebclient.browser.playcontroller-*`), com o canal vazio, o nome do template **não** deve gerar `Play error N of 15`. Se gerar mesmo com `loaded()` antes de `finished()`, aumentar `CONFIG.empty.delay` (o client pode exigir uma permanência mínima) e reportar o log.
+
+**Limite conhecido:** se todos os itens da playlist estiverem vazios ao mesmo tempo, os pulos de ~200 ms entram em laço rápido. Evitar manter o template na playlist sem comunicado ativo (vigência `DT_BEGIN`/`DT_END` na extranet).
 
 ## 2. Contrato do canal D_COMUNICADO
 
@@ -156,6 +178,7 @@ Teste sempre pelo player: `http://localhost:12099/FILES/1/index.html?mock` (alea
 | 16 | `TEXTO10` com JSON quebrado (visual 100 % padrão) |
 | 17 | `TEXTO10` com aspas escapadas `&quot;` (deve ser lido normalmente) |
 | 18 | Sem `TEXTO10` (canal antigo, visual padrão) |
+| `empty` | `?mock=empty`: canal vazio (`loader.data()` indefinido); deve chamar `loaded()`, não desenhar nada e chamar `finished()` em ~200 ms |
 | 19 / 20 | Só foto retrato / só foto quadrada (tela cheia: foto inteira sobre fundo desfocado) |
 | 21 | Título + foto retrato, caixa escura no título |
 | 22 | Descrição + foto quadrada, tema verde com caixas |

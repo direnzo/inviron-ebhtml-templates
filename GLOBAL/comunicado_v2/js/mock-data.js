@@ -177,7 +177,10 @@ function mockRandomRecord(seed) {
     var random = m && (arg === '' || arg === 'random' || arg === 'r');
     var record, label, seedMatch, seed;
 
-    if (random) {
+    if (arg === 'empty') {
+        record = null;   // canal vazio: loader.data() devolve undefined
+        label = 'canal vazio';
+    } else if (random) {
         seedMatch = /[?&]seed=(\d+)/.exec(window.location.search);
         seed = seedMatch ? parseInt(seedMatch[1], 10) : Math.floor(Math.random() * 4294967295);
         record = mockRandomRecord(seed);
@@ -206,9 +209,9 @@ function mockRandomRecord(seed) {
                 nodataiserror: false,
                 autoloaded: false,
                 addData: function (name) { stored[name] = true; },
-                data: function (name) { return stored[name] ? accessor(record) : undefined; },
+                data: function (name) { return stored[name] && record ? accessor(record) : undefined; },
                 datalist: function (name) {
-                    return { count: function () { return stored[name] ? 1 : 0; }, get: function () { return accessor(record); } };
+                    return { count: function () { return stored[name] && record ? 1 : 0; }, get: function () { return record ? accessor(record) : undefined; } };
                 },
                 load: function (done) { setTimeout(done, 50); },
                 loaded: function () { if (window.console) { console.log('[Mock] loader.loaded()'); } },
