@@ -193,14 +193,34 @@ if (item.value('CAMPO') && item.value('CAMPO').value) {
 
 | Método | Quando chamar |
 |---|---|
-| `loader.loaded()` | ✅ APÓS renderizar com sucesso |
-| `loader.finished()` | ✅ SEMPRE ao final (sucesso OU erro) |
-| `loader.error(msg)` | 🛑 Em erro crítico (não chame loaded()) |
+| `loader.loaded()` | ✅ SEMPRE, e SEMPRE antes do `finished()` (após renderizar; nos caminhos vazio/erro, sem renderizar nada) |
+| `loader.finished()` | ✅ SEMPRE ao final, exatamente uma vez (sucesso, vazio, erro, timeout ou exceção) |
+| `loader.error(msg)` | 🛑 Evitar: o `ebclient` registra erro de play (ver abaixo). Preferir `loaded()` + `finished()` |
+
+### 🚨 `loaded()` antes de `finished()` — SEMPRE (descoberta comunicado_v2, 2026-09-30)
+
+O `ebclient` conta **erros de play consecutivos** e **reinicia a máquina** ao passar do limite. Log real (ECLog, aba `ebclient.browser.playcontroller-*`):
+
+```
+PLAY EVENT: ERROR - comunicado_v3 (Comunicados)
+TRACE: Play error 14 of 15
+...
+WARNING: Maximum play errors in sequence reached (16 / 15), rebooting machine
+```
+
+Um item que termina com erro (ou que o client não considera reproduzido com sucesso) incrementa o contador; 15 em sequência reiniciam o equipamento. Um canal vazio em uma playlist que repete o template a cada segundo chega a isso em ~20 s. Por isso:
+
+- **Em todo caminho de encerramento chamar `loader.loaded()` e só depois `loader.finished()`**, inclusive canal vazio, dado inválido, falha de rede, timeout e exceção de parsing. Nunca `finished()` sozinho e nunca `loader.error()`.
+- Não usar `nodataiserror = true` com dataset obrigatório: o `ebhtml.js` chama `error()` e o client contabiliza erro de play. Registrar o dataset como não obrigatório (`addData(nome, false)`) e tratar o vazio no template.
+- Para o caminho sem dados **não desenhar nada** (conteúdo oculto, `body` preto) e manter o intervalo `loaded()` → `finished()` curto (~100–200 ms), para o pulo ficar quase invisível. `loaded()` faz o player exibir a tela; se aparecer piscada, reduzir o intervalo e manter a tela preta/vazia — não remover o `loaded()`.
+- Padrão: uma função única de encerramento (ex.: `completeEmpty()`) que faz `loaded()` + `finished()`, com guarda contra chamada dupla. Referência: `GLOBAL/comunicado_v2/js/master.js`.
+- Monitorar: qualquer `Play error N of 15` com o nome do template no ECLog é defeito a corrigir.
 
 ```javascript
 loader.load(function() {
     if (!loader.data('D_DATASET')) {
-        loader.finished();   // ❌ NÃO chame loaded()
+        loader.loaded();     // ✅ loaded() ANTES de finished(), mesmo sem dados
+        setTimeout(function () { loader.finished(); }, 100);
         return;
     }
     renderizar();
@@ -295,7 +315,7 @@ Em `EBBrowser.prototype.browserdata_checkloaded`, no ramo de "dataset obrigatór
 
 Nunca editar `ebhtml.js` para corrigir isso (regra do repositório: cópia integral, sem patch manual). Mitigar sempre no template:
 - Watchdog curto (~4-8s) por tentativa de `loader.load()`.
-- Retry automático (recriar o loader, ~3 tentativas extras, delay curto ~500ms) **somente quando o briefing confirmar que os dados deveriam existir e a falha é recuperável**. Para dataset opcional, conteúdo vazio ou item sem dados válidos, chamar `finished()` diretamente para liberar o próximo item da playlist.
+- Retry automático (recriar o loader, ~3 tentativas extras, delay curto ~500ms) **somente quando o briefing confirmar que os dados deveriam existir e a falha é recuperável**. Para dataset opcional, conteúdo vazio ou item sem dados válidos, chamar `loaded()` e em seguida `finished()` para liberar o próximo item da playlist (nunca `finished()` sozinho: ver seção 6, contador de erros de play do `ebclient`).
 - Referência de implementação testada: `andorinha-menuboard-semfim/js/master.js` (função de retry com watchdog cobrindo essa falha silenciosa).
 
 ### 🐛 Bug ainda mais crítico — `interface` do EBBrowser é global por página, um loader secundário com 0 registros finaliza o item de verdade
