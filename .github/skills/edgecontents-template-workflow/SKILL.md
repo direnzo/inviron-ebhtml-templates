@@ -106,7 +106,7 @@ Classificar o template antes de implementar. Esta regra não exige mover templat
 - [ ] EBHTML == `_template-base` (2.0.7 para templates novos)
 - [ ] `js/config.js` com `CONFIG` (timing/dataset/layout/colors) aplicado via `aplicarConfigVisual()`
 - [ ] ES5 sem regressão
-- [ ] `loaded()/finished()` corretos em todos os caminhos, incluindo erro e exceção
+- [ ] `loaded()` sempre antes de `finished()` em todos os caminhos, incluindo vazio, erro e exceção (nunca `finished()` sozinho: reinício da máquina pelo `ebclient`)
 - [ ] Watchdog presente; retry somente quando a recuperação de dados estiver justificada no briefing
 - [ ] Body visível; só dados dinâmicos ocultos durante carregamento
 - [ ] SVG inline via XHR

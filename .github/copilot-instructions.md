@@ -74,9 +74,11 @@ Incidente real (poder360_responsivo, 2026-08-14): layout novo foi criado em cima
 head -3 js/ebhtml.js   # comparar com _template-base/js/ebhtml.js
 ```
 
-**Bug conhecido, ainda presente na 2.0.7 anexada:** em `EBBrowser.prototype.browserdata_checkloaded`, quando `nodataiserror = false` e o dataset obrigatório retorna 0 itens, o código acessa `this.browser.nodataiserror` — mas `this` já é o `EBBrowser`; `this.browser` é `undefined`. A exceção resultante pode ser engolida no `onreadystatechange` do XHR e impedir callbacks. Nunca editar `ebhtml.js` para corrigir isso. Mitigar com watchdog; usar retry somente quando o briefing confirmar que os dados deveriam existir e a falha é recuperável. Se o conteúdo for opcional, vazio ou inválido, chamar `finished()` diretamente para liberar o próximo item (ver `.github/skills/ebhtml-api/SKILL.md`).
+**Bug conhecido, ainda presente na 2.0.7 anexada:** em `EBBrowser.prototype.browserdata_checkloaded`, quando `nodataiserror = false` e o dataset obrigatório retorna 0 itens, o código acessa `this.browser.nodataiserror` — mas `this` já é o `EBBrowser`; `this.browser` é `undefined`. A exceção resultante pode ser engolida no `onreadystatechange` do XHR e impedir callbacks. Nunca editar `ebhtml.js` para corrigir isso. Mitigar com watchdog; usar retry somente quando o briefing confirmar que os dados deveriam existir e a falha é recuperável. Se o conteúdo for opcional, vazio ou inválido, chamar `loaded()` e em seguida `finished()` para liberar o próximo item (nunca `finished()` sozinho; ver `.github/skills/ebhtml-api/SKILL.md`).
 
-### 1. Controle de Playlist EBHTML — `finished()` SEMPRE, sem exceção
+### 1. Controle de Playlist EBHTML — `loaded()` ANTES de `finished()`, SEMPRE, sem exceção
+
+🚨 **Descoberta (comunicado_v2, 2026-09-30):** o `ebclient` conta erros de play em sequência e **reinicia a máquina** após 15 (`Maximum play errors in sequence reached (16 / 15), rebooting machine`). Em **todo** caminho de encerramento — sucesso, canal vazio, dado inválido, falha de rede, timeout, exceção — chamar `loader.loaded()` e só depois `loader.finished()`, exatamente uma vez. Nunca `finished()` sozinho, nunca `loader.error()`, nunca `nodataiserror = true` com dataset obrigatório (o `ebhtml.js` chamaria `error()`). Sem dados: não desenhar nada (conteúdo oculto, `body` preto) e manter `loaded()` → `finished()` em ~100–200 ms. Detalhes e padrão em `.github/skills/ebhtml-api/SKILL.md` seção 6.
 
 `loader.finished()` nunca chamado = item trava a playlist = device fica preso até o watchdog reiniciar o hardware. Isso já aconteceu em produção (poder360_responsivo, 2026-08-14). Duas causas raiz recorrentes:
 
@@ -353,7 +355,7 @@ ffmpeg -i SRC.mp4 -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 \
 - [ ] `js/ebhtml.js` idêntico ao canônico de `_template-base/js/ebhtml.js` (mesma versão/tamanho; 2.0.7 para templates novos)
 - [ ] `js/config.js` presente com `CONFIG` (timing, dataset, layout/área segura, colors) aplicado via `aplicarConfigVisual()` antes de revelar o conteúdo
 - [ ] ES5 — sem `let/const/arrow/template strings`
-- [ ] `loader.loaded()` após sucesso, `loader.finished()` sempre
+- [ ] `loader.loaded()` SEMPRE antes de `loader.finished()` em todos os caminhos (inclusive vazio/erro/timeout/exceção); nunca `finished()` sozinho (risco de reinício da máquina pelo `ebclient`)
 - [ ] `loader.load()` com 2º argumento (callback de erro) que também chama `finished()`
 - [ ] Parsing/render dentro do callback de sucesso do `loader.load()` envolto em `try/catch` que chama `finished()` no `catch` (evita travar se um watchdog externo já foi cancelado antes da exceção)
 - [ ] Nenhum `ebhtml.create2()` extra dedicado a um campo/asset opcional (logo, cor, config) — o `interface` do EBBrowser é global por página; um loader secundário com 0 registros finaliza o item de verdade (ver seção 1.2)

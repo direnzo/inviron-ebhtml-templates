@@ -48,7 +48,7 @@ Os resumos legados foram arquivados em `archive/`; em caso de conflito, este doc
 
 1. ES5 obrigatório em todo template.
 2. `ebhtml.js` sempre copiado integralmente de `_template-base/js/ebhtml.js` — nunca editado manualmente, nunca reaproveitado de pasta antiga sem conferência.
-3. `loader.loaded()` só em sucesso; `loader.finished()` sempre, exatamente uma vez por ciclo, incluindo erro, vazio e exceção de parsing.
+3. `loader.loaded()` sempre antes de `loader.finished()`, e `finished()` exatamente uma vez por ciclo, em todos os caminhos (sucesso, vazio, erro, timeout e exceção de parsing). Encerrar sem `loaded()` conta como erro de play no `ebclient`; 15 seguidos reiniciam a máquina.
 4. Teste sempre por `http://localhost:12099/FILES/1/index.html`, nunca `file:///`.
 5. Branch temática obrigatória antes de qualquer edição (ver `.github/BRANCHING.md`).
 6. Preview/extranet, `localStorage` e modo de hardware fraco são decisões de briefing por template — não são universais nem proibições universais. Ver seção seguinte.

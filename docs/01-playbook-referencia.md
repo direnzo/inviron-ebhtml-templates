@@ -7,7 +7,7 @@ Este documento resume as diretrizes obrigatorias do workspace.
 - Templates novos usam `js/ebhtml.js` na versao 2.0.7. Se a pasta for reaproveitada de um projeto antigo, comparar o arquivo com `_template-base/js/ebhtml.js` (fonte canonica) e substituir por copia integral se divergir. Templates existentes migram individualmente, com regressao validada. Detalhe: `.github/skills/ebhtml-api/SKILL.md`.
 - ES5 obrigatorio.
 - Baseline minimo: Chromium 78.
-- Runtime: loaded apenas em sucesso e finished sempre.
+- Runtime: loaded SEMPRE antes de finished, em todos os caminhos (inclusive vazio/erro/timeout/excecao); finished exatamente uma vez. Finished sem loaded conta como erro de play no ebclient e 15 seguidos reiniciam a maquina.
   - "sempre" inclui o caminho de erro: `loader.load(sucesso, erro)` precisa do 2o argumento, senao falha de XML trava o item pra sempre (ebhtml.js chama error() mas nunca finished() sozinho).
   - handlers de imagem/midia (`onload`/`onerror`) sempre ANTES de setar `src` — WebKit legado pode disparar o evento antes do handler existir se a imagem estiver em cache.
   - todo template com midia assincrona precisa de um watchdog (`setTimeout`) que force `finished()` mesmo sem eventos.

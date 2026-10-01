@@ -22,7 +22,7 @@
 - [ ] ES5 sem regressão (sem `const/let/arrow/template string/class/Promise/fetch`)
 - [ ] `loader.load(sucesso, erro)` com os dois argumentos
 - [ ] Parsing/render do callback de sucesso protegido por `try/catch`
-- [ ] `loader.loaded()` só em sucesso; `loader.finished()` sempre, exatamente uma vez por ciclo
+- [ ] `loader.loaded()` sempre antes de `loader.finished()` (inclusive vazio/erro/timeout/exceção); `finished()` exatamente uma vez por ciclo
 - [ ] Watchdog/retry presentes quando o loader ou mídia podem falhar silenciosamente
 - [ ] Handlers de imagem/mídia atribuídos antes do `src`
 - [ ] Body nunca oculto por inteiro; só o container de dados dinâmicos
