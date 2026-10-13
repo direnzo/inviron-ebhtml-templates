@@ -1,44 +1,50 @@
 # CCXP 2026 - Digital Signage
 
-Status: preparação concluída; aguardando briefing, artes, vídeos e dados reais.
+Status (2026-10-13): template de programação por palco montado com medidas reais.
+Plano: `docs/PLANO-EXECUCAO.md`. Prompt de export: `docs/PROMPT-EXPORT-ILLUSTRATOR.md`.
 
-## Escopo previsto
+## Escopo
 
-- Programação por palco: rolando agora, daqui a pouco e ainda hoje.
-- Destaques do dia, com ou sem ticker.
-- Fotos e autógrafos, incluindo modalidades e status de esgotado.
-- Ticker informativo e relógio/identidade por área.
-- Variantes por configuração; não duplicar a lógica para cada palco.
+- Programação por palco (6 totens TV 55", 1080x1920): esta branch.
+- Destaque do dia e Fotos & Autógrafos (1280x512): branches próprias.
+- Uma implementação; palco muda só por `CONFIG.palco` (id, cores, assets, vídeos).
 
-## Materiais pendentes
+## Sequência por palco (~39 s, steps vazios são omitidos)
 
-- Mapa de telas: local, player, resolução, orientação e template associado.
-- Versão do player, sistema, Chromium, codecs, autoplay e aceleração gráfica.
-- Artes abertas empacotadas, PNG de referência e áreas seguras em pixels.
-- Fontes licenciadas, logos, fundos, máscaras, imagens e vídeos finais.
-- XML/JSON real de cada dataset, aliases, filtros e frequência de atualização.
-- Timezone, relógio de referência e política para alterações durante o evento.
-- Duração de intro, cards, listas, ticker, outro e item na playlist.
-- Política para dado vazio, inválido, atrasado, cancelado ou sem imagem.
+| Frame | Conteúdo | Tempo |
+|---|---|---|
+| 0 | Abertura: vídeo intro do palco | 3 s |
+| 1 | ROLANDO AGORA (1 painel) | 6 s |
+| 2 | DAQUI A POUCO (1 painel) | 6 s |
+| 3 | AINDA HOJE (até 5 painéis) | 13 s |
+| 4 | Encerramento: vídeo + Baixe o App | 11 s |
 
-## Contratos preliminares
+## Palcos e ids (2025; confirmar na API)
 
-- `D_CCXP_PALCOS`: `CATEGORY`, `TITULO`, `TEXTO`, `TEXTO2`, `FOTO`, `DATE`, `DT_END`, `DT_UPDATE`.
-- `D_CCXP_DESTAQUES`: base de palcos; confirmar marcador de destaque em `TEXTO2`.
-- `D_CCXP_FEA`: participante, data, modalidade, horário, esgotado e foto.
-- `D_CCXP_TICKER`: título e foto opcional.
+Thunder 23008, Blast! 23009 (confirmado no PDF 2026), Universe 23005,
+Omni 24001, Magic Market 23010, Omelete 23007 (previsto em 2025, sem arte).
 
-## Regras de preparação
+## Materiais (fora do repo)
 
-- Todo template nasce de `_template-base` com EBHTML 2.0.7 canônico.
-- Um `CONFIG` concentra dataset, palco, identidade, timing, layout e fallbacks.
-- Usar somente a API pública `loader.data()`/`loader.datalist()`.
-- Todo caminho assíncrono chama `finished()` exatamente uma vez.
-- Testar somente em `http://localhost:12099/FILES/1/index.html`.
-- O pacote `.eh5` deve conter somente arquivos necessários ao runtime.
+`C:\Users\direnzo\Documents\CLIENTES\CCXP\2026\Materiais\01_Template-Programacao-Dia`:
+`1080x1920` (JPG só de referência, com placeholders), `Animados` (intro/encerramento
+H.264 1080x1920, 30 fps), `ABERTO` (.ai). Referência 2025: `...\CCXP\2025\Templates`.
 
-## Compatibilidade
+## Contrato de dados (confirmar com staging)
 
-O projeto não precisa suportar os players antigos. A sintaxe JavaScript e os codecs
-serão definidos após registrar a versão mínima real do runtime. Até essa confirmação,
-permanece a regra global ES5 do repositório; não presumir suporte por ser máquina nova.
+`D_CCXP_PALCOS`: `CATEGORY` (id palco), `TITULO` (palco), `TEXTO` (título), `TEXTO2`,
+`FOTO`, `DATE`, `DT_END`, `DT_UPDATE`. API: `cms.ccxp.com.br/api/pt/events/`.
+
+## Decisões
+
+- ES6 liberado (player novo Windows, sem Android); ver instruções do projeto.
+- Painel sai quando `DT_END` passou (data completa e fuso -03:00, nunca só HH:MM).
+- Título: fonte mín/máx e `...` ao exceder; relógio único; estado substituído a cada carga.
+- Sem loader secundário, sem `browserData.f_items`, `finished()` uma única vez.
+
+## Pendências
+
+- Vídeos dos demais 5 palcos copiados para `programacao_palco/videos/`.
+- Confirmar dataset em 2026, `stage.title` do Magic/Omelete e Chromium do player.
+- Regra para cancelado, remarcado, sem imagem e fim do dia.
+- Atenção: cronograma mistura datas 2025/2026; tratar como ordem, não como prazo.
