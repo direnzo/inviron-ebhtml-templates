@@ -12,7 +12,7 @@
  *   ?len=N                     todos os titulos com N caracteres (limite de texto)
  *   ?hora=14:40                hora simulada de hoje (avanca em tempo real)
  *   ?agora=2026-12-04T14:40:00-03:00   data/hora simulada completa
- *   ?palco=23009|blast         troca o palco (id ou slug)
+ *   ?palco=23009|blast         fixa o palco (id ou slug); sem ele, sorteia um dos 6 a cada carga
  * Sem ?hora/?agora o relogio do rodape e a selecao usam a hora real.
  * window.__calls: loaded()/finished(); window.__textos: resultado do ajuste de cada descricao.
  */
@@ -36,6 +36,10 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
             return k === palco || CONFIG.palcos[k].slug === palco || CONFIG.palcos[k].arte === palco;
         })[0];
         if (id) { usarPalco(id); }
+    } else {
+        // Sem ?palco: sorteia um dos 6 palcos a cada carga (fundo, ornamento, cores e videos).
+        const ids = Object.keys(CONFIG.palcos);
+        usarPalco(ids[Math.floor(Math.random() * ids.length)]);
     }
 
     // Inicio do dia (00:00 no fuso do evento) para um instante qualquer.

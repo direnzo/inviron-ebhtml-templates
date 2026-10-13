@@ -9,7 +9,7 @@ const CONFIG = {
     palco: '23008', // id do palco = campo CATEGORY do dataset
 
     dataset: 'D_CCXP_PALCOS',
-    basePath: '', // 2025 usou 'http://localhost:13199/CONTENT/DATA'; confirmar em 2026
+    basePath: 'http://localhost:13199/CONTENT/DATA', // mesmo caminho de 2025 (a porta 13199 libera CORS)
     fuso: -180,   // minutos; datas sem fuso no dataset sao lidas em Sao Paulo
 
     tempos: { intro: 3000, rolando: 6000, daqui: 6000, ainda: 13000, amanha: 13000, outro: 11000 }, // ms
@@ -19,7 +19,7 @@ const CONFIG = {
     titulo: { y: 380.408, tam: 150 },                          // centralizado
     foto: { x: 74.766, y: 470.031, w: 930.234, h: 930.234 },
     hora: { x: 102, y: 1535.834, tam: 100 },
-    descricao: { x: 102, y: 1611.508, w: 882, tam: 75, ent: 74.025, linhas: 3 },
+    descricao: { x: 102, y: 1611.508, w: 882, tam: 75, ent: 74, linhas: 3 },
     lista: {                                                   // "Ainda hoje"
         y: 470.031, passo: 247.277,                            // topo da 1a foto e distancia entre linhas
         foto: { x: 156.393, tam: 228.761 },
@@ -37,7 +37,7 @@ const CONFIG = {
         '23009': { nome: 'Palco Blast!', slug: 'blast', arte: 'blast', fundo: '#901B36', titulo: '#FFFFFF', hora: '#FFAA32', texto: '#FFFFFF' },
         '23005': { nome: 'Palco Universe', slug: 'universe', arte: 'universe', fundo: '#DF48BE', titulo: '#FFFFFF', hora: '#391B8C', texto: '#FFFFFF' },
         '24001': { nome: 'Palco Omni', slug: 'omni', arte: 'omni', fundo: '#F8812C', titulo: '#FFFFFF', hora: '#FFFFFF', texto: '#000000' },
-        '23010': { nome: 'Magic Market', slug: 'magicmarket', arte: 'magic', fundo: '#39178A', titulo: '#FFFFFF', hora: '#52DBF5', texto: '#FFFFFF' },
+        '23010': { nome: 'Magic Market', slug: 'magic', arte: 'magic', fundo: '#39178A', titulo: '#FFFFFF', hora: '#52DBF5', texto: '#FFFFFF' },
         '23007': { nome: 'Palco Omelete', slug: 'omelete', arte: 'omelete', fundo: '#FFB135', titulo: '#000000', hora: '#FFFFFF', texto: '#000000' } // id a confirmar na API
     }
 };

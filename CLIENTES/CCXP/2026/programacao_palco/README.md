@@ -34,7 +34,7 @@ Plano e decisões: `../docs/PLANO-EXECUCAO.md`. Contexto: `../README.md`.
 - Player: `http://localhost:12099/FILES/1/index.html`; `?mock=0` usa o EBHTML real.
 - Mock (padrão `evento`: 5 dias, hora real): `?cenario=textos|hojeEAmanha|cheio|tres|dois|
   um|semAtual|vazio|encerrado|amanha|semImagem|invalido|erro`, `&len=N`, `&hora=14:40`,
-  `&agora=ISO-8601`, `&palco=blast`. `window.__textos` mostra o ajuste de cada texto.
+  `&agora=ISO-8601`, `&palco=blast` (sem ele, o mock sorteia o palco). `window.__textos` mostra o ajuste de cada texto.
 
 ## CSS e pacote
 
