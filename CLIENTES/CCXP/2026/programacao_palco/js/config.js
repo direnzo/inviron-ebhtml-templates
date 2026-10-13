@@ -33,12 +33,12 @@ const CONFIG = {
     // --- identidade por palco ---
     // arte: img/{arte}.png (fundo) e img/topo_{arte}.png (ornamento). slug: videos/{slug}_intro|outro.mp4
     palcos: {
-        '23008': { nome: 'Palco Thunder', slug: 'thunder', arte: 'thunder', fundo: '#e2313a', titulo: '#FFFFFF', hora: '#000000', texto: '#FFFFFF' },
-        '23009': { nome: 'Palco Blast!', slug: 'blast', arte: 'blast', fundo: '#901B36', titulo: '#FFFFFF', hora: '#FFAA32', texto: '#FFFFFF' },
-        '23005': { nome: 'Palco Universe', slug: 'universe', arte: 'universe', fundo: '#DF48BE', titulo: '#FFFFFF', hora: '#391B8C', texto: '#FFFFFF' },
-        '24001': { nome: 'Palco Omni', slug: 'omni', arte: 'omni', fundo: '#F8812C', titulo: '#FFFFFF', hora: '#FFFFFF', texto: '#000000' },
-        '23010': { nome: 'Magic Market', slug: 'magic', arte: 'magic', fundo: '#39178A', titulo: '#FFFFFF', hora: '#52DBF5', texto: '#FFFFFF' },
-        '23007': { nome: 'Palco Omelete', slug: 'omelete', arte: 'omelete', fundo: '#FFB135', titulo: '#000000', hora: '#FFFFFF', texto: '#000000' } // id a confirmar na API
+        '23008': { nome: 'Palco Thunder', slug: 'thunder', arte: 'thunder', fundo: '#f6002f', titulo: '#FFFFFF', hora: '#000000', texto: '#FFFFFF' },
+        '23009': { nome: 'Palco Blast!', slug: 'blast', arte: 'blast', fundo: '#9d0034', titulo: '#FFFFFF', hora: '#ffa500', texto: '#FFFFFF' },
+        '23005': { nome: 'Palco Universe', slug: 'universe', arte: 'universe', fundo: '#f235c3', titulo: '#FFFFFF', hora: '#3f1490', texto: '#FFFFFF' },
+        '24001': { nome: 'Palco Omni', slug: 'omni', arte: 'omni', fundo: '#ff7900', titulo: '#FFFFFF', hora: '#FFFFFF', texto: '#000000' },
+        '23010': { nome: 'Magic Market', slug: 'magic', arte: 'magic', fundo: '#3f1490', titulo: '#FFFFFF', hora: '#00dff8', texto: '#FFFFFF' },
+        '23007': { nome: 'Palco Omelete', slug: 'omelete', arte: 'omelete', fundo: '#ffac00', titulo: '#000000', hora: '#FFFFFF', texto: '#000000' } // id a confirmar na API
     }
 };
 
