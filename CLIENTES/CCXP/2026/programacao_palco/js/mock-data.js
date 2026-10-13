@@ -5,23 +5,31 @@
  * Parametros de URL:
  *   ?mock=0                    usa o EBHTML real (sem mock)
  * Somente com o mock ativo:
- *   ?cenario=cheio|tres|dois|um|semAtual|vazio|encerrado|amanha|longo|semImagem|invalido|erro
- *   ?palco=23009|blast        troca o palco (id ou slug)
- *   ?agora=2026-12-04T14:40:00-03:00   hora simulada (padrao 14:40 do dia atual)
- * Chamadas ao loader ficam em window.__calls para conferir loaded() antes de finished().
+ *   ?cenario=evento            (padrao) 5 dias de evento, horario real: o que passou some
+ *            textos            titulos curtos, medios, longos, extremos e com acento
+ *            hojeEAmanha       lista de hoje + slide separado "Amanha"
+ *            cheio|tres|dois|um|semAtual|vazio|encerrado|amanha|semImagem|invalido|erro
+ *   ?len=N                     todos os titulos com N caracteres (limite de texto)
+ *   ?hora=14:40                hora simulada de hoje (avanca em tempo real)
+ *   ?agora=2026-12-04T14:40:00-03:00   data/hora simulada completa
+ *   ?palco=23009|blast         troca o palco (id ou slug)
+ * Sem ?hora/?agora o relogio do rodape e a selecao usam a hora real.
+ * window.__calls: loaded()/finished(); window.__textos: resultado do ajuste de cada descricao.
  */
-// ?mock=0 na URL desliga o mock e usa o EBHTML real (teste no player sem editar arquivos).
 const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
 
 (function () {
     if (!MOCK_DATA.enabled) { return; }
 
     const params = new URLSearchParams(window.location.search);
-    const cenario = params.get('cenario') || 'cheio';
+    const cenario = params.get('cenario') || 'evento';
     const palco = params.get('palco');
+    const lenParam = parseInt(params.get('len'), 10);
     const calls = (window.__calls = []);
     const startedAt = Date.now();
     const offsetMin = CONFIG.fuso;
+    const MIN = 60000;
+    const DIA = 24 * 60 * MIN;
 
     if (palco) {
         const id = Object.keys(CONFIG.palcos).filter(function (k) {
@@ -30,70 +38,134 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
         if (id) { usarPalco(id); }
     }
 
-    // Hora simulada: avanca em tempo real a partir do valor inicial.
-    let baseNow;
+    // Inicio do dia (00:00 no fuso do evento) para um instante qualquer.
+    function inicioDoDia(ms) {
+        const w = new Date(ms + offsetMin * MIN);
+        return Date.UTC(w.getUTCFullYear(), w.getUTCMonth(), w.getUTCDate()) - offsetMin * MIN;
+    }
+
+    // Hora do mock: real por padrao; ?hora / ?agora simulam e avancam em tempo real.
+    let baseNow = startedAt;
     const agora = params.get('agora');
+    const hora = /^(\d{1,2}):(\d{2})$/.exec(params.get('hora') || '');
     if (agora && !isNaN(Date.parse(agora))) {
         baseNow = Date.parse(agora);
-    } else {
-        const w = new Date(Date.now() + offsetMin * 60000);
-        baseNow = Date.UTC(w.getUTCFullYear(), w.getUTCMonth(), w.getUTCDate(), 14, 40) - offsetMin * 60000;
+    } else if (hora) {
+        baseNow = inicioDoDia(startedAt) + (+hora[1] * 60 + +hora[2]) * MIN;
     }
     MOCK_DATA.now = function () { return baseNow + (Date.now() - startedAt); };
 
     function pad(n) { return n < 10 ? '0' + n : String(n); }
     function stamp(ms) {
-        const d = new Date(ms + offsetMin * 60000);
+        const d = new Date(ms + offsetMin * MIN);
         return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()) + ' ' +
             pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ':00';
     }
+
     // Fotos de picsum.photos (930x930, uso so de mock), baixadas em mock/fotos/p01..p20.jpg.
     const TOTAL_FOTOS = 20;
     function photo(n) {
         const i = (n * 7 + 3) % TOTAL_FOTOS + 1; // espalha: eventos vizinhos nao repetem a foto
         return 'mock/fotos/p' + (i < 10 ? '0' + i : i) + '.jpg';
     }
-    const MIN = 60000;
-    function ev(n, startMin, durMin, title, extra) {
+
+    // ---- titulos de varios tamanhos ----
+    const CURTOS = ['Abertura', 'Cosplay', 'Quiz Geek', 'Anime Live', 'DC Studios', 'Fan Meet'];
+    const MEDIOS = ['The Boys: Temporada Final', 'Panini Comics: Novidades 2027', 'Brasil Game Show Talks',
+        'Estúdio Mauricio de Sousa', 'Criadores de Conteúdo', 'Maratona Anime e Mangá'];
+    const LONGOS = ['Megapainel dos Colecionáveis com Hasbro, McFarlane Toys e Iron Studios',
+        'Marvel Studios apresenta: o futuro do Universo Cinematográfico com elenco e diretores'];
+    const MUITO_LONGOS = [
+        'Painel especial de encerramento com os criadores, roteiristas e elenco da franquia para revelar em primeira mão os próximos lançamentos e curiosidades dos bastidores',
+        'Warner Bros. Discovery: celebrando cem anos de histórias com os principais nomes do cinema, da televisão e dos quadrinhos, com exibição de cenas inéditas e anúncios exclusivos'];
+    const EXTREMOS = ['Encontro histórico reunindo diretores, atores, roteiristas, ilustradores, dubladores e produtores de várias gerações para uma conversa aberta sobre os bastidores da criação de universos, personagens inesquecíveis, desafios das adaptações e os próximos grandes projetos que vão chegar às telas, aos quadrinhos e aos jogos nos próximos anos'];
+    const PALAVRA_LONGA = 'Supercalifragilisticexpialidocious: Edição Comemorativa';
+    const ACENTOS = 'ÁGATA ÉPICA ÍNTIMA ÓPERA ÚNICA: AÇÃO, EMOÇÃO E CORAÇÃO NO ÂMBITO DAS NAÇÕES ÃÕ';
+
+    function lorem(n) {
+        const palavras = ('painel conversa bastidores elenco criadores lançamentos novidades quadrinhos cinema animação ' +
+            'jogos música cultura pop convidados especiais anúncios exclusivos história universo personagens').split(' ');
+        let s = '';
+        for (let i = 0; s.length < n; i += 1) { s += (s ? ' ' : '') + palavras[i % palavras.length]; }
+        return s.slice(0, n).trim();
+    }
+    function ciclo(lista, i) { return lista[i % lista.length]; }
+    // Mistura deterministica: parte curtos, parte medios/longos, alguns muito longos.
+    function tituloVariado(i) {
+        const g = i % 10;
+        if (g === 9) { return ciclo(MUITO_LONGOS, i); }
+        if (g === 6 || g === 7) { return ciclo(LONGOS, i); }
+        if (g === 1 || g === 4) { return ciclo(CURTOS, i); }
+        return ciclo(MEDIOS, i);
+    }
+
+    function ev(n, inicioMs, durMin, title, extra) {
         const rec = {
-            CATEGORY: CONFIG.palco, TITULO: CONFIG.p.nome, TEXTO: title, TEXTO2: '0',
+            CATEGORY: CONFIG.palco, TITULO: CONFIG.p.nome,
+            TEXTO: isNaN(lenParam) ? title : lorem(lenParam), TEXTO2: '0',
             FOTO: photo(n),
-            DATE: stamp(baseNow + startMin * MIN), DT_END: stamp(baseNow + (startMin + durMin) * MIN),
+            DATE: stamp(inicioMs), DT_END: stamp(inicioMs + durMin * MIN),
             DT_UPDATE: stamp(baseNow)
         };
         for (const k in (extra || {})) { rec[k] = extra[k]; }
         return rec;
     }
-    const titulos = [
-        'Megapainel dos Colecionáveis com Hasbro, McFarlane Toys e Iron Studios',
-        'The Boys: Temporada Final', 'Panini Comics: Novidades 2027', 'Brasil Game Show Talks',
-        'Cosplay: Bastidores', 'Maratona Anime', 'Quadrinhos Nacionais', 'Estúdio Mauricio de Sousa',
-        'Criadores de Conteúdo'
-    ];
+    // Atalho: minutos relativos a "agora".
+    const rel = function (n, startMin, durMin, title, extra) { return ev(n, baseNow + startMin * MIN, durMin, title, extra); };
+
+    /** 5 dias de evento (hoje + 4), 11 paineis por dia de 10:00 a 19:00; a hora real decide o que aparece. */
+    function eventoCincoDias() {
+        const out = [];
+        const hoje = inicioDoDia(baseNow);
+        for (let d = 0; d < 5; d += 1) {
+            for (let k = 0; k < 11; k += 1) {
+                const i = d * 11 + k;
+                out.push(ev(i, hoje + d * DIA + (10 * 60 + k * 50) * MIN, 40, tituloVariado(i)));
+            }
+        }
+        return out;
+    }
 
     function cenarioRegistros(nome) {
-        const atual = ev(0, -20, 40, titulos[0]);
+        const atual = rel(0, -20, 40, LONGOS[0]);
         const futuros = function (qtd) {
             const out = [];
-            for (let i = 0; i < qtd; i += 1) { out.push(ev(i + 1, 30 + i * 60, 50, titulos[(i + 1) % titulos.length])); }
+            for (let i = 0; i < qtd; i += 1) { out.push(rel(i + 1, 30 + i * 60, 50, tituloVariado(i + 1))); }
             return out;
         };
         switch (nome) {
+            case 'evento': return eventoCincoDias();
             case 'cheio': return [atual].concat(futuros(8));
             case 'tres': return [atual].concat(futuros(2));
             case 'dois': return [atual].concat(futuros(1));
             case 'um': return [atual];
             case 'semAtual': return futuros(3);
             case 'vazio': return [];
-            case 'encerrado': return [ev(1, -180, 60, titulos[1]), ev(2, -90, 60, titulos[2])];
-            case 'amanha': return [ev(1, 24 * 60 + 60, 60, titulos[1])];
-            case 'longo': {
-                const longo = 'Painel com um título extremamente longo para testar o limite de caracteres e o corte com reticências no final do texto exibido na tela do totem';
-                return [ev(0, -20, 40, longo)].concat(futuros(1), [ev(5, 200, 50, longo)]);
+            case 'encerrado': return [rel(1, -180, 60, MEDIOS[0]), rel(2, -90, 60, MEDIOS[1])];
+            case 'amanha': return [rel(1, 24 * 60 + 60, 60, MEDIOS[0])];
+            case 'hojeEAmanha': {
+                // Hoje: atual, proximo e 1 depois. Amanha: 6 paineis (slide proprio, ate 5).
+                const hoje = [rel(0, -20, 40, MEDIOS[0]), rel(1, 30, 40, CURTOS[0]), rel(2, 90, 40, MEDIOS[2])];
+                const amanha = [];
+                const base = inicioDoDia(baseNow) + DIA + 10 * 60 * MIN;
+                for (let i = 0; i < 6; i += 1) { amanha.push(ev(i + 3, base + i * 50 * MIN, 40, tituloVariado(i + 3))); }
+                return hoje.concat(amanha);
             }
-            case 'semImagem': return [ev(0, -20, 40, titulos[0], { FOTO: '' }), ev(1, 30, 50, titulos[1], { FOTO: 'img/nao-existe.jpg' })];
-            case 'invalido': return [ev(0, -20, 40, titulos[0], { DATE: 'lixo' }), ev(1, 30, 50, '', {}), ev(2, 90, 50, titulos[2])];
-            default: return [atual].concat(futuros(8));
+            case 'textos': {
+                // atual (muito longo) | daqui (palavra longa) | lista: curto, medio, longo, extremo, acentos
+                return [
+                    rel(0, -20, 40, MUITO_LONGOS[0]),
+                    rel(1, 30, 40, PALAVRA_LONGA),
+                    rel(2, 80, 40, CURTOS[0]),
+                    rel(3, 130, 40, MEDIOS[0]),
+                    rel(4, 180, 40, LONGOS[0]),
+                    rel(5, 230, 40, EXTREMOS[0]),
+                    rel(6, 280, 40, ACENTOS)
+                ];
+            }
+            case 'semImagem': return [rel(0, -20, 40, LONGOS[0], { FOTO: '' }), rel(1, 30, 50, MEDIOS[0], { FOTO: 'img/nao-existe.jpg' })];
+            case 'invalido': return [rel(0, -20, 40, LONGOS[0], { DATE: 'lixo' }), rel(1, 30, 50, '', {}), rel(2, 90, 50, MEDIOS[1])];
+            default: return eventoCincoDias();
         }
     }
 
@@ -128,5 +200,6 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
             cb(loader);
         }
     };
-    console.log('[Mock] ativo: cenario=' + cenario + ' palco=' + CONFIG.palco);
+    console.log('[Mock] ativo: cenario=' + cenario + ' palco=' + CONFIG.palco +
+        ' agora=' + stamp(baseNow) + (agora || hora ? ' (simulado)' : ' (hora real)'));
 })();

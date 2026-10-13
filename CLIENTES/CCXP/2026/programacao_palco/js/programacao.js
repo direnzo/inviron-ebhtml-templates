@@ -112,7 +112,9 @@
     /**
      * Seleciona o que cada step mostra.
      * opts: { offsetMin, stageId, filterClientSide, fallbackDurationMin, maxLista }
-     * Retorna { atual, proximo, depois[], descartados } (atual/proximo podem ser null).
+     * Retorna { atual, proximo, depois[], amanha[], descartados }.
+     * - depois: ate maxLista paineis de hoje apos o proximo ("Ainda hoje").
+     * - amanha: ate maxLista paineis do dia seguinte (slide proprio "Amanha").
      */
     function select(rawEvents, nowMs, opts) {
         const seen = {};
@@ -139,10 +141,19 @@
         const future = alive.filter(function (ev) {
             return ev.startMs > nowMs && dayKey(ev.startMs, opts.offsetMin) === today;
         });
+        const amanhaKey = dayKey(nowMs + 86400000, opts.offsetMin);
+        const amanha = alive.filter(function (ev) {
+            return ev.startMs > nowMs && dayKey(ev.startMs, opts.offsetMin) === amanhaKey;
+        }).slice(0, opts.maxLista);
+        const depois = future.slice(1, 1 + opts.maxLista);
+        const lista = depois.map(function (ev) { return Object.assign({}, ev, { dia: 'hoje' }); })
+            .concat(amanha.slice(0, opts.maxLista - depois.length)
+                .map(function (ev) { return Object.assign({}, ev, { dia: 'amanha' }); }));
         return {
             atual: running.length ? running[0] : null,
             proximo: future.length ? future[0] : null,
-            depois: future.slice(1, 1 + opts.maxLista),
+            depois: depois,
+            amanha: amanha,
             descartados: descartados
         };
     }
@@ -153,7 +164,7 @@
      */
     function buildSteps(selection, timing) {
         const steps = [];
-        if (!selection.atual && !selection.proximo) { return steps; }
+        if (!selection.atual && !selection.proximo && !selection.depois.length && !selection.amanha.length) { return steps; }
         steps.push({ type: 'intro', ms: timing.intro });
         if (selection.atual) {
             steps.push({ type: 'rolando', ms: timing.rolando, events: [selection.atual] });
@@ -163,6 +174,9 @@
         }
         if (selection.depois.length) {
             steps.push({ type: 'ainda', ms: timing.ainda, events: selection.depois });
+        }
+        if (selection.amanha.length) {
+            steps.push({ type: 'amanha', ms: timing.amanha || timing.ainda, events: selection.amanha });
         }
         steps.push({ type: 'outro', ms: timing.outro });
         return steps;

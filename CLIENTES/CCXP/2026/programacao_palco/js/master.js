@@ -17,7 +17,7 @@
     const ARTE_X = -1;          // PNGs 1081x1921: coluna 0 em alpha 25%, deslocar -1 px
     const ASC = 0.952;          // GothamCond-Ultra: ascendente e area de conteudo (em)
     const CONTEUDO = 0.952 + 0.222;
-    const TITULOS = { rolando: 'Rolando agora', daqui: 'Daqui a pouco', ainda: 'Ainda hoje' };
+    const TITULOS = { rolando: 'Rolando agora', daqui: 'Daqui a pouco', ainda: 'Ainda hoje', amanha: 'Amanhã' };
 
     const log = (...args) => { if (C.debug) { console.log('[CCXP]', ...args); } };
     const $ = (id) => document.getElementById(id);
@@ -66,8 +66,8 @@
         return el.scrollHeight <= el.clientHeight + 1 && el.scrollWidth <= el.clientWidth + 1;
     }
 
-    /** Descricao ate cfg.linhas: tamanho da arte; reduz ate 60%; abaixo disso corta com "...". */
-    function descricao(el, texto, cfg, baselineY) {
+    /** Descricao ate cfg.linhas no tamanho da arte (sem encolher); acima disso corta com "...". */
+    function ajustarDescricao(el, texto, cfg, baselineY) {
         const razao = cfg.ent / cfg.tam;
         const aplicar = (tam) => {
             const ent = tam * razao;
@@ -83,16 +83,7 @@
         el.style.width = cfg.w + 'px';
         el.textContent = texto;
         aplicar(cfg.tam);
-        if (cabe(el)) { return; }
-        let lo = Math.floor(cfg.tam * 0.6);
-        let hi = Math.floor(cfg.tam) - 1;
-        while (lo < hi) {
-            const mid = Math.ceil((lo + hi) / 2);
-            aplicar(mid);
-            if (cabe(el)) { lo = mid; } else { hi = mid - 1; }
-        }
-        aplicar(lo);
-        if (cabe(el)) { return; }
+        if (cabe(el)) { return 'nominal'; }
         let a = 0;
         let b = texto.length;
         while (a < b) {
@@ -104,6 +95,18 @@
         const espaco = corte.lastIndexOf(' ');
         if (espaco > a * 0.6) { corte = corte.slice(0, espaco); }
         el.textContent = corte.trimEnd() + '...';
+        return 'cortado';
+    }
+
+    /** Ajusta a descricao e, com debug, registra o resultado em window.__textos (testes de limite). */
+    function descricao(el, texto, cfg, baselineY) {
+        const estado = ajustarDescricao(el, texto, cfg, baselineY);
+        if (C.debug) {
+            (window.__textos = window.__textos || []).push({
+                caracteres: texto.length, estado: estado, tam: parseFloat(el.style.fontSize),
+                cabe: cabe(el), final: el.textContent.length
+            });
+        }
     }
 
     // ---------- midia ----------
@@ -186,10 +189,11 @@
         return painel;
     }
 
-    function painelLista(eventos, midia) {
-        const painel = novoPainel('tplLista', 'ainda');
+    /** Lista de ate 5 paineis: slide "Ainda hoje" ou slide "Amanha" (exclusivo, nao mistura). */
+    function painelLista(step, midia) {
+        const painel = novoPainel('tplLista', step.type);
         const L = C.lista;
-        eventos.forEach((ev, i) => {
+        step.events.forEach((ev, i) => {
             const y = L.y + i * L.passo;
             const item = $('tplItem').content.firstElementChild.cloneNode(true);
             painel.querySelector('.itens').appendChild(item);
@@ -334,7 +338,7 @@
             const paineis = {};
             steps.forEach((s) => {
                 if (s.type === 'rolando' || s.type === 'daqui') { paineis[s.type] = painelUnico(s.type, s.events[0], midia); }
-                if (s.type === 'ainda') { paineis.ainda = painelLista(s.events, midia); }
+                if (s.type === 'ainda' || s.type === 'amanha') { paineis[s.type] = painelLista(s, midia); }
             });
             montarFixos(midia);
             return paineis;

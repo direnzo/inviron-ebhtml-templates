@@ -12,7 +12,7 @@ const CONFIG = {
     basePath: '', // 2025 usou 'http://localhost:13199/CONTENT/DATA'; confirmar em 2026
     fuso: -180,   // minutos; datas sem fuso no dataset sao lidas em Sao Paulo
 
-    tempos: { intro: 3000, rolando: 6000, daqui: 6000, ainda: 13000, outro: 11000 }, // ms
+    tempos: { intro: 3000, rolando: 6000, daqui: 6000, ainda: 13000, amanha: 13000, outro: 11000 }, // ms
     maxLista: 5,
 
     // --- posicoes ---
@@ -33,7 +33,7 @@ const CONFIG = {
     // --- identidade por palco ---
     // arte: img/{arte}.png (fundo) e img/topo_{arte}.png (ornamento). slug: videos/{slug}_intro|outro.mp4
     palcos: {
-        '23008': { nome: 'Palco Thunder', slug: 'thunder', arte: 'thunder', fundo: '#E2313A', titulo: '#FFFFFF', hora: '#000000', texto: '#FFFFFF' },
+        '23008': { nome: 'Palco Thunder', slug: 'thunder', arte: 'thunder', fundo: '#e2313a', titulo: '#FFFFFF', hora: '#000000', texto: '#FFFFFF' },
         '23009': { nome: 'Palco Blast!', slug: 'blast', arte: 'blast', fundo: '#901B36', titulo: '#FFFFFF', hora: '#FFAA32', texto: '#FFFFFF' },
         '23005': { nome: 'Palco Universe', slug: 'universe', arte: 'universe', fundo: '#DF48BE', titulo: '#FFFFFF', hora: '#391B8C', texto: '#FFFFFF' },
         '24001': { nome: 'Palco Omni', slug: 'omni', arte: 'omni', fundo: '#F8812C', titulo: '#FFFFFF', hora: '#FFFFFF', texto: '#000000' },
