@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Unica fonte dinamica da arte: Gotham Condensed Ultra (peso proprio; sem negrito sintetico). */
+@font-face {
+    font-family: 'GothamCond-Ultra';
+    src: url('fonts/GothamCond-Ultra.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* --fonte e definida por js/config.js (CONFIG.fonts). */
+.frame-title, .hora, .descricao, #relogio {
+    font-family: var(--fonte, 'GothamCond-Ultra', 'Arial Narrow', Impact, sans-serif);
+    font-weight: normal;
+    font-synthesis: none;
+}
+
+/* Foto ausente: bloco na cor do palco (--cor-palco) escurecido. */
+.foto.sem-foto, .thumb.sem-foto {
+    background-color: var(--cor-palco, #444);
+    background-image: linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.35));
+}
+.sem-foto img { display: none; }
+
+/* Fundo ausente: cor do palco. */
+.panel.sem-fundo { background-color: var(--cor-palco, #E2313A); }

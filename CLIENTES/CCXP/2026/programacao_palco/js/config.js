@@ -1,0 +1,57 @@
+// =============================================================================
+// CONFIG - tudo o que se ajusta no template. Para outro palco: troque so `palco`.
+// Medidas em px na tela 1080x1920. Texto: y = linha de base da 1a linha, tam = fonte (px).
+// Fonte: Exports/layout-programacao.json (modelo .ai, 2026-10-13).
+// =============================================================================
+const CONFIG = {
+    debug: true, // logs [CCXP]; desligar em producao
+
+    palco: '23008', // id do palco = campo CATEGORY do dataset
+
+    dataset: 'D_CCXP_PALCOS',
+    basePath: '', // 2025 usou 'http://localhost:13199/CONTENT/DATA'; confirmar em 2026
+    fuso: -180,   // minutos; datas sem fuso no dataset sao lidas em Sao Paulo
+
+    tempos: { intro: 3000, rolando: 6000, daqui: 6000, ainda: 13000, outro: 11000 }, // ms
+    maxLista: 5,
+
+    // --- posicoes ---
+    titulo: { y: 380.408, tam: 150 },                          // centralizado
+    foto: { x: 74.766, y: 470.031, w: 930.234, h: 930.234 },
+    hora: { x: 102, y: 1535.834, tam: 100 },
+    descricao: { x: 102, y: 1611.508, w: 882, tam: 75, ent: 74.025, linhas: 3 },
+    lista: {                                                   // "Ainda hoje"
+        y: 470.031, passo: 247.277,                            // topo da 1a foto e distancia entre linhas
+        foto: { x: 156.393, tam: 228.761 },
+        hora: { x: 411.618, dy: 80.055, tam: 86.19 },          // dy: da foto ate a linha de base
+        descricao: { x: 411.615, dy: 126.173, w: 512, tam: 37.92, ent: 43.082, linhas: 3 }
+    },
+    barra: { y: 1834.391, h: 85.609 },
+    logo: { x: 21.33, y: 1853.565, w: 214.556, h: 47.262 },
+    relogio: { direita: 1053.201, y: 1900.254, tam: 64.698 },
+
+    // --- identidade por palco ---
+    // arte: img/{arte}.png (fundo) e img/topo_{arte}.png (ornamento). slug: videos/{slug}_intro|outro.mp4
+    palcos: {
+        '23008': { nome: 'Palco Thunder', slug: 'thunder', arte: 'thunder', fundo: '#E2313A', titulo: '#FFFFFF', hora: '#000000', texto: '#FFFFFF' },
+        '23009': { nome: 'Palco Blast!', slug: 'blast', arte: 'blast', fundo: '#901B36', titulo: '#FFFFFF', hora: '#FFAA32', texto: '#FFFFFF' },
+        '23005': { nome: 'Palco Universe', slug: 'universe', arte: 'universe', fundo: '#DF48BE', titulo: '#FFFFFF', hora: '#391B8C', texto: '#FFFFFF' },
+        '24001': { nome: 'Palco Omni', slug: 'omni', arte: 'omni', fundo: '#F8812C', titulo: '#FFFFFF', hora: '#FFFFFF', texto: '#000000' },
+        '23010': { nome: 'Magic Market', slug: 'magicmarket', arte: 'magic', fundo: '#39178A', titulo: '#FFFFFF', hora: '#52DBF5', texto: '#FFFFFF' },
+        '23007': { nome: 'Palco Omelete', slug: 'omelete', arte: 'omelete', fundo: '#FFB135', titulo: '#000000', hora: '#FFFFFF', texto: '#000000' } // id a confirmar na API
+    }
+};
+
+/** Define o palco ativo e os caminhos derivados (chamado aqui e pelo mock em ?palco=). */
+function usarPalco(id) {
+    const p = CONFIG.palcos[id];
+    if (!p) { return false; }
+    CONFIG.palco = id;
+    CONFIG.p = p;
+    CONFIG.bg = 'img/' + p.arte + '.png';
+    CONFIG.topo = 'img/topo_' + p.arte + '.png';
+    CONFIG.videoIntro = 'videos/' + p.slug + '_intro.mp4';
+    CONFIG.videoOutro = 'videos/' + p.slug + '_outro.mp4';
+    return true;
+}
+usarPalco(CONFIG.palco);
