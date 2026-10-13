@@ -8,12 +8,7 @@
     'use strict';
 
     const C = CONFIG;
-    const FADE = 300;           // troca entre steps (ms)
-    const LOAD_TIMEOUT = 8000;  // dataset
-    const MEDIA_TIMEOUT = 6000; // cada imagem / fonte
-    const VIDEO_MARGIN = 1500;  // folga alem da duracao do video
-    const EMPTY_DELAY = 100;    // loaded() -> finished() sem conteudo
-    const OUTRO_DELAY = 150;    // pausa entre a saida do conteudo e o video de encerramento (2025)
+    const T = C.tempos;         // tempos: ver js/config.js
     const ARTE_X = -1;          // PNGs 1081x1921: coluna 0 em alpha 25%, deslocar -1 px
     const ASC = 0.952;          // GothamCond-Ultra: ascendente e area de conteudo (em)
     const CONTEUDO = 0.952 + 0.222;
@@ -114,7 +109,7 @@
         return new Promise((resolve) => {
             if (!url) { resolve(false); return; }
             const img = new Image();
-            const timer = setTimeout(() => resolve(false), MEDIA_TIMEOUT);
+            const timer = setTimeout(() => resolve(false), T.carregarMidia);
             img.onload = () => { clearTimeout(timer); resolve(true); };
             img.onerror = () => { clearTimeout(timer); resolve(false); };
             img.src = url; // handlers antes do src
@@ -125,14 +120,14 @@
         if (!document.fonts || !document.fonts.load) { return Promise.resolve(false); }
         return Promise.race([
             document.fonts.load('100px "GothamCond-Ultra"').then((f) => f.length > 0),
-            esperar(MEDIA_TIMEOUT).then(() => false)
+            esperar(T.carregarMidia).then(() => false)
         ]).catch(() => false);
     }
 
     function tocarVideo(video, ms) {
         return new Promise((resolve) => {
             let feito = false;
-            const watchdog = setTimeout(() => fim('watchdog'), ms + VIDEO_MARGIN);
+            const watchdog = setTimeout(() => fim('watchdog'), ms + T.margemVideo);
             function fim(motivo) {
                 if (feito) { return; }
                 feito = true;
@@ -163,6 +158,7 @@
 
     function novoPainel(modelo, tipo) {
         const painel = $(modelo).content.firstElementChild.cloneNode(true);
+        painel.style.transitionDuration = T.entrada + 'ms';
         $('panels').appendChild(painel);
         const titulo = painel.querySelector('.frame-title');
         titulo.textContent = TITULOS[tipo];
@@ -276,7 +272,7 @@
             setTimeout(() => { loader.finished(); }, atraso || 0);
         }
 
-        function semConteudo(motivo) { encerrar(motivo, EMPTY_DELAY); }
+        function semConteudo(motivo) { encerrar(motivo, T.liberarSemConteudo); }
 
         function iniciarRelogio() {
             const atualizar = () => {
@@ -284,7 +280,7 @@
                 if (relogio.textContent !== texto) { relogio.textContent = texto; }
             };
             atualizar();
-            relogioTimer = setInterval(atualizar, 1000);
+            relogioTimer = setInterval(atualizar, T.atualizarRelogio);
         }
 
         /**
@@ -312,7 +308,7 @@
                     await tocarVideo(videoIntro, step.ms);
                 } else if (step.type === 'outro') {
                     // O video de encerramento ja traz o proprio ornamento (outra cor): o do topo some.
-                    if (atual) { sair(atual); await esperar(OUTRO_DELAY); }
+                    if (atual) { sair(atual); await esperar(T.pausaEncerramento); }
                     $('topo').style.opacity = '0';
                     await tocarVideo(videoOutro, step.ms);
                 } else {
@@ -357,7 +353,7 @@
                 if (!steps.length) { semConteudo('sem conteudo para o palco'); return; }
 
                 globalWatchdog = setTimeout(() => encerrar('watchdog global', 0),
-                    Programacao.totalMs(steps) + 2 * MEDIA_TIMEOUT + 15000);
+                    Programacao.totalMs(steps) + 2 * T.carregarMidia + T.margemGlobal);
                 preparar(steps).then((paineis) => {
                     if (finalizado) { return; }
                     stage.classList.remove('opacity-0');
@@ -373,6 +369,9 @@
 
         const raiz = document.documentElement.style;
         raiz.setProperty('--cor-palco', C.p.fundo);
+        videoIntro.style.transitionDuration = T.fadeAbertura + 'ms';
+        videoOutro.style.transitionDuration = T.fadeEncerramento + 'ms';
+        $('topo').style.transitionDuration = T.fadeEncerramento + 'ms';
         videoIntro.src = C.videoIntro;
         videoOutro.src = C.videoOutro;
 
@@ -380,7 +379,7 @@
         loader.addData(C.dataset, false, params.join('&'), '', C.basePath);
         loader.nodataiserror = false;
         loader.autoloaded = false;
-        loadWatchdog = setTimeout(() => semConteudo('timeout do loader'), LOAD_TIMEOUT);
+        loadWatchdog = setTimeout(() => semConteudo('timeout do loader'), T.carregarDados);
         loader.load(aoCarregar, () => { clearTimeout(loadWatchdog); semConteudo('falha no load'); });
     }
 

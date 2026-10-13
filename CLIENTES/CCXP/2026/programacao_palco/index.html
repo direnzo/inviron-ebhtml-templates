@@ -20,9 +20,9 @@
     <div id="stage" class="absolute left-0 top-0 w-[1080px] h-[1920px] origin-top-left overflow-hidden bg-black opacity-0">
         <div id="bg" class="absolute inset-0 z-0 bg-no-repeat"></div>
         <div id="panels" class="absolute inset-0 z-10"></div>
-        <video id="videoIntro" muted playsinline preload="auto" class="absolute inset-0 z-20 w-full h-full object-cover opacity-0 transition-opacity duration-300"></video>
-        <video id="videoOutro" muted playsinline preload="auto" class="absolute inset-0 z-30 w-full h-full object-cover opacity-0 transition-opacity duration-500"></video>
-        <img id="topo" class="absolute z-40 transition-opacity duration-500" alt="">
+        <video id="videoIntro" muted playsinline preload="auto" class="absolute inset-0 z-20 w-full h-full object-cover opacity-0 transition-opacity"></video>
+        <video id="videoOutro" muted playsinline preload="auto" class="absolute inset-0 z-30 w-full h-full object-cover opacity-0 transition-opacity"></video>
+        <img id="topo" class="absolute z-40 transition-opacity" alt="">
         <div id="barra" class="absolute inset-0 z-40 pointer-events-none">
             <div id="barraFundo" class="absolute left-0 w-full bg-black"></div>
             <img id="logo" class="absolute" alt="CCXP26">
@@ -32,7 +32,7 @@
 
     <!-- Conteúdo de 1 evento (Rolando Agora / Daqui a pouco). Entra pela direita, sai pela esquerda. -->
     <template id="tplSingle">
-        <section class="panel absolute inset-0 translate-x-full opacity-0 transition-all duration-1000 ease-in-out">
+        <section class="panel absolute inset-0 translate-x-full opacity-0 transition-all ease-in-out">
             <div class="frame-title absolute left-0 w-full text-center whitespace-nowrap uppercase"></div>
             <div class="foto absolute overflow-hidden">
                 <img class="foto-img w-full h-full object-cover" alt="">
@@ -44,7 +44,7 @@
 
     <!-- Conteúdo da lista (Ainda hoje) -->
     <template id="tplLista">
-        <section class="panel absolute inset-0 translate-x-full opacity-0 transition-all duration-1000 ease-in-out">
+        <section class="panel absolute inset-0 translate-x-full opacity-0 transition-all ease-in-out">
             <div class="frame-title absolute left-0 w-full text-center whitespace-nowrap uppercase"></div>
             <div class="itens absolute inset-0"></div>
         </section>

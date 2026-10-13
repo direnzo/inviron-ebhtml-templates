@@ -12,7 +12,28 @@ const CONFIG = {
     basePath: 'http://localhost:13199/CONTENT/DATA', // mesmo caminho de 2025 (a porta 13199 libera CORS)
     fuso: -180,   // minutos; datas sem fuso no dataset sao lidas em Sao Paulo
 
-    tempos: { intro: 3000, rolando: 6000, daqui: 6000, ainda: 13000, amanha: 13000, outro: 11000 }, // ms
+    // Todos os tempos em ms.
+    tempos: {
+        // -- quanto cada slide fica em tela (a entrada/saida de 'entrada' esta dentro desse tempo)
+        intro: 3000,    // video de abertura (duracao do arquivo)
+        rolando: 6000,
+        daqui: 6000,
+        ainda: 8000,   // "Ainda hoje"
+        amanha: 8000,  // "Amanha"
+        outro: 11000,   // video de encerramento (duracao do arquivo)
+        // -- animacoes
+        entrada: 1000,          // conteudo entra pela direita e sai pela esquerda
+        fadeAbertura: 300,      // video de abertura some quando o conteudo entra
+        fadeEncerramento: 500,  // video de encerramento entra / ornamento do topo some
+        pausaEncerramento: 150, // pausa entre o conteudo sair e o video de encerramento comecar
+        // -- protecoes e rotina
+        margemVideo: 1500,      // folga alem da duracao do video antes de seguir
+        carregarDados: 8000,    // limite para o dataset responder
+        carregarMidia: 6000,    // limite para cada imagem / fonte
+        margemGlobal: 15000,    // folga sobre a duracao total antes de encerrar a forca
+        liberarSemConteudo: 100, // sem conteudo: loaded() -> finished()
+        atualizarRelogio: 1000
+    },
     maxLista: 5,
 
     // --- posicoes ---

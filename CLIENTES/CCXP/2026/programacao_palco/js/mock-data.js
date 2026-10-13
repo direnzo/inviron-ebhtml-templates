@@ -86,6 +86,21 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
     const PALAVRA_LONGA = 'Supercalifragilisticexpialidocious: Edição Comemorativa';
     const ACENTOS = 'ÁGATA ÉPICA ÍNTIMA ÓPERA ÚNICA: AÇÃO, EMOÇÃO E CORAÇÃO NO ÂMBITO DAS NAÇÕES ÃÕ';
 
+    // Titulos de referencia: 82-91 caracteres, como o texto de exemplo da arte
+    // ("NOME DO PAINEL" x6 = 89). Usados por todos os cenarios, menos 'textos'.
+    const TITULOS_PADRAO = [
+        'Megapainel dos Colecionáveis com Hasbro, McFarlane Toys e Iron Studios: lançamentos 2027',
+        'The Boys: Temporada Final com elenco e criadores falando sobre os bastidores da série',
+        'Panini Comics apresenta as novidades de 2027 com os autores e desenhistas convidados',
+        'Brasil Game Show Talks: o futuro dos jogos nacionais com estúdios e criadores de conteúdo',
+        'Cosplay e Bastidores: como nascem as fantasias premiadas da maior feira de cultura pop',
+        'Maratona Anime e Mangá com dubladores, estúdios japoneses e convidados especiais do evento',
+        'Quadrinhos Nacionais: roteiristas e ilustradores contam como criam novos universos',
+        'Estúdios Mauricio de Sousa celebra seis décadas de histórias com a Turma da Mônica',
+        'Marvel Studios e DC Studios: o que vem por aí nos cinemas, nas séries e nos quadrinhos',
+        'Criadores de Conteúdo Geek: bastidores, parcerias e o dia a dia de quem vive de cultura pop'
+    ];
+
     function lorem(n) {
         const palavras = ('painel conversa bastidores elenco criadores lançamentos novidades quadrinhos cinema animação ' +
             'jogos música cultura pop convidados especiais anúncios exclusivos história universo personagens').split(' ');
@@ -94,14 +109,7 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
         return s.slice(0, n).trim();
     }
     function ciclo(lista, i) { return lista[i % lista.length]; }
-    // Mistura deterministica: parte curtos, parte medios/longos, alguns muito longos.
-    function tituloVariado(i) {
-        const g = i % 10;
-        if (g === 9) { return ciclo(MUITO_LONGOS, i); }
-        if (g === 6 || g === 7) { return ciclo(LONGOS, i); }
-        if (g === 1 || g === 4) { return ciclo(CURTOS, i); }
-        return ciclo(MEDIOS, i);
-    }
+    function tituloVariado(i) { return ciclo(TITULOS_PADRAO, i); }
 
     function ev(n, inicioMs, durMin, title, extra) {
         const rec = {
@@ -131,7 +139,7 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
     }
 
     function cenarioRegistros(nome) {
-        const atual = rel(0, -20, 40, LONGOS[0]);
+        const atual = rel(0, -20, 40, TITULOS_PADRAO[0]);
         const futuros = function (qtd) {
             const out = [];
             for (let i = 0; i < qtd; i += 1) { out.push(rel(i + 1, 30 + i * 60, 50, tituloVariado(i + 1))); }
@@ -145,11 +153,11 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
             case 'um': return [atual];
             case 'semAtual': return futuros(3);
             case 'vazio': return [];
-            case 'encerrado': return [rel(1, -180, 60, MEDIOS[0]), rel(2, -90, 60, MEDIOS[1])];
-            case 'amanha': return [rel(1, 24 * 60 + 60, 60, MEDIOS[0])];
+            case 'encerrado': return [rel(1, -180, 60, TITULOS_PADRAO[1]), rel(2, -90, 60, TITULOS_PADRAO[2])];
+            case 'amanha': return [rel(1, 24 * 60 + 60, 60, TITULOS_PADRAO[1])];
             case 'hojeEAmanha': {
                 // Hoje: atual, proximo e 1 depois. Amanha: 6 paineis (slide proprio, ate 5).
-                const hoje = [rel(0, -20, 40, MEDIOS[0]), rel(1, 30, 40, CURTOS[0]), rel(2, 90, 40, MEDIOS[2])];
+                const hoje = [rel(0, -20, 40, TITULOS_PADRAO[0]), rel(1, 30, 40, TITULOS_PADRAO[1]), rel(2, 90, 40, TITULOS_PADRAO[2])];
                 const amanha = [];
                 const base = inicioDoDia(baseNow) + DIA + 10 * 60 * MIN;
                 for (let i = 0; i < 6; i += 1) { amanha.push(ev(i + 3, base + i * 50 * MIN, 40, tituloVariado(i + 3))); }
@@ -167,8 +175,8 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
                     rel(6, 280, 40, ACENTOS)
                 ];
             }
-            case 'semImagem': return [rel(0, -20, 40, LONGOS[0], { FOTO: '' }), rel(1, 30, 50, MEDIOS[0], { FOTO: 'img/nao-existe.jpg' })];
-            case 'invalido': return [rel(0, -20, 40, LONGOS[0], { DATE: 'lixo' }), rel(1, 30, 50, '', {}), rel(2, 90, 50, MEDIOS[1])];
+            case 'semImagem': return [rel(0, -20, 40, TITULOS_PADRAO[0], { FOTO: '' }), rel(1, 30, 50, TITULOS_PADRAO[1], { FOTO: 'img/nao-existe.jpg' })];
+            case 'invalido': return [rel(0, -20, 40, TITULOS_PADRAO[0], { DATE: 'lixo' }), rel(1, 30, 50, '', {}), rel(2, 90, 50, TITULOS_PADRAO[2])];
             default: return eventoCincoDias();
         }
     }
