@@ -10,9 +10,8 @@
     font-style: normal;
 }
 
-/* --fonte e definida por js/config.js (CONFIG.fonts). */
 .frame-title, .hora, .descricao, #relogio {
-    font-family: var(--fonte, 'GothamCond-Ultra', 'Arial Narrow', Impact, sans-serif);
+    font-family: 'GothamCond-Ultra', 'Arial Narrow', Impact, sans-serif;
     font-weight: normal;
     font-synthesis: none;
 }
@@ -23,6 +22,3 @@
     background-image: linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.35));
 }
 .sem-foto img { display: none; }
-
-/* Fundo ausente: cor do palco. */
-.panel.sem-fundo { background-color: var(--cor-palco, #E2313A); }

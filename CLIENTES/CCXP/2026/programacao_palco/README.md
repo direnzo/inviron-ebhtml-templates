@@ -7,8 +7,10 @@ Plano e decisões: `../docs/PLANO-EXECUCAO.md`. Contexto: `../README.md`.
 
 - Pronto: motor, ciclo do player, steps 0-4, relógio, mock; layout com medidas reais do
   .ai (baseline medida por pixel: erro < 1 px), fonte GothamCond-Ultra, cores por palco.
-- Vídeos: só Thunder em `videos/`; copiar `{slug}_intro.mp4`/`{slug}_outro.mp4` dos demais.
-- Arte: PNGs 1081x1921 (borda em alpha 25%) compensados por `ARTE_X` em `master.js`.
+- Camadas fixas (como 2025): fundo, ornamento do topo e rodapé ficam sobre os vídeos o
+  tempo todo; só o ornamento some no encerramento (o vídeo traz o dele, em outra cor).
+- Animação (como 2025): conteúdo entra pela direita e sai pela esquerda, 1 s ease-in-out.
+- Vídeos: só Thunder em `videos/`. PNGs 1081x1921: `ARTE_X` em `master.js`.
 
 ## Arquivos
 
@@ -39,11 +41,10 @@ Plano e decisões: `../docs/PLANO-EXECUCAO.md`. Contexto: `../README.md`.
 
 - `npm run build` (Tailwind global) gera `css/master.css`.
 - Antes do `.eh5`: `MOCK_DATA.enabled = false`, remover o `<script>` do mock,
-  `CONFIG.debug = false`, incluir só os vídeos/imagens do palco, reabrir e conferir.
+  `CONFIG.debug = false`, excluir `mock/`, incluir só vídeos/imagens do palco, reabrir e conferir.
 
 ## Pendências
-
 - Caminho do dataset (2025 usou `http://localhost:13199/CONTENT/DATA`) e campos em 2026.
 - Regra para cancelado/remarcado/sem imagem; teste no `ebcliente4` real (H.264, autoplay).
-- Arte: barra inferior mede 85,6 px em Rolando/Daqui e 79,6 px em Ainda hoje (5 de 6
-  palcos); usamos 85,6 em todos. Universe: hora #391B8C (rolando) x #39178A (lista); usamos #391B8C.
+- Arte: barra inferior 85,6 px (Rolando/Daqui) x 79,6 px (Ainda hoje); usamos 85,6.
+- Cor: o vermelho dos vídeos (ex.: Thunder #F5002E) difere dos PNGs de fundo (#E2313A).

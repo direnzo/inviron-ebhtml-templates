@@ -2,13 +2,16 @@
  * Mock de desenvolvimento (substitui o EBHTML). Desligar antes do .eh5:
  * MOCK_DATA.enabled = false E remover/comentar o <script> deste arquivo.
  *
- * Parametros de URL (somente com o mock ativo):
+ * Parametros de URL:
+ *   ?mock=0                    usa o EBHTML real (sem mock)
+ * Somente com o mock ativo:
  *   ?cenario=cheio|tres|dois|um|semAtual|vazio|encerrado|amanha|longo|semImagem|invalido|erro
  *   ?palco=23009|blast        troca o palco (id ou slug)
  *   ?agora=2026-12-04T14:40:00-03:00   hora simulada (padrao 14:40 do dia atual)
  * Chamadas ao loader ficam em window.__calls para conferir loaded() antes de finished().
  */
-const MOCK_DATA = { enabled: true };
+// ?mock=0 na URL desliga o mock e usa o EBHTML real (teste no player sem editar arquivos).
+const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
 
 (function () {
     if (!MOCK_DATA.enabled) { return; }
@@ -44,17 +47,17 @@ const MOCK_DATA = { enabled: true };
         return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()) + ' ' +
             pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ':00';
     }
-    function photo(n, color) {
-        const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900"><rect width="900" height="900" fill="' +
-            color + '"/><text x="450" y="500" font-size="320" text-anchor="middle" fill="#fff" font-family="Arial">' + n + '</text></svg>';
-        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    // Fotos de picsum.photos (930x930, uso so de mock), baixadas em mock/fotos/p01..p20.jpg.
+    const TOTAL_FOTOS = 20;
+    function photo(n) {
+        const i = (n * 7 + 3) % TOTAL_FOTOS + 1; // espalha: eventos vizinhos nao repetem a foto
+        return 'mock/fotos/p' + (i < 10 ? '0' + i : i) + '.jpg';
     }
     const MIN = 60000;
-    const cores = ['#2563eb', '#16a34a', '#9333ea', '#ea580c', '#0891b2', '#be123c', '#4d7c0f', '#7c3aed', '#0f766e'];
     function ev(n, startMin, durMin, title, extra) {
         const rec = {
             CATEGORY: CONFIG.palco, TITULO: CONFIG.p.nome, TEXTO: title, TEXTO2: '0',
-            FOTO: photo(n, cores[n % cores.length]),
+            FOTO: photo(n),
             DATE: stamp(baseNow + startMin * MIN), DT_END: stamp(baseNow + (startMin + durMin) * MIN),
             DT_UPDATE: stamp(baseNow)
         };

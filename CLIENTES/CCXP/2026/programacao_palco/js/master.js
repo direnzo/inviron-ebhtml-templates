@@ -13,6 +13,7 @@
     const MEDIA_TIMEOUT = 6000; // cada imagem / fonte
     const VIDEO_MARGIN = 1500;  // folga alem da duracao do video
     const EMPTY_DELAY = 100;    // loaded() -> finished() sem conteudo
+    const OUTRO_DELAY = 150;    // pausa entre a saida do conteudo e o video de encerramento (2025)
     const ARTE_X = -1;          // PNGs 1081x1921: coluna 0 em alpha 25%, deslocar -1 px
     const ASC = 0.952;          // GothamCond-Ultra: ascendente e area de conteudo (em)
     const CONTEUDO = 0.952 + 0.222;
@@ -157,25 +158,9 @@
         if (ok) { img.src = url; } else { wrapper.classList.add('sem-foto'); }
     }
 
-    function novoPainel(modelo, tipo, midia) {
+    function novoPainel(modelo, tipo) {
         const painel = $(modelo).content.firstElementChild.cloneNode(true);
         $('panels').appendChild(painel);
-        const art = painel.querySelector('.bg-art');
-        if (midia[C.bg]) {
-            art.style.backgroundImage = 'url("' + C.bg + '")';
-            art.style.backgroundSize = '1081px 1921px';
-            art.style.backgroundPosition = ARTE_X + 'px 0';
-        } else {
-            painel.classList.add('sem-fundo');
-        }
-        const topo = painel.querySelector('.topo');
-        if (midia[C.topo]) {
-            topo.src = C.topo;
-            topo.style.left = ARTE_X + 'px';
-            topo.style.top = '0';
-        } else {
-            topo.remove();
-        }
         const titulo = painel.querySelector('.frame-title');
         titulo.textContent = TITULOS[tipo];
         titulo.style.color = C.p.titulo;
@@ -184,7 +169,7 @@
     }
 
     function painelUnico(tipo, ev, midia) {
-        const painel = novoPainel('tplSingle', tipo, midia);
+        const painel = novoPainel('tplSingle', tipo);
         const f = painel.querySelector('.foto');
         caixa(f, C.foto.x, C.foto.y, C.foto.w, C.foto.h);
         foto(f, f.querySelector('img'), ev.photo, midia[ev.photo]);
@@ -202,7 +187,7 @@
     }
 
     function painelLista(eventos, midia) {
-        const painel = novoPainel('tplLista', 'ainda', midia);
+        const painel = novoPainel('tplLista', 'ainda');
         const L = C.lista;
         eventos.forEach((ev, i) => {
             const y = L.y + i * L.passo;
@@ -226,13 +211,30 @@
         return painel;
     }
 
-    function montarBarra() {
+    /** Fundo do palco, ornamento do topo e rodape: fixos durante todo o ciclo (como em 2025). */
+    function montarFixos(midia) {
+        const bg = $('bg');
+        if (midia[C.bg]) {
+            bg.style.backgroundImage = 'url("' + C.bg + '")';
+            bg.style.backgroundSize = '1081px 1921px';
+            bg.style.backgroundPosition = ARTE_X + 'px 0';
+        } else {
+            bg.style.backgroundColor = C.p.fundo; // PNG ausente: cor do palco
+        }
+        const topo = $('topo');
+        if (midia[C.topo]) {
+            topo.src = C.topo;
+            topo.style.left = ARTE_X + 'px';
+            topo.style.top = '0';
+        } else {
+            topo.remove();
+        }
         const fundo = $('barraFundo');
         fundo.style.top = C.barra.y + 'px';
         fundo.style.height = C.barra.h + 'px';
         const logo = $('logo');
         caixa(logo, C.logo.x, C.logo.y, C.logo.w, C.logo.h);
-        logo.src = 'img/logo_ccxp26.svg';
+        logo.src = 'img/logo_ccxp26.png';
         const relogio = $('relogio');
         relogio.style.width = C.relogio.direita + 'px';
         linha(relogio, C.relogio.y, C.relogio.tam);
@@ -245,7 +247,7 @@
         let loadWatchdog = null;
         let globalWatchdog = null;
         let relogioTimer = null;
-        let z = 1;
+        let atual = null;
 
         const stage = $('stage');
         const relogio = $('relogio');
@@ -281,16 +283,21 @@
             relogioTimer = setInterval(atualizar, 1000);
         }
 
+        /**
+         * Como em 2025: o novo conteudo entra pela direita enquanto o anterior sai pela esquerda
+         * (1 s, ease-in-out). Fundo, ornamento e rodape nao se mexem.
+         */
         function mostrar(painel) {
-            z += 1;
-            painel.style.zIndex = String(z);
-            painel.classList.remove('opacity-0');
-            painel.classList.add('opacity-100');
-            setTimeout(() => {
-                document.querySelectorAll('#panels .panel').forEach((outro) => {
-                    if (outro !== painel) { outro.classList.remove('opacity-100'); outro.classList.add('opacity-0'); }
-                });
-            }, FADE + 50);
+            void painel.offsetWidth; // fixa o estado inicial (fora da tela, a direita)
+            painel.classList.remove('translate-x-full', 'opacity-0');
+            painel.classList.add('translate-x-0', 'opacity-100');
+            if (atual && atual !== painel) { sair(atual); }
+            atual = painel;
+        }
+
+        function sair(painel) {
+            painel.classList.remove('translate-x-0', 'opacity-100');
+            painel.classList.add('-translate-x-full', 'opacity-0');
         }
 
         async function executar(steps, paineis) {
@@ -300,10 +307,13 @@
                 if (step.type === 'intro') {
                     await tocarVideo(videoIntro, step.ms);
                 } else if (step.type === 'outro') {
+                    // O video de encerramento ja traz o proprio ornamento (outra cor): o do topo some.
+                    if (atual) { sair(atual); await esperar(OUTRO_DELAY); }
+                    $('topo').style.opacity = '0';
                     await tocarVideo(videoOutro, step.ms);
                 } else {
+                    videoIntro.style.opacity = '0'; // revela fundo + conteudo (o video termina nesse mesmo quadro)
                     mostrar(paineis[step.type]);
-                    videoIntro.style.opacity = '0';
                     await esperar(step.ms);
                 }
             }
@@ -315,7 +325,7 @@
             steps.forEach((s) => (s.events || []).forEach((ev) => {
                 if (ev.photo && fotos.indexOf(ev.photo) === -1) { fotos.push(ev.photo); }
             }));
-            const urls = fotos.concat([C.bg, C.topo, 'img/logo_ccxp26.svg']);
+            const urls = fotos.concat([C.bg, C.topo, 'img/logo_ccxp26.png']);
             const [ok, fonteOk] = await Promise.all([Promise.all(urls.map(precarregar)), carregarFonte()]);
             if (!fonteOk) { log('fonte GothamCond-Ultra indisponivel; usando fallback'); }
             const midia = {};
@@ -326,6 +336,7 @@
                 if (s.type === 'rolando' || s.type === 'daqui') { paineis[s.type] = painelUnico(s.type, s.events[0], midia); }
                 if (s.type === 'ainda') { paineis.ainda = painelLista(s.events, midia); }
             });
+            montarFixos(midia);
             return paineis;
         }
 
@@ -345,7 +356,6 @@
                     Programacao.totalMs(steps) + 2 * MEDIA_TIMEOUT + 15000);
                 preparar(steps).then((paineis) => {
                     if (finalizado) { return; }
-                    montarBarra();
                     stage.classList.remove('opacity-0');
                     stage.classList.add('opacity-100');
                     iniciarRelogio();
