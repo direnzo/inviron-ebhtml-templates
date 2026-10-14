@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="w-full h-full bg-black">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCXP26 Fotos e Autografos</title>
+    <link rel="stylesheet" href="css/master.css">
+
+    <!-- Scripts (ordem importa: config antes de mock e master; programacao antes de fea) -->
+    <script src="js/ebhtml.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/mock-data.js"></script> <!-- Comentar em produção -->
+    <script src="js/programacao.js"></script>
+    <script src="js/fea.js"></script>
+    <script src="js/master.js"></script>
+</head>
+<body class="w-full h-full m-0 overflow-hidden bg-black">
+    <!-- Tela fixa 1280x512 (painel LED P3.9, sem rodapé e sem relógio); o JS escala para a janela
+         (preview). No player a escala é 1. Camadas (de baixo para cima): fundo fixo (já com logos
+         F&A + Heineken 0.0, CCXP26 e formas), páginas animadas e vídeos de abertura/encerramento. -->
+    <div id="stage" class="absolute left-0 top-0 w-[1280px] h-[512px] origin-top-left overflow-hidden bg-black opacity-0">
+        <img id="fundo" class="absolute z-0" alt="">
+        <div id="paginas" class="absolute inset-0 z-10"></div>
+        <video id="videoIntro" muted playsinline preload="auto" class="absolute inset-0 z-20 w-full h-full object-cover opacity-0 transition-opacity"></video>
+        <video id="videoOutro" muted playsinline preload="auto" class="absolute inset-0 z-30 w-full h-full object-cover opacity-0 transition-opacity"></video>
+    </div>
+</body>
+</html>
