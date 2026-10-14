@@ -12,6 +12,7 @@
     const ASC = 0.952;          // GothamCond-Ultra: ascendente e area de conteudo (em)
     const CONTEUDO = 0.952 + 0.222;
     const CURVA = 'cubic-bezier(0.4, 0, 0.2, 1)';
+    const SELO_RAZAO = 22 / 103;   // img/selo.png: 103x22 px
     const FOTO_AUSENTE = '#17269D'; // cor das formas do fundo, escurecida pelo CSS (.sem-foto)
 
     const log = (...args) => { if (C.debug) { console.log('[CCXP]', ...args); } };
@@ -140,7 +141,8 @@
         ]).catch(() => false);
     }
 
-    function tocarVideo(video, ms) {
+    /** instantaneo: o video aparece cortado no 1o quadro (sem fade), so depois de decodificado. */
+    function tocarVideo(video, ms, instantaneo) {
         return new Promise((resolve) => {
             let feito = false;
             const watchdog = setTimeout(() => fim('watchdog'), ms + T.margemVideo);
@@ -154,7 +156,12 @@
             video.addEventListener('ended', () => fim('ended'), { once: true });
             video.addEventListener('error', () => fim('error'), { once: true });
             if (video.error) { fim('error-previo'); return; }
-            video.style.opacity = '1';
+            // Opacidade so no evento 'playing' (1o quadro pronto): antes disso nada do slide pode aparecer.
+            video.addEventListener('playing', () => {
+                if (instantaneo) { video.style.transitionProperty = 'none'; }
+                video.style.opacity = '1';
+                if (instantaneo) { void video.offsetWidth; video.style.transitionProperty = ''; }
+            }, { once: true });
             const play = video.play();
             if (play && play.catch) { play.catch(() => fim('autoplay-negado')); }
         });
@@ -209,19 +216,17 @@
             if (s.esgotado) {
                 const sc = C.selo;
                 const w = sc.w * kSelo;
-                const h = sc.h * kSelo;
-                const selo = criar('selo absolute', bloco);
+                const h = w * SELO_RAZAO;
+                const selo = document.createElement('img');
+                selo.className = 'selo absolute';
+                selo.alt = '';
+                selo.src = sc.img;
                 selo.style.left = (v.xHorario + dx + sc.dx * kSelo - w / 2) + 'px';
                 selo.style.top = (yHorario + sc.dy * kSelo - h / 2) + 'px';
                 selo.style.width = w + 'px';
                 selo.style.height = h + 'px';
-                selo.style.background = sc.cor;
                 selo.style.transform = 'rotate(' + sc.rotacao + 'deg)';
-                const t = criar('selo-texto absolute inset-0 text-center whitespace-nowrap', selo);
-                t.textContent = sc.texto;
-                t.style.color = sc.textoCor;
-                t.style.fontSize = (h * 0.72) + 'px';
-                t.style.lineHeight = h + 'px';
+                bloco.appendChild(selo);
             }
         });
         if (C.debug) {
@@ -256,6 +261,7 @@
         let loadWatchdog = null;
         let globalWatchdog = null;
         let atual = null;
+        let fundoOk = false;
 
         const stage = $('stage');
         const videoIntro = $('videoIntro');
@@ -280,6 +286,11 @@
 
         function semConteudo(motivo) { encerrar(motivo, T.liberarSemConteudo); }
 
+        /** O fundo so aparece quando a abertura termina: antes dela a tela e preta (sem "piscada"). */
+        function revelarFundo() {
+            if (fundoOk) { $('fundo').style.opacity = '1'; } else { stage.style.backgroundColor = '#004BC9'; }
+        }
+
         function conteudoSai(item) {
             item.blocos.forEach((b, i) => { deslizar(b, '-100%', i * T.escalonarSaida); });
         }
@@ -289,6 +300,7 @@
             const anterior = atual;
             atual = item;
             if (!anterior) {
+                revelarFundo(); // por baixo do video de abertura, que some em seguida
                 videoIntro.style.opacity = '0';
             } else {
                 conteudoSai(anterior);
@@ -304,7 +316,7 @@
                 if (finalizado) { return; }
                 log('step', step.type);
                 if (step.type === 'intro') {
-                    await tocarVideo(videoIntro, step.ms);
+                    await tocarVideo(videoIntro, step.ms, true);
                 } else if (step.type === 'outro') {
                     // O video cobre a tela: o conteudo sai antes dele entrar.
                     if (atual) { conteudoSai(atual); await esperar(T.pausaEncerramento); }
@@ -323,19 +335,19 @@
             steps.forEach((s) => (s.artistas || []).forEach((a) => {
                 if (a.foto && fotos.indexOf(a.foto) === -1) { fotos.push(a.foto); }
             }));
-            const urls = fotos.concat([C.fundo]);
+            const urls = fotos.concat([C.fundo, C.selo.img]);
             const [ok, fonteOk] = await Promise.all([Promise.all(urls.map(precarregar)), carregarFonte()]);
             if (!fonteOk) { log('fonte GothamCond-Ultra indisponivel; usando fallback'); }
             const midia = {};
             urls.forEach((url, i) => { midia[url] = ok[i]; });
 
             const fundo = $('fundo');
-            if (midia[C.fundo]) {
+            fundoOk = midia[C.fundo];
+            fundo.style.opacity = '0';
+            if (fundoOk) {
                 fundo.src = C.fundo;
                 fundo.style.left = C.fundoX + 'px';
                 fundo.style.top = C.fundoY + 'px';
-            } else {
-                stage.style.backgroundColor = '#004BC9'; // PNG ausente: cor lisa do modelo
             }
             document.documentElement.style.setProperty('--foto-borda', C.foto.borda + 'px');
             document.documentElement.style.setProperty('--foto-borda-cor', C.foto.bordaCor);

@@ -10,7 +10,7 @@
     font-style: normal;
 }
 
-.titulo-artista, .rotulo, .horario, .selo-texto {
+.titulo-artista, .rotulo, .horario {
     font-family: 'GothamCond-Ultra', 'Arial Narrow', Impact, sans-serif;
     font-weight: normal;
     font-synthesis: none;

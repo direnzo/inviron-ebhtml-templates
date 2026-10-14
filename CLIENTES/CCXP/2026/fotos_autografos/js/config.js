@@ -69,9 +69,10 @@ const CONFIG = {
     },
     corRotulo: '#00DFF8',
     corHorario: '#FFFFFF',
-    // Selo "esgotado" (placeholder: o arquivo de arte nao veio). Centro medido na variante compacta,
-    // relativo ao x e a linha de base do horario; escala com o tamanho do horario (pergunta 8).
-    selo: { w: 102.678, h: 20.981, dx: 63.636, dy: -9.699, rotacao: -7.84, cor: '#F60000', texto: 'esgotado', textoCor: '#FFFFFF' },
+    // Selo "esgotado": img/selo.png (103x22, sem rotacao; rotacao aplicada por CSS, anti-horaria como no
+    // modelo). Centro medido na variante compacta, relativo ao x e a linha de base do horario; escala
+    // com o tamanho do horario. w = largura do retangulo do modelo (a altura segue a proporcao do PNG).
+    selo: { img: 'img/selo.png', w: 102.678, dx: 63.636, dy: -9.699, rotacao: -7.8 },
 
     // Rotulo exibido por modalidade (CATEGORY sem acento/caixa/espacos extras). Desconhecida: usa o
     // proprio texto do CATEGORY, nunca descarta. Provisorio (perguntas 2 e 7).
