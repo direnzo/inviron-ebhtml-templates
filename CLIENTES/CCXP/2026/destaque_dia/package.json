@@ -1,0 +1,11 @@
+{
+  "name": "ccxp26-programacao-palco",
+  "version": "2026.0.1",
+  "description": "CCXP26 - Programacao por palco (Totem TV 1080x1920)",
+  "scripts": {
+    "dev": "tailwindcss -i css/input.css -o css/master.css --watch",
+    "build": "tailwindcss -i css/input.css -o css/master.css --minify"
+  },
+  "author": "Eduardo Di Renzo - Inviron Technologies",
+  "license": "ISC"
+}
