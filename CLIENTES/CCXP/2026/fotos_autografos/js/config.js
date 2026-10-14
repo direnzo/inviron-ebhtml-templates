@@ -43,8 +43,8 @@ const CONFIG = {
     },
 
     fundo: 'img/fundo_FA.png',
-    fundoX: 0,   // PNG 1281x513 (prancheta fracionaria): offset a avaliar na fase 2 (ver README)
-    fundoY: 0,
+    fundoX: -1,  // PNG 1281x513 (prancheta fracionaria): coluna 0 com alfa 25% e linha 0 com 50%; desloca -1
+    fundoY: -1,
     videoIntro: 'videos/fa_intro.mp4',
     videoOutro: 'videos/fa_outro.mp4',
 
