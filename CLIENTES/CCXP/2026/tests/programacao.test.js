@@ -81,12 +81,12 @@ test('"ainda hoje" omitido quando so restam 2 painel (atual + proximo)', () => {
     assert.deepEqual(steps.map((x) => x.type), ['intro', 'rolando', 'daqui', 'outro']);
 });
 
-test('painel de amanha nao entra em "ainda hoje"', () => {
+test('somente hoje: painel de amanha nao aparece e nao ha steps', () => {
     const raw = [ev('AMANHA', '2026-12-05 10:00:00', '2026-12-05 11:00:00')];
     const s = P.select(raw, NOW, OPTS);
     assert.equal(s.proximo, null);
-    assert.equal(s.depois.length, 0); // amanha nunca entra em "ainda hoje"
-    assert.equal(s.amanha.length, 1);
+    assert.equal(s.depois.length, 0);
+    assert.deepEqual(P.buildSteps(s, { intro: 1, rolando: 1, daqui: 1, ainda: 1, outro: 1 }), []);
 });
 
 test('virada de dia: painel em andamento apos meia-noite continua atual', () => {
@@ -132,54 +132,32 @@ test('lista vazia: sem steps', () => {
     assert.deepEqual(P.buildSteps(P.select([], NOW, OPTS), { intro: 1, rolando: 1, daqui: 1, ainda: 1, outro: 1 }), []);
 });
 
-const TIMING = { intro: 1, rolando: 1, daqui: 1, ainda: 1, amanha: 1, outro: 1 };
+const TIMING = { intro: 1, rolando: 1, daqui: 1, ainda: 1, outro: 1 };
 const tipos = (s) => P.buildSteps(s, TIMING).map((x) => x.type);
 
-test('amanha e um slide proprio: nao mistura com a lista de hoje', () => {
+test('so eventos de hoje: dias seguintes nunca entram na lista', () => {
     const raw = [
         ev('ATUAL', '2026-12-04 14:00:00', '2026-12-04 15:00:00'),
         ev('PROX', '2026-12-04 16:00:00', '2026-12-04 17:00:00'),
         ev('HOJE1', '2026-12-04 18:00:00', '2026-12-04 19:00:00'),
         ev('AMANHA1', '2026-12-05 10:00:00', '2026-12-05 11:00:00'),
-        ev('AMANHA2', '2026-12-05 11:00:00', '2026-12-05 12:00:00'),
-        ev('AMANHA3', '2026-12-05 12:00:00', '2026-12-05 13:00:00'),
-        ev('AMANHA4', '2026-12-05 13:00:00', '2026-12-05 14:00:00'),
-        ev('AMANHA5', '2026-12-05 14:00:00', '2026-12-05 15:00:00'),
-        ev('AMANHA6', '2026-12-05 15:00:00', '2026-12-05 16:00:00'),
         ev('DEPOIS', '2026-12-06 10:00:00', '2026-12-06 11:00:00')
     ];
     const s = P.select(raw, NOW, OPTS);
     assert.deepEqual(s.depois.map((e) => e.title), ['HOJE1']);
-    assert.deepEqual(s.amanha.map((e) => e.title), ['AMANHA1', 'AMANHA2', 'AMANHA3', 'AMANHA4', 'AMANHA5']);
-    assert.deepEqual(tipos(s), ['intro', 'rolando', 'daqui', 'ainda', 'amanha', 'outro']);
+    assert.deepEqual(tipos(s), ['intro', 'rolando', 'daqui', 'ainda', 'outro']);
 });
 
-test('lista de hoje cheia (5) e amanha continua em slide separado', () => {
-    const raw = [ev('ATUAL', '2026-12-04 14:00:00', '2026-12-04 15:00:00'), ev('PROX', '2026-12-04 15:30:00', '2026-12-04 16:00:00')];
-    for (let i = 0; i < 5; i += 1) {
-        const h = 16 + i;
-        raw.push(ev('H' + i, '2026-12-04 ' + h + ':00:00', '2026-12-04 ' + h + ':50:00'));
-    }
-    raw.push(ev('AMANHA', '2026-12-05 10:00:00', '2026-12-05 11:00:00'));
-    const s = P.select(raw, NOW, OPTS);
-    assert.equal(s.depois.length, 5);
-    assert.deepEqual(s.amanha.map((e) => e.title), ['AMANHA']);
-});
-
-test('sem mais paineis hoje alem do atual: sem "ainda hoje", com slide de amanha', () => {
+test('lista de hoje curta nao e completada com amanha', () => {
     const raw = [ev('ATUAL', '2026-12-04 14:00:00', '2026-12-04 15:00:00'), ev('AMANHA1', '2026-12-05 10:00:00', '2026-12-05 11:00:00')];
     const s = P.select(raw, NOW, OPTS);
     assert.equal(s.proximo, null);
-    assert.deepEqual(tipos(s), ['intro', 'rolando', 'amanha', 'outro']);
+    assert.equal(s.depois.length, 0);
+    assert.deepEqual(tipos(s), ['intro', 'rolando', 'outro']);
 });
 
-test('fim do dia com programacao de amanha: so o slide de amanha', () => {
+test('fim do dia (nada em andamento nem hoje): nao exibe, mesmo com amanha', () => {
     const s = P.select([ev('AMANHA', '2026-12-05 10:00:00', '2026-12-05 11:00:00')], NOW, OPTS);
-    assert.deepEqual(tipos(s), ['intro', 'amanha', 'outro']);
-});
-
-test('sem nada hoje nem amanha: nao exibe', () => {
-    const s = P.select([ev('DEPOIS', '2026-12-06 10:00:00', '2026-12-06 11:00:00')], NOW, OPTS);
     assert.deepEqual(P.buildSteps(s, TIMING), []);
 });
 
@@ -193,13 +171,12 @@ test('cinco dias: o que ja passou some conforme a hora avanca', () => {
     const manha = P.select(raw, at('2026-12-04 10:20:00'), OPTS);
     assert.equal(manha.atual.title, 'D4H10');
     assert.equal(manha.proximo.title, 'D4H11');
-    assert.equal(manha.depois.length, 5);
+    assert.deepEqual(manha.depois.map((e) => e.title), ['D4H12', 'D4H13', 'D4H14', 'D4H15', 'D4H16']);
     const fim = P.select(raw, at('2026-12-04 16:30:00'), OPTS);
     assert.equal(fim.atual.title, 'D4H16');
     assert.equal(fim.proximo.title, 'D4H17');
-    assert.equal(fim.depois.length, 0);
-    assert.deepEqual(fim.amanha.map((e) => e.title), ['D5H10', 'D5H11', 'D5H12', 'D5H13', 'D5H14']);
-    const ultimo = P.select(raw, at('2026-12-08 16:30:00'), OPTS);
-    assert.equal(ultimo.amanha.length, 0); // ultimo dia: nao ha amanha
-    assert.deepEqual(tipos(ultimo), ['intro', 'rolando', 'daqui', 'outro']);
+    assert.equal(fim.depois.length, 0); // acabou o dia: nada de D5
+    assert.deepEqual(tipos(fim), ['intro', 'rolando', 'daqui', 'outro']);
+    const noite = P.select(raw, at('2026-12-04 18:30:00'), OPTS);
+    assert.deepEqual(tipos(noite), []); // depois do ultimo painel: nao exibe
 });

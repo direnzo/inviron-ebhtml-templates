@@ -12,7 +12,7 @@
     const ARTE_X = -1;          // PNGs 1081x1921: coluna 0 em alpha 25%, deslocar -1 px
     const ASC = 0.952;          // GothamCond-Ultra: ascendente e area de conteudo (em)
     const CONTEUDO = 0.952 + 0.222;
-    const TITULOS = { rolando: 'Rolando agora', daqui: 'Daqui a pouco', ainda: 'Ainda hoje', amanha: 'Amanhã' };
+    const TITULOS = { rolando: 'Rolando agora', daqui: 'Daqui a pouco', ainda: 'Ainda hoje' };
 
     const log = (...args) => { if (C.debug) { console.log('[CCXP]', ...args); } };
     const $ = (id) => document.getElementById(id);
@@ -185,9 +185,9 @@
         return painel;
     }
 
-    /** Lista de ate 5 paineis: slide "Ainda hoje" ou slide "Amanha" (exclusivo, nao mistura). */
+    /** Lista "Ainda hoje": ate 5 paineis de hoje. */
     function painelLista(step, midia) {
-        const painel = novoPainel('tplLista', step.type);
+        const painel = novoPainel('tplLista', 'ainda');
         const L = C.lista;
         step.events.forEach((ev, i) => {
             const y = L.y + i * L.passo;
@@ -312,6 +312,7 @@
                     $('topo').style.opacity = '0';
                     await tocarVideo(videoOutro, step.ms);
                 } else {
+                    $('bg').style.opacity = '1';    // fundo so aparece quando a abertura termina
                     videoIntro.style.opacity = '0'; // revela fundo + conteudo (o video termina nesse mesmo quadro)
                     mostrar(paineis[step.type]);
                     await esperar(step.ms);
@@ -334,7 +335,7 @@
             const paineis = {};
             steps.forEach((s) => {
                 if (s.type === 'rolando' || s.type === 'daqui') { paineis[s.type] = painelUnico(s.type, s.events[0], midia); }
-                if (s.type === 'ainda' || s.type === 'amanha') { paineis[s.type] = painelLista(s, midia); }
+                if (s.type === 'ainda') { paineis.ainda = painelLista(s, midia); }
             });
             montarFixos(midia);
             return paineis;
@@ -390,6 +391,8 @@
         };
         ajustar();
         window.addEventListener('resize', ajustar);
+        // Antes da abertura so a cor do palco aparece (nao o PNG de fundo, que entra depois do video).
+        [document.documentElement, document.body, $('stage')].forEach((el) => { el.style.backgroundColor = C.p.fundo; });
         ebhtml.create2({}, iniciar);
     });
 })();

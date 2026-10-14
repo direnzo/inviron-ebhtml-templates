@@ -7,8 +7,8 @@
  * Somente com o mock ativo:
  *   ?cenario=evento            (padrao) 5 dias de evento, horario real: o que passou some
  *            textos            titulos curtos, medios, longos, extremos e com acento
- *            hojeEAmanha       lista de hoje + slide separado "Amanha"
- *            cheio|tres|dois|um|semAtual|vazio|encerrado|amanha|semImagem|invalido|erro
+ *            cheio|tres|dois|um|semAtual|vazio|encerrado|semImagem|invalido|erro
+ *            amanha            so eventos de amanha: nao exibe (so entram eventos de hoje)
  *   ?len=N                     todos os titulos com N caracteres (limite de texto)
  *   ?hora=14:40                hora simulada de hoje (avanca em tempo real)
  *   ?agora=2026-12-04T14:40:00-03:00   data/hora simulada completa
@@ -155,14 +155,6 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
             case 'vazio': return [];
             case 'encerrado': return [rel(1, -180, 60, TITULOS_PADRAO[1]), rel(2, -90, 60, TITULOS_PADRAO[2])];
             case 'amanha': return [rel(1, 24 * 60 + 60, 60, TITULOS_PADRAO[1])];
-            case 'hojeEAmanha': {
-                // Hoje: atual, proximo e 1 depois. Amanha: 6 paineis (slide proprio, ate 5).
-                const hoje = [rel(0, -20, 40, TITULOS_PADRAO[0]), rel(1, 30, 40, TITULOS_PADRAO[1]), rel(2, 90, 40, TITULOS_PADRAO[2])];
-                const amanha = [];
-                const base = inicioDoDia(baseNow) + DIA + 10 * 60 * MIN;
-                for (let i = 0; i < 6; i += 1) { amanha.push(ev(i + 3, base + i * 50 * MIN, 40, tituloVariado(i + 3))); }
-                return hoje.concat(amanha);
-            }
             case 'textos': {
                 // atual (muito longo) | daqui (palavra longa) | lista: curto, medio, longo, extremo, acentos
                 return [

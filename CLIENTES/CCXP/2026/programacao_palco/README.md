@@ -20,8 +20,8 @@ Plano e decisões: `../docs/PLANO-EXECUCAO.md`. Contexto: `../README.md`.
 ## Regras de dados
 
 - Atual: `início <= agora < fim`. Próximo: primeiro futuro **do mesmo dia**. Lista: 5 seguintes.
-- Slides: "Ainda hoje" (até 5 de hoje) e, separado, "Amanhã" (até 5 do dia seguinte, quando
-  houver; também aparece se nada restar hoje). Sem nada hoje nem amanhã, não é exibido.
+- Só eventos de **hoje**: "Ainda hoje" lista até 5. Painéis de outros dias nunca entram;
+  sem nada em andamento nem a seguir hoje, o template não é exibido.
 - Datas sem fuso são lidas em -03:00; formatos `YYYY-MM-DD HH:MM[:SS]` e `MM-DD-YYYY HH:MM[:SS]`.
 - Descartados: sem título, data inválida, duplicado, outro palco. Fim ausente = início + 60 min.
 - Sem conteúdo, erro ou timeout: `loaded()` + `finished()` em ~100 ms, sem desenhar.
@@ -30,9 +30,9 @@ Plano e decisões: `../docs/PLANO-EXECUCAO.md`. Contexto: `../README.md`.
 
 ## Teste
 
-- Lógica: `node --test CLIENTES/CCXP/2026/tests/programacao.test.js` (20 casos).
+- Lógica: `node --test CLIENTES/CCXP/2026/tests/programacao.test.js` (18 casos).
 - Player: `http://localhost:12099/FILES/1/index.html`; `?mock=0` usa o EBHTML real.
-- Mock (padrão `evento`: 5 dias, hora real, títulos de ~89 car. e palco sorteado): `?cenario=textos|hojeEAmanha|cheio|tres|dois|
+- Mock (padrão `evento`: 5 dias, hora real, títulos de ~89 car. e palco sorteado): `?cenario=textos|cheio|tres|dois|
   um|semAtual|vazio|encerrado|amanha|semImagem|invalido|erro`, `&len=N`, `&hora=14:40`,
   `&agora=ISO-8601`, `&palco=blast` (sem ele, o mock sorteia o palco). `window.__textos` mostra o ajuste de cada texto.
 
