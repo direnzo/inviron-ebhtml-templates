@@ -3,26 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CCXP26 Programação por Palco</title>
+    <title>CCXP26 Destaque do Dia</title>
     <link rel="stylesheet" href="css/master.css">
 
-    <!-- Scripts (ordem importa: config antes de mock e master) -->
+    <!-- Scripts (ordem importa: config antes de mock e master; programacao antes de destaques) -->
     <script src="js/ebhtml.js"></script>
     <script src="js/config.js"></script>
     <script src="js/mock-data.js"></script> <!-- Comentar em produção -->
     <script src="js/programacao.js"></script>
+    <script src="js/destaques.js"></script>
     <script src="js/master.js"></script>
 </head>
 <body class="w-full h-full m-0 overflow-hidden bg-black">
     <!-- Tela fixa 1080x1920; o JS escala para a janela (preview). No player a escala é 1.
-         Camadas (de baixo para cima): fundo do palco, conteúdo animado, vídeos,
-         ornamento do topo e rodapé (estes dois ficam fixos por cima dos vídeos, como em 2025). -->
+         Camadas (de baixo para cima): slides (fundo do palco + conteúdo animado), vídeos e rodapé.
+         O ornamento do topo e o logo do palco já fazem parte do PNG de fundo de cada slide. -->
     <div id="stage" class="absolute left-0 top-0 w-[1080px] h-[1920px] origin-top-left overflow-hidden bg-black opacity-0">
-        <div id="bg" class="absolute inset-0 z-0 bg-no-repeat"></div>
-        <div id="panels" class="absolute inset-0 z-10"></div>
+        <div id="slides" class="absolute inset-0 z-10"></div>
         <video id="videoIntro" muted playsinline preload="auto" class="absolute inset-0 z-20 w-full h-full object-cover opacity-0 transition-opacity"></video>
         <video id="videoOutro" muted playsinline preload="auto" class="absolute inset-0 z-30 w-full h-full object-cover opacity-0 transition-opacity"></video>
-        <img id="topo" class="absolute z-40 transition-opacity" alt="">
         <div id="barra" class="absolute inset-0 z-40 pointer-events-none">
             <div id="barraFundo" class="absolute left-0 w-full bg-black"></div>
             <img id="logo" class="absolute" alt="CCXP26">
@@ -30,34 +29,21 @@
         </div>
     </div>
 
-    <!-- Conteúdo de 1 evento (Rolando Agora / Daqui a pouco). Entra pela direita, sai pela esquerda. -->
-    <template id="tplSingle">
-        <section class="panel absolute inset-0 translate-x-full opacity-0 transition-all ease-in-out">
-            <div class="frame-title absolute left-0 w-full text-center whitespace-nowrap uppercase"></div>
-            <div class="foto absolute overflow-hidden">
-                <img class="foto-img w-full h-full object-cover" alt="">
+    <!-- Um destaque. Camada 1 (.slide): fundo do palco, só opacidade. Camada 2 (.slide-content):
+         entra pela direita e sai pela esquerda. -->
+    <template id="tplDestaque">
+        <section class="slide absolute inset-0 opacity-0 bg-no-repeat transition-opacity ease-in-out">
+            <div class="slide-content absolute inset-0 translate-x-full transition-all ease-in-out">
+                <div class="frame-title absolute left-0 w-full text-center whitespace-nowrap uppercase"></div>
+                <div class="foto absolute box-border">
+                    <div class="foto-corte absolute inset-0 overflow-hidden">
+                        <img class="foto-img w-full h-full object-cover" alt="">
+                    </div>
+                </div>
+                <div class="hora absolute whitespace-nowrap"></div>
+                <div class="descricao absolute overflow-hidden uppercase break-words"></div>
             </div>
-            <div class="hora absolute whitespace-nowrap"></div>
-            <div class="descricao absolute overflow-hidden uppercase break-words"></div>
         </section>
-    </template>
-
-    <!-- Conteúdo da lista (Ainda hoje) -->
-    <template id="tplLista">
-        <section class="panel absolute inset-0 translate-x-full opacity-0 transition-all ease-in-out">
-            <div class="frame-title absolute left-0 w-full text-center whitespace-nowrap uppercase"></div>
-            <div class="itens absolute inset-0"></div>
-        </section>
-    </template>
-
-    <template id="tplItem">
-        <div class="item absolute inset-0">
-            <div class="thumb absolute overflow-hidden bg-white border border-black box-border">
-                <img class="thumb-img w-full h-full object-cover" alt="">
-            </div>
-            <div class="hora absolute whitespace-nowrap"></div>
-            <div class="descricao absolute overflow-hidden uppercase break-words"></div>
-        </div>
     </template>
 </body>
 </html>

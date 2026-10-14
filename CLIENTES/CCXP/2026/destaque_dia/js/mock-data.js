@@ -5,14 +5,15 @@
  * Parametros de URL:
  *   ?mock=0                    usa o EBHTML real (sem mock)
  * Somente com o mock ativo:
- *   ?cenario=evento            (padrao) 5 dias de evento, horario real: o que passou some
+ *   ?cenario=hoje              (padrao) 1 destaque por palco (6), 1o em andamento, + eventos comuns
+ *            evento            5 dias, horario real: o que passou some (a noite pode ficar vazio)
+ *            um|tres|seis|muitos   quantidade de destaques (muitos = 9, acima do limite de 6)
  *            textos            titulos curtos, medios, longos, extremos e com acento
- *            hojeEAmanha       lista de hoje + slide separado "Amanha"
- *            cheio|tres|dois|um|semAtual|vazio|encerrado|amanha|semImagem|invalido|erro
+ *            vazio|semMarcado|encerrado|amanha|semImagem|invalido|palcoDesconhecido|erro
  *   ?len=N                     todos os titulos com N caracteres (limite de texto)
  *   ?hora=14:40                hora simulada de hoje (avanca em tempo real)
  *   ?agora=2026-12-04T14:40:00-03:00   data/hora simulada completa
- *   ?palco=23009|blast         fixa o palco (id ou slug); sem ele, sorteia um dos 6 a cada carga
+ *   ?palco=23009|blast         todos os destaques do cenario no mesmo palco (id ou slug)
  * Sem ?hora/?agora o relogio do rodape e a selecao usam a hora real.
  * window.__calls: loaded()/finished(); window.__textos: resultado do ajuste de cada descricao.
  */
@@ -22,25 +23,20 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
     if (!MOCK_DATA.enabled) { return; }
 
     const params = new URLSearchParams(window.location.search);
-    const cenario = params.get('cenario') || 'evento';
-    const palco = params.get('palco');
+    const cenario = params.get('cenario') || 'hoje';
+    const palcoParam = params.get('palco');
     const lenParam = parseInt(params.get('len'), 10);
     const calls = (window.__calls = []);
     const startedAt = Date.now();
     const offsetMin = CONFIG.fuso;
     const MIN = 60000;
     const DIA = 24 * 60 * MIN;
+    const IDS = Object.keys(CONFIG.palcos); // 6 palcos, na ordem do config
 
-    if (palco) {
-        const id = Object.keys(CONFIG.palcos).filter(function (k) {
-            return k === palco || CONFIG.palcos[k].slug === palco || CONFIG.palcos[k].arte === palco;
-        })[0];
-        if (id) { usarPalco(id); }
-    } else {
-        // Sem ?palco: sorteia um dos 6 palcos a cada carga (fundo, ornamento, cores e videos).
-        const ids = Object.keys(CONFIG.palcos);
-        usarPalco(ids[Math.floor(Math.random() * ids.length)]);
-    }
+    const palcoFixo = palcoParam ? IDS.filter(function (k) {
+        return k === palcoParam || CONFIG.palcos[k].arte === palcoParam;
+    })[0] : null;
+    const palcoDoIndice = function (i) { return palcoFixo || IDS[i % IDS.length]; };
 
     // Inicio do dia (00:00 no fuso do evento) para um instante qualquer.
     function inicioDoDia(ms) {
@@ -86,8 +82,7 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
     const PALAVRA_LONGA = 'Supercalifragilisticexpialidocious: Edição Comemorativa';
     const ACENTOS = 'ÁGATA ÉPICA ÍNTIMA ÓPERA ÚNICA: AÇÃO, EMOÇÃO E CORAÇÃO NO ÂMBITO DAS NAÇÕES ÃÕ';
 
-    // Titulos de referencia: 82-91 caracteres, como o texto de exemplo da arte
-    // ("NOME DO PAINEL" x6 = 89). Usados por todos os cenarios, menos 'textos'.
+    // Titulos de referencia: 82-91 caracteres, como o texto de exemplo da arte.
     const TITULOS_PADRAO = [
         'Megapainel dos Colecionáveis com Hasbro, McFarlane Toys e Iron Studios: lançamentos 2027',
         'The Boys: Temporada Final com elenco e criadores falando sobre os bastidores da série',
@@ -108,13 +103,14 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
         for (let i = 0; s.length < n; i += 1) { s += (s ? ' ' : '') + palavras[i % palavras.length]; }
         return s.slice(0, n).trim();
     }
-    function ciclo(lista, i) { return lista[i % lista.length]; }
-    function tituloVariado(i) { return ciclo(TITULOS_PADRAO, i); }
+    function tituloVariado(i) { return TITULOS_PADRAO[i % TITULOS_PADRAO.length]; }
 
+    /** Registro do dataset. extra sobrescreve campos (ex.: { TEXTO2: '0' }). */
     function ev(n, inicioMs, durMin, title, extra) {
+        const id = palcoDoIndice(n);
         const rec = {
-            CATEGORY: CONFIG.palco, TITULO: CONFIG.p.nome,
-            TEXTO: isNaN(lenParam) ? title : lorem(lenParam), TEXTO2: '0',
+            CATEGORY: id, TITULO: CONFIG.palcos[id].nome,
+            TEXTO: isNaN(lenParam) ? title : lorem(lenParam), TEXTO2: '1',
             FOTO: photo(n),
             DATE: stamp(inicioMs), DT_END: stamp(inicioMs + durMin * MIN),
             DT_UPDATE: stamp(baseNow)
@@ -122,62 +118,58 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
         for (const k in (extra || {})) { rec[k] = extra[k]; }
         return rec;
     }
-    // Atalho: minutos relativos a "agora".
-    const rel = function (n, startMin, durMin, title, extra) { return ev(n, baseNow + startMin * MIN, durMin, title, extra); };
+    // Atalho: minutos relativos a "agora", sem passar da meia-noite (senao o destaque nao seria de hoje).
+    const limiteHoje = inicioDoDia(baseNow) + DIA - 70 * MIN;
+    const rel = function (n, startMin, durMin, title, extra) {
+        return ev(n, Math.min(baseNow + startMin * MIN, limiteHoje - (12 - n) * MIN), durMin, title, extra);
+    };
+    const comum = function (n, startMin, title) { return rel(n, startMin, 40, title, { TEXTO2: '0' }); };
 
-    /** 5 dias de evento (hoje + 4), 11 paineis por dia de 10:00 a 19:00; a hora real decide o que aparece. */
+    /** Quantidade de destaques de hoje: o 1o em andamento, os demais de 40 em 40 min; mais 2 eventos comuns. */
+    function destaquesHoje(qtd, tituloDe) {
+        const out = [];
+        for (let i = 0; i < qtd; i += 1) { out.push(rel(i, i === 0 ? -20 : 20 + i * 40, 50, tituloDe(i))); }
+        return out.concat([comum(20, 5, tituloVariado(7)), comum(21, 60, tituloVariado(8))]);
+    }
+
+    /** 5 dias de evento (hoje + 4): 6 destaques e 6 eventos comuns por dia; a hora real decide o que aparece. */
     function eventoCincoDias() {
         const out = [];
         const hoje = inicioDoDia(baseNow);
         for (let d = 0; d < 5; d += 1) {
-            for (let k = 0; k < 11; k += 1) {
-                const i = d * 11 + k;
-                out.push(ev(i, hoje + d * DIA + (10 * 60 + k * 50) * MIN, 40, tituloVariado(i)));
+            for (let k = 0; k < 12; k += 1) {
+                const i = d * 12 + k;
+                const destaque = k % 2 === 0;
+                out.push(ev(i, hoje + d * DIA + (10 * 60 + k * 50) * MIN, 40, tituloVariado(i), { TEXTO2: destaque ? '1' : '0' }));
             }
         }
         return out;
     }
 
     function cenarioRegistros(nome) {
-        const atual = rel(0, -20, 40, TITULOS_PADRAO[0]);
-        const futuros = function (qtd) {
-            const out = [];
-            for (let i = 0; i < qtd; i += 1) { out.push(rel(i + 1, 30 + i * 60, 50, tituloVariado(i + 1))); }
-            return out;
-        };
         switch (nome) {
             case 'evento': return eventoCincoDias();
-            case 'cheio': return [atual].concat(futuros(8));
-            case 'tres': return [atual].concat(futuros(2));
-            case 'dois': return [atual].concat(futuros(1));
-            case 'um': return [atual];
-            case 'semAtual': return futuros(3);
+            case 'um': return destaquesHoje(1, tituloVariado);
+            case 'tres': return destaquesHoje(3, tituloVariado);
+            case 'seis': return destaquesHoje(6, tituloVariado);
+            case 'muitos': return destaquesHoje(9, tituloVariado);
             case 'vazio': return [];
+            case 'semMarcado': return destaquesHoje(4, tituloVariado).map(function (r) { return Object.assign(r, { TEXTO2: '0' }); });
             case 'encerrado': return [rel(1, -180, 60, TITULOS_PADRAO[1]), rel(2, -90, 60, TITULOS_PADRAO[2])];
-            case 'amanha': return [rel(1, 24 * 60 + 60, 60, TITULOS_PADRAO[1])];
-            case 'hojeEAmanha': {
-                // Hoje: atual, proximo e 1 depois. Amanha: 6 paineis (slide proprio, ate 5).
-                const hoje = [rel(0, -20, 40, TITULOS_PADRAO[0]), rel(1, 30, 40, TITULOS_PADRAO[1]), rel(2, 90, 40, TITULOS_PADRAO[2])];
-                const amanha = [];
-                const base = inicioDoDia(baseNow) + DIA + 10 * 60 * MIN;
-                for (let i = 0; i < 6; i += 1) { amanha.push(ev(i + 3, base + i * 50 * MIN, 40, tituloVariado(i + 3))); }
-                return hoje.concat(amanha);
-            }
+            case 'amanha': return [ev(1, inicioDoDia(baseNow) + DIA + 10 * 60 * MIN, 60, TITULOS_PADRAO[1])];
             case 'textos': {
-                // atual (muito longo) | daqui (palavra longa) | lista: curto, medio, longo, extremo, acentos
-                return [
-                    rel(0, -20, 40, MUITO_LONGOS[0]),
-                    rel(1, 30, 40, PALAVRA_LONGA),
-                    rel(2, 80, 40, CURTOS[0]),
-                    rel(3, 130, 40, MEDIOS[0]),
-                    rel(4, 180, 40, LONGOS[0]),
-                    rel(5, 230, 40, EXTREMOS[0]),
-                    rel(6, 280, 40, ACENTOS)
-                ];
+                // um por palco: muito longo, palavra longa, curto, medio, longo, extremo; mais acentos no fim
+                const t = [MUITO_LONGOS[0], PALAVRA_LONGA, CURTOS[0], MEDIOS[0], LONGOS[0], EXTREMOS[0], ACENTOS];
+                return t.map(function (texto, i) { return rel(i, i === 0 ? -20 : 20 + i * 40, 50, texto); });
             }
-            case 'semImagem': return [rel(0, -20, 40, TITULOS_PADRAO[0], { FOTO: '' }), rel(1, 30, 50, TITULOS_PADRAO[1], { FOTO: 'img/nao-existe.jpg' })];
-            case 'invalido': return [rel(0, -20, 40, TITULOS_PADRAO[0], { DATE: 'lixo' }), rel(1, 30, 50, '', {}), rel(2, 90, 50, TITULOS_PADRAO[2])];
-            default: return eventoCincoDias();
+            case 'semImagem':
+                return [rel(0, -20, 40, TITULOS_PADRAO[0], { FOTO: '' }), rel(1, 30, 50, TITULOS_PADRAO[1], { FOTO: 'img/nao-existe.jpg' })];
+            case 'invalido':
+                return [rel(0, -20, 40, TITULOS_PADRAO[0], { DATE: 'lixo' }), rel(1, 30, 50, '', {}), rel(2, 90, 50, TITULOS_PADRAO[2])];
+            case 'palcoDesconhecido':
+                return [rel(0, -20, 40, TITULOS_PADRAO[0], { CATEGORY: '99999', TITULO: 'Palco Novo' }), rel(1, 30, 50, TITULOS_PADRAO[1])];
+            case 'hoje':
+            default: return destaquesHoje(6, tituloVariado);
         }
     }
 
@@ -212,6 +204,6 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
             cb(loader);
         }
     };
-    console.log('[Mock] ativo: cenario=' + cenario + ' palco=' + CONFIG.palco +
+    console.log('[Mock] ativo: cenario=' + cenario + (palcoFixo ? ' palco=' + palcoFixo : '') +
         ' agora=' + stamp(baseNow) + (agora || hora ? ' (simulado)' : ' (hora real)'));
 })();

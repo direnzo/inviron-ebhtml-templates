@@ -760,9 +760,20 @@ video {
   font-synthesis: none;
 }
 
-/* Foto ausente: bloco na cor do palco (--cor-palco) escurecido. */
+/* Borda da foto: tracado centrado no contorno (padrao do Illustrator), 1 px para fora e 1 px para dentro. */
 
-.foto.sem-foto, .thumb.sem-foto {
+.foto::after {
+  content: '';
+  position: absolute;
+  inset: calc(var(--foto-borda, 2px) / -2);
+  border: var(--foto-borda, 2px) solid var(--foto-borda-cor, #080E13);
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+/* Foto ausente: bloco na cor do palco (--cor-palco, definida em cada slide) escurecido. */
+
+.foto.sem-foto .foto-corte {
   background-color: var(--cor-palco, #444);
   background-image: linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.35));
 }

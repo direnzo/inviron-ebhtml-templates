@@ -1,8 +1,8 @@
 /**
- * CCXP26 - Programacao por palco (Totem TV 1080x1920).
- * Fluxo: dados -> selecao -> midia/fonte -> loaded() -> intro -> rolando -> daqui -> ainda
+ * CCXP26 - Destaque do Dia (Totem TV 1080x1920).
+ * Fluxo: dados -> selecao -> midia/fonte -> loaded() -> intro -> 1 slide por destaque
  * -> encerramento -> finished(). loaded() sempre antes de finished(); finished() uma vez.
- * Selecao em js/programacao.js (testada em CLIENTES/CCXP/2026/tests). Ajustes: js/config.js.
+ * Selecao em js/destaques.js (testada em CLIENTES/CCXP/2026/tests). Ajustes: js/config.js.
  */
 (() => {
     'use strict';
@@ -12,7 +12,6 @@
     const ARTE_X = -1;          // PNGs 1081x1921: coluna 0 em alpha 25%, deslocar -1 px
     const ASC = 0.952;          // GothamCond-Ultra: ascendente e area de conteudo (em)
     const CONTEUDO = 0.952 + 0.222;
-    const TITULOS = { rolando: 'Rolando agora', daqui: 'Daqui a pouco', ainda: 'Ainda hoje', amanha: 'Amanhã' };
 
     const log = (...args) => { if (C.debug) { console.log('[CCXP]', ...args); } };
     const $ = (id) => document.getElementById(id);
@@ -144,7 +143,7 @@
         });
     }
 
-    // ---------- paineis ----------
+    // ---------- slide ----------
     function caixa(el, x, y, w, h) {
         el.style.left = x + 'px';
         el.style.top = y + 'px';
@@ -152,83 +151,53 @@
         el.style.height = h + 'px';
     }
 
-    function foto(wrapper, img, url, ok) {
-        if (ok) { img.src = url; } else { wrapper.classList.add('sem-foto'); }
-    }
+    /**
+     * Um slide: fundo do palco do proprio destaque (camada de fade) + conteudo (camada que desliza).
+     * Retorna { slide, conteudo }.
+     */
+    function criarSlide(ev, midia) {
+        const palco = palcoDe(ev.category);
+        const slide = $('tplDestaque').content.firstElementChild.cloneNode(true);
+        const conteudo = slide.querySelector('.slide-content');
+        slide.style.transitionDuration = T.fadeFundo + 'ms';
+        conteudo.style.transitionDuration = T.entrada + 'ms';
+        slide.style.setProperty('--cor-palco', palco.fundo);
+        if (palco.bg && midia[palco.bg]) {
+            slide.style.backgroundImage = 'url("' + palco.bg + '")';
+            slide.style.backgroundSize = '1081px 1921px';
+            slide.style.backgroundPosition = ARTE_X + 'px 0';
+        } else {
+            slide.style.backgroundColor = palco.fundo; // PNG ausente / palco desconhecido: cor lisa
+        }
+        $('slides').appendChild(slide);
 
-    function novoPainel(modelo, tipo) {
-        const painel = $(modelo).content.firstElementChild.cloneNode(true);
-        painel.style.transitionDuration = T.entrada + 'ms';
-        $('panels').appendChild(painel);
-        const titulo = painel.querySelector('.frame-title');
-        titulo.textContent = TITULOS[tipo];
-        titulo.style.color = C.p.titulo;
+        const titulo = slide.querySelector('.frame-title');
+        titulo.textContent = C.titulo.texto;
+        titulo.style.color = palco.titulo;
         linha(titulo, C.titulo.y, C.titulo.tam);
-        return painel;
-    }
 
-    function painelUnico(tipo, ev, midia) {
-        const painel = novoPainel('tplSingle', tipo);
-        const f = painel.querySelector('.foto');
+        const f = slide.querySelector('.foto');
         caixa(f, C.foto.x, C.foto.y, C.foto.w, C.foto.h);
-        foto(f, f.querySelector('img'), ev.photo, midia[ev.photo]);
+        if (ev.photo && midia[ev.photo]) { f.querySelector('img').src = ev.photo; } else { f.classList.add('sem-foto'); }
 
-        const hora = painel.querySelector('.hora');
+        const hora = slide.querySelector('.hora');
         hora.style.left = C.hora.x + 'px';
-        hora.style.color = C.p.hora;
+        hora.style.color = palco.hora;
+        hora.style.letterSpacing = (C.hora.tam * C.hora.tracking / 1000) + 'px';
         hora.textContent = Programacao.formatHora(ev.startMs, C.fuso);
         linha(hora, C.hora.y, C.hora.tam);
 
-        const d = painel.querySelector('.descricao');
-        d.style.color = C.p.texto;
+        const d = slide.querySelector('.descricao');
+        d.style.color = palco.texto;
         descricao(d, ev.title, C.descricao, C.descricao.y);
-        return painel;
+        return { slide: slide, conteudo: conteudo };
     }
 
-    /** Lista de ate 5 paineis: slide "Ainda hoje" ou slide "Amanha" (exclusivo, nao mistura). */
-    function painelLista(step, midia) {
-        const painel = novoPainel('tplLista', step.type);
-        const L = C.lista;
-        step.events.forEach((ev, i) => {
-            const y = L.y + i * L.passo;
-            const item = $('tplItem').content.firstElementChild.cloneNode(true);
-            painel.querySelector('.itens').appendChild(item);
-
-            const f = item.querySelector('.thumb');
-            caixa(f, L.foto.x, y, L.foto.tam, L.foto.tam);
-            foto(f, f.querySelector('img'), ev.photo, midia[ev.photo]);
-
-            const hora = item.querySelector('.hora');
-            hora.style.left = L.hora.x + 'px';
-            hora.style.color = C.p.hora;
-            hora.textContent = Programacao.formatHora(ev.startMs, C.fuso);
-            linha(hora, y + L.hora.dy, L.hora.tam);
-
-            const d = item.querySelector('.descricao');
-            d.style.color = C.p.texto;
-            descricao(d, ev.title, L.descricao, y + L.descricao.dy);
-        });
-        return painel;
-    }
-
-    /** Fundo do palco, ornamento do topo e rodape: fixos durante todo o ciclo (como em 2025). */
-    function montarFixos(midia) {
-        const bg = $('bg');
-        if (midia[C.bg]) {
-            bg.style.backgroundImage = 'url("' + C.bg + '")';
-            bg.style.backgroundSize = '1081px 1921px';
-            bg.style.backgroundPosition = ARTE_X + 'px 0';
-        } else {
-            bg.style.backgroundColor = C.p.fundo; // PNG ausente: cor do palco
-        }
-        const topo = $('topo');
-        if (midia[C.topo]) {
-            topo.src = C.topo;
-            topo.style.left = ARTE_X + 'px';
-            topo.style.top = '0';
-        } else {
-            topo.remove();
-        }
+    /** Barra do rodape (fixa por cima de tudo, inclusive dos videos): barra, logo e relogio. */
+    function montarRodape() {
+        const raiz = document.documentElement.style;
+        raiz.setProperty('--foto-borda', C.foto.borda + 'px');
+        raiz.setProperty('--foto-borda-cor', C.foto.bordaCor);
         const fundo = $('barraFundo');
         fundo.style.top = C.barra.y + 'px';
         fundo.style.height = C.barra.h + 'px';
@@ -283,37 +252,58 @@
             relogioTimer = setInterval(atualizar, T.atualizarRelogio);
         }
 
+        function conteudoEntra(item) {
+            setTimeout(() => {
+                item.conteudo.classList.remove('translate-x-full');
+                item.conteudo.classList.add('translate-x-0');
+            }, T.conteudoDelay);
+        }
+
+        function conteudoSai(item) {
+            item.conteudo.classList.remove('translate-x-0');
+            item.conteudo.classList.add('-translate-x-full');
+        }
+
         /**
-         * Como em 2025: o novo conteudo entra pela direita enquanto o anterior sai pela esquerda
-         * (1 s, ease-in-out). Fundo, ornamento e rodape nao se mexem.
+         * Camadas, como em 2025: o fundo do novo slide faz fade, o conteudo entra pela direita
+         * logo depois e o anterior sai pela esquerda. O fundo anterior fica por baixo ate o novo
+         * terminar o fade (sem "buraco" preto entre palcos diferentes) e so entao e removido.
          */
-        function mostrar(painel) {
-            void painel.offsetWidth; // fixa o estado inicial (fora da tela, a direita)
-            painel.classList.remove('translate-x-full', 'opacity-0');
-            painel.classList.add('translate-x-0', 'opacity-100');
-            if (atual && atual !== painel) { sair(atual); }
-            atual = painel;
+        function mostrar(item) {
+            const anterior = atual;
+            atual = item;
+            if (!anterior) {
+                // 1o slide: fundo ja pronto por baixo do video de abertura, que some em seguida.
+                item.slide.style.transitionProperty = 'none';
+                item.slide.classList.remove('opacity-0');
+                item.slide.classList.add('opacity-100');
+                void item.slide.offsetWidth;
+                item.slide.style.transitionProperty = '';
+                videoIntro.style.opacity = '0';
+            } else {
+                void item.slide.offsetWidth; // fixa o estado inicial
+                item.slide.classList.remove('opacity-0');
+                item.slide.classList.add('opacity-100');
+                conteudoSai(anterior);
+                setTimeout(() => { anterior.slide.remove(); }, T.fadeFundo + T.entrada);
+            }
+            conteudoEntra(item);
         }
 
-        function sair(painel) {
-            painel.classList.remove('translate-x-0', 'opacity-100');
-            painel.classList.add('-translate-x-full', 'opacity-0');
-        }
-
-        async function executar(steps, paineis) {
+        async function executar(steps, itens) {
+            let n = 0;
             for (const step of steps) {
                 if (finalizado) { return; }
                 log('step', step.type);
                 if (step.type === 'intro') {
                     await tocarVideo(videoIntro, step.ms);
                 } else if (step.type === 'outro') {
-                    // O video de encerramento ja traz o proprio ornamento (outra cor): o do topo some.
-                    if (atual) { sair(atual); await esperar(T.pausaEncerramento); }
-                    $('topo').style.opacity = '0';
+                    // O video cobre o slide (fundo liso, sem rodape): o conteudo sai antes dele entrar.
+                    if (atual) { conteudoSai(atual); await esperar(T.pausaEncerramento); }
                     await tocarVideo(videoOutro, step.ms);
                 } else {
-                    videoIntro.style.opacity = '0'; // revela fundo + conteudo (o video termina nesse mesmo quadro)
-                    mostrar(paineis[step.type]);
+                    mostrar(itens[n]);
+                    n += 1;
                     await esperar(step.ms);
                 }
             }
@@ -322,60 +312,58 @@
 
         async function preparar(steps) {
             const fotos = [];
+            const artes = [];
             steps.forEach((s) => (s.events || []).forEach((ev) => {
                 if (ev.photo && fotos.indexOf(ev.photo) === -1) { fotos.push(ev.photo); }
+                const bg = palcoDe(ev.category).bg;
+                if (bg && artes.indexOf(bg) === -1) { artes.push(bg); }
             }));
-            const urls = fotos.concat([C.bg, C.topo, 'img/logo_ccxp26.png']);
+            const urls = fotos.concat(artes, ['img/logo_ccxp26.png']);
             const [ok, fonteOk] = await Promise.all([Promise.all(urls.map(precarregar)), carregarFonte()]);
             if (!fonteOk) { log('fonte GothamCond-Ultra indisponivel; usando fallback'); }
             const midia = {};
             urls.forEach((url, i) => { midia[url] = ok[i]; });
 
-            const paineis = {};
-            steps.forEach((s) => {
-                if (s.type === 'rolando' || s.type === 'daqui') { paineis[s.type] = painelUnico(s.type, s.events[0], midia); }
-                if (s.type === 'ainda' || s.type === 'amanha') { paineis[s.type] = painelLista(s, midia); }
-            });
-            montarFixos(midia);
-            return paineis;
+            montarRodape();
+            const itens = [];
+            steps.forEach((s) => { if (s.type === 'destaque') { itens.push(criarSlide(s.events[0], midia)); } });
+            return itens;
         }
 
         function aoCarregar() {
             clearTimeout(loadWatchdog);
             try {
                 const eventos = lerEventos(loader);
-                const selecao = Programacao.select(eventos, agoraMs(), {
-                    offsetMin: C.fuso, stageId: C.palco, filterClientSide: true,
-                    fallbackDurationMin: 60, maxLista: C.maxLista
+                const selecao = Destaques.select(eventos, agoraMs(), {
+                    offsetMin: C.fuso, fallbackDurationMin: 60, marcador: C.marcador, max: C.maxDestaques
                 });
-                const steps = Programacao.buildSteps(selecao, C.tempos);
-                log('registros', eventos.length, 'descartados', selecao.descartados, 'steps', steps.map((s) => s.type).join('>'));
-                if (!steps.length) { semConteudo('sem conteudo para o palco'); return; }
+                const steps = Destaques.buildSteps(selecao, T);
+                log('registros', eventos.length, 'destaques', selecao.encontrados, 'descartados', selecao.descartados,
+                    'steps', steps.map((s) => s.type).join('>'));
+                if (!steps.length) { semConteudo('sem destaque hoje'); return; }
 
                 globalWatchdog = setTimeout(() => encerrar('watchdog global', 0),
-                    Programacao.totalMs(steps) + 2 * T.carregarMidia + T.margemGlobal);
-                preparar(steps).then((paineis) => {
+                    Destaques.totalMs(steps) + 2 * T.carregarMidia + T.margemGlobal);
+                preparar(steps).then((itens) => {
                     if (finalizado) { return; }
                     stage.classList.remove('opacity-0');
                     stage.classList.add('opacity-100');
                     iniciarRelogio();
                     chamarLoaded();
-                    return executar(steps, paineis);
+                    return executar(steps, itens);
                 }).catch((erro) => semConteudo('excecao: ' + (erro && erro.message ? erro.message : erro)));
             } catch (erro) {
                 semConteudo('excecao: ' + (erro && erro.message ? erro.message : erro));
             }
         }
 
-        const raiz = document.documentElement.style;
-        raiz.setProperty('--cor-palco', C.p.fundo);
         videoIntro.style.transitionDuration = T.fadeAbertura + 'ms';
         videoOutro.style.transitionDuration = T.fadeEncerramento + 'ms';
-        $('topo').style.transitionDuration = T.fadeEncerramento + 'ms';
         videoIntro.src = C.videoIntro;
         videoOutro.src = C.videoOutro;
 
-        const params = ['amount=0', 'f_category=' + encodeURIComponent(C.palco), 'order=date', 'orderkind=a'];
+        // Sem filtro de palco: o destaque de qualquer palco entra; o marcador e filtrado no cliente.
+        const params = ['amount=0', 'order=date', 'orderkind=a'];
         loader.addData(C.dataset, false, params.join('&'), '', C.basePath);
         loader.nodataiserror = false;
         loader.autoloaded = false;
