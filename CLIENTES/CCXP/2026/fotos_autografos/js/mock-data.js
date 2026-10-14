@@ -16,6 +16,7 @@
  *            evento            5 dias de horario real: o que passou some (a noite pode ficar vazio)
  *   ?pular=N                   descarta os N primeiros artistas (ordem alfabetica): ver paginas seguintes
  *   ?rapido=1                  deslize sem espera (entrada 1 ms): capturas de tela deterministicas
+ *   ?horario=periodo           mostra DT_BEGIN - DT_END em vez do TEXTO2 (CONFIG.horarioFonte)
  *   ?hora=14:40                hora simulada de hoje (avanca em tempo real)
  *   ?agora=2026-12-04T14:40:00-03:00   data/hora simulada completa
  * window.__calls: loaded()/finished(); window.__textos: ajuste do titulo de cada artista.
@@ -32,6 +33,7 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
         CONFIG.tempos.escalonar = 0;
         CONFIG.tempos.escalonarSaida = 0;
     }
+    if (params.get('horario') === 'periodo') { CONFIG.horarioFonte = 'periodo'; }
     const pular = parseInt(params.get('pular'), 10) || 0;
     const calls = (window.__calls = []);
     const startedAt = Date.now();
@@ -64,6 +66,13 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
 
     // Fotos de picsum.photos (uso so de mock), em mock/fotos/p01..p20.jpg.
     const TOTAL_FOTOS = 20;
+    function hm(ms) {
+        const d = new Date(ms + offsetMin * MIN);
+        return pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes());
+    }
+    /** TEXTO2 como no CMS de 2025: "12:00 às 13:00". */
+    function periodoTexto(ini, fim) { return hm(ini) + ' às ' + hm(fim); }
+
     function foto(n) {
         const i = (n * 7 + 3) % TOTAL_FOTOS + 1;
         return 'mock/fotos/p' + (i < 10 ? '0' + i : i) + '.jpg';
@@ -84,7 +93,8 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
         const inicio = Math.min(baseNow + ini * MIN, limiteHoje);
         const rec = {
             TITULO: nome, FOTO: foto(nome.length + ini), CATEGORY: mod, TEXTO: '',
-            DT_BEGIN: stamp(inicio), DT_END: stamp(inicio + dur * MIN), TEXTO3: ''
+            DT_BEGIN: stamp(inicio), DT_END: stamp(inicio + dur * MIN), TEXTO3: '',
+            TEXTO2: periodoTexto(inicio, inicio + dur * MIN)
         };
         for (const k in (extra || {})) { rec[k] = extra[k]; }
         return rec;
@@ -120,7 +130,8 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
                     const ini = hoje + d * DIA + (10 * 60 + a * 90 + m * 30) * MIN;
                     out.push({
                         TITULO: NOMES[(d * 6 + a) % NOMES.length], FOTO: foto(d * 6 + a), CATEGORY: MOD[m % 5],
-                        TEXTO: '', DT_BEGIN: stamp(ini), DT_END: stamp(ini + 25 * MIN), TEXTO3: m === 2 ? 'sim' : ''
+                        TEXTO: '', DT_BEGIN: stamp(ini), DT_END: stamp(ini + 25 * MIN), TEXTO3: m === 2 ? 'sim' : '',
+                        TEXTO2: periodoTexto(ini, ini + 25 * MIN)
                     });
                 }
             }

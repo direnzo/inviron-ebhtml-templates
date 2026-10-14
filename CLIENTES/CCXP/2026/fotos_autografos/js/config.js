@@ -14,8 +14,12 @@ const CONFIG = {
     // Campos do dataset (2025: TITULO artista, FOTO, CATEGORY modalidade, DT_BEGIN/DT_END, TEXTO3 esgotado).
     campos: {
         artista: 'TITULO', foto: 'FOTO', modalidade: 'CATEGORY', inicio: 'DT_BEGIN', fim: 'DT_END',
-        esgotado: 'TEXTO3'
+        esgotado: 'TEXTO3', horarioTexto: 'TEXTO2'
     },
+    // Horario exibido: 'texto' = TEXTO2 do CMS como 2025 ("12:00 as 13:00" vira "12h00 as 13h00"; se vazio,
+    // cai no periodo) ou 'periodo' = DT_BEGIN - DT_END ("12h00 - 13h00"). Pergunta 4: manter 2025.
+    horarioFonte: 'texto',
+    centralizarUnico: true,    // pagina com 1 artista: bloco centralizado na tela (pergunta 3)
     esgotadoValor: 'sim',      // provisorio (pergunta 6): TEXTO3 === 'sim', sem caixa/espacos
     itensPorPagina: 2,         // blocos de artista por tela
     maxModalidades: 5,         // linhas por artista; o excedente e ignorado (provisorio)
@@ -25,7 +29,7 @@ const CONFIG = {
     // Todos os tempos em ms.
     tempos: {
         intro: 5000,           // F&A INTRO.mp4 (duracao do arquivo)
-        pagina: 10000,         // cada pagina (2025; provisorio, pergunta 5)
+        pagina: 10000,         // tempo de CADA pagina de artistas (ajuste aqui; 2025 usava 10 s)
         outro: 11000,          // F&A ENCERRAMENTO.mp4 (duracao do arquivo)
         // -- animacao em camadas, como 2025: o conteudo entra pela direita e sai pela esquerda
         entrada: 800,          // deslize de cada bloco

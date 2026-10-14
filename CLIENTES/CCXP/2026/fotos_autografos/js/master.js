@@ -9,6 +9,7 @@
 
     const C = CONFIG;
     const T = C.tempos;         // tempos: ver js/config.js
+    const LARGURA = 1280;       // tela do painel
     const ASC = 0.952;          // GothamCond-Ultra: ascendente e area de conteudo (em)
     const CONTEUDO = 0.952 + 0.222;
     const CURVA = 'cubic-bezier(0.4, 0, 0.2, 1)';
@@ -38,7 +39,8 @@
             if (!item) { continue; }
             sessoes.push({
                 artista: campo(item, k.artista), foto: campo(item, k.foto), modalidade: campo(item, k.modalidade),
-                inicio: campo(item, k.inicio), fim: campo(item, k.fim), esgotado: campo(item, k.esgotado)
+                inicio: campo(item, k.inicio), fim: campo(item, k.fim), esgotado: campo(item, k.esgotado),
+                horarioTexto: campo(item, k.horarioTexto)
             });
         }
         return sessoes;
@@ -175,18 +177,41 @@
         return el;
     }
 
-    /** Um bloco de artista na posicao `lado` (0 esquerdo, 1 direito). Retorna o elemento (camada que desliza). */
-    function criarBloco(artista, lado, midia, pagina) {
-        const dx = lado * C.deslocamentoBloco;
+    /** Borda direita (px da tela) do conteudo do bloco: foto, rotulos, horarios e texto do titulo. */
+    function extremoDireito(interno, titulo) {
+        const escala = $('stage').getBoundingClientRect().width / LARGURA || 1; // preview escala o stage
+        const base = interno.getBoundingClientRect().left;
+        let fim = C.foto.x + C.foto.lado;
+        interno.querySelectorAll('.rotulo, .horario').forEach((el) => {
+            fim = Math.max(fim, el.offsetLeft + el.offsetWidth);
+        });
+        const r = document.createRange();
+        r.selectNodeContents(titulo);
+        Array.from(r.getClientRects()).forEach((rc) => { fim = Math.max(fim, (rc.right - base) / escala); });
+        return fim;
+    }
+
+    /**
+     * Um bloco de artista na posicao `lado` (0 esquerdo, 1 direito); `centralizar` posiciona o bloco
+     * (como esquerdo) no centro da tela. Retorna o elemento que desliza; o conteudo fica em `interno`,
+     * que recebe o deslocamento de centralizacao.
+     */
+    function criarBloco(artista, lado, midia, pagina, centralizar) {
+        const dx = centralizar ? 0 : lado * C.deslocamentoBloco;
         const v = C.variantes[artista.variante] || C.variantes.compacta;
         const bloco = criar('bloco absolute inset-0', pagina);
         bloco.style.transform = 'translateX(100%)';
+        const interno = criar('bloco-interno absolute', bloco);
+        interno.style.left = '0px';
+        interno.style.top = '0px';
+        interno.style.width = '1280px';
+        interno.style.height = '512px';
 
-        const titulo = criar('titulo-artista absolute uppercase overflow-hidden', bloco);
+        const titulo = criar('titulo-artista absolute uppercase overflow-hidden', interno);
         titulo.style.color = C.titulo.cor;
         const estado = ajustarTitulo(titulo, artista.nome, Object.assign({}, C.titulo, { x: C.titulo.x + dx }));
 
-        const f = criar('foto absolute box-border', bloco);
+        const f = criar('foto absolute box-border', interno);
         f.style.left = (C.foto.x + dx) + 'px';
         f.style.top = C.foto.y + 'px';
         f.style.width = C.foto.lado + 'px';
@@ -202,12 +227,12 @@
         const kSelo = v.tamHorario / C.variantes.compacta.tamHorario;
         artista.sessoes.slice(0, v.baselines.length).forEach((s, i) => {
             const base = v.baselines[i];
-            const rotulo = criar('rotulo absolute whitespace-nowrap', bloco);
+            const rotulo = criar('rotulo absolute whitespace-nowrap', interno);
             rotulo.style.color = C.corRotulo;
             rotulo.textContent = s.rotulo;
             linha(rotulo, v.xRotulo + dx, base, v.tamRotulo, 270);
 
-            const horario = criar('horario absolute whitespace-nowrap', bloco);
+            const horario = criar('horario absolute whitespace-nowrap', interno);
             horario.style.color = C.corHorario;
             horario.textContent = s.horario;
             const yHorario = base + v.horarioDelta;
@@ -226,12 +251,17 @@
                 selo.style.width = w + 'px';
                 selo.style.height = h + 'px';
                 selo.style.transform = 'rotate(' + sc.rotacao + 'deg)';
-                bloco.appendChild(selo);
+                interno.appendChild(selo);
             }
         });
+        if (centralizar) {
+            const ini = Math.min(C.titulo.x, C.foto.x);
+            const fim = extremoDireito(interno, titulo);
+            interno.style.left = ((LARGURA - (fim - ini)) / 2 - ini) + 'px';
+        }
         if (C.debug) {
             (window.__textos = window.__textos || []).push({
-                artista: artista.nome, caracteres: artista.nome.length, estado: estado, variante: artista.variante,
+                centralizado: !!centralizar, artista: artista.nome, caracteres: artista.nome.length, estado: estado, variante: artista.variante,
                 sessoes: artista.sessoes.length, tamTitulo: parseFloat(titulo.style.fontSize), cabe: cabe(titulo)
             });
         }
@@ -242,10 +272,9 @@
      *  de montar os blocos: o ajuste de texto mede scrollHeight/scrollWidth. */
     function criarPagina(artistas, midia) {
         const pagina = criar('pagina absolute inset-0', $('paginas'));
-        const blocos = artistas.slice(0, C.itensPorPagina).map((a, i) => {
-            const b = criarBloco(a, i, midia, pagina);
-            return b;
-        });
+        const lista = artistas.slice(0, C.itensPorPagina);
+        const centralizar = C.centralizarUnico && lista.length === 1;
+        const blocos = lista.map((a, i) => criarBloco(a, i, midia, pagina, centralizar));
         return { pagina: pagina, blocos: blocos };
     }
 
@@ -363,7 +392,8 @@
                 const sessoes = lerSessoes(loader);
                 const selecao = Fea.selecionar(sessoes, agoraMs(), {
                     offsetMin: C.fuso, duracaoPadraoMin: C.duracaoPadraoMin, esgotadoValor: C.esgotadoValor,
-                    modalidades: C.modalidades, maxModalidades: C.maxModalidades, limiteGrande: C.limiteGrande
+                    modalidades: C.modalidades, maxModalidades: C.maxModalidades, limiteGrande: C.limiteGrande,
+                    horarioFonte: C.horarioFonte
                 });
                 const steps = Fea.buildSteps(selecao, T, C.itensPorPagina);
                 log('registros', sessoes.length, 'artistas', selecao.artistas.length, 'sessoes', selecao.sessoes,
@@ -400,7 +430,7 @@
 
     window.addEventListener('load', () => {
         const ajustar = () => {
-            const s = Math.min(window.innerWidth / 1280, window.innerHeight / 512);
+            const s = Math.min(window.innerWidth / LARGURA, window.innerHeight / 512);
             $('stage').style.transform = 'scale(' + s + ')';
         };
         ajustar();

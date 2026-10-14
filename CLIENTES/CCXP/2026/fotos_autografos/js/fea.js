@@ -26,9 +26,16 @@
         return String(texto || '').replace(/\s+/g, ' ').trim();
     }
 
+    /** "12:00 às 13:00" -> "12h00 às 13h00" (como 2025: todos os ":" viram "h"). */
+    function formatarTexto(texto) {
+        return limpo(texto).replace(/:/g, 'h');
+    }
+
     /**
-     * raw: { artista, foto, modalidade, inicio, fim, esgotado } (strings do dataset).
-     * opts: { offsetMin, duracaoPadraoMin, esgotadoValor, modalidades }.
+     * raw: { artista, foto, modalidade, inicio, fim, esgotado, horarioTexto } (strings do dataset).
+     * opts: { offsetMin, duracaoPadraoMin, esgotadoValor, modalidades, horarioFonte }.
+     * horarioFonte 'texto' (como 2025): usa horarioTexto ("12:00 às 13:00" -> "12h00 às 13h00") e, se vazio,
+     * cai no periodo DT_BEGIN - DT_END; 'periodo': sempre DT_BEGIN - DT_END.
      * Retorna a sessao normalizada ou null (sem artista ou inicio invalido).
      */
     function normalizarSessao(raw, opts) {
@@ -40,6 +47,8 @@
         if (!fimValido) { endMs = startMs + (opts.duracaoPadraoMin || 60) * 60000; }
         const modalidade = limpo(raw.modalidade);
         const mapa = opts.modalidades || {};
+        const periodo = P.formatHora(startMs, opts.offsetMin) + (fimValido ? ' - ' + P.formatHora(endMs, opts.offsetMin) : '');
+        const texto = opts.horarioFonte === 'periodo' ? '' : formatarTexto(raw.horarioTexto);
         const alvo = String(opts.esgotadoValor != null ? opts.esgotadoValor : 'sim');
         return {
             artista: nome,
@@ -50,7 +59,7 @@
             rotulo: mapa[chave(modalidade)] || modalidade,
             startMs: startMs,
             endMs: endMs,
-            horario: P.formatHora(startMs, opts.offsetMin) + (fimValido ? ' - ' + P.formatHora(endMs, opts.offsetMin) : ''),
+            horario: texto || periodo,
             esgotado: chave(raw.esgotado) === chave(alvo)
         };
     }
