@@ -123,7 +123,12 @@
         ]).catch(() => false);
     }
 
-    function tocarVideo(video, ms) {
+    /**
+     * opcoes.instantaneo: o video aparece cortado (sem fade). opcoes.aoTocar: roda no 1o quadro.
+     * A opacidade so sobe no evento 'playing' (1o quadro decodificado): antes disso nada aparece por baixo.
+     */
+    function tocarVideo(video, ms, opcoes) {
+        const op = opcoes || {};
         return new Promise((resolve) => {
             let feito = false;
             const watchdog = setTimeout(() => fim('watchdog'), ms + T.margemVideo);
@@ -137,7 +142,12 @@
             video.addEventListener('ended', () => fim('ended'), { once: true });
             video.addEventListener('error', () => fim('error'), { once: true });
             if (video.error) { fim('error-previo'); return; }
-            video.style.opacity = '1';
+            video.addEventListener('playing', () => {
+                if (op.instantaneo) { video.style.transitionProperty = 'none'; }
+                video.style.opacity = '1';
+                if (op.instantaneo) { void video.offsetWidth; video.style.transitionProperty = ''; }
+                if (op.aoTocar) { op.aoTocar(); }
+            }, { once: true });
             const play = video.play();
             if (play && play.catch) { play.catch(() => fim('autoplay-negado')); }
         });
@@ -204,6 +214,7 @@
         const logo = $('logo');
         caixa(logo, C.logo.x, C.logo.y, C.logo.w, C.logo.h);
         logo.src = 'img/logo_ccxp26.png';
+        $('barra').style.opacity = '0'; // revelada no 1o quadro da abertura (ou no 1o slide)
         const relogio = $('relogio');
         relogio.style.width = C.relogio.direita + 'px';
         linha(relogio, C.relogio.y, C.relogio.tam);
@@ -252,6 +263,9 @@
             relogioTimer = setInterval(atualizar, T.atualizarRelogio);
         }
 
+        /** Rodape fica por cima dos videos: so aparece junto com o 1o quadro da abertura (sem "piscada"). */
+        function revelarRodape() { $('barra').style.opacity = '1'; }
+
         function conteudoEntra(item) {
             setTimeout(() => {
                 item.conteudo.classList.remove('translate-x-full');
@@ -274,6 +288,7 @@
             atual = item;
             if (!anterior) {
                 // 1o slide: fundo ja pronto por baixo do video de abertura, que some em seguida.
+                revelarRodape(); // abertura com falha: o rodape entra aqui
                 item.slide.style.transitionProperty = 'none';
                 item.slide.classList.remove('opacity-0');
                 item.slide.classList.add('opacity-100');
@@ -296,7 +311,7 @@
                 if (finalizado) { return; }
                 log('step', step.type);
                 if (step.type === 'intro') {
-                    await tocarVideo(videoIntro, step.ms);
+                    await tocarVideo(videoIntro, step.ms, { instantaneo: true, aoTocar: revelarRodape });
                 } else if (step.type === 'outro') {
                     // O video cobre o slide (fundo liso, sem rodape): o conteudo sai antes dele entrar.
                     if (atual) { conteudoSai(atual); await esperar(T.pausaEncerramento); }

@@ -124,7 +124,12 @@
         ]).catch(() => false);
     }
 
-    function tocarVideo(video, ms) {
+    /**
+     * opcoes.instantaneo: o video aparece cortado (sem fade). opcoes.aoTocar: roda no 1o quadro.
+     * A opacidade so sobe no evento 'playing' (1o quadro decodificado): antes disso nada aparece por baixo.
+     */
+    function tocarVideo(video, ms, opcoes) {
+        const op = opcoes || {};
         return new Promise((resolve) => {
             let feito = false;
             const watchdog = setTimeout(() => fim('watchdog'), ms + T.margemVideo);
@@ -138,7 +143,12 @@
             video.addEventListener('ended', () => fim('ended'), { once: true });
             video.addEventListener('error', () => fim('error'), { once: true });
             if (video.error) { fim('error-previo'); return; }
-            video.style.opacity = '1';
+            video.addEventListener('playing', () => {
+                if (op.instantaneo) { video.style.transitionProperty = 'none'; }
+                video.style.opacity = '1';
+                if (op.instantaneo) { void video.offsetWidth; video.style.transitionProperty = ''; }
+                if (op.aoTocar) { op.aoTocar(); }
+            }, { once: true });
             const play = video.play();
             if (play && play.catch) { play.catch(() => fim('autoplay-negado')); }
         });
@@ -218,17 +228,18 @@
             bg.style.backgroundImage = 'url("' + C.bg + '")';
             bg.style.backgroundSize = '1081px 1921px';
             bg.style.backgroundPosition = ARTE_X + 'px 0';
-        } else {
-            bg.style.backgroundColor = C.p.fundo; // PNG ausente: cor do palco
         }
+        bg.style.opacity = '0'; // so aparece quando a abertura termina (revelarFundo)
         const topo = $('topo');
         if (midia[C.topo]) {
             topo.src = C.topo;
             topo.style.left = ARTE_X + 'px';
             topo.style.top = '0';
+            topo.style.opacity = '0'; // revelado no 1o quadro da abertura (revelarRodape)
         } else {
             topo.remove();
         }
+        $('barra').style.opacity = '0'; // idem
         const fundo = $('barraFundo');
         fundo.style.top = C.barra.y + 'px';
         fundo.style.height = C.barra.h + 'px';
@@ -238,6 +249,7 @@
         const relogio = $('relogio');
         relogio.style.width = C.relogio.direita + 'px';
         linha(relogio, C.relogio.y, C.relogio.tam);
+        return !!midia[C.bg];
     }
 
     // ---------- player ----------
@@ -248,6 +260,7 @@
         let globalWatchdog = null;
         let relogioTimer = null;
         let atual = null;
+        let fundoOk = false;
 
         const stage = $('stage');
         const relogio = $('relogio');
@@ -273,6 +286,23 @@
         }
 
         function semConteudo(motivo) { encerrar(motivo, T.liberarSemConteudo); }
+
+        /** Fundo so aparece quando a abertura termina: antes dela a tela e preta (sem "piscada"). */
+        function revelarFundo() {
+            if (fundoOk) { $('bg').style.opacity = '1'; } else { $('bg').style.backgroundColor = C.p.fundo; }
+        }
+
+        /** Ornamento e rodape ficam por cima dos videos: entram cortados junto com o 1o quadro da abertura. */
+        function revelarRodape() {
+            const topo = $('topo');
+            if (topo) {
+                topo.style.transitionProperty = 'none';
+                topo.style.opacity = '1';
+                void topo.offsetWidth;
+                topo.style.transitionProperty = '';
+            }
+            $('barra').style.opacity = '1';
+        }
 
         function iniciarRelogio() {
             const atualizar = () => {
@@ -305,13 +335,15 @@
                 if (finalizado) { return; }
                 log('step', step.type);
                 if (step.type === 'intro') {
-                    await tocarVideo(videoIntro, step.ms);
+                    await tocarVideo(videoIntro, step.ms, { instantaneo: true, aoTocar: revelarRodape });
                 } else if (step.type === 'outro') {
                     // O video de encerramento ja traz o proprio ornamento (outra cor): o do topo some.
                     if (atual) { sair(atual); await esperar(T.pausaEncerramento); }
                     $('topo').style.opacity = '0';
                     await tocarVideo(videoOutro, step.ms);
                 } else {
+                    revelarFundo(); // por baixo do video de abertura, que some em seguida
+                    revelarRodape(); // abertura com falha: ornamento e rodape entram aqui
                     videoIntro.style.opacity = '0'; // revela fundo + conteudo (o video termina nesse mesmo quadro)
                     mostrar(paineis[step.type]);
                     await esperar(step.ms);
@@ -336,7 +368,7 @@
                 if (s.type === 'rolando' || s.type === 'daqui') { paineis[s.type] = painelUnico(s.type, s.events[0], midia); }
                 if (s.type === 'ainda' || s.type === 'amanha') { paineis[s.type] = painelLista(s, midia); }
             });
-            montarFixos(midia);
+            fundoOk = montarFixos(midia);
             return paineis;
         }
 

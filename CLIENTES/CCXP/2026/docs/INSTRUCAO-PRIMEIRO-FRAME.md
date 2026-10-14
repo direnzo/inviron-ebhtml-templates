@@ -46,6 +46,12 @@ conteúdo é visível por baixo do vídeo. O fundo só aparece quando o vídeo s
 ## Observações por template
 
 - `fotos_autografos`: feito (`revelarFundo()` e `tocarVideo(..., instantaneo)` em `js/master.js`).
-- `destaque_dia`: os slides já nascem com `opacity-0`; falta o item 3 e conferir o item 4 (rodapé).
-- `programacao_palco`: `#bg` e `#topo` ficam visíveis desde o `loaded()`; precisam dos itens 1 a 4.
-  (Não conferido visualmente neste momento.)
+- `destaque_dia`: feito (2026-10-14). `tocarVideo(video, ms, { instantaneo, aoTocar })` e `revelarRodape()`
+  em `js/master.js`; o rodapé (`#barra`) nasce oculto e entra no `playing` da abertura ou no 1º slide.
+- `programacao_palco`: feito (2026-10-14), itens 1 a 4. `#bg`, `#topo` e `#barra` nascem ocultos;
+  `revelarFundo()` no 1º painel (cor de fallback só aí) e `revelarRodape()` no `playing`.
+- Verificado em Chromium headless: captura a 1,2 s com o .mp4 mostra só o vídeo (+ rodapé), sem o fundo;
+  com o .mp4 em 404 o fundo entra no 1º painel; `loaded()` antes de `finished()` uma vez, também no vazio.
+  Não verificado no `ebcliente4` nem a transição quadro a quadro.
+- Fora do escopo, mas visto: em `programacao_palco` o ramo `outro` faz `$('topo').style` sem guarda;
+  se o PNG do ornamento faltar (`topo.remove()`), lança e cai em `semConteudo`.
