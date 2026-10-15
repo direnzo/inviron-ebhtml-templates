@@ -8,7 +8,6 @@
  *   ?cenario=evento            (padrao) 5 dias de evento, horario real: o que passou some
  *            textos            titulos curtos, medios, longos, extremos e com acento
  *            cheio|tres|dois|um|semAtual|vazio|encerrado|semImagem|invalido|erro
- *            amanha            so eventos de amanha: nao exibe (so entram eventos de hoje)
  *   ?len=N                     todos os titulos com N caracteres (limite de texto)
  *   ?hora=14:40                hora simulada de hoje (avanca em tempo real)
  *   ?agora=2026-12-04T14:40:00-03:00   data/hora simulada completa
@@ -154,7 +153,6 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
             case 'semAtual': return futuros(3);
             case 'vazio': return [];
             case 'encerrado': return [rel(1, -180, 60, TITULOS_PADRAO[1]), rel(2, -90, 60, TITULOS_PADRAO[2])];
-            case 'amanha': return [rel(1, 24 * 60 + 60, 60, TITULOS_PADRAO[1])];
             case 'textos': {
                 // atual (muito longo) | daqui (palavra longa) | lista: curto, medio, longo, extremo, acentos
                 return [
