@@ -18,7 +18,7 @@ const CONFIG = {
     tempos: {
         // -- quanto cada etapa fica em tela (a entrada/saida esta dentro do tempo do slide)
         intro: 3000,     // video de abertura (duracao do arquivo)
-        destaque: 6000,  // cada slide. Pergunta 3 do plano: 6 s (escopo) ou 5 s (2025)
+        destaque: 5166,  // cada slide. Pergunta 3 do plano: 6 s (escopo) ou 5 s (2025)
         outro: 11000,    // video de encerramento (duracao do arquivo)
         // -- animacao em camadas (como 2025): fundo faz fade, conteudo entra pela direita depois
         fadeFundo: 1000,        // fade do fundo do slide (entrada e saida)

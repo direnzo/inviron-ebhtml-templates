@@ -19,7 +19,7 @@ const CONFIG = {
         rolando: 6000,
         daqui: 6000,
         ainda: 8000,   // "Ainda hoje"
-        amanha: 8000,  // "Amanha"
+        // amanha: 8000,  // "Amanha"
         outro: 11000,   // video de encerramento (duracao do arquivo)
         // -- animacoes
         entrada: 1000,          // conteudo entra pela direita e sai pela esquerda
