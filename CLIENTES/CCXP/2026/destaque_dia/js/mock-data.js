@@ -1,5 +1,5 @@
 /**
- * Mock de desenvolvimento (substitui o EBHTML). Desligar antes do .eh5:
+ * Mock de dados de desenvolvimento. Usa o EBHTML real: loaded()/finished() vao para o player.
  * MOCK_DATA.enabled = false E remover/comentar o <script> deste arquivo.
  *
  * Parametros de URL:
@@ -177,10 +177,11 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
         return { value: function (field) { return { value: rec[field] != null ? rec[field] : '' }; } };
     }
 
+    const ebhtmlReal = window.ebhtml; // EBHTML real: loaded()/finished() chegam ao player
     window.ebhtml = {
         create2: function (opts, cb) {
             let registros = [];
-            const loader = {
+            const dados = {
                 nodataiserror: false,
                 autoloaded: false,
                 addData: function () {},
@@ -197,11 +198,29 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
                         registros = cenarioRegistros(cenario);
                         done();
                     }, 150);
-                },
-                loaded: function () { calls.push({ t: Date.now(), name: 'loaded' }); console.log('[Mock] loaded()'); },
-                finished: function () { calls.push({ t: Date.now(), name: 'finished' }); console.log('[Mock] finished()'); }
+                }
             };
-            cb(loader);
+            // Dados do mock; loaded()/finished() sao os do EBHTML real (interface do player) e ficam em __calls.
+            function entregar(real) {
+                real.nodataiserror = false;
+                real.autoloaded = false;
+                ['addData', 'datalist', 'data', 'load'].forEach(function (nome) {
+                    if (dados[nome]) { real[nome] = dados[nome]; }
+                });
+                ['loaded', 'finished'].forEach(function (nome) {
+                    const original = real[nome].bind(real);
+                    real[nome] = function () {
+                        calls.push({ t: Date.now(), name: nome });
+                        console.log('[Mock] ' + nome + '() real');
+                        return original.apply(null, arguments);
+                    };
+                });
+                cb(real);
+            }
+            if (ebhtmlReal && ebhtmlReal.create2) { ebhtmlReal.create2(opts, entregar); return; }
+            entregar({ // sem ebhtml.js: so registra as chamadas
+                loaded: function () {}, finished: function () {}
+            });
         }
     };
     console.log('[Mock] ativo: cenario=' + cenario + (palcoFixo ? ' palco=' + palcoFixo : '') +
