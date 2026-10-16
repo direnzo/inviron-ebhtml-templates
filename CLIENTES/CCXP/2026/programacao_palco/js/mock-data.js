@@ -38,7 +38,12 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
     } else {
         // Sem ?palco: sorteia um dos 6 palcos a cada carga (fundo, ornamento, cores e videos).
         const ids = Object.keys(CONFIG.palcos);
-        usarPalco(ids[Math.floor(Math.random() * ids.length)]);
+        const chaveSequencia = 'mock-palco-sequencia';
+        const ultimoId = localStorage.getItem(chaveSequencia);
+        const ultimoIndice = ids.indexOf(ultimoId);
+        const proximoIndice = (ultimoIndice + 1) % ids.length;
+        localStorage.setItem(chaveSequencia, ids[proximoIndice]);
+        usarPalco(ids[proximoIndice]);
     }
 
     // Inicio do dia (00:00 no fuso do evento) para um instante qualquer.

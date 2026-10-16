@@ -176,9 +176,10 @@
             slide.style.backgroundImage = 'url("' + palco.bg + '")';
             slide.style.backgroundSize = '1081px 1921px';
             slide.style.backgroundPosition = ARTE_X + 'px 0';
-        } else {
-            slide.style.backgroundColor = palco.fundo; // PNG ausente / palco desconhecido: cor lisa
         }
+        // Cor do palco sempre por baixo: o PNG tem bordas semitransparentes (col. 0 / ultima e linha final);
+        // sobre o preto do stage elas viravam uma linha escura. Tambem e o fundo se o PNG faltar.
+        slide.style.backgroundColor = palco.fundo;
         $('slides').appendChild(slide);
 
         const titulo = slide.querySelector('.frame-title');
@@ -210,7 +211,7 @@
         raiz.setProperty('--foto-borda-cor', C.foto.bordaCor);
         const fundo = $('barraFundo');
         fundo.style.top = C.barra.y + 'px';
-        fundo.style.height = C.barra.h + 'px';
+        fundo.style.bottom = '0'; // vai ate a borda da tela (y + h = 1919,009 deixava a ultima linha de fora)
         const logo = $('logo');
         caixa(logo, C.logo.x, C.logo.y, C.logo.w, C.logo.h);
         logo.src = 'img/logo_ccxp26.png';
