@@ -5,7 +5,8 @@
 - Campos: `TITULO`, fallback `TEXTO`/`TEXTOCOMPLETO`, imagem `FOTO`.
 - Cada consulta retorna uma noticia; a ordenacao aleatoria e definida pelo canal.
 - Duracao: 10 s. Sem dados ou imagem valida, libera a playlist sem desenhar conteudo.
-- Formatos prioritarios: 1080x1800, 1152x384 e 1200x800; blocos e cores medidos nos SVGs em `_refs/`.
+- Formatos prioritarios: 1080x1800, 720x240, 1152x384 e 1200x800; blocos e cores medidos nos SVGs em `_refs/`.
+- Titulo centralizado com margens simetricas; ultrawide reserva 6vmin internos e distancia da barra laranja. Recalcula no resize e ao carregar fontes; sem encaixe, nao exibe texto cortado.
 - Cores vetoriais: azul `#2F6AFD`, laranja `#FB5B00`; SVGs/PNGs em `_refs/` sao referencias, nao assets de runtime.
 - Compatibilidade: ES5, Android 7+ / WebKit legado e hardware fraco.
 - Mock disponivel com `?mock=1`; por padrao consulta o EBHTML real.

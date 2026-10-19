@@ -28,6 +28,7 @@ var CONFIG = {
             ultrawide: 1.6
         },
         titleBottomGapVmin: 2.5,
+        titleUltrawideGapVmin: 6,
         fitSteps: 10
     },
     layout: {

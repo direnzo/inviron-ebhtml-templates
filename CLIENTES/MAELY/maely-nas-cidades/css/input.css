@@ -113,8 +113,10 @@ body {
     position: absolute;
     top: 10.9%;
     left: 9.43%;
+    display: flex;
     width: 46.67%;
     height: 80%;
+    align-items: center;
     margin: 0;
     overflow: hidden;
     color: #ffffff;
@@ -184,10 +186,10 @@ body {
         border-radius: 1.68em;
     }
     .news-title {
-        top: 27%;
+        top: 12%;
         left: 25.3%;
         width: 65%;
-        height: 70%;
+        height: 76%;
         font-size: 1.3em;
     }
 }

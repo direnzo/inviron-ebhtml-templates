@@ -1,4 +1,6 @@
 var HARDWARE_FRACO = false;
+var activeTitleFit = null;
+var titleResizeTimer = null;
 
 (function () {
     var query = window.location.search;
@@ -12,6 +14,19 @@ var HARDWARE_FRACO = false;
         HARDWARE_FRACO = true;
     }
 }());
+
+window.addEventListener('resize', function () {
+    clearTimeout(titleResizeTimer);
+    titleResizeTimer = setTimeout(function () {
+        if (activeTitleFit) { activeTitleFit(); }
+    }, 150);
+}, false);
+
+if (document.fonts && typeof document.fonts.addEventListener === 'function') {
+    document.fonts.addEventListener('loadingdone', function () {
+        if (activeTitleFit) { activeTitleFit(); }
+    }, false);
+}
 
 function fieldValue(record, fieldName) {
     var field;
@@ -52,9 +67,9 @@ function ajustarFonte(element, container, logo, minEm, maxEm, safeGapPx) {
     var elementRect;
     var containerRect;
     var logoRect;
+    var topLimit;
     var bottomLimit;
     var index;
-    var fits;
 
     function fitsWithRespiro() {
         var lineRect;
@@ -67,11 +82,12 @@ function ajustarFonte(element, container, logo, minEm, maxEm, safeGapPx) {
         elementRect = element.getBoundingClientRect();
         containerRect = container.getBoundingClientRect();
         logoRect = logo.getBoundingClientRect();
+        topLimit = Math.max(elementRect.top, containerRect.top) + safeGapPx;
         bottomLimit = Math.min(elementRect.bottom, containerRect.bottom) - safeGapPx;
         for (index = 0; index < lineRects.length; index += 1) {
             lineRect = lineRects[index];
             if (lineRect.left < elementRect.left - 2 || lineRect.right > elementRect.right + 2
-                || lineRect.top < elementRect.top - 2 || lineRect.bottom > bottomLimit) { return false; }
+                || lineRect.top < topLimit || lineRect.bottom > bottomLimit) { return false; }
             overlapsLogo = lineRect.left < logoRect.right && lineRect.right > logoRect.left;
             if (overlapsLogo && lineRect.bottom > logoRect.top - safeGapPx
                 && lineRect.top < logoRect.bottom + safeGapPx) { return false; }
@@ -105,24 +121,46 @@ function renderNews(record, callback) {
         || fieldValue(record, CONFIG.fields.fallbackText)
         || fieldValue(record, CONFIG.fields.fallbackFullText));
     var photoUrl = fieldValue(record, CONFIG.fields.photo);
-    var aspectRatio = window.innerWidth / window.innerHeight;
-    var titleMaxEm = aspectRatio >= 3
-        ? CONFIG.typography.titleMaxEm.ultrawide
-        : (aspectRatio < 0.75 ? CONFIG.typography.titleMaxEm.portrait : CONFIG.typography.titleMaxEm.landscape);
-    var titleSafeGapPx = Math.max(8, Math.min(window.innerWidth, window.innerHeight)
-        * CONFIG.typography.titleBottomGapVmin / 100);
     var settled = false;
+
+    function fitTitle() {
+        var currentAspectRatio = window.innerWidth / window.innerHeight;
+        var currentTitleMaxEm = currentAspectRatio >= 3
+            ? CONFIG.typography.titleMaxEm.ultrawide
+            : (currentAspectRatio < 0.75
+                ? CONFIG.typography.titleMaxEm.portrait
+                : CONFIG.typography.titleMaxEm.landscape);
+        var gapVmin = currentAspectRatio >= 3
+            ? CONFIG.typography.titleUltrawideGapVmin : CONFIG.typography.titleBottomGapVmin;
+        var safeGapPx = Math.max(8, Math.min(window.innerWidth, window.innerHeight) * gapVmin / 100);
+        var fitted = ajustarFonte(title, titleBox, logo, CONFIG.typography.titleMinEm, currentTitleMaxEm, safeGapPx);
+        title.style.visibility = fitted ? 'visible' : 'hidden';
+        if (!fitted) {
+            console.warn('[MAELY] titulo excede a area disponivel mesmo no tamanho minimo');
+        }
+        return fitted;
+    }
+
+    activeTitleFit = fitTitle;
 
     function complete(success, reason) {
         if (settled) { return; }
         settled = true;
         if (success) {
-            if (!ajustarFonte(title, titleBox, logo, CONFIG.typography.titleMinEm, titleMaxEm, titleSafeGapPx) && CONFIG.debug) {
-                console.warn('[MAELY] titulo excede a area disponivel mesmo no tamanho minimo');
-            }
-            content.className = content.className.replace(/\s*opacity-0\b/g, '');
-            content.style.opacity = '1';
+            setTimeout(function () {
+                if (!fitTitle()) {
+                    activeTitleFit = null;
+                    content.style.opacity = '0';
+                    if (typeof callback === 'function') { callback(false, 'titulo excede a area disponivel'); }
+                    return;
+                }
+                content.className = content.className.replace(/\s*opacity-0\b/g, '');
+                content.style.opacity = '1';
+                if (typeof callback === 'function') { callback(true, reason); }
+            }, 120);
+            return;
         }
+        if (activeTitleFit === fitTitle) { activeTitleFit = null; }
         if (typeof callback === 'function') { callback(success, reason); }
     }
 
