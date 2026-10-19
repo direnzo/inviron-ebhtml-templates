@@ -1,0 +1,199 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --cor-destaque: #2f6afd;
+    --cor-marca: #fb5b00;
+    --cor-texto: #ffffff;
+    --cor-fundo: #101010;
+    --cor-painel: #111111;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('fonts/Montserrat-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('fonts/Montserrat-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('fonts/Montserrat-Black.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: #101010;
+}
+
+body {
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 3.2vmin;
+}
+
+.opacity-0 { opacity: 0; }
+
+#dynamicContent {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: hidden;
+    background: #101010;
+    opacity: 1;
+    transition: opacity 350ms ease-in-out;
+}
+
+#dynamicContent.opacity-0 { opacity: 0; }
+
+.news-photo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: 67.321%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.photo-shade { display: none; }
+
+.news-layout { position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 2; }
+
+.logo-wrap {
+    position: absolute;
+    z-index: 3;
+    right: -20.0175%;
+    bottom: 8.99%;
+    display: flex;
+    width: 52.0175%;
+    height: 17.3975%;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 0 0 9.5%;
+    border-radius: 1.05em 0 0 1.05em;
+    background-color: var(--cor-marca);
+}
+
+.brand-logo { display: block; width: 40%; height: 82%; object-fit: contain; }
+
+.title-box {
+    position: absolute;
+    z-index: 1;
+    top: 67.321%;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: auto;
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    background-color: var(--cor-destaque);
+}
+
+.news-title {
+    position: absolute;
+    top: 10.9%;
+    left: 9.43%;
+    width: 46.67%;
+    height: 80%;
+    margin: 0;
+    overflow: hidden;
+    color: #ffffff;
+    font-size: 1.65em;
+    font-weight: 700;
+    line-height: 1.15;
+    overflow-wrap: break-word;
+}
+
+@media (min-aspect-ratio: 4/3) and (max-aspect-ratio: 2/1) {
+    .news-photo { height: 67.321%; }
+}
+
+@media (max-aspect-ratio: 3/4) {
+    body { font-size: 3.2vmin; }
+    .news-photo { height: 64.619%; }
+    .logo-wrap {
+        top: 84.384%;
+        right: -11.57%;
+        bottom: 3.32%;
+        left: -17.41%;
+        width: 128.98%;
+        height: 12.299%;
+        justify-content: center;
+        padding: 0;
+        border-radius: 0;
+    }
+    .brand-logo { width: 39%; height: 82%; }
+    .title-box {
+        top: 64.619%;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: auto;
+    }
+    .news-title {
+        top: 9.26%;
+        left: 12.39%;
+        width: 75.22%;
+        height: 45%;
+        font-size: 1.65em;
+    }
+}
+
+@media (min-aspect-ratio: 3/1) {
+    body { font-size: 5.5vmin; }
+    .news-photo { height: 100%; }
+    .logo-wrap {
+        top: 58.424%;
+        right: 72.08%;
+        bottom: 5.99%;
+        left: -18.8%;
+        width: 46.72%;
+        height: 35.57%;
+        justify-content: flex-end;
+        padding: 0 5.2% 0 0;
+        border-radius: 1.28em;
+    }
+    .brand-logo { width: 31%; height: 72%; }
+    .title-box {
+        top: 11.099%;
+        right: auto;
+        bottom: auto;
+        left: -3.484%;
+        width: 51.517%;
+        height: 48.763%;
+        border-radius: 1.68em;
+    }
+    .news-title {
+        top: 27%;
+        left: 25.3%;
+        width: 65%;
+        height: 70%;
+        font-size: 1.3em;
+    }
+}
+
+.hardware-fraco .photo-shade { background: rgba(0, 0, 0, 0.34); }
+.hardware-fraco #dynamicContent { transition: none; }
+
+.text-white { color: #ffffff; }
+.bg-black { background-color: #000000; }

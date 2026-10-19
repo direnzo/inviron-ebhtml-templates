@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#101010">
+    <title>MAELY | Painel News</title>
+    <link rel="stylesheet" href="css/master.css">
+    <script src="js/ebhtml.js"></script>
+    <script src="js/config.js"></script>
+    <!-- <script src="js/mock-data.js"></script> -->
+    <script src="js/master.js"></script>
+    <script src="js/preview.js"></script>
+</head>
+<body>
+    <main id="dynamicContent" class="opacity-0" aria-label="Noticia">
+        <img id="newsPhoto" class="news-photo" src="" alt="">
+        <div class="photo-shade" aria-hidden="true"></div>
+        <div class="news-layout">
+            <div id="logoWrap" class="logo-wrap">
+                <img class="brand-logo" src="img/logo.png" alt="MAELY Nas Cidades">
+            </div>
+            <section id="titleBox" class="title-box">
+                <h1 id="title" class="news-title"></h1>
+            </section>
+        </div>
+    </main>
+    <script>
+        var maelyTemplateCheck = null;
+        try {
+            if (window.parent && window.parent.document) {
+                maelyTemplateCheck = window.parent.document.getElementById('template_check');
+            }
+        } catch (e) {
+            maelyTemplateCheck = null;
+        }
+        if (maelyTemplateCheck !== null) {
+            extranetView();
+        } else {
+            playerView();
+        }
+    </script>
+</body>
+</html>
