@@ -1,21 +1,23 @@
 # CCXP26 - Programação por Palco (Totem TV 1080x1920)
 
-Um código, seis pacotes: troque só `CONFIG.palco` em `js/config.js`.
+Seis pacotes independentes: cada `js/master.js` fixa o ID do palco em `PALCO_FIXO`.
 Plano e decisões: `../docs/PLANO-EXECUCAO.md`. Contexto: `../README.md`.
 
-## Estado (2026-10-13)
+## Estado (2026-10-19)
 
-- Pronto: motor, ciclo do player, steps 0-4, relógio (hora real), mock; layout com as
+- Pronto: motor, ciclo do player, steps 0-4, relógio (hora real), 6 pacotes `.eh5`;
+  layout com as
   medidas do .ai (baseline < 1 px), fonte GothamCond-Ultra, cores por palco.
 - Camadas fixas (como 2025): fundo, ornamento e rodapé sobre os vídeos o tempo todo;
   só o ornamento some no encerramento (o vídeo traz o dele). Conteúdo entra pela direita
   e sai pela esquerda, 1 s ease-in-out.
-- Vídeos: só Thunder em `videos/`. PNGs 1081x1921: `ARTE_X` em `master.js`.
+- Cada pacote fixa seu ID em `js/master.js` e inclui somente seus próprios vídeos e artes.
+  PNGs 1081x1921: `ARTE_X` em `master.js`.
 
 ## Arquivos (js/)
 
-`config.js` ajustes (palco, tempos, posições, cores) | `programacao.js` lógica pura |
-`master.js` player | `mock-data.js` mock (desligar em produção) | `ebhtml.js` 2.0.7 canônico.
+`config.js` ajustes (tempos, posições, cores) | `programacao.js` lógica pura |
+`master.js` player e palco fixo por pacote | `ebhtml.js` 2.0.7 canônico.
 
 ## Regras de dados
 
@@ -32,17 +34,20 @@ Plano e decisões: `../docs/PLANO-EXECUCAO.md`. Contexto: `../README.md`.
 
 - Lógica: `node --test CLIENTES/CCXP/2026/tests/programacao.test.js` (18 casos).
 - Player: `http://localhost:12099/FILES/1/index.html`; `?mock=0` usa o EBHTML real.
-- Mock (padrão `evento`: 5 dias, hora real, títulos de ~89 car. e palco sorteado): `?cenario=textos|cheio|tres|dois|
-  um|semAtual|vazio|encerrado|semImagem|invalido|erro`, `&len=N`, `&hora=14:40`,
-  `&agora=ISO-8601`, `&palco=blast` (sem ele, o mock sorteia o palco). `window.__textos` mostra o ajuste de cada texto.
+- Cenários de mock continuam disponíveis em `js/mock-data.js` para desenvolvimento,
+  mas o script não é carregado nesta versão de produção.
 
 ## CSS e pacote
 
-- `npm run build` (Tailwind global) gera `css/master.css`.
-- Antes do `.eh5`: `MOCK_DATA.enabled = false`, remover o `<script>` do mock,
-  `CONFIG.debug = false`, excluir `mock/`, incluir só vídeos/imagens do palco, reabrir e conferir.
+- Pacotes em `_EH5/ccxp26_programacao_{universe,omelete,thunder,blast,magic,omni}.eh5`;
+  cada um inclui apenas
+  fundo, ornamento e vídeos do palco correspondente, além da fonte e do logo.
+- Para atualizar CSS durante desenvolvimento, usar `npm run dev` (Tailwind global).
+- Os `.eh5` não incluem `mock/`, fontes de build ou arquivos-fonte do Tailwind.
 
 ## Pendências
-- Caminho do dataset (2025: `http://localhost:13199/CONTENT/DATA`) e teste no `ebcliente4` real.
+- A consulta atual ao canal retornou vazia para os seis IDs; testar cada pacote no
+  `ebcliente4` quando os respectivos eventos estiverem publicados.
+- Confirmar em dados reais os IDs 23007 (Omelete) e 23010 (Magic Market).
 - Regra para cancelado/remarcado/sem imagem; barra 85,6 x 79,6 px na arte (usamos 85,6).
 - Cor: vermelho dos vídeos (Thunder #F5002E) difere dos PNGs (#E2313A).
