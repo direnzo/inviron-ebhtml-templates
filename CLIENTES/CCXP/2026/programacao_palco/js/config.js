@@ -4,7 +4,7 @@
 // Fonte: Exports/layout-programacao.json (modelo .ai, 2026-10-13).
 // =============================================================================
 const CONFIG = {
-    debug: true, // logs [CCXP]; desligar em producao
+    debug: false, // ativar somente durante o desenvolvimento
 
     palco: '23008', // id do palco = campo CATEGORY do dataset
 

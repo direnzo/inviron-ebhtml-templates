@@ -17,7 +17,8 @@ Um pacote para os 6 palcos: cada slide usa o fundo e as cores do palco do própr
 
 `js/config.js` ajustes (tempos, posições, cores por palco, marcador, limite) |
 `js/programacao.js` datas/fuso (cópia da programação) | `js/destaques.js` lógica pura |
-`js/master.js` player | `js/mock-data.js` mock (desligar em produção) | `js/ebhtml.js` 2.0.7.
+`js/master.js` player | `js/mock-data.js` cenários locais (script desativado no HTML) |
+`js/ebhtml.js` 2.0.7.
 Vídeos (`videos/destaques_intro|outro.mp4`) ficam fora do Git (`*.mp4`): copiar de
 `Materiais/02_Template-Destaque-Dia/Animados`.
 
@@ -43,7 +44,8 @@ Vídeos (`videos/destaques_intro|outro.mp4`) ficam fora do Git (`*.mp4`): copiar
 ## Teste
 
 - Lógica: `node --test CLIENTES/CCXP/2026/tests/destaques.test.js` (Node 22 não aceita a pasta).
-- Player: servir esta pasta e abrir `index.html`; `?mock=0` usa o EBHTML real.
+- Player: servir esta pasta e abrir `index.html`; o EBHTML real carrega os dados do canal.
+  Para voltar aos cenários locais, reative o script `js/mock-data.js`.
 - Mock (padrão `hoje`: 1 destaque por palco, o 1º em andamento): `?cenario=evento|um|tres|seis|
   muitos|textos|vazio|semMarcado|encerrado|amanha|semImagem|invalido|palcoDesconhecido|erro`,
   `&len=N`, `&hora=14:40`, `&agora=ISO-8601`, `&palco=blast` (todos no mesmo palco).
@@ -54,7 +56,7 @@ Vídeos (`videos/destaques_intro|outro.mp4`) ficam fora do Git (`*.mp4`): copiar
 - `npm run build` (Tailwind global) gera `css/master.css`. As regras novas (borda da foto,
   foto ausente) estão em `css/input.css` e foram replicadas à mão em `css/master.css`
   porque o Tailwind não está instalado nesta máquina.
-- Antes do `.eh5`: `MOCK_DATA.enabled = false`, remover o `<script>` do mock,
+- Antes do `.eh5`: remover o script do mock,
   `CONFIG.debug = false`, excluir `mock/`, incluir só os 6 fundos, os 2 vídeos e o logo.
 
 ## Pendências

@@ -1,6 +1,6 @@
 # Plano de execução - CCXP 2026 Programação por Palco
 
-Branch: `feat/ccxp-2026-programacao-palco`. Atualizado em 2026-10-13.
+Branch: `feat/ccxp-2026-palcos-individuais`. Atualizado em 2026-10-19.
 Escopo: 6 totens TV 1080x1920, uma base de código, seis pacotes `.eh5`.
 Fora do escopo: Destaque do dia, F&A, quadriédros e carregadores (branches próprias).
 
@@ -21,8 +21,8 @@ Fora do escopo: Destaque do dia, F&A, quadriédros e carregadores (branches pró
 | 2 | Esqueleto | pasta `programacao_palco`, `config.js` | 0 | feita |
 | 3 | Motor de programação | seleção atual/próximo/restante, estado, ciclo do player | 2 | feita, 14 testes |
 | 4 | Interface | frames 1-3, vídeos, relógio, autofit, transições | 1, 3 | feita (medidas reais) |
-| 5 | Testes locais | mock, cenários de dado, reload, finalização única | 4 | mock + Chrome feitos; falta ebcliente4 |
-| 6 | Seis palcos | 6 `.eh5`, reabertos e conferidos | 5 | pendente |
+| 5 | Testes locais | mock, cenários de dado, reload, finalização única | 4 | mock + Chrome + ciclo real Thunder; faltam dados atuais dos demais |
+| 6 | Seis palcos | 6 `.eh5`, reabertos e conferidos | 5 | feita; arquivos e locks conferidos |
 | 7 | Homologação | staging, validação CCXP, troca para produção | 6 | pendente |
 
 ## Detalhe por fase
@@ -48,6 +48,11 @@ título muito longo; JSON malformado; vídeo ausente; virada de dia; reload agre
 
 **6 Pacotes.** Um `.eh5` por palco contendo só os assets daquele palco (os vídeos são os
 maiores itens). Reabrir cada pacote e conferir assets, referências e versão do EBHTML.
+Gerados em `_EH5/`: `ccxp26_programacao_universe.eh5` (23005),
+`ccxp26_programacao_omelete.eh5` (23007), `ccxp26_programacao_thunder.eh5` (23008),
+`ccxp26_programacao_blast.eh5` (23009), `ccxp26_programacao_magic.eh5` (23010) e
+`ccxp26_programacao_omni.eh5` (24001). Cada pacote contém 12 arquivos, sem mocks,
+com `PALCO_FIXO` no `master.js` e somente as artes/vídeos correspondentes.
 
 ## Marcos do cronograma (ordem, datas a confirmar)
 
@@ -69,3 +74,7 @@ Risco: hoje é 13/10 e a entrega de 15/10 depende da fase 1 (fundos limpos).
 3. Regra para cancelado, remarcado, sem imagem e após o último painel.
 4. Fonte e medidas finais (saem do JSON da fase 1).
 5. Codecs: confirmar H.264 com `canPlayType()` no player real.
+
+Em 2026-10-19, a consulta direta ao canal respondeu XML vazio para os seis IDs; os
+pacotes foram validados estruturalmente, mas aguardam eventos publicados para teste
+individual no player.
