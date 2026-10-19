@@ -19,8 +19,8 @@ Tela horizontal (LED P3.9): sem rodapé e sem relógio; 2 blocos de artista por 
 ## Arquivos
 
 `js/config.js` ajustes (tempos, posições, cores, campos, rótulos) | `js/programacao.js` datas/fuso
-(cópia da programação) | `js/fea.js` lógica pura | `js/master.js` player | `js/mock-data.js` mock
-(desligar em produção) | `js/ebhtml.js` 2.0.7 | `img/fundo_FA.png` fundo fixo (já com logos F&A +
+(cópia da programação) | `js/fea.js` lógica pura | `js/master.js` player | `js/mock-data.js` cenários
+locais (script desativado no HTML) | `js/ebhtml.js` 2.0.7 | `img/fundo_FA.png` fundo fixo (já com logos F&A +
 Heineken 0.0, CCXP26 e formas).
 Vídeos (`videos/fa_intro|fa_outro.mp4`, 1280x512, 5 s e 11 s) ficam fora do Git (`*.mp4`): copiar de
 `Materiais/03_Template-F&A/Animados` (`F&A_intro.mp4`, `F&A_outro.mp4`).
@@ -73,7 +73,8 @@ Vídeos (`videos/fa_intro|fa_outro.mp4`, 1280x512, 5 s e 11 s) ficam fora do Git
 ## Teste
 
 - Lógica: `node --test CLIENTES/CCXP/2026/tests/fea.test.js` (Node 22 não aceita a pasta).
-- Player: servir esta pasta e abrir `index.html`; `?mock=0` usa o EBHTML real.
+- Player: servir esta pasta e abrir `index.html`; o EBHTML real carrega os dados do canal.
+  Para voltar aos cenários locais, reative o script `js/mock-data.js`.
 - Mock (padrão `dia`: 10 artistas): `?horario=periodo`, `?cenario=um|dois|tres|quatro|muitos|modalidades|cinco|tres3|
   esgotado|textos|semFoto|invalido|desconhecida|encerrado|amanha|vazio|erro|evento`, `&pular=N`
   (descarta os N primeiros artistas, para ver páginas seguintes), `&rapido=1` (deslize sem espera:
@@ -87,7 +88,7 @@ Vídeos (`videos/fa_intro|fa_outro.mp4`, 1280x512, 5 s e 11 s) ficam fora do Git
 - `npm run build` (Tailwind global) gera `css/master.css`. Tailwind não está instalado nesta máquina:
   as regras novas (fonte do texto, borda da foto, foto ausente) estão em `css/input.css` e foram
   replicadas à mão em `css/master.css`; `.w-[1280px]` e `.h-[512px]` substituem 1080/1920.
-- Antes do `.eh5`: `MOCK_DATA.enabled = false`, remover o `<script>` do mock, `CONFIG.debug = false`,
+- Antes do `.eh5`: remover o script do mock, `CONFIG.debug = false`,
   excluir `mock/`, incluir só `fundo_FA.png`, os 2 vídeos e a fonte.
 
 ## Pendências
