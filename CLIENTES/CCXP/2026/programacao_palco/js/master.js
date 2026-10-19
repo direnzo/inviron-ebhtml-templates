@@ -7,6 +7,11 @@
 (() => {
     'use strict';
 
+    const PALCO_FIXO = '23008';
+    if (!usarPalco(PALCO_FIXO)) {
+        throw new Error('ID de palco invalido em js/master.js: ' + PALCO_FIXO);
+    }
+
     const C = CONFIG;
     const T = C.tempos;         // tempos: ver js/config.js
     const ARTE_X = -1;          // PNGs 1081x1921: coluna 0 em alpha 25%, deslocar -1 px
