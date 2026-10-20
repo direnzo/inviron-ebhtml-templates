@@ -1,7 +1,7 @@
 /**
- * MOCK DATA - climatempo_momento
+ * MOCK DATA - tempo_momento
  *
- * Simula o canal D_CLIMATEMPO_MOMENTO (temperatura atual)
+ * Simula os campos da leitura atual em D_CLIMA_HGBRASIL
  * Campos em UPPERCASE seguindo padrao XML EdgeContents
  *
  * IMPORTANTE: Alterar enabled para false em producao
@@ -12,37 +12,21 @@ var MOCK_DATA = {
     dados: []
 };
 
-// Use um codigo especifico (ex: '4t') para fixar um icone, ou null para sequencial.
+// Use um codigo HG Brasil (1 a 11) para fixar um icone, ou null para sequencial.
 var MOCK_ICONE_ATIVO = null;
 
 var MOCK_CONDICOES = [
-    { icon: "1", descricao: "Sol." },
-    { icon: "1n", descricao: "Noite sem nuvens." },
-    { icon: "2", descricao: "Sol com algumas nuvens." },
-    { icon: "2r", descricao: "Sol com muitas nuvens." },
-    { icon: "2n", descricao: "Noite com algumas nuvens." },
-    { icon: "2rn", descricao: "Noite com muitas nuvens." },
-    { icon: "3", descricao: "Nublado." },
-    { icon: "3n", descricao: "Nublado." },
-    { icon: "4", descricao: "Sol e chuva." },
-    { icon: "4r", descricao: "Sol com muitas nuvens e chuva." },
-    { icon: "4n", descricao: "Noite chuvosa." },
-    { icon: "4rn", descricao: "Noite nublada e chuvosa." },
-    { icon: "4t", descricao: "Sol entre nuvens e pancadas de chuva, com trovoadas" },
-    { icon: "4tn", descricao: "Pancadas de chuva durante a noite" },
-    { icon: "5", descricao: "Chuvoso." },
-    { icon: "5n", descricao: "Chuvoso." },
-    { icon: "6", descricao: "Chuva e trovoadas." },
-    { icon: "6n", descricao: "Chuva e trovoadas." },
-    { icon: "7", descricao: "Geada." },
-    { icon: "7n", descricao: "Geada." },
-    { icon: "8",   descricao: "Neve." },
-    { icon: "8n",  descricao: "Neve à noite." },
-    { icon: "9",   descricao: "Nevoeiro." },
-    { icon: "9n",  descricao: "Nevoeiro à noite." },
-    { icon: "3tm", descricao: "Nublado com névoa." },
-    { icon: "10",  descricao: "Chuva intensa." },
-    { icon: "11",  descricao: "Chuva moderada." }
+    { icon: "1", descricao: "Sol" },
+    { icon: "2", descricao: "Chuva" },
+    { icon: "3", descricao: "Trovoadas" },
+    { icon: "4", descricao: "Tempo nublado" },
+    { icon: "5", descricao: "Sol e chuva" },
+    { icon: "6", descricao: "Sol e nuvens" },
+    { icon: "7", descricao: "Neve" },
+    { icon: "8", descricao: "Chuva forte" },
+    { icon: "9", descricao: "Geada" },
+    { icon: "10", descricao: "Chuvisco" },
+    { icon: "11", descricao: "Chuvas esparsas" }
 ];
 
 function mockAleatorio(min, max) {
@@ -317,17 +301,13 @@ function criarItemMock(condicao) {
     var ventoVel = mockAleatorio(perfil.ventoMin, perfil.ventoMax);
     var ventoMax = ventoVel + mockAleatorio(perfil.rajadaExtraMin, perfil.rajadaExtraMax);
     var ventoMin = Math.max(0, ventoVel - mockAleatorio(1, 7));
-    var sensacao = tempAtual + mockAleatorio(perfil.sensacaoDeltaMin, perfil.sensacaoDeltaMax);
     var dirs = perfil.direcoes;
     var dir = dirs[Math.floor(Math.random() * dirs.length)];
 
     return {
         CIDADE: "São Paulo",
         CIDADE_SYS: "sao-paulo:sp:br",
-        C1_TEXTPT: JSON.stringify({
-            sensation: sensacao,
-            icon: condicao.icon
-        }),
+        ICON: condicao.icon,
         TEMP_ATUAL: String(tempAtual),
         TEMP_MAX: String(tempMax),
         TEMP_MIN: String(tempMin),
@@ -337,7 +317,7 @@ function criarItemMock(condicao) {
         VENTO_VEL: String(ventoVel),
         VENTO_MAX: String(ventoMax),
         VENTO_MIN: String(ventoMin),
-        C1_PRECIPITATION: ""
+        SENSACAO: ""
     };
 }
 
