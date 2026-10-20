@@ -7,7 +7,7 @@
 var CLOCK_CONFIG = {
     displayDuration: 10000, // tempo em ms que o relógio fica visível antes de sumir (0 = sempre visível)
     sponsorEnabled: false, // se true, ativa o suporte a D_SPD (patrocinador) e pré-roll
-    climateEnabled: false, // se true, ativa o suporte a D_CLIMA (clima) e ícones Meteocons
+    climateEnabled: true, // se true, ativa o suporte a D_CLIMA_HGBRASIL (clima) e ícones Meteocons
     wavesEnabled: true, // se true, mantém as ondas de background ativas independentemente do hardware
     forceReducedMode: false, // se true, força modo de performance reduzida (desliga ondas e fundo animado)
     lowPerformanceTickMs: 250, // intervalo de atualização do relógio em ms quando em modo reduzido (normal = 100ms)
@@ -45,6 +45,9 @@ var CLOCK_CONFIG = {
         months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
     }
 };
+var HORA_CERTA_CLIMATE_DATASET = 'D_CLIMA_HGBRASIL';
+var HORA_CERTA_CLIMATE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+var HORA_CERTA_LOADER_TIMEOUT_MS = 8000;
 var tickHandle = null; // handle do setInterval do relógio
 var rafHandle = null; // handle do requestAnimationFrame do relógio
 var clockStarted = false; // se o relógio já foi iniciado
@@ -838,6 +841,80 @@ function initWithEbhtml() {
     ebhtml.create2({}, function(loader) {
         var sponsorEnabled = !!CLOCK_CONFIG.sponsorEnabled;
         var climateEnabled = !!CLOCK_CONFIG.climateEnabled;
+        var loadSettled = false;
+        var flowStarted = false;
+        var playlistEnded = false;
+        var loadedSignaled = false;
+        var loadWatchdogId = null;
+
+        function clearLoadWatchdog() {
+            if (loadWatchdogId) {
+                clearTimeout(loadWatchdogId);
+                loadWatchdogId = null;
+            }
+        }
+
+        function signalLoaded() {
+            if (loadedSignaled) { return; }
+            loadedSignaled = true;
+            loader.loaded();
+        }
+
+        function finishAfterDisplayDuration() {
+            if (playlistEnded) { return; }
+            var remaining = parseInt(CLOCK_CONFIG.displayDuration, 10);
+            if (isNaN(remaining)) { remaining = 10000; }
+
+            // 0 = sempre visível (não finaliza playlist por tempo)
+            if (remaining === 0) {
+                playlistEnded = true;
+                return;
+            }
+
+            if (remaining < 0) { remaining = 1000; }
+            if (remaining > 0 && remaining < 1000) { remaining = 1000; }
+
+            playlistEnded = true;
+            setTimeout(function() {
+                loader.finished();
+            }, remaining);
+        }
+
+        function startDisplayFlow(showClimate) {
+            if (flowStarted || playlistEnded) { return; }
+            flowStarted = true;
+
+            try {
+                startClockFlow();
+                if (showClimate) {
+                    loadWeather(loader);
+                } else {
+                    hideWeatherUI();
+                }
+            } catch (flowError) {
+                console.error('[Hora Certa] Falha ao iniciar o relógio ou clima:', flowError);
+                hideWeatherUI();
+            }
+
+            finishAfterDisplayDuration();
+        }
+
+        function finishWithClockOnly(reason) {
+            if (flowStarted || playlistEnded) { return; }
+            clearLoadWatchdog();
+            console.warn('[Hora Certa] Continuando sem dados climáticos: ' + reason);
+            applySpdHeader(null);
+            hideWeatherUI();
+            signalLoaded();
+            startDisplayFlow(false);
+        }
+
+        function onLoadFailure(error) {
+            if (loadSettled) { return; }
+            loadSettled = true;
+            var message = error && error.message ? error.message : error;
+            finishWithClockOnly('falha no loader: ' + message);
+        }
 
         if (CLOCK_CONFIG.sponsorRandomTest) {
             var sponsorRandomChoice = Math.random() >= 0.5;
@@ -890,69 +967,58 @@ function initWithEbhtml() {
         loader.nodataiserror = false;
         loader.autoloaded = false;
         if (climateEnabled) {
-            loader.addData('D_CLIMA_CLIMATEMPO_MOMENTO', false, '', '');
+            loader.addData(HORA_CERTA_CLIMATE_DATASET, false, '', '');
         }
         if (sponsorEnabled) {
             loader.addData('D_SPD', false, 'f_CONFIG=1', '');
         }
 
+        loadWatchdogId = setTimeout(function() {
+            onLoadFailure('timeout após ' + HORA_CERTA_LOADER_TIMEOUT_MS + 'ms');
+        }, HORA_CERTA_LOADER_TIMEOUT_MS);
+
         loader.load(function() {
+            if (loadSettled) { return; }
+            loadSettled = true;
+            clearLoadWatchdog();
+
             var spd = null;
+            try {
+                if (sponsorEnabled) {
+                    spd = parseSpdPayload(loader);
 
-            if (sponsorEnabled) {
-                spd = parseSpdPayload(loader);
-
-                if (spd) {
-                    applySpdColors(spd);
-                    applySpdHeader(spd);
+                    if (spd) {
+                        applySpdColors(spd);
+                        applySpdHeader(spd);
+                    } else {
+                        applySpdHeader(null);
+                    }
                 } else {
                     applySpdHeader(null);
                 }
-            } else {
-                applySpdHeader(null);
-            }
 
-            loader.loaded();
-            
-            function finalizeFlow() {
-                startClockFlow();
-                if (climateEnabled) {
-                    loadWeather(loader);
+                signalLoaded();
+
+                function finalizeFlow() {
+                    startDisplayFlow(climateEnabled);
+                }
+
+                if (sponsorEnabled) {
+                    showSpdPreroll(spd, finalizeFlow);
                 } else {
-                    hideWeatherUI();
+                    finalizeFlow();
                 }
-
-                // Regra A: displayDuration conta apenas o tempo do relógio.
-                // O tempo do pré-roll/sponsor não é descontado desse valor.
-                var remaining = parseInt(CLOCK_CONFIG.displayDuration, 10);
-                if (isNaN(remaining)) { remaining = 10000; }
-
-                // 0 = sempre visível (não finaliza playlist por tempo)
-                if (remaining === 0) {
-                    return;
-                }
-
-                if (remaining < 0) { remaining = 1000; }
-                if (remaining > 0 && remaining < 1000) { remaining = 1000; }
-
-                setTimeout(function() {
-                    loader.finished();
-                }, remaining);
+            } catch (processError) {
+                finishWithClockOnly('erro ao processar o canal: ' + (processError && processError.message ? processError.message : processError));
             }
-
-            if (sponsorEnabled) {
-                showSpdPreroll(spd, finalizeFlow);
-            } else {
-                finalizeFlow();
-            }
-        });
+        }, onLoadFailure);
     });
 }
 
 function hideWeatherUI() {
     var cityEl = document.getElementById('cityName');
     var rowEl = document.getElementById('weatherRow');
-    var footerEl = document.getElementById('climatempoFooter');
+    var footerEl = document.getElementById('weatherSourceFooter');
 
     if (cityEl) {
         cityEl.style.display = 'none';
@@ -966,77 +1032,120 @@ function hideWeatherUI() {
     }
 }
 
-/* Carrega dados de clima do canal D_CLIMA_CLIMATEMPO_MOMENTO */
-function loadWeather(loader) {
-    if (!loader || typeof loader.data !== 'function') { return; }
+function lerRegistroHgBrasilHoraCerta(item) {
+    var json = getItemFieldValue(item, 'C1_D1_DATAARRAY');
+    var registros;
 
-    /* Tenta buscar os dados diretamente do loader.
-       Se não houver dados (canal desativado), item será null. */
-    var item = loader.data('D_CLIMA_CLIMATEMPO_MOMENTO');
-    if (!item) {
-        console.log('[Clima] Canal D_CLIMA_CLIMATEMPO_MOMENTO sem dados — linha de clima oculta');
-        return;
-    }
-
-    console.log('[Clima] Canal D_CLIMA_CLIMATEMPO_MOMENTO com dados, renderizando...');
-    renderWeather(loader, item);
-}
-
-function renderWeather(loader, item) {
-
-    /* Valida se o item tem dados reais (não cache vazio) */
-    var iconCode = '';
-    var temp = '';
-    var humidity = '';
-    var windVel = '';
-    var cidade = '';
+    if (!json) { return null; }
 
     try {
-        iconCode = (item.value('C1_TEXTPT').value || '').toString();
-        temp = item.value('C1_MAX').value || '';
-        humidity = item.value('C1_HUMIDITYMIN').value || '';
-        windVel = item.value('C1_WINDAVGVELOCITY').value || '';
-        cidade = item.value('C1_CIDADE').value || '';
-    } catch (e) {
+        registros = JSON.parse(json);
+    } catch (parseError) {
+        console.warn('[Clima] C1_D1_DATAARRAY inválido:', parseError);
+        return null;
+    }
+
+    if (Object.prototype.toString.call(registros) !== '[object Array]' || !registros.length) {
+        return null;
+    }
+    if (!registros[0] || typeof registros[0] !== 'object') { return null; }
+
+    return registros[0];
+}
+
+function valorClimaHgBrasilHoraCerta(registro, campo) {
+    if (!registro || registro[campo] === null || typeof registro[campo] === 'undefined') { return ''; }
+    return String(registro[campo]).replace(/^\s+|\s+$/g, '');
+}
+
+function registroHgBrasilHoraCertaEstaAtualizado(registro) {
+    var atualizadoEm = parseInt(valorClimaHgBrasilHoraCerta(registro, 'dt_upd_wea'), 10);
+    if (isNaN(atualizadoEm) || atualizadoEm <= 0) { return false; }
+    return new Date().getTime() - (atualizadoEm * 1000) <= HORA_CERTA_CLIMATE_MAX_AGE_MS;
+}
+
+/* Carrega dados meteorológicos atuais do canal D_CLIMA_HGBRASIL */
+function loadWeather(loader) {
+    var item;
+    var registro;
+
+    if (!loader || typeof loader.data !== 'function') {
+        console.warn('[Clima] Loader indisponível; linha meteorológica oculta');
+        hideWeatherUI();
         return;
     }
 
-    /* Se todos os campos estiverem vazios, o canal não tem dados válidos */
-    if (!temp && !humidity && !windVel && !cidade && !iconCode) { return; }
+    try {
+        item = loader.data(HORA_CERTA_CLIMATE_DATASET);
+        if (!item) {
+            console.warn('[Clima] Canal ' + HORA_CERTA_CLIMATE_DATASET + ' sem dados; linha meteorológica oculta');
+            hideWeatherUI();
+            return;
+        }
 
-    /* Validação extra: temp deve ser numérico ou vazio */
-    if (temp && isNaN(parseInt(temp, 10))) { temp = ''; }
-    if (humidity && isNaN(parseInt(humidity, 10))) { humidity = ''; }
-    if (windVel && isNaN(parseInt(windVel, 10))) { windVel = ''; }
+        registro = lerRegistroHgBrasilHoraCerta(item);
+        if (!registro) {
+            console.warn('[Clima] Canal ' + HORA_CERTA_CLIMATE_DATASET + ' sem registro válido');
+            hideWeatherUI();
+            return;
+        }
 
-    /* Se após validação não sobrou nada, não mostra */
-    if (!temp && !humidity && !windVel) { return; }
+        if (!registroHgBrasilHoraCertaEstaAtualizado(registro)) {
+            console.warn('[Clima] Registro HG Brasil ausente de timestamp válido ou com mais de 24 horas; linha meteorológica oculta');
+            hideWeatherUI();
+            return;
+        }
+
+        renderWeather(registro);
+    } catch (weatherError) {
+        console.error('[Clima] Falha ao processar ' + HORA_CERTA_CLIMATE_DATASET + ':', weatherError);
+        hideWeatherUI();
+    }
+}
+
+function renderWeather(registro) {
+    var iconCode = valorClimaHgBrasilHoraCerta(registro, 'nr_icon_wea');
+    var temp = valorClimaHgBrasilHoraCerta(registro, 'nr_value_wea');
+    var humidityMin = valorClimaHgBrasilHoraCerta(registro, 'nr_humiditymin_wea');
+    var humidityMax = valorClimaHgBrasilHoraCerta(registro, 'nr_humiditymax_wea');
+    var humidity = humidityMin && humidityMax && humidityMin !== humidityMax
+        ? humidityMin + '-' + humidityMax
+        : (humidityMin || humidityMax);
+    var windVel = valorClimaHgBrasilHoraCerta(registro, 'nr_windavgvelocity_wea');
+    var cidade = registro.city ? valorClimaHgBrasilHoraCerta(registro.city, 'ds_name_cit') : '';
+
+    if (temp && isNaN(parseFloat(temp))) { temp = ''; }
+    if (humidity && isNaN(parseFloat(humidity))) { humidity = ''; }
+    if (windVel && isNaN(parseFloat(windVel))) { windVel = ''; }
+
+    if (!temp) {
+        console.warn('[Clima] Registro HG Brasil sem temperatura válida');
+        hideWeatherUI();
+        return;
+    }
 
     var row = document.getElementById('weatherRow');
     if (!row) { return; }
 
-    /* Cidade */
     var cidadeEl = document.getElementById('cityName');
     if (cidadeEl && cidade) {
         cidadeEl.textContent = cidade;
         cidadeEl.style.display = 'block';
+    } else if (cidadeEl) {
+        cidadeEl.textContent = '';
+        cidadeEl.style.display = 'none';
     }
 
-    /* Cor dos ícones = accent do tema */
     var corIcone = (CLOCK_CONFIG.colors && CLOCK_CONFIG.colors.accent) || '#c645ec';
 
-    /* Temperatura + ícone */
     var tempEl = document.getElementById('weatherTemp');
     if (tempEl) { tempEl.textContent = (temp || '--') + '°C'; }
     var tempIconEl = document.getElementById('weatherTempIcon');
     if (tempIconEl && iconCode && typeof injetarMeteocon === 'function') {
-        var nomeIcone = typeof climaToMeteocon === 'function'
-            ? climaToMeteocon(iconCode)
-            : 'cloudy';
+        var nomeIcone = horaCertaHgBrasilParaMeteocon(iconCode);
         injetarMeteocon(tempIconEl, nomeIcone, corIcone);
     }
 
-    /* Umidade + ícone */
     var humEl = document.getElementById('weatherHumidity');
     if (humEl) { humEl.textContent = (humidity || '--') + '%'; }
     var humIconEl = document.getElementById('weatherHumidityIcon');
@@ -1044,7 +1153,6 @@ function renderWeather(loader, item) {
         injetarMeteocon(humIconEl, 'humidity', corIcone);
     }
 
-    /* Vento + ícone */
     var windEl = document.getElementById('weatherWind');
     if (windEl) { windEl.textContent = (windVel || '--') + 'km/h'; }
     var windIconEl = document.getElementById('weatherWindIcon');
@@ -1054,11 +1162,10 @@ function renderWeather(loader, item) {
             : 'wind';
         injetarMeteocon(windIconEl, nomeVento, corIcone);
     }
-
+    row.style.display = 'flex';
     row.style.display = 'flex';
 
-    /* Mostra logo Climatempo no rodapé */
-    var footer = document.getElementById('climatempoFooter');
+    var footer = document.getElementById('weatherSourceFooter');
     if (footer) { footer.style.display = 'block'; }
 }
 

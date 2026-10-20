@@ -8,13 +8,9 @@
 var MOCK_DATA = {
     enabled: true,
     datasets: {
-        'D_CLIMA': [
+        'D_CLIMA_HGBRASIL': [
             {
-                TEXTO2: 'São Paulo',
-                TEMPERATURA: '24',
-                DESCRICAO: 'Parcialmente nublado',
-                UMIDADE: '65%',
-                FOTO1: ''
+                C1_D1_DATAARRAY: '[{"nr_value_wea":"20","nr_icon_wea":"4","ds_textmin_wea":"Tempo nublado","nr_humiditymin_wea":"61","nr_humiditymax_wea":"61","nr_windavgvelocity_wea":"22","ds_winddirection_wea":"","city":{"ds_name_cit":"São Paulo"}}]'
             }
         ]
     }
