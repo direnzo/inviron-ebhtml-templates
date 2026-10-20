@@ -447,17 +447,12 @@ body.reduced { animation: none !important; background-image: none !important; }
 .template-fade-in { opacity: 0; transition: opacity 0.7s ease-in-out; }
 .template-fade-in.visible { opacity: 1; }
 
-/* Logo Climatempo no rodapé */
-.climatempo-footer {
+/* Fonte meteorologica no rodape */
+.weather-source-footer {
   position: absolute;
   bottom: 2%;
   left: 2%;
   z-index: 4;
   opacity: 0.4;
-}
-
-.climatempo-footer img {
-  height: 0.3em;
-  width: auto;
-  object-fit: contain;
+  font-size: 0.3em;
 }

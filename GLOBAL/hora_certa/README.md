@@ -2,6 +2,13 @@
 
 Template de relógio digital para EdgeContents CMS com flip-card animation e background animado com ondas Perlin Noise.
 
+## Dados
+
+- Canal meteorológico: `D_CLIMA_HGBRASIL`, habilitado em `CLOCK_CONFIG.climateEnabled`.
+- Registro atual em `C1_D1_DATAARRAY`: temperatura (`nr_value_wea`), ícone (`nr_icon_wea`), cidade (`city.ds_name_cit`), umidade min/max e vento (`nr_windavgvelocity_wea`).
+- Clima só é exibido com temperatura válida e atualização (`dt_upd_wea`) de até 24 horas; dados ausentes, inválidos, antigos ou com falha no carregamento ocultam a linha sem impedir o relógio ou antecipar o fim da playlist.
+- `js/provider-hgbrasil.js` converte códigos HG Brasil para ícones Meteocon; a fonte exibida é HG Brasil.
+
 ## Configuração
 
 Edite `CLOCK_CONFIG` em `js/master.js` e `WAVE_CONFIG` em `js/wave-effect.js` para ajustar cores, fontes, velocidades.
