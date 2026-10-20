@@ -6,56 +6,55 @@
  * 2. Altere enabled para false em produção
  * 3. Campos em UPPERCASE para compatibilidade com XML EdgeContents
  *
- * GRUPOS DE ICONES CPTEC — teste de todas as siglas do canal no campo ICON.
- *   Cada grupo exibe 3 siglas por vez.
- *   A quantidade de grupos e gerada automaticamente a partir da lista abaixo.
+ * Amostra de D_CLIMA_HGBRASIL com codigos e descricoes confirmados no canal.
  */
 
 var MOCK_GRUPO_ATIVO = ''; // vazio = sorteio automatico
 
-var MOCK_SIGLAS_CPTEC = [
-    'ec', 'ci', 'c', 'in', 'pp', 'cm', 'cn', 'pt', 'pm', 'np', 'pc', 'pn',
-    'cv', 'ch', 't', 'ps', 'e', 'n', 'cl', 'nv', 'g', 'ne', 'nd', 'pnt',
-    'psc', 'pcm', 'pct', 'pcn', 'npt', 'npn', 'ncn', 'nct', 'ncm', 'npm',
-    'npp', 'vn', 'ct', 'ppn', 'ppt', 'ppm'
-];
+var MOCK_CODIGOS_HGBRASIL = ['4', '4', '11'];
 
-function criarItemMock(sigla, indice) {
-    var dias = ['Segunda', 'Terca', 'Quarta'];
-    var datas = ['19/08', '20/08', '21/08'];
+function criarItemMock(codigo, indice) {
+    var dias = ['TERCA', 'QUARTA', 'QUINTA'];
+    var datas = ['20/10', '21/10', '22/10'];
+    var maximas = ['26', '27', '23'];
+    var minimas = ['15', '15', '17'];
+    var chuva = ['0', '0', '1'];
+    var probabilidade = ['0', '0', '49'];
+    var vento = ['22', '20', '17'];
     var pos = indice % 3;
     return {
-        CIDADE: 'São Paulo',
+        CIDADE: 'Sao Paulo',
         DIA: dias[pos],
         DATA: datas[pos],
-        MAX: String(30 - pos),
-        MIN: String(20 - pos),
-        ICON: sigla,
-        QTDE_CHUVA: String(pos),
-        PROB_CHUVA: String((pos + 1) * 10),
-        VENTO_DIR: 'NE',
-        VENTO_VEL: '12',
-        UV: '7',
-        UVLEVEL: 'Alto',
-        DESCRICAO: ''
+        ATUAL: pos === 0 ? '17' : '',
+        MAX: maximas[pos],
+        MIN: minimas[pos],
+        ICON: codigo,
+        QTDE_CHUVA: chuva[pos],
+        PROB_CHUVA: probabilidade[pos],
+        VENTO_DIR: '',
+        VENTO_VEL: vento[pos],
+        UV: '',
+        UVLEVEL: '',
+        DESCRICAO: codigo === '4' ? 'Tempo nublado' : 'Chuvas esparsas'
     };
 }
 
-function gerarGruposSiglas(siglas) {
+function gerarGruposCodigos(codigos) {
     var grupos = {};
     var g = 1;
-    for (var i = 0; i < siglas.length; i += 3) {
+    for (var i = 0; i < codigos.length; i += 3) {
         var nome = 'G' + g;
         grupos[nome] = [];
-        for (var j = i; j < i + 3 && j < siglas.length; j++) {
-            grupos[nome].push(criarItemMock(siglas[j], j));
+        for (var j = i; j < i + 3 && j < codigos.length; j++) {
+            grupos[nome].push(criarItemMock(codigos[j], j));
         }
         g++;
     }
     return grupos;
 }
 
-var MOCK_GRUPOS = gerarGruposSiglas(MOCK_SIGLAS_CPTEC);
+var MOCK_GRUPOS = gerarGruposCodigos(MOCK_CODIGOS_HGBRASIL);
 
 function escolherGrupoAleatorio(grupos) {
     var nomes = [];

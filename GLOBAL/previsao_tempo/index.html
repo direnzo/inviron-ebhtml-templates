@@ -12,7 +12,7 @@
             iconStyle: 'fill', // 'fill' | 'flat' | 'line' | 'monochrome'
             iconColor: '#ffffff', // só funciona com o estilo 'monochrome'
             textColor: '#ffffff', // cor do texto (opcional)
-            duration: 30000 // duração da animação de entrada dos cards (em milissegundos) 
+            duration: 10000 // duração da animação de entrada dos cards (em milissegundos)
         };
     </script>
 
@@ -20,11 +20,8 @@
     <!-- <script src="js/mock-data.js"></script> -->
     <!-- Motor universal de ícones (agnóstico de fonte de dados) -->
     <script src="js/meteocons-helpers.js"></script>
-    <!-- Adaptador da fonte de dados atual: CPTEC/INPE.
-         Para trocar de fonte (ex: OpenWeather), troque só esta linha
-         por outro js/provider-<fonte>.js que implemente o mesmo
-         contrato (ver comentário no topo de provider-cptec.js). -->
-    <script src="js/provider-cptec.js"></script>
+        <!-- Adaptador de icones da fonte de dados atual. -->
+        <script src="js/provider-hgbrasil.js"></script>
     <script src="js/ebhtml.js"></script>
     <script src="js/master.js"></script>
     <title>Previsão do Tempo</title>
@@ -40,7 +37,13 @@
     </div>
     <!-- Header: cidade -->
     <header class="w-full flex h-[15vmin] faixa4x1:h-[22vmin] items-center justify-center z-10 py-[1.5vmin] faixa4x1:py-[0.5vmin]">
-        <span id="cidade" class="drop-shadow text-[200%] faixa4x1:text-[340%]"></span>
+        <div class="cidade-temperatura">
+            <span id="cidade" class="drop-shadow"></span>
+            <span id="temperatura-atual-badge" class="temperatura-atual-badge" role="group" aria-label="Temperatura atual">
+                <span id="temperatura-atual-icone" class="temperatura-atual-icone" aria-hidden="true"></span>
+                <span id="temperatura-atual"></span>
+            </span>
+        </div>
     </header>
     <!-- Main: cards de previsão -->
     <main class="flex h-full justify-center items-center w-full overflow-hidden p-[2vmin] ">
@@ -101,7 +104,7 @@
     </template>
     <!-- Footer: fonte -->
     <footer class="w-full flex h-[15vmin] faixa4x1:h-[8vmin] items-center justify-end p-[1.5vmin] faixa4x1:py-[0.3vmin] z-10">
-        <span class="text-[80%] faixa4x1:text-[55%] tracking-wide"><span class="text-[50%]">Fonte:</span> CPTEC / INPE</span>
+        <span class="text-[80%] faixa4x1:text-[55%] tracking-wide"><span class="text-[50%]">Fonte:</span> HG Brasil</span>
     </footer>
 </body>
 

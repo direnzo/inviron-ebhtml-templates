@@ -1,6 +1,5 @@
-// Mapeamento "código bruto da fonte de dados -> ícone Meteocon" foi
-// extraído para js/provider-cptec.js (troque esse arquivo para plugar
-// outra fonte de dados, ex: OpenWeather — ver contrato documentado lá).
+// Mapeamento "código bruto da fonte de dados -> ícone Meteocon" fica
+// nos providers (js/provider-<fonte>.js), sem conhecimento da fonte aqui.
 // Este master.js só chama a interface genérica: codigoParaMeteocon()
 // e codigoParaDescricao().
 
@@ -84,6 +83,62 @@ function onResize() {
 // cards a cada resize sem precisar recarregar a pagina nem chamar o loader
 // EBHTML de novo (ver redesenharCards mais abaixo).
 var CARDS_DADOS_ATUAIS = null;
+var LIMITE_MODO_UM_DIA = 300;
+var DURACAO_EXIBICAO_TOTAL = 0;
+var INICIO_EXIBICAO = 0;
+var TIMER_ROTACAO_DIAS = null;
+
+function sincronizarModoResponsivo() {
+  var modoUmDia = window.innerWidth < LIMITE_MODO_UM_DIA || window.innerHeight < LIMITE_MODO_UM_DIA;
+  var cards = document.querySelectorAll('.card');
+  var diasValidos = [];
+  var i, decorrido, indiceRotacao, proximoLimite, atraso;
+
+  if (TIMER_ROTACAO_DIAS) {
+    clearTimeout(TIMER_ROTACAO_DIAS);
+    TIMER_ROTACAO_DIAS = null;
+  }
+
+  if (modoUmDia) {
+    document.body.classList.add('modo-um-dia');
+  } else {
+    document.body.classList.remove('modo-um-dia');
+  }
+
+  for (i = 0; CARDS_DADOS_ATUAIS && i < CARDS_DADOS_ATUAIS.length; i++) {
+    if (CARDS_DADOS_ATUAIS[i] && !CARDS_DADOS_ATUAIS[i].HIDDEN) {
+      diasValidos.push(i);
+    }
+  }
+
+  if (!modoUmDia) {
+    for (i = 0; i < cards.length; i++) {
+      cards[i].classList.remove('dia-visivel');
+    }
+    return;
+  }
+  if (!diasValidos.length || !DURACAO_EXIBICAO_TOTAL || !INICIO_EXIBICAO) return;
+
+  decorrido = Math.max(0, Date.now() - INICIO_EXIBICAO);
+  indiceRotacao = decorrido >= DURACAO_EXIBICAO_TOTAL
+    ? diasValidos.length - 1
+    : Math.floor(decorrido * diasValidos.length / DURACAO_EXIBICAO_TOTAL);
+  if (indiceRotacao >= diasValidos.length) indiceRotacao = diasValidos.length - 1;
+
+  for (i = 0; i < cards.length; i++) {
+    if (i === diasValidos[indiceRotacao]) {
+      cards[i].classList.add('dia-visivel');
+    } else {
+      cards[i].classList.remove('dia-visivel');
+    }
+  }
+
+  if (diasValidos.length > 1 && decorrido < DURACAO_EXIBICAO_TOTAL) {
+    proximoLimite = DURACAO_EXIBICAO_TOTAL * (indiceRotacao + 1) / diasValidos.length;
+    atraso = Math.max(25, proximoLimite - decorrido);
+    TIMER_ROTACAO_DIAS = setTimeout(sincronizarModoResponsivo, atraso);
+  }
+}
 
 // ============================================================
 // ESCALA POR CARD (--cvmin) — dimensionamento relativo ao proprio card,
@@ -221,11 +276,12 @@ function autofitTodasDescricoes() {
 }
 
 // ============================================================
-// SELECAO DE CIDADE (D_CLIMA tem 1 ITEM com ate 3 slots C1/C2/C3)
+// SELECAO DE CIDADE (D_CLIMA_HGBRASIL tem ate 3 slots C1/C2/C3)
 // ============================================================
+var CANAL_DADOS = "D_CLIMA_HGBRASIL";
 var CIDADE_SLOTS = ["C1", "C2", "C3"];
 var CIDADE_DIAS = ["D1", "D2", "D3"];
-// Rede de seguranca: so dispara se o canal D_CLIMA realmente travar
+// Rede de seguranca: so dispara se o canal realmente travar
 // (XHR pendurado). NAO deve competir com a latencia normal da rede —
 // 300ms estourava a cada jitter e fazia o template exibir "sem dados"
 // mesmo com o canal online. 8s da folga para round-trip + parsing
@@ -233,18 +289,39 @@ var CIDADE_DIAS = ["D1", "D2", "D3"];
 // entao nao precisa mais do teto alto so para exceções de parsing).
 var CANAL_TIMEOUT_MS = 8000;
 
+function lerDadosSlotDia(item, campo) {
+  var campoItem;
+  var valorJson;
+  var registros;
+  try {
+    campoItem = item.value(campo);
+    valorJson = campoItem && campoItem.value;
+    if (!valorJson || typeof valorJson !== "string") return null;
+    registros = JSON.parse(valorJson);
+  } catch (e) {
+    return null;
+  }
+  if (!registros || !registros.length || !registros[0] || typeof registros[0] !== "object") return null;
+  return registros[0];
+}
+
+function valorClima(dados, campo) {
+  if (!dados || dados[campo] === null || typeof dados[campo] === "undefined") return "";
+  return String(dados[campo]).replace(/^\s+|\s+$/g, "");
+}
+
+function cidadeDoSlot(dadosDia) {
+  return dadosDia && dadosDia.city ? valorClima(dadosDia.city, "ds_name_cit") : "";
+}
+
 // Retorna a lista de slots (ex: ["C1","C3"]) que tem cidade configurada no D1.
 function detectarSlotsDeCidade(item) {
   var slotsValidos = [];
-  var s, campo, valor;
+  var s, dadosDia;
   for (s = 0; s < CIDADE_SLOTS.length; s++) {
-    campo = CIDADE_SLOTS[s] + "_D1_CIDADE";
-    valor = "";
-    try { valor = item.value(campo).value || ""; } catch (e) { valor = ""; }
-    valor = valor.replace(/^\s+|\s+$/g, "");
-    if (valor !== "") slotsValidos.push(CIDADE_SLOTS[s]);
+    dadosDia = lerDadosSlotDia(item, CIDADE_SLOTS[s] + "_D1_DATAARRAY");
+    if (cidadeDoSlot(dadosDia) !== "") slotsValidos.push(CIDADE_SLOTS[s]);
   }
-  if (slotsValidos.length === 0) slotsValidos.push("C1");
   return slotsValidos;
 }
 
@@ -292,15 +369,18 @@ window.onload = function () {
         if (playlistEncerrada) return;
         playlistEncerrada = true;
         limparTimeoutCanal();
-        console.warn('[CPTEC][DATA] Encerrando item sem renderizar: ' + motivo);
-        loader.finished();
+        console.warn('[HGBRASIL][DATA] Encerrando item sem renderizar: ' + motivo);
+        sinalizarLoaded(loader);
+        setTimeout(function () {
+          loader.finished();
+        }, 100);
       }
 
-      loader.addData("D_CLIMA", false);
+      loader.addData(CANAL_DADOS, false);
       loader.autoloaded = false;
       loader.nodataiserror = false;
       loadTimeoutId = setTimeout(function () {
-        encerrarSemDados('Timeout ao aguardar resposta do canal D_CLIMA');
+        encerrarSemDados('Timeout ao aguardar resposta do canal ' + CANAL_DADOS);
       }, CANAL_TIMEOUT_MS);
 
       loader.load(function () {
@@ -313,12 +393,12 @@ window.onload = function () {
         var dados = [];
         var duracaoConfig = (typeof CONFIG_CLIMA !== "undefined" && CONFIG_CLIMA.duration) || 10000;
         var config = { duration: duracaoConfig };
-        var item = loader.data("D_CLIMA");
+        var item = loader.data(CANAL_DADOS);
         var DIAS_SEMANA = ["DOMINGO", "SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SÁBADO"];
 
         // Sem item = XML ausente ou vazio
         if (!item || typeof item.value !== "function") {
-          encerrarSemDados('Canal D_CLIMA sem item valido');
+          encerrarSemDados('Canal ' + CANAL_DADOS + ' sem item valido');
           return;
         }
 
@@ -329,11 +409,16 @@ window.onload = function () {
 
         // Detecta slots de cidade validos e escolhe um por rotacao de relogio
         var slotsValidos = detectarSlotsDeCidade(item);
+        if (!slotsValidos.length) {
+          encerrarSemDados('Nenhum slot de cidade valido no canal ' + CANAL_DADOS);
+          return;
+        }
         var slotEscolhido = escolherSlotDeCidade(slotsValidos, duracaoConfig);
+        var dadosDiaSelecionado = lerDadosSlotDia(item, slotEscolhido + "_D1_DATAARRAY");
 
         // DATE1/DATE2/DATE3 vêm como "2026-04-09" no XML
         var dateStrs = [getVal("DATE1"), getVal("DATE2"), getVal("DATE3")];
-        var cidadeNome = getVal(slotEscolhido + "_D1_CIDADE");
+        var cidadeNome = cidadeDoSlot(dadosDiaSelecionado);
 
         // Cidade vazia = item existe mas não tem dados reais
         if (!cidadeNome) {
@@ -344,23 +429,19 @@ window.onload = function () {
         var ultimoDiaRenderizado = '';
         var validos = 0;
         for (var d = 0; d < CIDADE_DIAS.length; d++) {
-          var prefix = slotEscolhido + "_" + CIDADE_DIAS[d] + "_";
+          var dadosDia = lerDadosSlotDia(item, slotEscolhido + "_" + CIDADE_DIAS[d] + "_DATAARRAY");
           var dateStr = dateStrs[d];
           // Usa T12:00:00 para evitar deslocamento de fuso ao parsear a data
           var dataObj = dateStr ? new Date(dateStr + "T12:00:00") : null;
           var diaSemana = dataObj ? DIAS_SEMANA[dataObj.getDay()] : "";
           var dataFormatada = dataObj ? (("0" + dataObj.getDate()).slice(-2) + "/" + ("0" + (dataObj.getMonth() + 1)).slice(-2)) : "";
-          var max = getVal(prefix + "MAX");
-          var min = getVal(prefix + "MIN");
-          // A sigla/ícone do CPTEC vem no campo TEXTPT do canal D_CLIMA
-          // (ex: C1_D1_TEXTPT). Quando TEXTPT vem vazio, cai para o
-          // código numérico inteiro do campo ICO (ex: '1'..'11', '99'
-          // como default) — provider-cptec.js resolve os dois formatos.
-          var iconeCodigo = getVal(prefix + "TEXTPT") || getVal(prefix + "ICO");
+          var max = valorClima(dadosDia, "nr_max_wea");
+          var min = valorClima(dadosDia, "nr_min_wea");
+          var iconeCodigo = valorClima(dadosDia, "nr_icon_wea");
 
           // Card sem temperaturas = dado corrompido ou incompleto, oculta posição
-          if (!max && !min) {
-            console.warn('[CPTEC][DATA] Card ' + (d + 1) + ' sem temperaturas - renderizando oculto');
+          if (!dadosDia || (!max && !min)) {
+            console.warn('[HGBRASIL][DATA] Card ' + (d + 1) + ' sem temperaturas - renderizando oculto');
             dados.push({
               CIDADE: cidadeNome,
               HIDDEN: true
@@ -370,7 +451,7 @@ window.onload = function () {
 
           // Evita mostrar dia repetido em sequência (D2 = D1, D3 = D2, etc).
           if (dataFormatada && dataFormatada === ultimoDiaRenderizado) {
-            console.warn('[CPTEC][DATA] Card ' + (d + 1) + ' com dia duplicado - renderizando oculto');
+            console.warn('[HGBRASIL][DATA] Card ' + (d + 1) + ' com dia duplicado - renderizando oculto');
             dados.push({
               CIDADE: cidadeNome,
               HIDDEN: true
@@ -385,14 +466,15 @@ window.onload = function () {
             HORA: "",
             MAX: max,
             MIN: min,
+            ATUAL: d === 0 ? valorClima(dadosDia, "nr_value_wea") : "",
             ICON: iconeCodigo,
-            QTDE_CHUVA: getVal(prefix + "PRECIPITATION"),
-            PROB_CHUVA: "",
-            VENTO_DIR: getVal(prefix + "WINDDIRECTION"),
-            VENTO_VEL: getVal(prefix + "WINDAVGVELOCITY"),
-            UV: getVal(prefix + "UV"),
-            UVLEVEL: getVal(prefix + "UVLEVEL"),
-            DESCRICAO: codigoParaDescricao(iconeCodigo)
+            QTDE_CHUVA: valorClima(dadosDia, "nr_precipitation_wea"),
+            PROB_CHUVA: valorClima(dadosDia, "nr_probrain_wea"),
+            VENTO_DIR: valorClima(dadosDia, "ds_winddirection_wea"),
+            VENTO_VEL: valorClima(dadosDia, "nr_windavgvelocity_wea"),
+            UV: valorClima(dadosDia, "nr_uv_wea"),
+            UVLEVEL: valorClima(dadosDia, "ds_uvlevel_wea"),
+            DESCRICAO: valorClima(dadosDia, "ds_textmin_wea") || codigoParaDescricao(iconeCodigo)
           });
           ultimoDiaRenderizado = dataFormatada || ultimoDiaRenderizado;
           validos++;
@@ -404,11 +486,11 @@ window.onload = function () {
         }
         iniciarTemplate(dados, config, loader);
         } catch (erroProcessamento) {
-          encerrarSemDados('Excecao ao processar D_CLIMA: ' + (erroProcessamento && erroProcessamento.message ? erroProcessamento.message : erroProcessamento));
+          encerrarSemDados('Excecao ao processar ' + CANAL_DADOS + ': ' + (erroProcessamento && erroProcessamento.message ? erroProcessamento.message : erroProcessamento));
         }
       }, function () {
         limparTimeoutCanal();
-        encerrarSemDados('Falha no loader.load() para D_CLIMA');
+        encerrarSemDados('Falha no loader.load() para ' + CANAL_DADOS);
       });
     });
   }
@@ -464,6 +546,7 @@ function redesenharCards() {
     cardsElements.push(card);
   }
 
+  sincronizarModoResponsivo();
   aplicarEscalaTodosCards();
   autofitTodasDescricoes();
 }
@@ -547,13 +630,36 @@ function revelarCardsQuandoProntos(cards, callbackFinal) {
   }
 }
 
+function aplicarIconeAtualNoBadge(cards) {
+  var destino = document.getElementById("temperatura-atual-icone");
+  var iconeOrigem = cards && cards.length ? cards[0].querySelector(".icon svg") : null;
+  if (!destino || !iconeOrigem) return;
+  destino.innerHTML = "";
+  destino.appendChild(iconeOrigem.cloneNode(true));
+}
+
 function iniciarTemplate(dados, config, loader) {
   CARDS_DADOS_ATUAIS = dados;
+  DURACAO_EXIBICAO_TOTAL = (typeof CONFIG_CLIMA !== "undefined" && CONFIG_CLIMA.duration) || (config && config.duration) || 10000;
+  INICIO_EXIBICAO = Date.now();
 
-  // Header: cidade
+  // Header: cidade e temperatura atual, quando o canal disponibilizar.
   var cidadeEl = document.getElementById("cidade");
   if (cidadeEl && dados[0] && dados[0].CIDADE) {
     cidadeEl.innerText = dados[0].CIDADE;
+  }
+  var temperaturaAtualBadge = document.getElementById("temperatura-atual-badge");
+  var temperaturaAtualIcone = document.getElementById("temperatura-atual-icone");
+  var temperaturaAtualEl = document.getElementById("temperatura-atual");
+  var temperaturaAtual = dados[0] && dados[0].ATUAL ? dados[0].ATUAL : "";
+  var cidadeTemperaturaEl = document.querySelector(".cidade-temperatura");
+  if (temperaturaAtualBadge && temperaturaAtualEl && temperaturaAtual) {
+    temperaturaAtualEl.innerText = temperaturaAtual + "°";
+    temperaturaAtualBadge.style.display = "inline-flex";
+    if (cidadeTemperaturaEl) cidadeTemperaturaEl.classList.add("com-temperatura");
+  } else if (temperaturaAtualBadge) {
+    temperaturaAtualBadge.style.display = "none";
+    if (cidadeTemperaturaEl) cidadeTemperaturaEl.classList.remove("com-temperatura");
   }
 
   // Aplica cor principal dos ícones via variável CSS
@@ -584,6 +690,7 @@ function iniciarTemplate(dados, config, loader) {
 
   // Reflow antes de animar
   void cardsContainer.offsetHeight;
+  sincronizarModoResponsivo();
 
   // Aplica layout, anima entrada e revela cada card junto com seu ícone.
   setTimeout(function() {
@@ -591,11 +698,12 @@ function iniciarTemplate(dados, config, loader) {
     animarCards(cardsElements, dados.length);
     autofitTodasDescricoes();
     revelarCardsQuandoProntos(cardsElements, function () {
+      if (temperaturaAtual && dados[0] && dados[0].ICON && temperaturaAtualIcone) {
+        aplicarIconeAtualNoBadge(cardsElements);
+      }
       sinalizarLoaded(loader);
     });
   }, HARDWARE_FRACO ? 40 : 20);
-
-  var duracaoFinal = (typeof CONFIG_CLIMA !== "undefined" && CONFIG_CLIMA.duration) || (config && config.duration) || 10000;
 
   setTimeout(function () {
     // document.body.classList.remove('opacity-100');
@@ -603,7 +711,7 @@ function iniciarTemplate(dados, config, loader) {
     setTimeout(function () {
       if (loader) loader.finished();
     }, 1000);
-  }, duracaoFinal);
+  }, DURACAO_EXIBICAO_TOTAL);
 }
 
 // Configura delays e estrategia de entrada. A execucao do slide-in no

@@ -31,6 +31,64 @@
 .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) }
 .drop-shadow { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5)) }
 
+.cidade-temperatura {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  font-size: 200%;
+}
+
+#cidade {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cidade-temperatura.com-temperatura #cidade {
+  max-width: calc(100% - 5.5em);
+}
+
+.temperatura-atual-badge {
+  display: none;
+  align-items: center;
+  flex-shrink: 0;
+  max-width: 5.1em;
+  margin-left: 0.4em;
+  padding: 0.12em 0.38em;
+  border: 0.08em solid rgba(249, 183, 30, 0.75);
+  border-radius: 0.55em;
+  background-color: rgba(0, 0, 0, 0.72);
+  color: #f9b71e;
+  font-size: 100%;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.temperatura-atual-icone {
+  display: block;
+  width: 1.05em;
+  height: 1.05em;
+  margin-right: 0.18em;
+  flex-shrink: 0;
+}
+
+.temperatura-atual-icone svg {
+  width: 100%;
+  height: 100%;
+}
+
+#temperatura-atual {
+  display: block;
+  flex-shrink: 0;
+}
+
 /* ============================================================
    ESCALA POR CARD (--cvmin)
    --cvmin e calculado em JS (aplicarEscalaCard, master.js) como
@@ -105,6 +163,87 @@
   flex-shrink: 0;
 }
 
+/* Em viewports baixos ou estreitos, exibe um dia por vez e libera espaco
+   para o icone principal sem alterar os tres cards do layout normal. */
+.modo-um-dia .card {
+  display: none;
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 100%;
+}
+
+.modo-um-dia .card.dia-visivel {
+  display: flex;
+}
+
+.modo-um-dia .descricao,
+.modo-um-dia .extra-info-row {
+  display: none !important;
+}
+
+.modo-um-dia .card .icon,
+.modo-um-dia .card.card-vertical .icon {
+  width: calc(var(--cvmin) * 68);
+  min-width: 0;
+  max-width: calc(var(--cvmin) * 68);
+}
+
+/* Faixas e rodapes priorizam dados essenciais em vez de texto secundario. */
+@media (min-aspect-ratio: 3/1) {
+  .descricao,
+  .extra-info-row {
+    display: none !important;
+  }
+}
+
+@media (min-aspect-ratio: 15/1) {
+  body {
+    font-size: 5vmin;
+  }
+  header {
+    height: 30vmin;
+  }
+  footer {
+    height: 20vmin;
+  }
+  .data,
+  .date-hour {
+    font-size: calc(var(--cvmin) * 10);
+  }
+}
+
+@media (max-height: 100px) and (min-aspect-ratio: 5/1) {
+  body.modo-um-dia {
+    font-size: 8vmin;
+  }
+  .modo-um-dia header {
+    height: 25vmin;
+  }
+  .modo-um-dia footer {
+    display: none;
+  }
+  .cidade-temperatura {
+    font-size: 130%;
+  }
+  .modo-um-dia .data,
+  .modo-um-dia .date-hour {
+    font-size: calc(var(--cvmin) * 14);
+  }
+  .modo-um-dia .card-texts {
+    font-size: calc(var(--cvmin) * 24);
+  }
+}
+
+@media (max-aspect-ratio: 1/3) {
+  body.modo-um-dia {
+    font-size: 5vmin;
+  }
+  .modo-um-dia .data,
+  .modo-um-dia .date-hour {
+    font-size: calc(var(--cvmin) * 10);
+  }
+}
+
 /* Fallback de inset-0 para Chrome < 87 / WebKit legado (sem suporte ao shorthand "inset") */
 @supports not (inset: 0px) {
   .inset-0 {
@@ -120,6 +259,9 @@
    desacoplando .date-hour do font-size do body (era % herdado) para poder
    crescer mais sem inflar o resto do texto do card. */
 @media (min-aspect-ratio: 3/1) and (max-aspect-ratio: 5/1) {
+  .cidade-temperatura {
+    font-size: 340%;
+  }
   .data {
     font-size: calc(var(--cvmin) * 13);
   }
@@ -127,4 +269,3 @@
     font-size: calc(var(--cvmin) * 13);
   }
 }
-
