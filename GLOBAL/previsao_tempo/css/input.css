@@ -111,17 +111,17 @@
 }
 
 .icon {
-  width: calc(var(--cvmin) * 46);
+  width: calc(var(--cvmin) * 54);
   min-width: calc(var(--cvmin) * 14);
-  max-width: calc(var(--cvmin) * 46);
+  max-width: calc(var(--cvmin) * 54);
   max-height: 100%; /* nunca estoura a altura disponivel na icon-temp-row (evita ficar "achatado") */
 }
 
 /* Em card vertical (icone empilhado acima das temps), reduz o icone para
    garantir espaco suficiente para os numeros abaixo sem cortar. */
 .card-vertical .icon {
-  width: calc(var(--cvmin) * 34);
-  max-width: calc(var(--cvmin) * 34);
+  width: calc(var(--cvmin) * 42);
+  max-width: calc(var(--cvmin) * 42);
 }
 
 /* Direcao do icone + temperaturas baseada no aspect-ratio REAL de cada card
