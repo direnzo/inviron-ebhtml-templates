@@ -16,6 +16,9 @@
 - Perfil de compatibilidade alvo (Chromium 78 / Android+WebKit legado / QtWebKit legado / outro):
 - Canais/datasets usados:
 - Formatos/resoluções validados:
+- Origem da matriz: explicit (lista EXATA do usuario) / catalog (todas as resolucoes)
+- Formatos solicitados, snapshot/hash e caminho do relatorio:
+- Casos esperados/executados; revisao visual e runtime alvo:
 
 ## Checklist técnico (marcar apenas o aplicável ao escopo)
 
@@ -31,6 +34,9 @@
 - [ ] Preview/extranet — aplicável? Se sim, mesma pipeline de render do runtime
 - [ ] Hardware fraco — aplicável? Se sim, modo reduzido validado
 - [ ] Testado em `http://localhost:12099/FILES/1/index.html` (nunca `file:///`)
+- [ ] Lista explicita respeitada sem expansao; sem restricao, catalogo integral; formatos novos permitidos e entradas invalidas esclarecidas
+- [ ] Arquivo servido e viewport real conferidos; nenhuma omissao silenciosa, bloqueios/excecoes identificados
+- [ ] Sucesso automatizado separado de aprovacao visual/homologacao no runtime; tooling/relatorios fora do `.eh5`
 
 ## `.eh5`
 

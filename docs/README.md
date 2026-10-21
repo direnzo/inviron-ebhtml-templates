@@ -18,6 +18,7 @@ Indice oficial da documentacao ativa do workspace.
 4. 04-preview-paridade.md
 5. 05-performance-animacao-video.md
 6. 06-microfuncoes-reutilizaveis.md
+7. [07-formatos-e-validacao.md](07-formatos-e-validacao.md) - catalogo de producao, lista explicita com precedencia, auditoria e validacao automatizada
 
 ## Briefing e workflow de criacao/manutencao
 

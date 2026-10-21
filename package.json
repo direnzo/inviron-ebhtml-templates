@@ -1,3 +1,10 @@
 {
-  "private": true
+  "private": true,
+  "scripts": {
+    "test": "powershell.exe -NoProfile -NonInteractive -File scripts/display-formats.test.ps1 && node --test scripts/validate-display-formats.test.js",
+    "formats:audit": "powershell.exe -NoProfile -NonInteractive -File scripts/display-formats.ps1 -Mode Audit"
+  },
+  "devDependencies": {
+    "playwright": "1.64.1"
+  }
 }
