@@ -1,0 +1,10 @@
+{
+  "readySelector": "#dynamicContent",
+  "timeoutMs": 30000,
+  "regions": [
+    { "selector": "#title", "minFontPx": 12 },
+    { "selector": "#description", "minFontPx": 10 }
+  ],
+  "overlapPairs": [["#titleBox", "#descBox"]],
+  "scenarios": [{ "name": "base-default" }]
+}

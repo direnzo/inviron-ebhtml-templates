@@ -38,6 +38,8 @@ archive/                                # legado arquivado
 - API e ciclo de playlist EBHTML: [`.github/skills/ebhtml-api/SKILL.md`](../.github/skills/ebhtml-api/SKILL.md)
 - Layout, responsividade e tipografia: [`.github/skills/frontend-tailwind-golden-ratio/SKILL.md`](../.github/skills/frontend-tailwind-golden-ratio/SKILL.md)
 - Briefing e workflow de criação/manutenção: [`.github/skills/edgecontents-template-workflow/SKILL.md`](../.github/skills/edgecontents-template-workflow/SKILL.md)
+- Formatos de producao e precedencia de listas explicitas: [07-formatos-e-validacao.md](07-formatos-e-validacao.md) e [skill de formatos](../.github/skills/edgecontents-display-formats/SKILL.md). Lista declarada pelo usuario prevalece; sem restricao, catalogo integral. Snapshots/relatorios sao ferramentas de desenvolvimento, nunca dependencias do `.eh5`.
+- Entrada compartilhada para agentes: [AGENTS.md](../AGENTS.md), com [adaptador Claude Code](../CLAUDE.md); regras canonicas permanecem nos documentos/skills referenciados.
 - Estratégia de branches: [`.github/BRANCHING.md`](../.github/BRANCHING.md)
 - Playbook operacional detalhado: `docs/01` a `docs/06` (ver [`docs/README.md`](README.md))
 - Templates de validação do fluxo (não são entrega de tenant): [`sandbox/README.md`](../sandbox/README.md)

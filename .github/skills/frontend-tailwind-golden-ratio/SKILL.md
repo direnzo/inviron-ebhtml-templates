@@ -8,6 +8,11 @@ description: "Use when: frontend design, TailwindCSS layouts, responsive UI for 
 ## Propósito
 Guia prático de TailwindCSS para templates de digital signage: breakpoints aspect-ratio, sistema de fontes vmin, layout responsivo, anti-overlap.
 
+## Catalogo e escopo
+Carregar [edgecontents-display-formats](../edgecontents-display-formats/SKILL.md) e consultar [formatos e validacao](../../../docs/07-formatos-e-validacao.md).
+Um formato ou array/lista explicito define EXATAMENTE as resolucoes obrigatorias; sem restricao, testar o catalogo integral. Nao expandir por familia/tenant; pedir correcao para lista vazia/invalida e dimensoes para proporcao isolada. Formatos novos sao permitidos.
+Separar geometria, capacidade em pixels e funcao declarada; `256x144` nao oferece a mesma legibilidade de `1920x1080`. Casos extremos nao podem ser excluidos/aprovados automaticamente.
+
 ## Breakpoints (tailwind.config.js)
 ```javascript
 screens: {
@@ -20,6 +25,8 @@ screens: {
     'empena':      { 'raw': '(max-aspect-ratio: 1/3)' },
 }
 ```
+
+Estes breakpoints sao modificadores sobre um layout base, nao uma particao exaustiva. O layout base cobre intervalos como 4:5 e 5:4. `empena` tambem corresponde a `portrait`; `superbanner` tambem a `ultrawide`; em 15:1 ha coincidencia com `footer`. Declarar precedencia no CSS e conferir fronteiras, sem mudar templates existentes em massa ou adicionar testes fora de uma lista explicita sem aprovacao.
 
 ## Sistema de Fontes (vmin)
 - **Body**: `text-[3.2vmin]` — escala em qqr formato. Só override em superbanner/empena.
@@ -96,3 +103,5 @@ function fitFont(element, maxWidthPercent) {
 - [ ] Fallback hex p/ cada cor usada no template
 - [ ] Imagens com `object-fit` (contain/cover) explícito
 - [ ] Testar com título longo + preço grande
+- [ ] Matriz explicita exata ou catalogo integral, intervalos e precedencia dos breakpoints conferidos
+- [ ] Evidencias de viewport real, revisao visual e runtime alvo; sem inferir aprovacao apenas por ausencia de overflow

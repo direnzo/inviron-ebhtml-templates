@@ -2,6 +2,14 @@
 
 Sistema de templates HTML para Digital Signage via EdgeContents CMS. Android 7+ (WebKit legado).
 
+## Formatos de tela: escopo obrigatorio
+
+- Criacao/manutencao/validacao deve carregar `.github/skills/edgecontents-display-formats/SKILL.md` e consultar `docs/07-formatos-e-validacao.md`.
+- Um formato ou array/lista explicitamente declarado pelo usuario define EXATAMENTE os formatos obrigatorios. Nao ampliar por tenant, proporcao ou frequencia. Formatos ineditos sao validos.
+- Sem restricao explicita, validar todas as resolucoes unicas do catalogo. Lista vazia/invalida requer correcao, nunca fallback expansivo; proporcao sem dimensoes requer confirmacao.
+- Registrar matriz/snapshot e evidencias; geracao de matriz ou teste em Chromium moderno nao significa homologacao visual no runtime legado.
+- Retomar este checklist em toda nova criacao ou ajuste de template existente, mesmo sem pedido explicito de responsividade. Antes de execucao extensa, informar quantidade de formatos/cenarios e impacto local; ao concluir, informar o que foi verificado e as pendencias, sem tratar amostra como homologacao integral.
+
 ## 🚫 REGRAS ABSOLUTAS
 
 - **NUNCA** `git commit` sem permissão explícita

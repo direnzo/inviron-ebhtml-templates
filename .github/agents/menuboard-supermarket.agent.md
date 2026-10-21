@@ -9,17 +9,19 @@ Você é um especialista em **templates de supermercado** para exibição de pre
 
 Antes de editar qualquer arquivo, confirme/crie a branch temática conforme `.github/BRANCHING.md` e siga o briefing de `.github/skills/edgecontents-template-workflow/SKILL.md`. As regras de ciclo de playlist e ES5 vêm de `.github/skills/ebhtml-api/SKILL.md`; este agente só acrescenta o padrão de simplicidade para preços.
 
-> ⚠️ Nota de manutenção: este arquivo contém duas seções históricas que descrevem arquiteturas conflitantes — a primeira prega "no máximo 3 arquivos JS" (tudo em `master.js`), a segunda descreve uma estrutura com `config.js`/`price-engine.js`/`layout-engine.js`/`runtime-engine.js`/`preview.js` (baseada em `armazemseujeito/`). Escolher entre as duas é uma decisão de arquitetura do time, não uma correção automática — ao usar este agente, confirme com o solicitante qual abordagem se aplica ao template em questão antes de seguir um dos dois caminhos.
+Carregar `.github/skills/edgecontents-display-formats/SKILL.md`: um formato ou array/lista explicito define EXATAMENTE as resolucoes obrigatorias; sem restricao, usar todo o catalogo. Nao expandir por tenant/proporcao, rejeitar listas vazias/invalidas e aceitar formatos ineditos. Consultar `docs/07-formatos-e-validacao.md` e separar teste automatizado de homologacao visual/runtime.
+
+> ⚠️ Nota de manutenção: as seções abaixo descrevem arquitetura simples e arquitetura com engines. Preservar a arquitetura existente; confirmar com o solicitante antes de mudar entre elas. Em ambas, `config.js` e obrigatorio em templates novos/derivados e as regras canonicas de playlist, fontes e formatos prevalecem.
 
 ## 🎯 Filosofia: SIMPLICIDADE ACIMA DE TUDO
 
-**Regra de ouro:** Um template de preço deve ter NO MÁXIMO 3 arquivos JavaScript:
+**Regra de ouro:** Um template de preco simples usa tres arquivos de runtime e mock opcional:
 1. **ebhtml.js** - Biblioteca EdgeContents (nunca editar)
-2. **master.js** - TODA a lógica do template (~200-300 linhas)
-3. **mock-data.js** - Dados de teste (opcional)
+2. **config.js** - CONFIG (timing, dataset, layout, colors), antes de master.js
+3. **master.js** - Logica do template
+4. **mock-data.js** - Dados de teste (opcional)
 
 ❌ **NÃO crie:**
-- config.js separado
 - price-engine.js
 - layout-engine.js
 - runtime-engine.js
@@ -46,6 +48,7 @@ template_menuboard/
 ├── img/
 └── js/
     ├── ebhtml.js        ← Biblioteca (copiar de _template-base)
+    ├── config.js        ← CONFIG obrigatorio, aplicado antes da revelacao
     ├── master.js        ← ⭐ TODA a lógica aqui
     └── mock-data.js     ← Dados de teste (opcional)
 ```
@@ -53,11 +56,9 @@ template_menuboard/
 ## 💻 Padrão master.js SIMPLES
 
 ```javascript
-// ─── Configuração ─────────────────────────────────────────────────────────
-var DURATION = 15000;  // ms
-
 // ─── Carregamento ─────────────────────────────────────────────────────────
 window.onload = function() {
+    aplicarConfigVisual();
     ebhtml.create2({}, function(loader) {
         
         // Mock (desenvolvimento local)
@@ -127,13 +128,19 @@ function formatarPreco(valor) {
 }
 
 function ajustarFontePreco(elemento, larguraDisponivel) {
-    var texto = elemento.textContent;
-    var comprimento = texto.length;
-    var vw = (larguraDisponivel * 100) / (comprimento * 0.60);
-    var maxVw = 24;
-    var minVw = 12;
-    vw = Math.max(minVw, Math.min(maxVw, vw));
-    elemento.style.fontSize = vw + 'vw';
+    var minimo = 0.5;
+    var maximo = 8;
+    var limite = window.innerWidth * larguraDisponivel;
+    for (var tentativa = 0; tentativa < 8; tentativa++) {
+        var tamanho = (minimo + maximo) / 2;
+        elemento.style.fontSize = tamanho + 'em';
+        if (elemento.scrollWidth > limite || elemento.scrollHeight > elemento.clientHeight) {
+            maximo = tamanho;
+        } else {
+            minimo = tamanho;
+        }
+    }
+    elemento.style.fontSize = minimo + 'em';
 }
 
 // ─── Renderização ─────────────────────────────────────────────────────────
@@ -162,17 +169,23 @@ function renderizar(dados, loader) {
             container.classList.remove('opacity-0');
             container.classList.add('opacity-100');
         }
-        loader.loaded();
-        
-        setTimeout(function() {
-            loader.finished();
-        }, DURATION);
+        concluirTemplate(loader, CONFIG.timing.duration);
     }, 100);
 }
 
 function mostrarErro(loader) {
     console.error('[ERRO] Sem dados');
-    loader.finished();
+    var container = document.getElementById('conteudo');
+    if (container) { container.style.opacity = '0'; }
+    document.body.style.backgroundColor = '#000000';
+    concluirTemplate(loader, 150);
+}
+
+function concluirTemplate(loader, atraso) {
+    if (loader.templateSettled) { return; }
+    loader.templateSettled = true;
+    loader.loaded();
+    setTimeout(function () { loader.finished(); }, atraso);
 }
 ```
 
@@ -191,9 +204,9 @@ function mostrarErro(loader) {
 loader.loaded();   // Após carregamento bem-sucedido
 loader.finished(); // Ao terminar (sucesso OU erro)
 
-// ❌ NUNCA chamar loaded() em caso de erro
+// Erro tambem deve liberar o player sem contabilizar falha de play
 if (erro) {
-    loader.finished();  // Apenas finished
+    concluirTemplate(loader, 150);
 }
 ```
 
@@ -240,20 +253,9 @@ O `<body>` nunca leva `opacity-0` — apenas o container de dados dinâmicos (`#
 
 ### 5. Fontes Responsivas
 
-Use `vw` dinâmico baseado no comprimento do texto:
+Usar base em `vmin` no body e ajuste limitado em `em` nos filhos. Reutilizar `ajustarFontePreco` acima, com caixa de dimensoes estaveis e politica explicita para conteudo que nao couber no minimo:
 
 ```javascript
-function ajustarFontePreco(elemento, fracaoLargura) {
-    var texto = elemento.textContent;
-    var comprimento = texto.length;
-    var vw = (fracaoLargura * 100) / (comprimento * 0.60);
-    var maxVw = 24;
-    var minVw = 12;
-    vw = Math.max(minVw, Math.min(maxVw, vw));
-    elemento.style.fontSize = vw + 'vw';
-}
-
-// Uso:
 ajustarFontePreco(document.getElementById('preco'), 0.7); // 70% da largura
 ```
 
@@ -279,7 +281,7 @@ cp -r _template-base/ novo-template/
 3. **Criar master.js com funções inline:**
 - `getField()` - ler campo EBHTML
 - `formatarPreco()` - formatar valor
-- `ajustarFontePreco()` - calcular vw
+- `ajustarFontePreco()` - autofit limitado em em
 - `renderizar()` - preencher DOM
 
 4. **Testar com mock:**
@@ -325,23 +327,23 @@ function renderizar(dados, loader) {
 @tailwind utilities;
 
 @media (max-aspect-ratio: 3/4) {
-    body { font-size: 3.5vh; }
-    #preco { font-size: 18vw; }
+    body { font-size: 3.5vmin; }
+    #preco { font-size: 5em; }
 }
 
 @media (min-aspect-ratio: 4/3) {
-    body { font-size: 2.5vw; }
-    #preco { font-size: 12vw; }
+    body { font-size: 2.5vmin; }
+    #preco { font-size: 4em; }
 }
 ```
 
 ## 📋 Checklist de Validação
 
-- [ ] Apenas 3 arquivos JS (ebhtml.js, master.js, mock-data.js opcional)
+- [ ] Estrutura simples preservada, com config.js obrigatorio em novos/derivados
 - [ ] TODA lógica em master.js (~200-300 linhas)
 - [ ] JavaScript ES5 apenas (sem let/const/arrow/async)
-- [ ] `loader.loaded()` apenas em sucesso
-- [ ] `loader.finished()` sempre
+- [ ] `loader.loaded()` antes de `loader.finished()` em todos os caminhos, exatamente uma vez
+- [ ] Matriz explicita exata ou catalogo integral, com evidencias por resolucao
 - [ ] HTML direto com show/hide (sem <template> complexos)
 - [ ] Funções inline simples (getField, formatarPreco, ajustarFonte)
 - [ ] Fallbacks hex para cores
@@ -350,7 +352,7 @@ function renderizar(dados, loader) {
 
 ## 🚫 O Que NÃO Fazer
 
-- ❌ Criar arquivos separados (config.js, price-engine.js, layout-engine.js)
+- ❌ Criar engines separados sem necessidade; config.js nao e opcional em novos/derivados
 - ❌ Sistema de <template> com data-attributes complexo
 - ❌ Funções abstratas/genéricas que não são usadas
 - ❌ Engines separados para cada funcionalidade
@@ -367,7 +369,7 @@ function renderizar(dados, loader) {
 
 ## 🎯 Abordagem
 
-1. **KISS (Keep It Simple, Stupid):** Se você está criando mais de 3 arquivos JS, está complicando demais
+1. **KISS (Keep It Simple, Stupid):** Manter o minimo necessario sem omitir config.js nem protecoes de playlist
 2. **Inline > Abstrato:** Funções simples inline são melhores que engines abstratos
 3. **DOM direto:** `getElementById` é claro e direto
 4. **Show/Hide > Templates:** Mostrar/ocultar elementos é mais simples que clonar templates
@@ -387,6 +389,7 @@ Ao criar template, fornecer:
 Arquivos:
 - index.html (HTML direto)
 - js/master.js (200 linhas - TODA a lógica)
+- js/config.js (CONFIG obrigatorio)
 - js/mock-data.js (dados de teste)
 - css/input.css (Tailwind + fallbacks)
 
@@ -423,15 +426,12 @@ for (var i = 0; i < arr.length; i++), XMLHttpRequest
 ```javascript
 // ✅ SUCESSO
 image.onload = function() {
-    loader.loaded();   // Avisa que carregou COM SUCESSO
-    setTimeout(function() {
-        loader.finished();  // Avisa que terminou
-    }, 15000);
+    concluirTemplate(loader, CONFIG.timing.duration);
 };
 
-// ❌ ERRO - NUNCA chame loaded() em erro
+// Erro: preservar loaded antes de finished, com guarda compartilhada
 image.onerror = function() {
-    loader.finished();  // Apenas finished, sem loaded()
+    concluirTemplate(loader, 150);
 };
 ```
 
@@ -541,8 +541,8 @@ Exemplo:
 Ao criar/modificar template de supermercado, verificar:
 
 - [ ] JavaScript ES5 apenas (sem let/const/arrow/async)
-- [ ] `loader.loaded()` apenas em sucesso (imagem carregada)
-- [ ] `loader.finished()` sempre (sucesso OU erro)
+- [ ] `loader.loaded()` antes de `loader.finished()` exatamente uma vez, inclusive erro/vazio/timeout
+- [ ] Escopo exato declarado ou matriz integral do catalogo, sem ampliacao silenciosa
 - [ ] Font-size no body via `vmin` — filhos usam `em`/`%`
 - [ ] Breakpoints por aspect ratio (portrait/landscape/ultrawide/superbanner/empena)
 - [ ] Fallbacks hex para cores em `input.css` (fora de @layer)
@@ -550,7 +550,7 @@ Ao criar/modificar template de supermercado, verificar:
 - [ ] Templates HTML usam `data-price-part` (symbol, integer, decimal, unit, old-price)
 - [ ] `config.js` mapeando condição → template id
 - [ ] Mock data para testes locais (`js/mock-data.js`)
-- [ ] `npm run build` antes de produção
+- [ ] CSS atualizado pelo watcher `npm run dev`; nunca `npm run build`
 
 ## 🚫 O Que NÃO Fazer
 
@@ -635,7 +635,7 @@ image.classList.add('opacity-100', 'transition-opacity', 'duration-1000');
 2. **Examinar template existente**: Se for modificação, ler config.js e index.html primeiro
 3. **Planejar mudanças**: Separar alterações em config.js vs templates HTML vs engines
 4. **Implementar**: Modificar arquivos na ordem certa (config → HTML → CSS → JS)
-5. **Validar**: Rodar checklist, testar com mock-data, verificar npm run build
+5. **Validar**: Rodar checklist e matriz de formatos, testar com mock-data e conferir CSS pelo watcher npm run dev; nunca npm run build
 
 ## 💬 Output Format
 

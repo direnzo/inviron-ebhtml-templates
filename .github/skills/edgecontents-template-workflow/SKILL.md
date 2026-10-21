@@ -1,6 +1,6 @@
 ---
 name: edgecontents-template-workflow
-description: "Use when: criar template EdgeContents do zero, derivar de um existente, corrigir/manter um template, ou preparar um .eh5 para homologação. Conduz o briefing obrigatório (tenant, canais, compatibilidade, hardware, formatos, referências visuais, tipografia), carrega ebhtml-api e frontend-tailwind-golden-ratio, e aplica os gates até o pacote final."
+description: "Use when: criar template EdgeContents do zero, derivar de um existente, corrigir/manter um template, ou preparar um .eh5 para homologação. Conduz o briefing obrigatório, respeita formatos/arrays explícitos, carrega ebhtml-api, frontend-tailwind-golden-ratio e edgecontents-display-formats, e aplica os gates até o pacote final."
 ---
 
 # Workflow de Templates EdgeContents — Criação e Manutenção
@@ -44,7 +44,7 @@ Classificar o template antes de implementar. Esta regra não exige mover templat
 5. Política para dado ausente, inválido, desatualizado ou malformado — o que renderizar, o que ocultar, o que aborta o item.
 6. Quais players/builders/browsers precisam ser suportados (Chromium 78, Android+WebKit legado, QtWebKit legado tipo EBHTMLBuilder 3.0.5, outro)?
 7. O template roda em hardware historicamente fraco? Precisa de modo reduzido?
-8. Quais formatos/proporções são prioritários (portrait, landscape, square, ultrawide, superbanner, empena)?
+8. O usuario restringiu a um formato ou array/lista de resolucoes? Respeitar EXATAMENTE a lista mais recente, inclusive formatos ineditos, sem expandir por tenant/proporcao. Sem restricao, usar todas as resolucoes do catalogo. Lista vazia/invalida requer correcao; proporcao sem dimensoes requer confirmacao. Registrar matriz e snapshot no README unico; prioridades so alteram ordem, nao cobertura.
 9. Existem referências visuais, identidade, logo, fontes, imagens ou vídeos do tenant?
 10. Estrutura de exibição: só conteúdo, ou intro/conteúdo/outro? Qual duração e regra de finalização?
 11. Regra tipográfica: pode cortar/truncar texto ou precisa caber sempre? Há uniformização entre cards?
@@ -59,6 +59,7 @@ Classificar o template antes de implementar. Esta regra não exige mover templat
 
 ## 2. Selecionar base e carregar skills
 
+- Formatos, arrays de resolucoes, faixas, LED e matriz de producao: carregar `edgecontents-display-formats` em toda criacao/manutencao. Fonte: `docs/07-formatos-e-validacao.md`; auditar CSVs e registrar escopo explicito ou integral antes de implementar.
 - Ciclo de playlist, `addData`, filtros, `loaded/finished`, watchdog e o bug conhecido de zero itens: carregar `ebhtml-api`.
 - Breakpoints por aspect-ratio, sistema de fontes, anti-overlap, price blocks: carregar `frontend-tailwind-golden-ratio`.
 - Base executável: `_template-base/` (EBHTML 2.0.7). Não copiar de outra pasta de template sem antes comparar `ebhtml.js` com a fonte canônica.
@@ -80,13 +81,22 @@ Classificar o template antes de implementar. Esta regra não exige mover templat
 
 ## 4. Gates — nada é "concluído" sem isto
 
+### Lembrete recorrente: criacao e ajustes
+
+- Em todo pedido de criacao ou manutencao, retomar `edgecontents-display-formats`, mesmo que o usuario nao mencione formatos/responsividade. Em manutencao, recuperar o escopo registrado e reconcilia-lo com a solicitacao atual; nunca ampliar uma restricao explicita sem aprovacao.
+- Alteracoes de layout, fonte, conteudo dinamico, imagens, CSS ou autofit exigem rever responsividade nas resolucoes do escopo. Em ajustes sem impacto visual, registrar a justificativa dos checks nao aplicaveis, sem presumir nova homologacao.
+- Antes de uma execucao extensa, apresentar quantidade de formatos/cenarios e custo local esperado. Preferir resumos e inspecao dirigida de evidencias; nao enviar centenas de capturas ao modelo. Uma checagem curta do runner nao satisfaz o gate integral.
+- Na entrega, explicitar matriz usada, verificacoes executadas, resultado e pendencias de revisao visual/runtime. Se nao foi possivel executar, registrar o motivo e o proximo passo; nao marcar como aprovado.
+
+### Verificacoes obrigatorias
+
 1. Briefing fechado e registrado no README do template (único arquivo, sem docs concorrentes locais).
 2. `ebhtml.js` conferido contra `_template-base` (mesma versão/hash).
 3. `js/config.js` presente com `CONFIG` cobrindo timing/dataset/layout/colors, sem literais soltos equivalentes no HTML/master.js.
 4. ES5 e padrões proibidos ausentes.
 4. Todo caminho assíncrono finaliza exatamente uma vez: sucesso, erro, timeout, exceção de parsing, imagem em cache, imagem quebrada, mídia sem evento.
 5. Reload agressivo (F5 repetido) não trava o item.
-6. Formatos prioritários do briefing validados visualmente.
+6. Todos os formatos do escopo validados: lista explicita EXATA ou catalogo integral quando nao houve restricao. Conferir esperados/executados, viewport real e arquivo servido. Sucesso automatizado nao substitui revisao visual e homologacao no runtime; registrar bloqueios/excecoes sem omissoes silenciosas.
 7. Hardware fraco validado quando aplicável (`?hwfraco=1` + CPU throttle).
 8. Mock/scripts de desenvolvimento desativados para produção.
 9. Testado em `http://localhost:12099/FILES/1/index.html` — nunca `file:///`, nunca outro servidor.
@@ -111,6 +121,8 @@ Classificar o template antes de implementar. Esta regra não exige mover templat
 - [ ] Body visível; só dados dinâmicos ocultos durante carregamento
 - [ ] SVG inline via XHR
 - [ ] Tipografia com autofit e limites definidos
+- [ ] Matriz explicita exata ou catalogo integral, snapshot/hash e resultados por formato/cenario; nenhuma expansao ou omissao silenciosa
+- [ ] Revisao visual e runtime alvo separados de testes sinteticos/Chromium moderno; pendencias e excecoes humanas identificadas
 - [ ] Preview/hardware fraco/`localStorage` — decisão registrada, não assumida
 - [ ] Testado em `http://localhost:12099/FILES/1/index.html`
 - [ ] `.eh5` gerado, reaberto e validado
