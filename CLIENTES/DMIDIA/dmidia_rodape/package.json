@@ -1,0 +1,8 @@
+{
+    "name": "dmidia-rodape",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "tailwindcss -i css/input.css -o css/master.css --watch"
+    }
+}

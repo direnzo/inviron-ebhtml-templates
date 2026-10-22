@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { --cor-fundo: #000000; --cor-texto: #ffffff; }
+@font-face { font-family: 'Roboto Dmidia'; src: url('fonts/Roboto-Bold.ttf') format('truetype'); font-style: normal; font-weight: 700; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body { background: #000000; background: var(--cor-fundo); color: #ffffff; color: var(--cor-texto); font-family: 'Roboto Dmidia', sans-serif; font-size: 50vmin; font-weight: 700; }
+#rodape { position: absolute; left: 0; right: 0; height: auto; box-sizing: border-box; opacity: 0; }
+#logo { width: auto; max-width: 35%; object-fit: contain; flex: 0 0 auto; }
+#informacoes { flex: 0 0 auto; height: 100%; white-space: nowrap; line-height: 1.2; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+#temperatura { display: inline-block; width: 4em; text-align: right; visibility: hidden; }
+#relogio { display: inline-block; width: 3em; text-align: right; }
