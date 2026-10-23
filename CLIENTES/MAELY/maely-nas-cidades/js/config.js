@@ -11,7 +11,6 @@ var CONFIG = {
     },
     dataset: {
         name: 'D_NOTICIAS_MAELY',
-        category: 'painel news',
         amount: 1
     },
     fields: {

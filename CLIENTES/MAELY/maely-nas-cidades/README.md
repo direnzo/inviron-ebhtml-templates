@@ -1,7 +1,7 @@
 # MAELY Painel News
 
 - Template EdgeContents em `CLIENTES/MAELY/maely-nas-cidades`.
-- Dataset: `D_NOTICIAS_MAELY`, filtro `CATEGORY=painel news`, quantidade 1.
+- Dataset: `D_NOTICIAS_MAELY`, sem filtro de categoria, quantidade 1.
 - Campos: `TITULO`, fallback `TEXTO`/`TEXTOCOMPLETO`, imagem `FOTO`.
 - Cada consulta retorna uma noticia; a ordenacao aleatoria e definida pelo canal.
 - Duracao: 10 s. Sem dados ou imagem valida, libera a playlist sem desenhar conteudo.

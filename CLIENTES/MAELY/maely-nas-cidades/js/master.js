@@ -242,7 +242,7 @@ window.playerView = function () {
 
             window.ebhtml.create2({}, function (loader) {
                 activeLoader = loader;
-                var params = 'amount=' + CONFIG.dataset.amount + '&f_category=' + encodeURIComponent(CONFIG.dataset.category);
+                var params = 'amount=' + CONFIG.dataset.amount;
                 loader.addData(CONFIG.dataset.name, false, params);
                 loader.nodataiserror = false;
                 loader.autoloaded = false;
@@ -258,7 +258,7 @@ window.playerView = function () {
                     try {
                         record = loader.data(CONFIG.dataset.name);
                         if (!record) {
-                            retryOrRelease('dataset vazio para CATEGORY=' + CONFIG.dataset.category, loader);
+                            retryOrRelease('dataset vazio', loader);
                             return;
                         }
                         mediaWatchdog = setTimeout(function () {
