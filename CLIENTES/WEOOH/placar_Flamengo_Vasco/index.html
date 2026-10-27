@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WEOOH - Vasco x Flamengo</title>
+    <link rel="stylesheet" href="css/master.css">
+</head>
+<body>
+    <main id="stage" aria-label="Placar da partida">
+        <video id="base-video" class="media" autoplay muted loop playsinline webkit-playsinline preload="auto"></video>
+        <video id="alert-video" class="media" muted playsinline webkit-playsinline preload="none"></video>
+        <section id="scoreboard" aria-label="Dados da partida">
+            <div id="left-name" class="region team-name"></div>
+            <div id="right-name" class="region team-name"></div>
+            <div id="left-data" class="region team-data">
+                <span id="left-score" class="score"></span>
+            </div>
+            <div id="right-data" class="region team-data">
+                <span id="right-score" class="score"></span>
+            </div>
+            <div id="match-status" class="region match-status"></div>
+            <div id="match-clock" class="region match-clock"></div>
+        </section>
+    </main>
+    <script src="js/ebhtml.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/match-state.js"></script>
+    <script src="js/mock-data.js"></script>
+    <script src="js/master.js"></script>
+</body>
+</html>
