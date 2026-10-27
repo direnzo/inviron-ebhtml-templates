@@ -55,19 +55,19 @@ const CONFIG = {
     // --- layout (px em 1280x512) ---
     // Bloco direito = esquerdo + deslocamento (titulo, foto e lista; ver layout JSON).
     deslocamentoBloco: 615.953,
-    titulo: { x: 70.12, baselines: [83.334, 121.423], tam: 43.5303, linhas: 2, largura: 540, cor: '#ADDA09' },
+    titulo: { x: 70.12, baselines: [83.334, 121.423], tam: 43.5303, tamUmaLinha: 60, linhas: 2, largura: 540, cor: '#ADDA09' },
     foto: { x: 70.997, y: 132.982, lado: 307.33, borda: 1, bordaCor: '#000000' },
     // Lista de modalidades: rotulo (ciano) e horario (branco) logo abaixo; x relativo ao bloco esquerdo.
     // baselines = linha de base do rotulo de cada item; horario = rotulo + horarioDelta.
     variantes: {
         compacta: {
             xRotulo: 391.296, xHorario: 390.226,
-            tamRotulo: 25.0196, tamHorario: 30.0235, horarioDelta: 28.783,
+            tamRotulo: 25.0196, tamHorario: 27, larguraHorario: 240, horarioDelta: 28.783,
             baselines: [164.293, 221.556, 278.82, 337.556, 394.82]
         },
         grande: {
             xRotulo: 391.879, xHorario: 390.226, // bloco direito medido em 1007.832 / 1006.179, menos o deslocamento
-            tamRotulo: 38.607, tamHorario: 46.3284, horarioDelta: 44.416,
+            tamRotulo: 38.607, tamHorario: 41.7, larguraHorario: 240, horarioDelta: 44.416,
             baselines: [186.681, 275.043, 363.406]
         }
     },

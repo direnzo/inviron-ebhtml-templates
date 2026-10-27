@@ -99,6 +99,21 @@
             return Math.max(1, Math.round((el.scrollHeight - 2 * pad) / ent));
         };
         const natural = medir();
+        if (natural === 1 && el.scrollWidth <= el.clientWidth && cfg.tamUmaLinha > cfg.tam) {
+            let minimo = cfg.tam;
+            let maximo = cfg.tamUmaLinha;
+            el.style.whiteSpace = 'nowrap';
+            el.style.paddingTop = '0px';
+            el.style.paddingBottom = '0px';
+            for (let passo = 0; passo < 8; passo += 1) {
+                const tamanho = (minimo + maximo) / 2;
+                el.style.fontSize = tamanho + 'px';
+                if (el.scrollWidth <= el.clientWidth) { minimo = tamanho; } else { maximo = tamanho; }
+            }
+            const baseline = Math.min(cfg.baselines[cfg.linhas - 1], C.foto.y - (CONTEUDO - ASC) * minimo);
+            linha(el, cfg.x, baseline, minimo);
+            return 'nominal';
+        }
         el.style.height = (cfg.linhas * ent + 2 * pad) + 'px';
         let estado = 'nominal';
         if (natural > cfg.linhas || !cabe(el)) {
@@ -236,7 +251,7 @@
             horario.style.color = C.corHorario;
             horario.textContent = s.horario;
             const yHorario = base + v.horarioDelta;
-            linha(horario, v.xHorario + dx, yHorario, v.tamHorario, 270);
+            linha(horario, v.xHorario + dx, yHorario, v.tamHorario, v.larguraHorario);
 
             if (s.esgotado) {
                 const sc = C.selo;

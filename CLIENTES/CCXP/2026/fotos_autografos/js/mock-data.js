@@ -79,7 +79,9 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
     }
 
     const MOD = ['Autógrafo', 'Foto individual', 'Foto em dupla', 'Foto em grupo', 'Selfie', 'Meet&Greet'];
-    const NOMES = ['Elenco de Senhor dos Anéis', 'Ana Souza', 'Álvaro Mendes', 'Bruno Carvalho', 'Émerson Lima',
+    const NOMES = ['Elenco de Senhor dos Anéis', 'Ana Souza',
+        'Álvaro Mendes e o elenco de Guardiões da Galáxia',
+        'Bruno Carvalho e os criadores de Mundos Fantásticos', 'Émerson Lima',
         'Carla Dias', 'Zeca Pagodinho Jr.', 'Marina Alves', 'Quarteto Fantástico', 'João Pedro', 'Elenco de The Boys',
         'Daniela Rocha', 'Fernanda Costa', 'Gustavo Reis'];
     const LONGOS = ['Elenco de A Guerra dos Tronos: A Casa do Dragão com convidados especiais da produção',

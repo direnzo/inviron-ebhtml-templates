@@ -2,6 +2,8 @@
 
 Plano: `../docs/PLANO-FOTOS-AUTOGRAFOS.md`. Base de código: `../destaque_dia` e `../programacao_palco`.
 Tela horizontal (LED P3.9): sem rodapé e sem relógio; 2 blocos de artista por página.
+Escopo herdado explícito: somente 1280x512; ajuste tipográfico em `fix/ccxp-fotos-autografos-tipografia`.
+Validação: 19 testes e mock estático via ebcliente4; 4 cenários em `.validation/ccxp-fea-tipografia-final-1793106445666/`, duas páginas com nomes de 1/2 linhas e limite de 60 px em `.validation/ccxp-fea-nomes-60-1793107006475/`. LED, animações e pacote não homologados neste ajuste.
 
 ## Estado (2026-10-14)
 
@@ -33,10 +35,10 @@ Vídeos (`videos/fa_intro|fa_outro.mp4`, 1280x512, 5 s e 11 s) ficam fora do Git
   restante sai. Ordem alfabética sem acento; sessões do artista por horário.
 - 2 artistas por página, 10 s por página (`tempos.pagina`). Página com 1 artista: bloco **centralizado**
   na tela (`centralizarUnico`), medido pelo conteúdo real (foto, título e horários).
-- Variante por quantidade de modalidades: até 3 grande (38,6 / 46,3 px); 4 a 5 compacta (25,0 / 30,0 px).
+- Variante por quantidade de modalidades: até 3 grande (38,6 / 41,7 px); 4 a 5 compacta (25,0 / 27,0 px).
   Mais de 5: as 5 primeiras (por horário).
-- Título: caixa alta, até 2 linhas (43,5 px, entrelinha 38,1) e `...` acima disso; 1 linha fica na
-  linha de base de baixo (junto da foto).
+- Título: caixa alta, até 2 linhas (43,5 px, entrelinha 38,1) e `...` acima disso; 1 linha cresce até
+  60 px enquanto couber na largura, junto da foto sem sobrepor sua área. O mock padrão alterna exemplos de 1/2 linhas nas primeiras páginas.
 - Horário como 2025 (`horarioFonte: 'texto'`): `TEXTO2` com `:` → `h` ("12:00 às 13:00" → `12h00 às 13h00`);
   vazio cai em `DT_BEGIN - DT_END` (`11h25 - 12h00`; sem `DT_END` válido só o início, duração padrão de
   60 min para o filtro). `horarioFonte: 'periodo'` usa sempre `DT_BEGIN - DT_END`.
@@ -67,8 +69,8 @@ Vídeos (`videos/fa_intro|fa_outro.mp4`, 1280x512, 5 s e 11 s) ficam fora do Git
   variante (391,3 compacta / 391,9 grande); horários 390,2.
 - Na variante grande com 1 ou 2 linhas a lista fica no alto (primeiras linhas de base do modelo).
 - Horário em texto ("12h00 às 13h00") é mais largo que o período; rótulos e horários encolhem até 60%
-  dentro de 270 px.
-- Largura máxima do título 540 px e de rótulo/horário 270 px (provisórias; o modelo só mostra um exemplo).
+  dentro de 270 e 240 px, respectivamente.
+- Largura máxima do título 540 px, rótulo 270 px e horário 240 px (respiro à direita de pelo menos 33 px).
 
 ## Teste
 
