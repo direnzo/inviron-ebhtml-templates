@@ -1,0 +1,8 @@
+{
+  "name": "weooh-placar-flamengo-vasco",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "tailwindcss -i css/input.css -o css/master.css --watch"
+  }
+}

@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: 'Placar';
+    src: url('../fonts/Poppins-ExtraBold.ttf') format('truetype');
+    font-weight: 900;
+    font-display: swap;
+}
+
+:root { --cor-texto: #000000; --cor-fundo: #000000; }
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body { background: #000000; background: var(--cor-fundo); font-family: 'Placar', sans-serif; font-weight: 900; font-size: 2.6vmin; letter-spacing: 0; }
+#stage { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; }
+.media { position: absolute; top: 0; left: 0; width: 100%; height: 100%; max-width: none; object-fit: fill; }
+#base-video { z-index: 0; }
+#alert-video { z-index: 2; visibility: hidden; }
+#scoreboard { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition-property: opacity; }
+.region { position: absolute; overflow: hidden; text-align: center; color: #000000; color: var(--cor-texto); }
+.team-name, .match-status, .match-clock { display: flex; align-items: center; justify-content: center; padding: 0.12em 0.35em; }
+.team-name { font-size: 1.28em; white-space: nowrap; }
+.team-data { padding: 0.18em 0.3em; }
+.score { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 8.4em; line-height: 0.8; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.match-status { font-size: 1.2em; line-height: 1; white-space: nowrap; }
+.match-clock { font-size: 2.8em; line-height: 1; white-space: nowrap; font-variant-numeric: tabular-nums; padding: 0.05em 0.12em; }
+.strip .team-data { padding: 0.05em 0.25em; }
+.strip .score { font-size: 4.5em; }
+.strip .match-clock { font-size: 1.6em; }
+.hardware-fraco #scoreboard { transition: none; }
