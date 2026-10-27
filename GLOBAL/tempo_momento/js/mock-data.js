@@ -12,21 +12,20 @@ var MOCK_DATA = {
     dados: []
 };
 
-// Use um codigo HG Brasil (1 a 11) para fixar um icone, ou null para sequencial.
+// Use um slug HG Brasil de mm_textpt_wea para fixar um icone, ou null para sequencial.
 var MOCK_ICONE_ATIVO = null;
 
 var MOCK_CONDICOES = [
-    { icon: "1", descricao: "Sol" },
-    { icon: "2", descricao: "Chuva" },
-    { icon: "3", descricao: "Trovoadas" },
-    { icon: "4", descricao: "Tempo nublado" },
-    { icon: "5", descricao: "Sol e chuva" },
-    { icon: "6", descricao: "Sol e nuvens" },
-    { icon: "7", descricao: "Neve" },
-    { icon: "8", descricao: "Chuva forte" },
-    { icon: "9", descricao: "Geada" },
-    { icon: "10", descricao: "Chuvisco" },
-    { icon: "11", descricao: "Chuvas esparsas" }
+    { icon: "storm", descricao: "Trovoadas" },
+    { icon: "snow", descricao: "Neve" },
+    { icon: "rain", descricao: "Chuva" },
+    { icon: "fog", descricao: "Nevoeiro" },
+    { icon: "hail", descricao: "Granizo" },
+    { icon: "cloud", descricao: "Tempo nublado" },
+    { icon: "clear_night", descricao: "Ceu limpo" },
+    { icon: "cloudly_day", descricao: "Sol e nuvens" },
+    { icon: "cloudly_night", descricao: "Sol e nuvens" },
+    { icon: "clear_day", descricao: "Sol" }
 ];
 
 function mockAleatorio(min, max) {

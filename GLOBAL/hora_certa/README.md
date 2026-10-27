@@ -5,7 +5,7 @@ Template de relógio digital para EdgeContents CMS com flip-card animation e bac
 ## Dados
 
 - Canal meteorológico: `D_CLIMA_HGBRASIL`, habilitado em `CLOCK_CONFIG.climateEnabled`.
-- Registro atual em `C1_D1_DATAARRAY`: temperatura (`nr_value_wea`), ícone (`nr_icon_wea`), cidade (`city.ds_name_cit`), umidade min/max e vento (`nr_windavgvelocity_wea`).
+- Registro atual em `C1_D1_DATAARRAY`: temperatura (`nr_value_wea`), ícone (`mm_textpt_wea`, slug HG Brasil como `rain` ou `clear_night`), cidade (`city.ds_name_cit`), umidade min/max e vento (`nr_windavgvelocity_wea`). `nr_icon_wea` permanece exclusivo da previsao diaria.
 - Clima só é exibido com temperatura válida e atualização (`dt_upd_wea`) de até 24 horas; dados ausentes, inválidos, antigos ou com falha no carregamento ocultam a linha sem impedir o relógio ou antecipar o fim da playlist.
 - `js/provider-hgbrasil.js` converte códigos HG Brasil para ícones Meteocon; a fonte exibida é HG Brasil.
 
@@ -43,3 +43,5 @@ Ative `MOCK_DATA.enabled = true` em `js/mock-data.js` para testar sem servidor.
 | `js/perlin.js` | Algorítmo de ruído Perlin |
 | `js/ebhtml.js` | Biblioteca EBHTML |
 | `js/mock-data.js` | Dados de teste |
+
+Validacao 2026-10-27: regressao HG Brasil, SVGs e clima ativo/inativo em `scripts/hgbrasil-current-icons.test.js`; visual/runtime pendente (slot local em previsao_tempo). Escopo integral: 1.012 formatos, snapshot 2026-10-20; matriz/hash em `.validation/hgbrasil-current-icons-20261027/catalog-matrix-not-run.json`, nao executada. Nenhum `.eh5` gerado nesta correcao.

@@ -11,6 +11,7 @@ Template EdgeContents para previsao do tempo, compativel com Chromium 78 e WebKi
 
 ## Icones
 - `meteocons-helpers.js` injeta SVGs locais; `provider-hgbrasil.js` traduz `nr_icon_wea` para o vocabulario Meteocon.
+- Os tres dias mantem `nr_icon_wea` numerico. Somente o header usa `mm_textpt_wea` textual de D1, convertido pela tabela de slugs HG Brasil, sem copiar o SVG do primeiro dia.
 - XML publicado confirma `4` = Tempo nublado e `11` = Chuvas esparsas. Esses valores nao sao o `condition_code` 0-48 da documentacao HG; esse campo nao aparece no XML atual.
 - Codigos numericos nao observados preservam a equivalencia legada 1-11; codigo desconhecido usa `not-available`. Descricao oficial continua vindo de `ds_textmin_wea`.
 - Para outra fonte, adaptar o parser e trocar o provider; layout e motor de SVG permanecem independentes.
@@ -25,3 +26,7 @@ Template EdgeContents para previsao do tempo, compativel com Chromium 78 e WebKi
 - Providers CPTEC, Climatempo e OpenWeather continuam disponiveis, mas nao estao ativos.
 - `js/ebhtml.js` existente: versao 2.0.3. Migracoes de EBHTML exigem branch separada.
 - CSS: `npm run dev`. Teste EdgeContents: `http://localhost:12099/FILES/1/index.html`.
+
+## Validacao do icone atual (2026-10-27)
+- Regressao: `node --test scripts/hgbrasil-current-icons.test.js`. Player real: arquivos conferidos, SVG do header distinto de D1 e ciclo unico `loaded,finished` em 1920x1080 e 1080x1920 (modo fraco).
+- Escopo integral: catalogo de 1.012 formatos, snapshot 2026-10-20; matriz/hash e evidencias em `.validation/hgbrasil-current-icons-20261027/`. Matriz integral nao executada; amostras nao homologam o legado. Nenhum `.eh5` gerado nesta correcao.

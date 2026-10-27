@@ -10,7 +10,7 @@ var MOCK_DATA = {
     datasets: {
         'D_CLIMA_HGBRASIL': [
             {
-                C1_D1_DATAARRAY: '[{"nr_value_wea":"20","nr_icon_wea":"4","ds_textmin_wea":"Tempo nublado","nr_humiditymin_wea":"61","nr_humiditymax_wea":"61","nr_windavgvelocity_wea":"22","ds_winddirection_wea":"","city":{"ds_name_cit":"São Paulo"}}]'
+                C1_D1_DATAARRAY: '[{"nr_value_wea":"20","nr_icon_wea":"4","mm_textpt_wea":"cloud","ds_textmin_wea":"Tempo nublado","nr_humiditymin_wea":"61","nr_humiditymax_wea":"61","nr_windavgvelocity_wea":"22","ds_winddirection_wea":"","city":{"ds_name_cit":"São Paulo"}}]'
             }
         ]
     }

@@ -30,6 +30,7 @@ function criarItemMock(codigo, indice) {
         MAX: maximas[pos],
         MIN: minimas[pos],
         ICON: codigo,
+        ICON_ATUAL: pos === 0 ? 'rain' : '',
         QTDE_CHUVA: chuva[pos],
         PROB_CHUVA: probabilidade[pos],
         VENTO_DIR: '',

@@ -165,9 +165,9 @@ window.onload = function () {
         var dados = {
           CIDADE: cidade,
           CIDADE_SYS: registro.city ? valorRegistroClima(registro.city, "sys_city_cit") : "",
-          ICON: valorRegistroClima(registro, "nr_icon_wea"),
+          ICON: valorRegistroClima(registro, "mm_textpt_wea"),
           VIDEO_ICON: hgBrasilMomentoParaVideo(
-            valorRegistroClima(registro, "nr_icon_wea"),
+            valorRegistroClima(registro, "mm_textpt_wea"),
             valorRegistroClima(registro, "dt_sunrise_wea"),
             valorRegistroClima(registro, "dt_sunset_wea")
           ),
@@ -177,7 +177,7 @@ window.onload = function () {
           UMIDADE: umidadeHgBrasil(registro),
           VENTO_VEL: valorRegistroClima(registro, "nr_windavgvelocity_wea"),
           VENTO_DIR: valorRegistroClima(registro, "ds_winddirection_wea"),
-          DESCRICAO: valorRegistroClima(registro, "ds_textmin_wea") || resolverCondicaoHgBrasilMomento(registro.nr_icon_wea).descricao,
+          DESCRICAO: valorRegistroClima(registro, "ds_textmin_wea") || resolverCondicaoHgBrasilMomento(valorRegistroClima(registro, "mm_textpt_wea")).descricao,
           SENSACAO: ""
         };
         var spd = sponsorEnabled ? parseSpdPayload(loader) : null;

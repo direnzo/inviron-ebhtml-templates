@@ -468,6 +468,7 @@ window.onload = function () {
             MIN: min,
             ATUAL: d === 0 ? valorClima(dadosDia, "nr_value_wea") : "",
             ICON: iconeCodigo,
+            ICON_ATUAL: d === 0 ? valorClima(dadosDia, "mm_textpt_wea") : "",
             QTDE_CHUVA: valorClima(dadosDia, "nr_precipitation_wea"),
             PROB_CHUVA: valorClima(dadosDia, "nr_probrain_wea"),
             VENTO_DIR: valorClima(dadosDia, "ds_winddirection_wea"),
@@ -630,12 +631,23 @@ function revelarCardsQuandoProntos(cards, callbackFinal) {
   }
 }
 
-function aplicarIconeAtualNoBadge(cards) {
+function aplicarIconeAtualNoBadge(codigo, corClima, callback) {
   var destino = document.getElementById("temperatura-atual-icone");
-  var iconeOrigem = cards && cards.length ? cards[0].querySelector(".icon svg") : null;
-  if (!destino || !iconeOrigem) return;
+  if (!destino) {
+    callback();
+    return;
+  }
   destino.innerHTML = "";
-  destino.appendChild(iconeOrigem.cloneNode(true));
+  injetarMeteocon(destino, codigoParaMeteocon(codigo), corClima);
+  var limite = Date.now() + (HARDWARE_FRACO ? 520 : 360);
+  function verificar() {
+    if (destino.querySelector("svg") || Date.now() >= limite) {
+      callback();
+    } else {
+      setTimeout(verificar, 35);
+    }
+  }
+  verificar();
 }
 
 function iniciarTemplate(dados, config, loader) {
@@ -698,10 +710,13 @@ function iniciarTemplate(dados, config, loader) {
     animarCards(cardsElements, dados.length);
     autofitTodasDescricoes();
     revelarCardsQuandoProntos(cardsElements, function () {
-      if (temperaturaAtual && dados[0] && dados[0].ICON && temperaturaAtualIcone) {
-        aplicarIconeAtualNoBadge(cardsElements);
+      if (temperaturaAtual && temperaturaAtualIcone) {
+        aplicarIconeAtualNoBadge(dados[0].ICON_ATUAL, corClima, function () {
+          sinalizarLoaded(loader);
+        });
+      } else {
+        sinalizarLoaded(loader);
       }
-      sinalizarLoaded(loader);
     });
   }, HARDWARE_FRACO ? 40 : 20);
 

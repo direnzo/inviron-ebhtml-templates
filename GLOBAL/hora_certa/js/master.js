@@ -9,13 +9,13 @@ var CLOCK_CONFIG = {
     sponsorEnabled: false, // se true, ativa o suporte a D_SPD (patrocinador) e pré-roll
     climateEnabled: true, // se true, ativa o suporte a D_CLIMA_HGBRASIL (clima) e ícones Meteocons
     wavesEnabled: true, // se true, mantém as ondas de background ativas independentemente do hardware
-    forceReducedMode: false, // se true, força modo de performance reduzida (desliga ondas e fundo animado)
+    forceReducedMode: true, // se true, força modo de performance reduzida (desliga ondas e fundo animado)
     lowPerformanceTickMs: 250, // intervalo de atualização do relógio em ms quando em modo reduzido (normal = 100ms)
     
     sponsorRandomTest: false, // se true, alterna sponsor true/false a cada load (teste)
     climateRandomTest: false, // se true, ativa teste aleatório de clima (para desenvolvimento sem D_CLIMA)
 
-    colorTheme: 3, // índice da paleta em COLOR_PALETTES (0–9), ou -1 para aleatório a cada load
+    colorTheme: -1, // índice da paleta em COLOR_PALETTES (0–9), ou -1 para aleatório a cada load
 
     /*
     colorTheme: -1,   // aleatório a cada load (comportamento anterior)
@@ -1104,7 +1104,7 @@ function loadWeather(loader) {
 }
 
 function renderWeather(registro) {
-    var iconCode = valorClimaHgBrasilHoraCerta(registro, 'nr_icon_wea');
+    var iconCode = valorClimaHgBrasilHoraCerta(registro, 'mm_textpt_wea');
     var temp = valorClimaHgBrasilHoraCerta(registro, 'nr_value_wea');
     var humidityMin = valorClimaHgBrasilHoraCerta(registro, 'nr_humiditymin_wea');
     var humidityMax = valorClimaHgBrasilHoraCerta(registro, 'nr_humiditymax_wea');
