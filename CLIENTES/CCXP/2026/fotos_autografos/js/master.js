@@ -39,7 +39,7 @@
             if (!item) { continue; }
             sessoes.push({
                 artista: campo(item, k.artista), foto: campo(item, k.foto), modalidade: campo(item, k.modalidade),
-                inicio: campo(item, k.inicio), fim: campo(item, k.fim), esgotado: campo(item, k.esgotado),
+                data: campo(item, k.data), esgotado: campo(item, k.esgotado),
                 horarioTexto: campo(item, k.horarioTexto)
             });
         }
@@ -406,9 +406,8 @@
             try {
                 const sessoes = lerSessoes(loader);
                 const selecao = Fea.selecionar(sessoes, agoraMs(), {
-                    offsetMin: C.fuso, duracaoPadraoMin: C.duracaoPadraoMin, esgotadoValor: C.esgotadoValor,
-                    modalidades: C.modalidades, maxModalidades: C.maxModalidades, limiteGrande: C.limiteGrande,
-                    horarioFonte: C.horarioFonte
+                    anoEvento: C.anoEvento, offsetMin: C.fuso, duracaoPadraoMin: C.duracaoPadraoMin, esgotadoValor: C.esgotadoValor,
+                    modalidades: C.modalidades, maxModalidades: C.maxModalidades, limiteGrande: C.limiteGrande
                 });
                 const steps = Fea.buildSteps(selecao, T, C.itensPorPagina);
                 log('registros', sessoes.length, 'artistas', selecao.artistas.length, 'sessoes', selecao.sessoes,
@@ -435,7 +434,7 @@
         videoIntro.src = C.videoIntro;
         videoOutro.src = C.videoOutro;
 
-        // Sem filtro de data no servidor: o recorte "hoje" e feito no cliente (fuso -03:00).
+        // Sem filtro no servidor: o cliente interpreta data/horario e remove sessoes ja encerradas.
         loader.addData(C.dataset, false, 'amount=0', '', C.basePath);
         loader.nodataiserror = false;
         loader.autoloaded = false;

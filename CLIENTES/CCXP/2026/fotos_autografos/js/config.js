@@ -8,17 +8,15 @@ const CONFIG = {
     debug: true, // logs [CCXP]; desligar em producao
 
     dataset: 'D_CCXP_FEA',
+    anoEvento: 2026, // TEXTO do dataset usa DD/MM, sem ano
     basePath: 'http://localhost:13199/CONTENT/DATA', // mesmo caminho de 2025 (a porta 13199 libera CORS)
     fuso: -180,   // minutos; datas sem fuso no dataset sao lidas em Sao Paulo
 
-    // Campos do dataset (2025: TITULO artista, FOTO, CATEGORY modalidade, DT_BEGIN/DT_END, TEXTO3 esgotado).
+    // Campos do dataset: TEXTO data (DD/MM), TEXTO2 horario, TITULO artista e CATEGORY modalidade.
     campos: {
-        artista: 'TITULO', foto: 'FOTO', modalidade: 'CATEGORY', inicio: 'DT_BEGIN', fim: 'DT_END',
+        artista: 'TITULO', foto: 'FOTO', modalidade: 'CATEGORY', data: 'TEXTO',
         esgotado: 'TEXTO3', horarioTexto: 'TEXTO2'
     },
-    // Horario exibido: 'texto' = TEXTO2 do CMS como 2025 ("12:00 as 13:00" vira "12h00 as 13h00"; se vazio,
-    // cai no periodo) ou 'periodo' = DT_BEGIN - DT_END ("12h00 - 13h00"). Pergunta 4: manter 2025.
-    horarioFonte: 'texto',
     centralizarUnico: true,    // pagina com 1 artista: bloco centralizado na tela (pergunta 3)
     esgotadoValor: 'sim',      // provisorio (pergunta 6): TEXTO3 === 'sim', sem caixa/espacos
     itensPorPagina: 2,         // blocos de artista por tela

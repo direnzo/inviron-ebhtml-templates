@@ -7,13 +7,21 @@ const F = require('../fotos_autografos/js/fea.js');
 
 const TZ = -180;
 const MODS = { 'autografo': 'Autógrafo', 'foto individual': 'Foto individual', 'selfie': 'Selfie' };
-const OPTS = { offsetMin: TZ, duracaoPadraoMin: 60, esgotadoValor: 'sim', modalidades: MODS, maxModalidades: 5, limiteGrande: 3 };
+const OPTS = { anoEvento: 2026, offsetMin: TZ, duracaoPadraoMin: 60, esgotadoValor: 'sim', modalidades: MODS, maxModalidades: 5, limiteGrande: 3 };
 const at = (text) => P.parseDateTime(text, TZ);
 const NOW = at('2026-12-04 14:40:00');
 const TIMING = { intro: 5000, pagina: 10000, outro: 11000 };
 
 function sessao(artista, modalidade, inicio, fim, extra) {
-    return Object.assign({ artista: artista, foto: 'f.jpg', modalidade: modalidade, inicio: inicio, fim: fim, esgotado: '', horarioTexto: '' }, extra || {});
+    const inicioWall = P.wallClock(at(inicio), TZ);
+    const fimMs = fim ? at(fim) : NaN;
+    const fimWall = isNaN(fimMs) ? null : P.wallClock(fimMs, TZ);
+    const data = String(inicioWall.d).padStart(2, '0') + '/' + String(inicioWall.m).padStart(2, '0');
+    const horaInicio = String(inicioWall.hh).padStart(2, '0') + ':' + String(inicioWall.mm).padStart(2, '0');
+    const horaFim = fimWall && P.dayKey(fimMs, TZ) === P.dayKey(at(inicio), TZ)
+        ? String(fimWall.hh).padStart(2, '0') + ':' + String(fimWall.mm).padStart(2, '0') : '';
+    const horarioTexto = horaFim ? 'das ' + horaInicio + ' às ' + horaFim : 'às ' + horaInicio;
+    return Object.assign({ artista: artista, foto: 'f.jpg', modalidade: modalidade, data: data, esgotado: '', horarioTexto: horarioTexto }, extra || {});
 }
 const D = '2026-12-04 ';
 const nomes = (s) => s.artistas.map((a) => a.nome);
@@ -45,13 +53,13 @@ test('ordem alfabetica sem acento nem caixa', () => {
     assert.deepEqual(nomes(F.selecionar(raw, NOW, OPTS)), ['ÁGATA', 'álvaro', 'Ana', 'bruno', 'Émerson', 'Zeca']);
 });
 
-test('so sessoes de hoje: ontem e amanha ficam de fora', () => {
+test('sessoes futuras de outros dias tambem entram; encerradas ficam de fora', () => {
     const raw = [
         sessao('Ontem', 'Selfie', '2026-12-03 15:00:00', '2026-12-03 16:00:00'),
         sessao('Amanha', 'Selfie', '2026-12-05 15:00:00', '2026-12-05 16:00:00'),
         sessao('Hoje', 'Selfie', D + '15:00:00', D + '16:00:00')
     ];
-    assert.deepEqual(nomes(F.selecionar(raw, NOW, OPTS)), ['Hoje']);
+    assert.deepEqual(nomes(F.selecionar(raw, NOW, OPTS)), ['Amanha', 'Hoje']);
 });
 
 test('sessao encerrada some; fim exato ja nao vale', () => {
@@ -78,9 +86,37 @@ test('artista sem sessoes restantes sai; as vivas continuam', () => {
 
 test('troca de dia: o mesmo conjunto vira outro dia', () => {
     const raw = [sessao('Ana', 'Selfie', '2026-12-05 10:00:00', '2026-12-05 11:00:00')];
-    assert.deepEqual(nomes(F.selecionar(raw, NOW, OPTS)), []);
+    assert.deepEqual(nomes(F.selecionar(raw, NOW, OPTS)), ['Ana']);
     assert.deepEqual(nomes(F.selecionar(raw, at('2026-12-05 09:00:00'), OPTS)), ['Ana']);
-    assert.deepEqual(nomes(F.selecionar(raw, at('2026-12-04 23:59:00'), OPTS)), []);
+    assert.deepEqual(nomes(F.selecionar(raw, at('2026-12-05 11:00:00'), OPTS)), []);
+});
+
+test('feed real: TEXTO e TEXTO2 definem data, inicio e termino', () => {
+    const raw = [{ artista: 'Ana', foto: 'a.jpg', modalidade: 'Autografo', data: '05/12', esgotado: '', horarioTexto: 'das 10:00 às 18:00' }];
+    const s = F.selecionar(raw, at('2026-10-27 12:00:00'), OPTS);
+    const sessao = s.artistas[0].sessoes[0];
+    assert.equal(sessao.startMs, at('2026-12-05 10:00:00'));
+    assert.equal(sessao.endMs, at('2026-12-05 18:00:00'));
+    assert.equal(sessao.horario, '10h00 - 18h00');
+});
+
+test('feed real: horario unico usa duracao padrao; data ou horario invalido descarta', () => {
+    const raw = [
+        { artista: 'Ana', modalidade: 'Selfie', data: '05/12', horarioTexto: 'às 15:30' },
+        { artista: 'Bia', modalidade: 'Selfie', data: '31/02', horarioTexto: 'às 15:30' },
+        { artista: 'Caio', modalidade: 'Selfie', data: '05/12', horarioTexto: 'sem horario' }
+    ];
+    const s = F.selecionar(raw, at('2026-12-05 15:45:00'), OPTS);
+    assert.deepEqual(nomes(s), ['Ana']);
+    assert.equal(s.artistas[0].sessoes[0].endMs, at('2026-12-05 16:30:00'));
+    assert.equal(s.artistas[0].sessoes[0].horario, '15h30 - 16h30');
+    assert.equal(s.descartados, 2);
+});
+
+test('horario ja no padrao exato e preservado', () => {
+    const raw = [{ artista: 'Ana', modalidade: 'Selfie', data: '05/12', horarioTexto: '10h00 - 18h00' }];
+    const s = F.selecionar(raw, at('2026-10-27 12:00:00'), OPTS);
+    assert.equal(s.artistas[0].sessoes[0].horario, '10h00 - 18h00');
 });
 
 test('fuso: 01:00 UTC de 05/12 ainda e 04/12 em -03:00', () => {
@@ -123,24 +159,22 @@ test('sessoes do artista em ordem de horario', () => {
     assert.deepEqual(F.selecionar(raw, NOW, OPTS).artistas[0].sessoes.map((x) => x.rotulo), ['Autógrafo', 'Selfie']);
 });
 
-test('horario "11h25 - 12h00"; sem DT_END valido mostra so o inicio', () => {
+test('todos os horarios usam faixa canonica; faixa invertida usa duracao padrao', () => {
     const s = F.selecionar([
         sessao('Ana', 'Autografo', D + '15:25:00', D + '16:00:00'),
         sessao('Bia', 'Autografo', D + '15:25:00', ''),
         sessao('Caio', 'Autografo', D + '15:25:00', D + '15:00:00')
     ], NOW, OPTS);
-    assert.deepEqual(s.artistas.map((a) => a.sessoes[0].horario), ['15h25 - 16h00', '15h25', '15h25']);
+    assert.deepEqual(s.artistas.map((a) => a.sessoes[0].horario), ['15h25 - 16h00', '15h25 - 16h25', '15h25 - 16h25']);
 });
 
-test('horario como 2025: TEXTO2 troca : por h; vazio cai no periodo; fonte periodo ignora o texto', () => {
+test('horarios com dois pontos sao normalizados na faixa canonica', () => {
     const raw = [
         sessao('Ana', 'Autografo', D + '15:00:00', D + '16:00:00', { horarioTexto: '15:00 às 16:00' }),
-        sessao('Bia', 'Autografo', D + '15:25:00', D + '16:00:00', { horarioTexto: '  ' })
+        sessao('Bia', 'Autografo', D + '15:25:00', D + '16:00:00')
     ];
-    const texto = F.selecionar(raw, NOW, Object.assign({ horarioFonte: 'texto' }, OPTS));
-    assert.deepEqual(texto.artistas.map((a) => a.sessoes[0].horario), ['15h00 às 16h00', '15h25 - 16h00']);
-    const periodo = F.selecionar(raw, NOW, Object.assign({ horarioFonte: 'periodo' }, OPTS));
-    assert.deepEqual(periodo.artistas.map((a) => a.sessoes[0].horario), ['15h00 - 16h00', '15h25 - 16h00']);
+    const s = F.selecionar(raw, NOW, OPTS);
+    assert.deepEqual(s.artistas.map((a) => a.sessoes[0].horario), ['15h00 - 16h00', '15h25 - 16h00']);
 });
 
 test('esgotado: TEXTO3 = sim (sem caixa/espacos); outro valor nao', () => {
