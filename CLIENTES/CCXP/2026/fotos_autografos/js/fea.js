@@ -26,29 +26,35 @@
         return String(texto || '').replace(/\s+/g, ' ').trim();
     }
 
-    /** "12:00 às 13:00" -> "12h00 às 13h00" (como 2025: todos os ":" viram "h"). */
-    function formatarTexto(texto) {
-        return limpo(texto).replace(/:/g, 'h');
+    /** Mantem o padrao pronto; nos demais casos, formata os instantes calculados. */
+    function formatarHorario(texto, inicioMs, fimMs, offsetMin) {
+        const valor = limpo(texto);
+        if (/^\d{2}h\d{2} - \d{2}h\d{2}$/.test(valor)) { return valor; }
+        return P.formatHora(inicioMs, offsetMin) + ' - ' + P.formatHora(fimMs, offsetMin);
     }
 
     /**
-     * raw: { artista, foto, modalidade, inicio, fim, esgotado, horarioTexto } (strings do dataset).
-     * opts: { offsetMin, duracaoPadraoMin, esgotadoValor, modalidades, horarioFonte }.
-     * horarioFonte 'texto' (como 2025): usa horarioTexto ("12:00 às 13:00" -> "12h00 às 13h00") e, se vazio,
-     * cai no periodo DT_BEGIN - DT_END; 'periodo': sempre DT_BEGIN - DT_END.
-     * Retorna a sessao normalizada ou null (sem artista ou inicio invalido).
+        * raw: { artista, foto, modalidade, data, esgotado, horarioTexto } (strings do dataset).
+        * opts: { anoEvento, offsetMin, duracaoPadraoMin, esgotadoValor, modalidades }.
+        * horarioTexto aceita H:MM ou HhMM; a exibicao e sempre HHhMM - HHhMM.
+        * Retorna a sessao normalizada ou null (sem artista, data ou horario valido).
      */
     function normalizarSessao(raw, opts) {
         const nome = limpo(raw.artista);
-        const startMs = P.parseDateTime(raw.inicio, opts.offsetMin);
+        const data = /^([0-3]\d)\/([01]\d)$/.exec(limpo(raw.data));
+        const horarios = limpo(raw.horarioTexto).match(/\d{1,2}[:h]\d{2}/gi) || [];
+        if (!data || !horarios.length) { return null; }
+        const dataISO = opts.anoEvento + '-' + data[2] + '-' + data[1];
+        const startMs = P.parseDateTime(dataISO + ' ' + horarios[0].replace(/[hH]/, ':'), opts.offsetMin);
         if (!nome || isNaN(startMs)) { return null; }
-        let endMs = P.parseDateTime(raw.fim, opts.offsetMin);
+        let endMs = horarios.length > 1
+            ? P.parseDateTime(dataISO + ' ' + horarios[horarios.length - 1].replace(/[hH]/, ':'), opts.offsetMin)
+            : NaN;
         const fimValido = !isNaN(endMs) && endMs > startMs;
         if (!fimValido) { endMs = startMs + (opts.duracaoPadraoMin || 60) * 60000; }
         const modalidade = limpo(raw.modalidade);
         const mapa = opts.modalidades || {};
-        const periodo = P.formatHora(startMs, opts.offsetMin) + (fimValido ? ' - ' + P.formatHora(endMs, opts.offsetMin) : '');
-        const texto = opts.horarioFonte === 'periodo' ? '' : formatarTexto(raw.horarioTexto);
+        const horario = formatarHorario(raw.horarioTexto, startMs, endMs, opts.offsetMin);
         const alvo = String(opts.esgotadoValor != null ? opts.esgotadoValor : 'sim');
         return {
             artista: nome,
@@ -59,7 +65,7 @@
             rotulo: mapa[chave(modalidade)] || modalidade,
             startMs: startMs,
             endMs: endMs,
-            horario: texto || periodo,
+            horario: horario,
             esgotado: chave(raw.esgotado) === chave(alvo)
         };
     }
@@ -68,12 +74,11 @@
      * Seleciona e agrupa. opts: normalizarSessao + { maxModalidades (0 = sem limite), limiteGrande }.
      * Retorna { artistas[], sessoes, descartados, excedentes }:
      * - artistas: [{ nome, key, foto, variante, sessoes[] }] em ordem alfabetica;
-     * - sessoes: sessoes vivas de hoje (antes do limite de modalidades);
+    * - sessoes: sessoes futuras ou em andamento (antes do limite de modalidades);
      * - descartados: sem artista, inicio invalido ou duplicadas;
      * - excedentes: sessoes ignoradas por passar de maxModalidades.
      */
     function selecionar(rawSessoes, nowMs, opts) {
-        const hoje = P.dayKey(nowMs, opts.offsetMin);
         const vistas = {};
         const porArtista = {};
         let descartados = 0;
@@ -84,7 +89,7 @@
             const id = s.artistaKey + '|' + s.modalidadeKey + '|' + s.startMs;
             if (vistas[id]) { descartados += 1; return; }
             vistas[id] = true;
-            if (P.dayKey(s.startMs, opts.offsetMin) !== hoje || s.endMs <= nowMs) { return; }
+            if (s.endMs <= nowMs) { return; }
             sessoes += 1;
             (porArtista[s.artistaKey] = porArtista[s.artistaKey] || []).push(s);
         });

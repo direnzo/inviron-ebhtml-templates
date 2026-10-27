@@ -16,7 +16,6 @@
  *            evento            5 dias de horario real: o que passou some (a noite pode ficar vazio)
  *   ?pular=N                   descarta os N primeiros artistas (ordem alfabetica): ver paginas seguintes
  *   ?rapido=1                  deslize sem espera (entrada 1 ms): capturas de tela deterministicas
- *   ?horario=periodo           mostra DT_BEGIN - DT_END em vez do TEXTO2 (CONFIG.horarioFonte)
  *   ?hora=14:40                hora simulada de hoje (avanca em tempo real)
  *   ?agora=2026-12-04T14:40:00-03:00   data/hora simulada completa
  * window.__calls: loaded()/finished(); window.__textos: ajuste do titulo de cada artista.
@@ -33,7 +32,6 @@ const MOCK_DATA = { enabled: !/[?&]mock=0(&|$)/.test(window.location.search) };
         CONFIG.tempos.escalonar = 0;
         CONFIG.tempos.escalonarSaida = 0;
     }
-    if (params.get('horario') === 'periodo') { CONFIG.horarioFonte = 'periodo'; }
     const pular = parseInt(params.get('pular'), 10) || 0;
     const calls = (window.__calls = []);
     const startedAt = Date.now();
