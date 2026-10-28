@@ -84,6 +84,14 @@ test('clock advances seconds and carries minutes from the source timestamp', () 
     assert.equal(clock.text(6000), '13:04');
 });
 
+test('clock speed accelerates the mock cycle', () => {
+    const clock = state.createClock(() => 30);
+    const data = snapshot(1000);
+    data.second = 0;
+    clock.sync(data);
+    assert.equal(clock.text(3000), '13:00');
+});
+
 test('minute-only polls do not reset seconds; interval and finished freeze time', () => {
     const clock = state.createClock();
     clock.sync(snapshot(1000));
@@ -93,7 +101,7 @@ test('minute-only polls do not reset seconds; interval and finished freeze time'
     paused.status = 'HT';
     paused.minute = 45;
     clock.sync(paused);
-    assert.equal(clock.text(65000), '45:00');
+    assert.equal(clock.text(65000), '');
     paused.status = 'FT';
     paused.minute = 90;
     clock.sync(paused);
@@ -108,12 +116,26 @@ test('clock handles pregame, added time and rejects invalid seconds without requ
     clock.sync(data);
     assert.equal(clock.text(5000), '--:--');
     const running = snapshot(1000, [{ id: 'anonymous', teamId: 'vasco', type: 'goal', minute: 12, occurredAt: 1000 }]);
+    running.status = '2H';
     running.minute = 90;
     running.extra = 3;
     running.second = 5;
     clock.sync(running);
-    assert.equal(clock.text(2000), '93:06');
+    assert.equal(clock.text(2000), '90+3');
+    assert.equal(clock.text(62000), '90+4');
     assert.equal('player' in running.events[0], false);
     running.second = 60;
     assert.throws(() => state.normalize(running, teams));
+});
+test('stoppage time shows N+x, also when the feed has no extra yet; halftime shows no clock', () => {
+    const clock = state.createClock();
+    const first = snapshot(1000);
+    first.status = '1H'; first.minute = 45; first.extra = 1; first.second = null;
+    clock.sync(first);
+    assert.equal(clock.text(1000), '45+1');
+    assert.equal(clock.text(61000), '45+2');
+    const second = snapshot(1000);
+    second.status = '2H'; second.minute = 90; second.extra = 0; second.second = 10;
+    clock.sync(second);
+    assert.equal(clock.text(1000), '90+1');
 });
