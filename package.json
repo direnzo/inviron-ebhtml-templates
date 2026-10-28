@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "test": "powershell.exe -NoProfile -NonInteractive -File scripts/display-formats.test.ps1 && node --test scripts/validate-display-formats.test.js scripts/hgbrasil-current-icons.test.js scripts/weooh-match-state.test.js scripts/weooh-channel-source.test.js",
+    "test": "powershell.exe -NoProfile -NonInteractive -File scripts/display-formats.test.ps1 && node --test scripts/validate-display-formats.test.js scripts/hgbrasil-current-icons.test.js scripts/weooh-match-state.test.js scripts/weooh-channel-source.test.js CLIENTES/CCXP/2026/tests/programacao.test.js CLIENTES/CCXP/2026/tests/destaques.test.js CLIENTES/CCXP/2026/tests/fea.test.js CLIENTES/CCXP/2026/tests/fea-texto.test.js",
     "formats:audit": "powershell.exe -NoProfile -NonInteractive -File scripts/display-formats.ps1 -Mode Audit"
   },
   "devDependencies": {

@@ -1,386 +1,44 @@
-# EdgeContents Digital Signage — Instruções do Copilot
+# EdgeContents Digital Signage
 
-Sistema de templates HTML para Digital Signage via EdgeContents CMS. Android 7+ (WebKit legado).
+Templates HTML para EdgeContents CMS. Responder em pt-BR, de forma curta, clara e direta: resultado, evidência e pendência relevante. Sem dramatização, elogios, repetição ou narração de cada comando.
 
-## Formatos de tela: escopo obrigatorio
+## Escopo e fontes
 
-- Criacao/manutencao/validacao deve carregar `.github/skills/edgecontents-display-formats/SKILL.md` e consultar `docs/07-formatos-e-validacao.md`.
-- Um formato ou array/lista explicitamente declarado pelo usuario define EXATAMENTE os formatos obrigatorios. Nao ampliar por tenant, proporcao ou frequencia. Formatos ineditos sao validos.
-- Sem restricao explicita, validar todas as resolucoes unicas do catalogo. Lista vazia/invalida requer correcao, nunca fallback expansivo; proporcao sem dimensoes requer confirmacao.
-- Registrar matriz/snapshot e evidencias; geracao de matriz ou teste em Chromium moderno nao significa homologacao visual no runtime legado.
-- Retomar este checklist em toda nova criacao ou ajuste de template existente, mesmo sem pedido explicito de responsividade. Antes de execucao extensa, informar quantidade de formatos/cenarios e impacto local; ao concluir, informar o que foi verificado e as pendencias, sem tratar amostra como homologacao integral.
+- Seguir [governança](../docs/00-governanca-e-arquitetura.md) e [branches](BRANCHING.md). Antes de editar, conferir Git, criar/confirmar branch temática e preservar alterações do usuário.
+- ES5 e WebKit legado/Android 7+ são o padrão do runtime. Exceções de tenant prevalecem apenas no escopo documentado, como [CCXP 2026](instructions/ccxp-2026.instructions.md), que permite ES6+ no player Windows.
+- Em criação/manutenção, seguir [workflow](skills/edgecontents-template-workflow/SKILL.md). Carregar somente referências aplicáveis ainda ausentes do contexto; não redescobrir fatos verificados sem mudança nos arquivos/dependências.
+- Após erro corrigido, atualizar a skill responsável ou o README existente com causa confirmada, prevenção e teste de regressão. Consultar esse aprendizado antes de alterar o mesmo comportamento; não criar documentação por incidente nem generalizar regras de cliente.
 
-## 🚫 REGRAS ABSOLUTAS
+## Autorizações
 
-- **NUNCA** `git commit` sem permissão explícita
-- **NUNCA** incluir coautoria/atribuição de IA em commits ou PRs (sem `Co-Authored-By: Claude`, sem `Generated with Claude Code` ou equivalente) — a mensagem contém só o conteúdo do commit
-- **NUNCA** `npm run build` — use `npm run dev` (watch mode, compila automático)
-- **NUNCA** `npm install` dentro de uma pasta de template — TailwindCSS é global; scripts devem chamar `tailwindcss` diretamente, sem `npx`, `node_modules` ou `package-lock.json` local
-- **ES5 OBRIGATÓRIO** — zero tolerância para ES6+ (WebKit legado)
-- **Branch temática obrigatória** antes de qualquer edição — ver `.github/BRANCHING.md`
-- **Criação/manutenção de template**: seguir o briefing em `.github/skills/edgecontents-template-workflow/SKILL.md`
+- Corrigir/testar não autoriza gerar ou substituir `.eh5`, commitar, mesclar ou publicar. Executar somente as etapas explicitamente autorizadas, sem pedir novamente uma autorização vigente para o mesmo escopo.
+- Nunca incluir coautoria/atribuição de IA em commits ou PRs.
+- Configurações globais/gerenciadas exigem autorização específica; autenticação, MCP, plugins e agentes arquivados ficam fora do escopo de templates.
 
-### 🔴 TESTE — URL OBRIGATÓRIA (NUNCA USAR file:///)
+## Formatos e validação
 
-A URL de teste **SEMPRE** é:
-```
-http://localhost:12099/FILES/1/index.html
-```
-- **NUNCA** abrir com `file:///c:/...` — o servidor EdgeContents (ebcliente4) resolve assets, fontes e dados
-- **NUNCA** usar Live Server, http-server, ou qualquer outro servidor local — só o `ebcliente4.exe`
-- `MOCK_DATA.enabled = true` funciona em ambas, mas `file://` não carrega `ebhtml.js` corretamente
-- Se o servidor não estiver rodando, iniciar: `ebcliente4.exe`
+- Em toda criação/manutenção/validação, consultar [formatos](skills/edgecontents-display-formats/SKILL.md) e [contrato de validação](../docs/07-formatos-e-validacao.md).
+- Lista/formato explícito define EXATAMENTE o escopo, inclusive inédito. Sem restrição, usar todas as resoluções únicas do catálogo. Lista vazia/inválida exige correção; proporção sem dimensões exige confirmação. Nunca ampliar silenciosamente.
+- Registrar matriz/snapshot e evidências no README; antes de execução extensa, informar quantidade de formatos/cenários e impacto local. Não tratar amostra, matriz gerada ou Chromium moderno como homologação integral no runtime alvo.
+- Testar apenas em `http://localhost:12099/FILES/1/index.html`, servido por `ebcliente4.exe`. Nunca `file://`, Live Server ou outro servidor. Confirmar conexão, slot e identidade dos arquivos servidos antes de validar.
+- Primeiro reproduzir o defeito e identificar o que deve permanecer igual. Validar o caso discriminante no caminho real, com dados, fonte, CSS e assets efetivos; testes sintéticos são complementares.
+- Incluir regressões no comando de testes documentado. Gate da raiz: `npm test`; testes do player continuam separados quando exigem serviço/hardware.
 
-## ⚡ ES5 — Proibido vs Permitido
+## Runtime e dados
 
-| ❌ Proibido (ES6+) | ✅ Use (ES5) |
-|---|---|
-| `const` / `let` | `var` |
-| Arrow `() => {}` | `function() {}` |
-| `` `template ${var}` `` | `'concat ' + var` |
-| `async/await`, `Promise` | Callbacks |
-| `class` | Function constructors |
-| `...spread`, destructuring | Acesso direto |
-| `.find()` / `.includes()` / `.map()` | `for (var i=0; i<len; i++)` |
-| `for...of` | `for (var i=0; i<len; i++)` |
-| `fetch()` | `XMLHttpRequest` |
+- `js/ebhtml.js`: fonte canônica `_template-base/js/ebhtml.js` (2.0.7 para novos); conferir versão/hash antes de codificar. Nunca editar a biblioteca manualmente. Migrações de templates existentes na 2.0.3 são individuais, em branch própria e com regressão, nunca substituição em massa.
+- Em todo encerramento: `loaded()` antes de `finished()`, exatamente uma vez, inclusive vazio/erro/timeout/exceção. Nunca `loader.error()`, `finished()` isolado ou `nodataiserror = true` com dataset obrigatório. Conteúdo ausente libera a playlist sem desenhar dados.
+- `loader.load(sucesso, erro)` com os dois callbacks; parsing/render do sucesso protegido por `try/catch`; watchdog para dados e mídia. Handlers antes de `src`; em conteúdo válido, revelar dados/assets antes de `loaded()`.
+- Não criar loader extra para campo/asset opcional: a interface nativa é global por página e pode finalizar o item prematuramente. Ler do registro já carregado. Dataset obrigatório vazio tem bug conhecido em `browserdata_checkloaded`; usar a mitigação da [API EBHTML](skills/ebhtml-api/SKILL.md), sem alterar a biblioteca.
+- Polling/paginação independentes por categoria; alteração dos dados atualiza imediatamente a página visível, mesmo com timer de rotação ativo. Detalhes e padrões na API EBHTML.
 
----
-## ⛔ REGRAS DE OURO
+## Layout, assets e ferramentas
 
-### ⛔ DOCUMENTAÇÃO MÍNIMA
-- **NÃO criar múltiplos arquivos** de documentação (STATUS.md, CONFIG.md, RESUMO.md, etc)
-- **UM ÚNICO README.md** por template - máximo 50 linhas, direto ao ponto
-- **MENOS É MAIS** - use mínimo de linhas possível
-- **SEM FIRULAS** - sem emojis excessivos, sem formatação desnecessária, sem seções longas
-- Consolide TUDO em README.md único e conciso
+- Novos/derivados têm `js/config.js` com `CONFIG` de timing, dataset/filtros, layout/área segura e cores, antes de mock/master; aplicar configuração visual antes de revelar dados. Não espalhar esses ajustes na lógica.
+- Seguir [layout e tipografia](skills/frontend-tailwind-golden-ratio/SKILL.md): escala base em `vmin`, filhos em `em`/`%`, breakpoints por proporção e regra explícita de truncamento. Exceções dimensionais precisam do perfil de tela documentado.
+- No legado: sem `clamp()`, gap em flex ou aspect-ratio sem fallback; manter cores compatíveis. Assets, cache, hardware fraco e codecs seguem o perfil e as regras do workflow, sem remover animações do caminho normal.
+- Body visível; ocultar somente dados dinâmicos até assets prontos. SVG inline via XHR, nunca `<img src="*.svg">`; cache para assets repetidos por item.
+- Tailwind global: comandos chamam `tailwindcss` diretamente. Nunca `npm run build`, `npx` ou dependências/lockfile locais em templates; usar `npm run dev`. Conferir watcher existente antes de iniciar outro e CSS servido após mudar classes.
+- Um único README por template, máximo 50 linhas, com briefing, escopo, comandos, evidências e pendências. Tooling, fixtures e relatórios não entram no `.eh5`; mock desativado em produção.
 
-### 📚 Docs de referência
-
-- `docs/00-governanca-e-arquitetura.md` — global vs tenant, fontes de verdade
-- `docs/README.md` — índice geral
-- `.github/skills/ebhtml-api/SKILL.md` — API/ciclo de playlist EBHTML
-- `.github/skills/frontend-tailwind-golden-ratio/SKILL.md` — layout/tipografia responsiva
-- `.github/skills/edgecontents-template-workflow/SKILL.md` — briefing e workflow completo
-
----
-
-## ⚠️ REGRAS CRÍTICAS (NUNCA VIOLAR)
-
-### 0. `ebhtml.js` — SEMPRE a versão canônica de `_template-base`, NUNCA reaproveitar de pasta antiga
-
-Incidente real (poder360_responsivo, 2026-08-14): layout novo foi criado em cima de uma pasta já existente que tinha um `ebhtml.js` antigo (9620 bytes, sem marcação de versão) em vez do canônico. Isso causou timeout/travamento em produção.
-
-**Templates novos usam EBHTML 2.0.7** (`_template-base/js/ebhtml.js` é a fonte canônica local). Templates existentes na 2.0.3 migram individualmente, por branch própria (`chore/<tenant-template>-ebhtml-2.0.7`), com testes de regressão — nunca em substituição em massa.
-
-**Antes de codar QUALQUER template, novo ou em cima de pasta existente:**
-1. Abrir `js/ebhtml.js` do template e conferir a 2ª linha (`// EBHTML version X.X.X`) e o tamanho do arquivo contra `_template-base/js/ebhtml.js`. Divergência = versão antiga/errada.
-2. Se estiver errado, copiar o arquivo correto de `_template-base/js/ebhtml.js` (fonte canônica) — NUNCA editar/atualizar manualmente o `ebhtml.js`, ele é sempre substituído por cópia integral.
-3. Nunca criar um template novo reaproveitando a pasta de um template antigo sem antes checar essa versão — é a causa raiz mais provável desse tipo de erro.
-
-```bash
-head -3 js/ebhtml.js   # comparar com _template-base/js/ebhtml.js
-```
-
-**Bug conhecido, ainda presente na 2.0.7 anexada:** em `EBBrowser.prototype.browserdata_checkloaded`, quando `nodataiserror = false` e o dataset obrigatório retorna 0 itens, o código acessa `this.browser.nodataiserror` — mas `this` já é o `EBBrowser`; `this.browser` é `undefined`. A exceção resultante pode ser engolida no `onreadystatechange` do XHR e impedir callbacks. Nunca editar `ebhtml.js` para corrigir isso. Mitigar com watchdog; usar retry somente quando o briefing confirmar que os dados deveriam existir e a falha é recuperável. Se o conteúdo for opcional, vazio ou inválido, chamar `loaded()` e em seguida `finished()` para liberar o próximo item (nunca `finished()` sozinho; ver `.github/skills/ebhtml-api/SKILL.md`).
-
-### 1. Controle de Playlist EBHTML — `loaded()` ANTES de `finished()`, SEMPRE, sem exceção
-
-🚨 **Descoberta (comunicado_v2, 2026-09-30):** o `ebclient` conta erros de play em sequência e **reinicia a máquina** após 15 (`Maximum play errors in sequence reached (16 / 15), rebooting machine`). Em **todo** caminho de encerramento — sucesso, canal vazio, dado inválido, falha de rede, timeout, exceção — chamar `loader.loaded()` e só depois `loader.finished()`, exatamente uma vez. Nunca `finished()` sozinho, nunca `loader.error()`, nunca `nodataiserror = true` com dataset obrigatório (o `ebhtml.js` chamaria `error()`). Sem dados: não desenhar nada (conteúdo oculto, `body` preto) e manter `loaded()` → `finished()` em ~100–200 ms. Detalhes e padrão em `.github/skills/ebhtml-api/SKILL.md` seção 6.
-
-`loader.finished()` nunca chamado = item trava a playlist = device fica preso até o watchdog reiniciar o hardware. Isso já aconteceu em produção (poder360_responsivo, 2026-08-14). Duas causas raiz recorrentes:
-
-**a) `loader.load()` sem callback de erro.** Se a XML falhar (timeout de rede, status != 200), o `ebhtml.js` chama `error()` internamente mas **nunca** `finished()`. Sem um 2º callback em `loader.load()`, o item trava para sempre.
-```javascript
-function liberar() { loader.loaded(); loader.finished(); }
-loader.load(function () { /* sucesso: renderizar + loaded() + finished() */ }, liberar); // ❌ NUNCA omitir o 2º argumento
-```
-
-**b) `image.onload`/`onerror` atribuídos DEPOIS de `image.src`.** Se a imagem já está em cache (comum em playlists repetidas), alguns WebKit legados (Android 7+) disparam o evento antes do handler existir — `loaded()`/`finished()` nunca são chamados.
-```javascript
-image.onload = function () { /* ... */ };   // ✅ handlers ANTES do src
-image.onerror = function () { /* ... */ };
-image.src = dados.foto;                     // src por último
-```
-
-**c) Watchdog obrigatório.** Todo template com imagem/mídia assíncrona deve ter um `setTimeout` de segurança que força `loaded()+finished()` caso nenhum evento dispare — rede instável ou edge cases sempre existem.
-```javascript
-var settled = false;
-function concluir() { if (settled) return; settled = true; loader.loaded(); setTimeout(loader.finished, timeFinished); }
-var watchdog = setTimeout(concluir, timeFinished); // fallback se onload/onerror nunca disparar
-image.onload = function () { clearTimeout(watchdog); concluir(); };
-image.onerror = function () { clearTimeout(watchdog); concluir(); };
-```
-
-**d) `try/catch` obrigatório em volta de todo o parsing dentro do callback de sucesso do `loader.load()`.** Incidente real (previsao_tempo, 2026-09-04): o watchdog externo (`setTimeout` que chamaria `finished()` em caso de timeout) é cancelado (`clearTimeout`) logo na 1ª linha do callback de sucesso — antes de qualquer validação. Se o parsing dos dados (data malformada, campo inesperado, índice fora do array) lançar uma exceção não coberta por um `try/catch` pontual, ela sobe sem tratamento e `finished()` nunca é chamado — o único watchdog que cobriria esse caso já foi cancelado. Reproduzido em teste: sem a proteção, uma exceção simulada travava o item indefinidamente; com o `try/catch`, `finished()` disparou em ~350ms.
-```javascript
-loader.load(function () {
-    clearTimeout(watchdogId); // a partir daqui, SO o try/catch protege contra excecao de parsing
-    try {
-        var item = loader.data('D_DATASET');
-        if (!item) { encerrarSemDados('sem item'); return; }
-        renderizar(item); // qualquer excecao aqui dentro cai no catch abaixo
-        loader.loaded();
-    } catch (erro) {
-        encerrarSemDados('excecao: ' + (erro && erro.message ? erro.message : erro)); // finished() garantido
-    }
-}, function () { encerrarSemDados('falha no load'); });
-```
-
-Checklist ao revisar qualquer template: `loader.load(sucesso, erro)` sempre com 2º argumento • handlers de imagem antes do `src` • watchdog de timeout presente • todo o parsing/render do callback de sucesso envolto em `try/catch` que chama `finished()` no `catch` • nenhum `ebhtml.create2()` extra só para campo/asset opcional secundário (ver 1.2). Ver `.github/skills/ebhtml-api/SKILL.md` seção 6 para o padrão completo.
-
-### 1.1 Polling com múltiplas categorias e paginação
-
-Quando o template exibir categorias em colunas independentes, cada coluna deve manter seu próprio loader, intervalo de polling, `allItems` e índice da página visível. O polling deve comparar um fingerprint dos itens e atualizar a página atualmente renderizada imediatamente quando houver alteração — mesmo que o intervalo de paginação continue ativo. Nunca usar `if (!paginationTimer)` como condição para renderizar a alteração: o timer controla apenas a rotação, não a atualização dos dados. Se a quantidade de itens mudar, limitar a página visível ao novo total e recalcular o próximo índice da rotação. Ver `andorinha-menuboard-semfim/js/master.js` como referência.
-
-### 1.2 `interface` do EBBrowser é global por página — nunca criar um `ebhtml.create2()` extra só para um campo/asset opcional
-
-Incidente real (assaifarma_varejo, 2026-09-23): item tocava e sumia quase instantaneamente, mesmo com `CONFIG.timing.duration` correto e o loader principal com `setTimeout(finished, duration)` certo.
-
-Causa: `EBBrowser.prototype.finished()`/`.error()` chamam `this.interface.ebfinished()`/`.eberror()`, e `this.interface` é atribuído a partir de objetos **globais por página** (`ebflashinterface`/`ebmessageinterface`/`ebdefaultinterface`) — não por instância. Mesmo criando um `EBBrowser` novo a cada `ebhtml.create2()`, todos compartilham o mesmo canal nativo real com o player. Isso significa que **qualquer** loader secundário/decorativo (ex.: uma consulta só para buscar um logo opcional que pode legítimamente não existir no canal) que retorne 0 registros com `nodataiserror = false` aciona internamente `this.browser.finished()` (ver bug documentado acima em `browserdata_checkloaded`) — chamando o `ebfinished()` GLOBAL e encerrando o item de verdade, **sobrepondo o `setTimeout` do loader principal**. Não trava (como o bug de dataset vazio) — pior: finaliza o item silenciosamente, e só aparece investigando o próprio código-fonte do `ebhtml.js` (o `[finished]` no console é literal).
-
-**Regra:** nunca abrir um `ebhtml.create2()` dedicado só para um campo/asset que pode estar ausente (logo, cor, config opcional). Ler esse campo do MESMO registro/loader que já carregou com sucesso.
-```javascript
-// ❌ NUNCA — loader extra só para um campo opcional; 0 registros = finished()/error() globais prematuros
-ebhtml.create2({}, function (loaderConfig) {
-    loaderConfig.addData('D_SPD', true, 'f_specialproject=' + id + '&ft_image_logo=');
-    loaderConfig.nodataiserror = false;
-    loaderConfig.load(function () { logo.src = loaderConfig.data('D_SPD').value('IMAGE_LOGO').value; });
-});
-
-// ✅ SEMPRE — ler do registro que ja carregou com sucesso, sem 2o loader
-function aplicarLogo(item) {
-    var campo = item.value('IMAGE_LOGO');
-    if (logo && campo && campo.value) { logo.src = campo.value; }
-}
-aplicarLogo(data2.get(idx)); // idx do produto ja carregado, dentro do loader principal
-```
-
-### 2. CSS Compatível (Chromium 78)
-| ❌ Proibido | Requer | ✅ Alternativa |
-|---|---|---|
-| `clamp()` | Chrome 79+ | `vmin`/`vw`/`vh` simples |
-| `gap-*` em flex | Chrome 84+ | `space-x-*`/`space-y-*` (margin) |
-| `aspect-*` isolado | Chrome 88+ | Fallback `@supports not` c/ padding |
-| `rgb(r g b / alpha)` | Chrome 65+ | Fallbacks hex em `input.css` |
-
-### 3. Sistema de Fontes (vmin)
-- **Body**: `font-size` em `vmin` (ex: `text-[3.2vmin]`)
-- **Filhos**: SOMENTE `em` ou `%` — NUNCA `vw`/`vh`/`vmin` em filhos
-- **NUNCA** `portrait:text-[X]` em filhos — ajuste o body
-
-```html
-<body class="text-[3.2vmin] superbanner:text-[5vmin] empena:text-[11vmin]">
-  <span class="text-[1.3em]">Título</span>
-```
-
-### 4. Breakpoints Aspect Ratio
-```javascript
-screens: { // tailwind.config.js
-    'portrait': { 'raw': '(max-aspect-ratio: 3/4)' },
-    'empena': { 'raw': '(max-aspect-ratio: 1/3)' },
-    'superbanner': { 'raw': '(min-aspect-ratio: 5/1) and (max-aspect-ratio: 15/1)' },
-    'ultrawide': { 'raw': '(min-aspect-ratio: 3/1)' },
-}
-```
-
-### 5. `js/config.js` — variáveis globais do template (obrigatório em templates novos)
-
-Todo template novo (ou derivado) tem um `js/config.js`, carregado **antes** de `master.js` (e antes de `mock-data.js`, se houver), com um único objeto `CONFIG` — o lugar único para o cliente/editor ajustar tempo, dataset, área segura e cores sem tocar em lógica de HTML/JS. Nunca espalhar esses valores como literais soltos no meio do `master.js` ou do HTML.
-
-Seções mínimas de `CONFIG`:
-- **`timing`**: `duration` (tempo de exibição de cada item/produto em ms) e `fadeDuration` (duração do fade-in do conteúdo em ms).
-- **`dataset`**: nome do dataset EBHTML (`name`) e filtros usados no `addData` (ex.: `typeFilter`).
-- **`layout`**: área segura do fundo quando houver cabeçalho/rodapé fixos na arte (`safeAreaTopVh`/`safeAreaBottomVh`, calculados como `(px do cabeçalho ou rodapé / altura total do fundo em px) * 100`) — nunca cravar esses números direto nas classes Tailwind do HTML.
-- **`colors`**: cores que o cliente pode querer trocar (destaque/preço, texto), aplicadas via CSS custom properties (`--cor-*` em `:root`), nunca direto em `text-red-600` etc.
-
-Padrão de aplicação (uma função `aplicarConfigVisual()` em `config.js`, chamada uma única vez no início de `playerView()`/`window.onload`, antes de revelar o conteúdo):
-```javascript
-function aplicarConfigVisual() {
-    var root = document.documentElement.style;
-    root.setProperty('--cor-preco', CONFIG.colors.preco);
-    // ...demais cores
-
-    var fullContent = document.getElementById('fullContent');
-    if (fullContent) {
-        fullContent.style.top = CONFIG.layout.safeAreaTopVh + 'vh';
-        fullContent.style.bottom = CONFIG.layout.safeAreaBottomVh + 'vh';
-        fullContent.style.transitionDuration = CONFIG.timing.fadeDuration + 'ms';
-    }
-}
-```
-No HTML, usar Tailwind arbitrário referenciando a CSS var em vez da cor fixa: `text-[color:var(--cor-preco)]` em vez de `text-red-600`. Declarar um fallback em `input.css` (`:root { --cor-preco: #dc2626; }`) para o caso de o JS ainda não ter rodado. Referência completa: `CLIENTES/ASSAIFARMA/assaifarma_varejo/js/config.js`.
-
----
-
-## ⚠️ PERFORMANCE EM ANDROID (lições aprendidas — previsao_climatempo, 2026-08-14)
-
-### 6. Detectar hardware fraco obrigatoriamente em templates com assets dinâmicos
-
-Android de entrada (Rockchip, Allwinner, etc.) trava com animações CSS, SVGs animados e múltiplos XHRs simultâneos. Detectar no início do script, antes do `window.onload`:
-
-
-```javascript
-var HARDWARE_FRACO = false;
-(function() {
-  if (window.location.search.indexOf('hwfraco=1') !== -1) { HARDWARE_FRACO = true; return; } // teste via URL
-  if (navigator.userAgent.indexOf('Android') !== -1) { HARDWARE_FRACO = true; return; }
-  if (navigator.deviceMemory && navigator.deviceMemory <= 1) { HARDWARE_FRACO = true; return; }
-  if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) { HARDWARE_FRACO = true; }
-})();
-```
-
-No `window.onload`, aplicar classe e desativar animações SVG:
-```javascript
-if (HARDWARE_FRACO) {
-  document.body.classList.add('hardware-fraco');
-  var s = document.createElement('style');
-  s.innerHTML = '.hardware-fraco .icon svg *, .hardware-fraco .icon svg { animation: none !important; transition: none !important; }';
-  document.head.appendChild(s);
-}
-```
-
-Para testar no DevTools: `?hwfraco=1` na URL + CPU throttle Low-tier mobile 10.5x.
-
-### 7. Nunca revelar conteúdo antes de assets assíncronos estarem prontos
-
-**`opacity-0` no body inteiro é proibido** — esconde o fundo/gradiente e causa flash de `background-color`.  
-Em vez disso: body sempre visível, `opacity: 0` apenas no **container dos dados dinâmicos**.
-
-```javascript
-// NUNCA: <body class="opacity-0">
-// CERTO: esconder só o container de dados
-container.style.opacity = '0';          // antes de montar
-// ... assets carregam no escuro (opacity:0 mantém layout para getBBox) ...
-container.style.transition = 'opacity 0.4s';
-container.style.opacity = '1';          // revela tudo de uma vez
-loader.loaded();                         // loader.loaded() SÓ após revelação
-```
-
-### 8. SVG sempre inline via XHR — NUNCA `<img src="arquivo.svg">`
-
-Incidente real (poder360_responsivo, 2026-08-14): logo trocado de PNG para SVG usando `<img id="logo" src="img/logo.svg">` — não renderizou em produção. O WebView do EdgeContents (WebKit legado, Android 7+) não é confiável para carregar SVG via `<img src>`; o único jeito garantido é buscar o arquivo via XHR e injetar o markup inline no DOM (`el.innerHTML = xhr.responseText`).
-
-Vale para **qualquer** SVG — logo estático, ícone único, ícone dinâmico por item. Não existe exceção "é só um logo simples".
-
-```javascript
-// ❌ NUNCA
-<img id="logo" src="img/logo.svg" alt="Logo" />
-
-// ✅ SEMPRE — container vazio + injeção via XHR
-// HTML: <div id="logo" role="img" aria-label="Logo"></div>
-function injetarSvg(el, url) {
-    if (!el) { return; }
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState !== 4) { return; }
-        if (xhr.status === 200 || xhr.status === 0) {
-            el.innerHTML = xhr.responseText;
-        }
-    };
-    xhr.send();
-}
-injetarSvg(document.querySelector('#logo'), 'img/logo.svg');
-```
-
-Para SVGs carregados repetidamente por item/card (não estáticos como um logo), ver a regra de cache abaixo.
-
-### 9. Cache obrigatório para XHR de assets carregados por item/card
-
-Sem cache, N cards × M assets = N×M requisições. Com cache: M requisições únicas.
-
-```javascript
-var SVG_CACHE = {};
-function carregarSvgCached(url, callback) {
-  if (SVG_CACHE[url]) { callback(null, SVG_CACHE[url]); return; }
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', url, true);
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState !== 4) return;
-    if (xhr.status === 200 || xhr.status === 0) { SVG_CACHE[url] = xhr.responseText; callback(null, xhr.responseText); }
-    else { callback('Erro ' + url, null); }
-  };
-  xhr.send();
-}
-```
-
-### 10. Animações de entrada condicionais ao hardware
-
-```javascript
-if (HARDWARE_FRACO) {
-  card.style.transition = 'none';
-  card.classList.remove('transition-all', 'duration-1000', 'ease-out', '-translate-x-[120%]', 'opacity-0');
-} else {
-  card.style.transitionDelay = delay + 'ms'; // slide-in normal com delays escalonados
-  card.classList.remove('-translate-x-[120%]', 'opacity-0');
-  // NUNCA remover transition-all/duration/ease-out no path normal — mata a animação
-}
-card.classList.add('translate-x-0', 'opacity-100');
-```
-
-### 11. Vídeo — encoding e escolha de container (lições aprendidas — populari, 2026-08-27)
-
-Incidente real: vinheta `.mp4` (H.264) não tocava no player de teste **Chromium 78 "versão do desenvolvedor"**, mas tocava no Chrome atualizado.
-
-**Causa raiz:** builds **Chromium puros** (sem a marca "Google Chrome") são compilados **sem os codecs proprietários H.264/AAC** — só decodificam **VP8/VP9 em WebM**. O runtime EdgeContents pode ser um desses.
-
-- **Servir vídeo como `.webm` / VP9** (sem áudio). Roda em todo build Chromium, inclusive os sem codec proprietário, e o arquivo fica ~5× menor que o MP4 equivalente.
-- Só manter `.mp4` (além do `.webm`) se algum device de produção comprovadamente tiver decoder **só H.264 por hardware sem VP9**. Nesse caso, escolher a fonte por `video.canPlayType('video/webm; codecs="vp9"')`.
-
-**Se precisar de `.mp4`, o encoding tem que ser o mais conservador possível** (os arquivos "de fábrica" quase sempre vêm errados):
-
-| Item | Errado (quebra no legado) | Certo |
-|---|---|---|
-| Profile | Main / High | **Constrained Baseline** |
-| Largura | qualquer (ex.: 1366) | **múltiplo de 16** (1280, 1088…) — decoder de hardware exige alinhamento de macrobloco |
-| Faixa de áudio | nenhuma | **AAC-LC silenciosa** — Stagefright (Android ≤7) não toca `.mp4` sem trilha de áudio |
-| `pix_fmt` | yuv444/422 | **yuv420p** |
-| B-frames | > 0 | **0** |
-| Container | brand `mp42`, `mdat` 64-bit, sem faststart | `+faststart`, brand `isom` |
-
-```bash
-# WEBM / VP9 (padrão para vinheta)
-ffmpeg -i SRC.mp4 -an -c:v libvpx-vp9 -b:v 0 -crf 30 -pix_fmt yuv420p \
-  -vf "scale=1280:720:flags=lanczos,setsar=1" -r 24 -g 48 -row-mt 1 \
-  -deadline good -cpu-used 2 OUT.webm
-
-# MP4 / H.264 Baseline + AAC silenciosa (só se um device exigir)
-ffmpeg -i SRC.mp4 -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=48000 \
-  -map 0:v:0 -map 1:a:0 -shortest \
-  -c:v libx264 -profile:v baseline -pix_fmt yuv420p \
-  -vf "scale=1280:720:flags=lanczos,setsar=1" -r 24 -bf 0 -g 48 -refs 1 \
-  -b:v 2500k -maxrate 2500k -bufsize 5000k \
-  -c:a aac -b:a 96k -ar 48000 -fps_mode cfr -movflags +faststart OUT.mp4
-```
-
-**Reprodução (sempre):** `playsinline` + `webkit-playsinline`; `video.play()` e, se a Promise rejeitar (política de autoplay, vale também no Chrome 78+), retry com `video.muted = true`; `onended` + fallback por `timeupdate` perto de `duration`; watchdog `setTimeout` + `onerror` sempre chamando `finished()` — vídeo nunca pode travar o ciclo do template. Guardar os arquivos originais fora do runtime (ex.: `img/_source/`).
-
----
-
-## 📋 Checklist
-
-- [ ] `js/ebhtml.js` idêntico ao canônico de `_template-base/js/ebhtml.js` (mesma versão/tamanho; 2.0.7 para templates novos)
-- [ ] `js/config.js` presente com `CONFIG` (timing, dataset, layout/área segura, colors) aplicado via `aplicarConfigVisual()` antes de revelar o conteúdo
-- [ ] ES5 — sem `let/const/arrow/template strings`
-- [ ] `loader.loaded()` SEMPRE antes de `loader.finished()` em todos os caminhos (inclusive vazio/erro/timeout/exceção); nunca `finished()` sozinho (risco de reinício da máquina pelo `ebclient`)
-- [ ] `loader.load()` com 2º argumento (callback de erro) que também chama `finished()`
-- [ ] Parsing/render dentro do callback de sucesso do `loader.load()` envolto em `try/catch` que chama `finished()` no `catch` (evita travar se um watchdog externo já foi cancelado antes da exceção)
-- [ ] Nenhum `ebhtml.create2()` extra dedicado a um campo/asset opcional (logo, cor, config) — o `interface` do EBBrowser é global por página; um loader secundário com 0 registros finaliza o item de verdade (ver seção 1.2)
-- [ ] `image.onload`/`onerror` atribuídos ANTES de `image.src`
-- [ ] Watchdog (`setTimeout`) garantindo `finished()` mesmo sem eventos de imagem/mídia
-- [ ] `MOCK_DATA.enabled = false` em produção
-- [ ] Sem `clamp()` / sem `gap-*` em flex / fallbacks hex
-- [ ] `font-size` body em `vmin`, filhos em `em`/`%`
-- [ ] Nenhum `<img src="*.svg">` — todo SVG (logo, ícone) injetado inline via XHR
-- [ ] Vídeo servido como `.webm`/VP9 (Chromium puro não tem H.264); se houver `.mp4`, é Baseline + largura mod-16 + faixa AAC silenciosa + `+faststart`
-- [ ] Vídeo: `play()` com retry mudo, `onended`+`timeupdate`, watchdog/`onerror` sempre chamando `finished()`
-- [ ] Templates com assets XHR por item: cache `SVG_CACHE` ou equivalente implementado
-- [ ] Body sem `opacity-0` — esconder só o container de dados dinâmicos
-- [ ] Detecção de `HARDWARE_FRACO` presente se template tiver animações ou SVGs dinâmicos
-- [ ] Animações de entrada condicionais a `!HARDWARE_FRACO`
-- [ ] `loader.loaded()` chamado após revelação do conteúdo (não antes)
-
----
-
-**Arquivos-chave:** `_template-base/`, `js/ebhtml.js`, `/docs/`, `.github/skills/`, `uol_responsivo_tw/` (referência)
+Referências: `_template-base/`, `docs/`, `uol_responsivo_tw/`. Detalhes de implementação e entrega ficam nas skills acima, não em cópias destas instruções.

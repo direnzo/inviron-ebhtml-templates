@@ -41,17 +41,12 @@ Estes breakpoints sao modificadores sobre um layout base, nao uma particao exaus
 ```
 
 ## Anti-Overlap (Prevenir Texto Sobreposto)
-```javascript
-function fitFont(element, maxWidthPercent) {
-    var maxW = window.innerWidth * maxWidthPercent;
-    var currentSize = parseInt(window.getComputedStyle(element).fontSize);
-    while (element.scrollWidth > maxW && currentSize > 6) {
-        currentSize -= 1;
-        element.style.fontSize = currentSize + 'px';
-    }
-}
-// Uso: fitFont(document.getElementById('titulo'), 0.85);
-```
+
+- Reproduzir com a fonte carregada, CSS servido atualizado, dados reais e caminho de montagem do template. Medir com `opacity:0`, nunca `display:none`.
+- Autofit por busca binária limitada (7-10 medições), preservando baseline e altura; não usar loop decremental sem limite. Recalcular no resize com debounce quando houver mudança de layout.
+- `scrollWidth`/`clientWidth` arredondam pixels. Na borda da caixa, medir largura fracionária com `Range.getBoundingClientRect()` e descontar a escala do palco; reservar margem de segurança, não aprovar só por igualdade das métricas inteiras.
+- Se truncamento for proibido, manter o texto intacto e não usar `ellipsis`/ocultação como fallback. Reduzir fonte e, no limite técnico, comprimir horizontalmente dentro da área; registrar risco de legibilidade ou pedir ajuste de composição, sem cortar silenciosamente.
+- Testar largura fracionária, texto curto/longo, fonte mínima e palco escalado. Conferir texto, estilos de corte e limites visuais; ausência de overflow numa simulação não homologa o player.
 
 ## Price Blocks (4 Slots)
 ```html
