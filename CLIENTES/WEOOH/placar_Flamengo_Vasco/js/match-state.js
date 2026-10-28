@@ -17,7 +17,8 @@
             matchId: String(input.matchId), updatedAt: integer(input.updatedAt, 'updatedAt'),
             status: String(input.status || ''), minute: integer(input.minute, 'minute'),
             second: input.second === undefined || input.second === null ? null : integer(input.second, 'second'),
-            extra: integer(input.extra || 0, 'extra'), teams: {}, events: []
+            extra: integer(input.extra || 0, 'extra'), teams: {}, events: [],
+            kickoff: input.kickoff ? String(input.kickoff) : ''
         };
         if (result.second !== null && result.second > 59) { throw new Error('Invalid second'); }
         if (!/^(NS|1H|HT|2H|FT|SUSP|PST|ABD)$/.test(result.status)) {
@@ -28,7 +29,8 @@
         for (index = 0; index < teamIds.length; index++) {
             var teamId = teamIds[index];
             if (!input.teams[teamId]) { throw new Error('Missing team ' + teamId); }
-            result.teams[teamId] = { score: integer(input.teams[teamId].score, 'score') };
+            result.teams[teamId] = { score: integer(input.teams[teamId].score, 'score'),
+                name: input.teams[teamId].name ? String(input.teams[teamId].name) : '' };
         }
         var used = {};
         for (index = 0; index < input.events.length; index++) {
@@ -102,7 +104,7 @@
         };
     }
 
-    function createClock() {
+    function createClock(getSpeed) {
         var current = null;
         var anchorAt = 0;
         var elapsed = 0;
@@ -111,7 +113,8 @@
                 if (!current || current.matchId !== snapshot.matchId || current.status !== snapshot.status ||
                         current.minute !== snapshot.minute || current.extra !== snapshot.extra || snapshot.second !== null) {
                     anchorAt = snapshot.updatedAt;
-                    elapsed = (snapshot.minute + snapshot.extra) * 60 + (snapshot.second || 0);
+                    // extra N = N-esimo minuto de acrescimo (45+1 comeca em 45:00)
+                    elapsed = (snapshot.minute + Math.max(snapshot.extra - 1, 0)) * 60 + (snapshot.second || 0);
                 }
                 current = { matchId: snapshot.matchId, status: snapshot.status,
                     minute: snapshot.minute, extra: snapshot.extra };
@@ -119,7 +122,12 @@
             text: function (now) {
                 if (!current || current.status === 'NS') { return '--:--'; }
                 var running = current.status === '1H' || current.status === '2H';
-                var seconds = elapsed + (running ? Math.max(0, Math.floor((now - anchorAt) / 1000)) : 0);
+                var seconds = elapsed + (running ? Math.max(0, Math.floor((now - anchorAt) / 1000 * (getSpeed ? getSpeed() : 1))) : 0);
+                var limit = current.status === '1H' ? 45 : 90;
+                if (current.status === 'HT') { return ''; }
+                if (current.extra > 0 || (running && seconds >= limit * 60)) {
+                    return limit + '+' + (Math.floor((seconds - limit * 60) / 60) + 1);
+                }
                 var minutes = Math.floor(seconds / 60);
                 return (minutes < 10 ? '0' : '') + minutes + ':' + (seconds % 60 < 10 ? '0' : '') + (seconds % 60);
             }

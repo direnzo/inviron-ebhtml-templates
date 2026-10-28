@@ -6,8 +6,8 @@ Branch: `feat/weooh-placar-flamengo-vasco`. Base: EBHTML 2.0.7 canonico.
 - Abrir somente `http://localhost:12099/FILES/1/index.html` via ebcliente4.
 - Watcher: `npm run dev`, com Tailwind global; nao instalar dependencias locais.
 - CONFIG em `js/config.js`: tempos, cores, regioes, equipes e mapa dos videos.
-- Formatos EXATOS (origem explicit): `1920x1080`, `2048x128`; nenhum outro homologado.
-- Videos originais intactos; audio desativado ate definicao do player.
+- Formatos EXATOS (origem explicit): `1920x1080`, `1080x1920`, `2048x128`; nenhum outro homologado.
+- Videos otimizados (x264 Main CRF 18, sem perda perceptivel); originais fora do template em `CLIENTES/_BACKUP_WEOOH_placar_Flamengo_Vasco_videos_originais`; audio preservado, desativado ate definicao do player.
 - Base em loop; alertas usam a duracao real e retornam ao placar atualizado.
 - `loaded()` uma vez na primeira apresentacao; `finished()` somente na saida/falha fatal.
 - `WEOOH_PLAYER.stop()` permite encerramento controlado; ao fim do jogo mantem o placar.
@@ -24,13 +24,14 @@ Branch: `feat/weooh-placar-flamengo-vasco`. Base: EBHTML 2.0.7 canonico.
 ## Regioes E Midias
 - Regioes exatas dos SVGs atualizados (rects vetoriais); fonte local Poppins ExtraBold (familia `Placar`), peso 900, texto preto.
 - Sem lista, paginacao ou nomes de jogadores; somente disparos de gols/cartoes por equipe.
+- Vertical 1080x1920 (`portrait`, proporcao < 1): mesmas regioes de 1080p, regioes do SVG `img/modelos-placar-1080X1920.svg`; videos originais 101 base, 103 gol, 105 amarelo, 107 vermelho.
 - 1080p: nomes nas capsulas, gols grandes nas laterais, periodo/intervalo e cronometro ao centro.
 - Faixa: somente gols e cronometro central; sem nomes de equipes ou rotulo de periodo.
 - Base 102/110; gol 104/111; amarelo 106/112; vermelho 108/113, por equipe.
-- 14 MP4 H.264 Main/yuv420p; bases 24fps, alertas 30fps; alguns contem AAC.
+- 21 MP4 H.264 Main/yuv420p; bases 24fps, alertas 30fps; alguns contem AAC.
 - Gols 1080p duram 8.033s; demais aproximadamente 10s; bitrate ate 50.12Mbps.
 - Player/codecs/hardware pendentes: Chromium puro pode nao decodificar H.264.
-- `videos/runtime/`: copias identicas de nomes ASCII; nomes originais retornaram HTTP 200 vazio no player.
+- `videos/`: 21 MP4 com nomes ASCII (`<full|portrait|strip>-<base|goal|yellow|red>-<time>.mp4`), cerca de 55MB no total; nomes originais retornaram HTTP 200 vazio no player.
 
 ## Integracao E Entrega
 - Canal real ainda indisponivel; nenhum dataset ou fixture ID de producao presumido.

@@ -9,7 +9,7 @@ const root = path.resolve(__dirname, '..');
 const template = path.join(root, 'CLIENTES/WEOOH/placar_Flamengo_Vasco');
 const output = path.join(root, '.validation/weooh-initial');
 const url = 'http://localhost:12099/FILES/1/index.html';
-const formats = [{ width: 1920, height: 1080 }, { width: 2048, height: 128 }];
+const formats = [{ width: 1920, height: 1080 }, { width: 1080, height: 1920 }, { width: 2048, height: 128 }];
 let browser;
 
 before(async () => {
@@ -18,7 +18,7 @@ before(async () => {
     const request = await browser.newContext();
     try {
         for (const asset of ['index.html', 'js/config.js', 'js/master.js', 'js/match-state.js',
-            'js/mock-data.js', 'js/ebhtml.js', 'css/master.css']) {
+            'js/mock-data.js', 'js/channel-source.js', 'js/ebhtml.js', 'css/master.css']) {
             const response = await request.request.get(new URL(asset, url).href);
             assert.equal(response.status(), 200, asset);
             assert.deepEqual(await response.body(), fs.readFileSync(path.join(template, asset)),
@@ -28,6 +28,18 @@ before(async () => {
 });
 
 after(async () => { if (browser) await browser.close(); });
+
+// O index entregue vem em modo canal e sem mock-data.js; os testes de simulacao ativam o mock so no navegador.
+async function useMock(page, overrides = '') {
+    await page.route('**/index.html*', async route => {
+        const response = await route.fetch();
+        const body = (await response.text()).replace(/<!--\s*(<script src="js\/mock-data\.js"><\/script>)\s*-->/, '$1');
+        await route.fulfill({ response, body });
+    });
+    await page.route('**/js/config.js', route => route.fulfill({ contentType: 'text/javascript',
+        body: fs.readFileSync(path.join(template, 'js/config.js'), 'utf8') +
+            "\nCONFIG.dataset.mode = 'mock';\n" + overrides }));
+}
 
 async function open(size, scenario = 'score', overrides = '') {
     const page = await browser.newPage({ viewport: size });
@@ -60,10 +72,7 @@ async function open(size, scenario = 'score', overrides = '') {
             }
         });
     });
-    if (overrides) {
-        await page.route('**/js/config.js', route => route.fulfill({ contentType: 'text/javascript',
-            body: fs.readFileSync(path.join(template, 'js/config.js'), 'utf8') + '\n' + overrides }));
-    }
+    await useMock(page, overrides);
     await page.goto(url + '?scenario=' + scenario);
     await page.waitForFunction(() => window.WEOOH_PLAYER &&
         (WEOOH_PLAYER.state().loaded || WEOOH_PLAYER.state().stopped));
@@ -84,7 +93,7 @@ test('all configured media exist and canonical EBHTML is unchanged', () => {
             count++;
         }
     }
-    assert.equal(count, 14);
+    assert.equal(count, 21);
     assert.deepEqual(fs.readFileSync(path.join(template, 'js/ebhtml.js')),
         fs.readFileSync(path.join(root, '_template-base/js/ebhtml.js')));
 });
@@ -161,8 +170,8 @@ for (const size of formats) {
             await page.waitForFunction(() => WEOOH_PLAYER.state().snapshot.status === 'HT');
             const updated = await page.evaluate(() => WEOOH_PLAYER.state().snapshot.updatedAt);
             await page.waitForFunction(time => WEOOH_PLAYER.state().snapshot.updatedAt > time + 1200, updated);
-            assert.equal(await page.locator('#match-clock').textContent(), '45:00');
-            if (size.height === 1080) assert.equal(await page.locator('#match-status').textContent(), 'INTERVALO');
+            assert.equal(await page.locator('#match-clock').textContent(), '');
+            if (size.height !== 128) assert.equal(await page.locator('#match-status').textContent(), 'INTERVALO');
             else assert.equal(await page.locator('#match-status').isVisible(), false);
             await page.screenshot({ path: path.join(output, label + '-interval.png') });
             await page.evaluate(() => { CONFIG.mock.scenario = 'double-digit'; });
@@ -210,6 +219,57 @@ test('missing alert recovers to base, stale snapshot expires, repeated stop is i
     } finally { await page.close(); }
 });
 
+// Canal real simulado: intercepta D_SPD e D_FOOTBALL com o formato capturado do ambiente.
+async function openChannel(fixture) {
+    const page = await browser.newPage({ viewport: formats[0] });
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    const xml = fields => '<EBDATA><ITEM>' + Object.keys(fields).map(key =>
+        '<' + key + '><![CDATA[' + fields[key] + ']]></' + key + '>').join('') + '</ITEM></EBDATA>';
+    await page.route('**/content/data/D_SPD?*', route => route.fulfill({ contentType: 'text/xml', body: xml({ TITLE: '1' }) }));
+    await page.route('**/content/data/D_FOOTBALL?*', route => route.fulfill({ contentType: 'text/xml',
+        body: xml({ TEXTO2: JSON.stringify({ response: [fixture] }) }) }));
+    await page.goto(url + '?source=channel');
+    await page.waitForFunction(() => window.WEOOH_PLAYER && (WEOOH_PLAYER.state().loaded || WEOOH_PLAYER.state().stopped));
+    return { page, errors };
+}
+
+test('channel mode: kickoff time before the match, stoppage time, interval and final text', async () => {
+    const base = { fixture: { id: 1, date: '2026-10-29T20:00:00-03:00', timestamp: 1793314800, periods: {} },
+        goals: { home: null, away: null }, events: [],
+        teams: { home: { id: 133, name: 'Vasco DA Gama' }, away: { id: 127, name: 'Flamengo' } } };
+    const cases = [
+        [{ short: 'NS', elapsed: null, extra: null }, 'INÍCIO ÀS', '20:00'],
+        [{ short: '2H', elapsed: 90, extra: 2 }, '2º TEMPO', /^90\+[2-9]$/],
+        [{ short: 'HT', elapsed: 45, extra: null }, 'INTERVALO', ''],
+        [{ short: 'FT', elapsed: 90, extra: 4 }, 'FINALIZADO', '90+4']
+    ];
+    for (const [status, label, clock] of cases) {
+        const { page, errors } = await openChannel(Object.assign({}, base,
+            { fixture: Object.assign({}, base.fixture, { status }) }));
+        try {
+            assert.equal(await page.evaluate(() => WEOOH_PLAYER.state().stopped), false, label);
+            assert.equal(await page.locator('#match-status').textContent(), label);
+            const text = await page.locator('#match-clock').textContent();
+            if (clock instanceof RegExp) assert.match(text, clock); else assert.equal(text, clock);
+            assert.equal(await page.locator('#left-name').textContent(), 'VASCO');
+            assert.deepEqual(errors, []);
+        } finally { await page.close(); }
+    }
+});
+
+test('channel mode: other matches show the real team names from the API', async () => {
+    const { page, errors } = await openChannel({ fixture: { id: 2, date: '2026-10-28T09:00:00-03:00', periods: {},
+        status: { short: '1H', elapsed: 10, extra: null } }, goals: { home: 1, away: 0 },
+        teams: { home: { id: 391, name: 'FC Isloch Minsk R.' }, away: { id: 7808, name: 'ML Vitebsk' } }, events: [] });
+    try {
+        assert.equal(await page.locator('#left-name').textContent(), 'FC ISLOCH MINSK R.');
+        assert.equal(await page.locator('#right-name').textContent(), 'ML VITEBSK');
+        assert.equal(await page.locator('#left-score').textContent(), '1');
+        assert.deepEqual(errors, []);
+    } finally { await page.close(); }
+});
+
 test('alert watchdog recovers and base watchdog safely ends the session', async () => {
     const { page, lifecycle, errors } = await open(formats[0], 'demo',
         'CONFIG.mock.stepMs=1000; CONFIG.timing.pollMs=100;');
@@ -253,3 +313,13 @@ async function assertEventually(check, page) {
     await new Promise(resolve => setTimeout(resolve, 200));
     check();
 }
+test('display time limit ends the session once with finished()', async () => {
+    const { page, lifecycle, errors } = await open(formats[0], 'score', 'CONFIG.timing.displayMs=2500;');
+    try {
+        assert.equal(await page.evaluate(() => CONFIG.timing.displayMs), 2500);
+        await page.waitForFunction(() => WEOOH_PLAYER.state().stopped, {}, { timeout: 8000 });
+        assert.equal(await page.evaluate(() => WEOOH_PLAYER.state().lastError), 'Display time limit reached');
+        await assertEventually(() => assert.deepEqual(lifecycle, ['[loaded]', '[finished]']), page);
+        assert.deepEqual(errors, []);
+    } finally { await page.close(); }
+});

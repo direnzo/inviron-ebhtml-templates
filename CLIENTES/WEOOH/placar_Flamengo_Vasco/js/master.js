@@ -13,9 +13,17 @@
         var base = document.getElementById('base-video');
         var alertVideo = document.getElementById('alert-video');
         var tracker = MatchState.createTracker(CONFIG.timing.maxAlertAgeMs);
-        var clock = MatchState.createClock();
-        var lastClockText = '';
-        var formatName = window.innerWidth / window.innerHeight >= 15 ? 'strip' : 'full';
+        // mock 'cycle' acelera o cronometro (CONFIG.mock.speed)
+        var clock = MatchState.createClock(function () {
+            return CONFIG.dataset.mode === 'mock' && CONFIG.mock.scenario === 'cycle' ? CONFIG.mock.speed : 1;
+        });
+        var lastClockText = null;
+        // proporcao: >=15 faixa, <1 vertical, demais horizontal
+        function pickFormat() {
+            var ratio = window.innerWidth / window.innerHeight;
+            return ratio >= 15 ? 'strip' : ratio < 1 ? 'portrait' : 'full';
+        }
+        var formatName = pickFormat();
         var format = CONFIG.layout.formats[formatName];
         var loaded = false;
         var stopped = false;
@@ -28,10 +36,21 @@
         var heartbeatId;
         var pollId;
         var dataTimer;
+        var displayTimer;
         var resizeTimer;
         var pollGeneration = 0;
         var lastError = '';
         var scenario = /(?:\?|&)scenario=([a-z-]+)/.exec(window.location.search);
+        // Teste: ?source=channel&fixture=ID
+        var search = window.location.search;
+        var fixtureParam = /(?:\?|&)fixture=(\d+)/.exec(search);
+        if (/(?:\?|&)source=channel/.test(search)) {
+            CONFIG.dataset.mode = 'channel';
+            if (fixtureParam) { CONFIG.channel.fixtureId = fixtureParam[1]; }
+        }
+        if (CONFIG.dataset.mode === 'channel' && typeof ChannelSource !== 'undefined') {
+            window.WEOOH_DATA_SOURCE = ChannelSource.create(loader, CONFIG);
+        }
         if (scenario && CONFIG.dataset.mode === 'mock') { CONFIG.mock.scenario = scenario[1]; }
         if (HARDWARE_FRACO) { document.body.className = 'hardware-fraco'; }
         aplicarConfigVisual(formatName);
@@ -39,6 +58,33 @@
         function diagnostic(message) {
             lastError = message;
             if (window.console) { window.console.warn('[WEOOH] ' + message); }
+        }
+
+        var logged = {};
+        var lastSummary = '';
+
+        function info(message) {
+            if (window.console) { window.console.info('[WEOOH ' + new Date().toTimeString().substr(0, 8) + '] ' + message); }
+            try { loader.log('[WEOOH] ' + message); } catch (error) { /* log nunca deve derrubar o player */ }
+        }
+
+        // Registra no console mudancas de estado e cada evento (historico na 1a carga, novos depois).
+        function logSnapshot(snapshot, first) {
+            var ids = [CONFIG.teams.left.id, CONFIG.teams.right.id];
+            var summary = snapshot.status + ' ' + snapshot.minute + (snapshot.extra ? '+' + snapshot.extra : '') + "' " +
+                (snapshot.teams[ids[0]].name || ids[0]) + ' ' + snapshot.teams[ids[0]].score + 'x' +
+                snapshot.teams[ids[1]].score + ' ' + (snapshot.teams[ids[1]].name || ids[1]);
+            var shortSummary = summary.replace(/ \d+(\+\d+)?' /, ' ');
+            if (shortSummary !== lastSummary) { info('placar: ' + summary); lastSummary = shortSummary; }
+            for (var index = 0; index < snapshot.events.length; index++) {
+                var event = snapshot.events[index];
+                var key = event.id + (event.cancelled ? '|x' : '');
+                if (logged[key]) { continue; }
+                logged[key] = true;
+                info((first ? 'evento (historico, sem alerta): ' : 'EVENTO NOVO: ') + event.type.toUpperCase() + ' ' +
+                    event.teamId + " " + event.minute + (event.extra ? '+' + event.extra : '') + "'" +
+                    (event.cancelled ? ' [CANCELADO]' : '') + ' id=' + event.id);
+            }
         }
 
         function markLoaded() {
@@ -53,6 +99,7 @@
             clearInterval(heartbeatId);
             clearTimeout(pollId);
             clearTimeout(dataTimer);
+            clearTimeout(displayTimer);
             clearTimeout(resizeTimer);
             window.removeEventListener('resize', onResize);
             pollGeneration++;
@@ -84,31 +131,38 @@
             } catch (error) { onFailure(); }
         }
 
+        // scrollWidth ignora o estouro a esquerda em flex centralizado; mede a largura real do texto.
+        function overflows(element) {
+            var style = window.getComputedStyle(element);
+            var available = element.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+            var range = document.createRange();
+            range.selectNodeContents(element);
+            return range.getBoundingClientRect().width > available ||
+                element.scrollHeight > element.clientHeight + 1;
+        }
+
         function fit(element, maxEm, minEm) {
             var lower = minEm;
             var upper = maxEm;
             element.style.fontSize = maxEm + 'em';
-            if (element.scrollWidth <= element.clientWidth + 1 && element.scrollHeight <= element.clientHeight + 1) {
-                return;
-            }
+            if (!overflows(element)) { return; }
             for (var iteration = 0; iteration < 8; iteration++) {
                 var candidate = (lower + upper) / 2;
                 element.style.fontSize = candidate + 'em';
-                if (element.scrollWidth > element.clientWidth + 1 || element.scrollHeight > element.clientHeight + 1) {
-                    upper = candidate;
-                } else { lower = candidate; }
+                if (overflows(element)) { upper = candidate; } else { lower = candidate; }
             }
             element.style.fontSize = lower + 'em';
         }
 
         function renderTeam(side, snapshot) {
             var team = CONFIG.teams[side];
-            document.getElementById(side + '-name').textContent = team.name;
+            document.getElementById(side + '-name').textContent = snapshot.teams[team.id].name || team.name;
             document.getElementById(side + '-score').textContent = snapshot.teams[team.id].score;
         }
 
         function renderClock() {
-            var text = clock.text(Date.now());
+            var current = tracker.current();
+            var text = current && current.status === 'NS' && current.kickoff ? current.kickoff : clock.text(Date.now());
             if (text === lastClockText) { return; }
             document.getElementById('match-clock').textContent = text;
             fit(document.getElementById('match-clock'), format.typography.clock, 1.0);
@@ -120,13 +174,13 @@
             if (!snapshot || stopped) { return; }
             renderTeam('left', snapshot);
             renderTeam('right', snapshot);
-            var labels = { NS: 'PR\u00c9-JOGO', '1H': '1\u00ba TEMPO', HT: 'INTERVALO',
-                '2H': '2\u00ba TEMPO', FT: 'ENCERRADO', SUSP: 'SUSPENSO', PST: 'ADIADO', ABD: 'INTERROMPIDO' };
+            var labels = { NS: 'IN\u00cdCIO \u00c0S', '1H': '1\u00ba TEMPO', HT: 'INTERVALO',
+                '2H': '2\u00ba TEMPO', FT: 'FINALIZADO', SUSP: 'SUSPENSO', PST: 'ADIADO', ABD: 'INTERROMPIDO' };
             document.getElementById('match-status').textContent = labels[snapshot.status];
-            lastClockText = '';
+            lastClockText = null;
             renderClock();
             var typography = format.typography;
-            if (formatName === 'full') {
+            if (formatName !== 'strip') {
                 fit(document.getElementById('left-name'), typography.name, 0.7);
                 fit(document.getElementById('right-name'), typography.name, 0.7);
                 fit(document.getElementById('match-status'), typography.status, 0.55);
@@ -157,6 +211,7 @@
 
         function showAlert(event) {
             activeEvent = event;
+            info('ALERTA disparado: ' + event.type.toUpperCase() + ' ' + event.teamId + ' ' + event.minute + "'");
             alertStartedAt = Date.now();
             alertLastProgress = alertStartedAt;
             alertVideo.muted = CONFIG.audio.muted;
@@ -174,7 +229,9 @@
                 if (now - snapshot.updatedAt > CONFIG.timing.maxDataAgeMs || snapshot.updatedAt > now + 5000) {
                     throw new Error('Stale or future match snapshot');
                 }
+                var firstSnapshot = !tracker.current();
                 if (tracker.apply(snapshot, now)) {
+                    logSnapshot(snapshot, firstSnapshot);
                     clock.sync(snapshot);
                     render();
                     if (!activeEvent) { revealBase(); }
@@ -201,11 +258,11 @@
                 settled = true;
                 clearTimeout(dataTimer);
                 receive(error, snapshot);
-                if (!stopped) { pollId = setTimeout(poll, CONFIG.timing.pollMs); }
+                if (!stopped) { pollId = setTimeout(poll, CONFIG.dataset.mode === 'channel' ? CONFIG.channel.pollMs : CONFIG.timing.pollMs); }
             }
             dataTimer = setTimeout(function () { done(new Error('Data timeout')); }, CONFIG.timing.dataTimeoutMs);
             try {
-                if (CONFIG.dataset.mode === 'mock' && MOCK_DATA.enabled) { MOCK_DATA.read(done); }
+                if (CONFIG.dataset.mode === 'mock' && typeof MOCK_DATA !== 'undefined' && MOCK_DATA.enabled) { MOCK_DATA.read(done); }
                 else if (CONFIG.dataset.mode === 'channel' && typeof window.WEOOH_DATA_SOURCE === 'function') {
                     window.WEOOH_DATA_SOURCE(done);
                 } else { done(new Error('Data source not configured; no automatic mock fallback')); }
@@ -225,7 +282,7 @@
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(function () {
                 if (stopped) { return; }
-                var nextFormat = window.innerWidth / window.innerHeight >= 15 ? 'strip' : 'full';
+                var nextFormat = pickFormat();
                 if (nextFormat !== formatName) {
                     finishAlert();
                     overlay.style.opacity = '0';
@@ -269,6 +326,11 @@
             }
         };
         window.addEventListener('resize', onResize);
+        // A primeira medicao pode ocorrer antes da fonte Placar carregar; refaz quando estiver pronta.
+        if (document.fonts) {
+            document.fonts.onloadingdone = function () { if (!stopped) { render(); } };
+            if (document.fonts.load) { document.fonts.load('900 1em Placar').then(function () { if (!stopped) { render(); } }, function () {}); }
+        }
         heartbeatId = setInterval(function () {
             if (stopped) { return; }
             try {
@@ -291,6 +353,7 @@
                 if (snapshot) { renderClock(); }
             } catch (failure) { stop('Runtime exception: ' + (failure.message || failure)); }
         }, 250);
+        displayTimer = setTimeout(function () { stop('Display time limit reached'); }, CONFIG.timing.displayMs);
         try { poll(); if (!stopped) { loadBase(); } }
         catch (failure) { stop('Startup exception: ' + (failure.message || failure)); }
     }
