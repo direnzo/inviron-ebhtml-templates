@@ -97,7 +97,7 @@ test('feed real: TEXTO e TEXTO2 definem data, inicio e termino', () => {
     const sessao = s.artistas[0].sessoes[0];
     assert.equal(sessao.startMs, at('2026-12-05 10:00:00'));
     assert.equal(sessao.endMs, at('2026-12-05 18:00:00'));
-    assert.equal(sessao.horario, '10h00 - 18h00');
+    assert.equal(sessao.horario, 'das 10:00 às 18:00');
 });
 
 test('feed real: horario unico usa duracao padrao; data ou horario invalido descarta', () => {
@@ -109,7 +109,7 @@ test('feed real: horario unico usa duracao padrao; data ou horario invalido desc
     const s = F.selecionar(raw, at('2026-12-05 15:45:00'), OPTS);
     assert.deepEqual(nomes(s), ['Ana']);
     assert.equal(s.artistas[0].sessoes[0].endMs, at('2026-12-05 16:30:00'));
-    assert.equal(s.artistas[0].sessoes[0].horario, '15h30 - 16h30');
+    assert.equal(s.artistas[0].sessoes[0].horario, 'às 15:30');
     assert.equal(s.descartados, 2);
 });
 
@@ -159,22 +159,34 @@ test('sessoes do artista em ordem de horario', () => {
     assert.deepEqual(F.selecionar(raw, NOW, OPTS).artistas[0].sessoes.map((x) => x.rotulo), ['Autógrafo', 'Selfie']);
 });
 
-test('todos os horarios usam faixa canonica; faixa invertida usa duracao padrao', () => {
+test('horarios preservam o texto; faixa invertida usa duracao padrao so no calculo', () => {
     const s = F.selecionar([
         sessao('Ana', 'Autografo', D + '15:25:00', D + '16:00:00'),
         sessao('Bia', 'Autografo', D + '15:25:00', ''),
         sessao('Caio', 'Autografo', D + '15:25:00', D + '15:00:00')
     ], NOW, OPTS);
-    assert.deepEqual(s.artistas.map((a) => a.sessoes[0].horario), ['15h25 - 16h00', '15h25 - 16h25', '15h25 - 16h25']);
+    assert.deepEqual(s.artistas.map((a) => a.sessoes[0].horario), ['das 15:25 às 16:00', 'às 15:25', 'das 15:25 às 15:00']);
+    assert.equal(s.artistas[2].sessoes[0].endMs, at(D + '16:25:00'));
 });
 
-test('horarios com dois pontos sao normalizados na faixa canonica', () => {
+test('horarios com dois pontos preservam a redacao recebida', () => {
     const raw = [
         sessao('Ana', 'Autografo', D + '15:00:00', D + '16:00:00', { horarioTexto: '15:00 às 16:00' }),
         sessao('Bia', 'Autografo', D + '15:25:00', D + '16:00:00')
     ];
     const s = F.selecionar(raw, NOW, OPTS);
-    assert.deepEqual(s.artistas.map((a) => a.sessoes[0].horario), ['15h00 - 16h00', '15h25 - 16h00']);
+    assert.deepEqual(s.artistas.map((a) => a.sessoes[0].horario), ['15:00 às 16:00', 'das 15:25 às 16:00']);
+});
+
+test('horario preserva espacos, caixa, separadores e observacoes sem alterar selecao', () => {
+    const horarioTexto = '  Das  09H00 ate 18h30 - atendimento por ordem de chegada  ';
+    const raw = [{ artista: 'Ana', modalidade: 'Selfie', data: '05/12', horarioTexto: horarioTexto }];
+    const s = F.selecionar(raw, at('2026-12-05 10:00:00'), OPTS);
+    const sessao = s.artistas[0].sessoes[0];
+    assert.equal(sessao.horario, horarioTexto);
+    assert.equal(sessao.startMs, at('2026-12-05 09:00:00'));
+    assert.equal(sessao.endMs, at('2026-12-05 18:30:00'));
+    assert.deepEqual(nomes(F.selecionar(raw, at('2026-12-05 18:30:00'), OPTS)), []);
 });
 
 test('esgotado: TEXTO3 = sim (sem caixa/espacos); outro valor nao', () => {

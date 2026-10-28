@@ -26,17 +26,10 @@
         return String(texto || '').replace(/\s+/g, ' ').trim();
     }
 
-    /** Mantem o padrao pronto; nos demais casos, formata os instantes calculados. */
-    function formatarHorario(texto, inicioMs, fimMs, offsetMin) {
-        const valor = limpo(texto);
-        if (/^\d{2}h\d{2} - \d{2}h\d{2}$/.test(valor)) { return valor; }
-        return P.formatHora(inicioMs, offsetMin) + ' - ' + P.formatHora(fimMs, offsetMin);
-    }
-
     /**
         * raw: { artista, foto, modalidade, data, esgotado, horarioTexto } (strings do dataset).
         * opts: { anoEvento, offsetMin, duracaoPadraoMin, esgotadoValor, modalidades }.
-        * horarioTexto aceita H:MM ou HhMM; a exibicao e sempre HHhMM - HHhMM.
+        * horarioTexto aceita H:MM ou HhMM para calculo; a exibicao preserva o texto recebido.
         * Retorna a sessao normalizada ou null (sem artista, data ou horario valido).
      */
     function normalizarSessao(raw, opts) {
@@ -54,7 +47,7 @@
         if (!fimValido) { endMs = startMs + (opts.duracaoPadraoMin || 60) * 60000; }
         const modalidade = limpo(raw.modalidade);
         const mapa = opts.modalidades || {};
-        const horario = formatarHorario(raw.horarioTexto, startMs, endMs, opts.offsetMin);
+        const horario = String(raw.horarioTexto);
         const alvo = String(opts.esgotadoValor != null ? opts.esgotadoValor : 'sim');
         return {
             artista: nome,

@@ -53,20 +53,50 @@
     }
 
     /** Texto de 1 linha ancorado pela linha de base; largura maxima opcional (encolhe e, no limite, corta). */
-    function linha(el, x, baselineY, tam, larguraMax) {
+    function linha(el, x, baselineY, tam, larguraMax, tamMinimo) {
         const ent = CONTEUDO * tam;
         el.style.left = x + 'px';
         el.style.fontSize = tam + 'px';
         el.style.lineHeight = ent + 'px';
         el.style.top = topoDaLinha(baselineY, tam, ent) + 'px';
         el.style.height = ent + 'px';
+        if (larguraMax && tamMinimo != null) {
+            el.style.maxWidth = 'none';
+            el.style.overflow = 'visible';
+            el.style.textOverflow = 'clip';
+            el.style.transform = 'none';
+            el.style.transformOrigin = 'left top';
+            const escala = $('stage').getBoundingClientRect().width / LARGURA || 1;
+            const intervalo = document.createRange();
+            intervalo.selectNodeContents(el);
+            const medir = () => intervalo.getBoundingClientRect().width / escala;
+            const limite = Math.max(0.1, larguraMax - 1);
+            let tamanho = tam;
+            if (medir() > limite) {
+                let minimo = tamMinimo;
+                let maximo = tam;
+                for (let passo = 0; passo < 10; passo += 1) {
+                    const candidato = (minimo + maximo) / 2;
+                    el.style.fontSize = candidato + 'px';
+                    if (medir() <= limite) { minimo = candidato; } else { maximo = candidato; }
+                }
+                tamanho = minimo;
+            }
+            el.style.fontSize = tamanho + 'px';
+            el.style.lineHeight = CONTEUDO * tamanho + 'px';
+            el.style.top = topoDaLinha(baselineY, tamanho, CONTEUDO * tamanho) + 'px';
+            el.style.height = CONTEUDO * tamanho + 'px';
+            const largura = medir();
+            if (largura > limite) { el.style.transform = 'scaleX(' + limite / largura + ')'; }
+            return;
+        }
         if (larguraMax) {
             el.style.maxWidth = larguraMax + 'px';
             el.style.overflow = 'hidden';
             el.style.textOverflow = 'ellipsis';
             const w = el.scrollWidth;
             if (w > larguraMax) {
-                const t = Math.max(tam * 0.6, tam * larguraMax / w);
+                let t = Math.max(tam * 0.6, tam * larguraMax / w);
                 el.style.fontSize = t + 'px';
                 el.style.lineHeight = CONTEUDO * t + 'px';
                 el.style.top = topoDaLinha(baselineY, t, CONTEUDO * t) + 'px';
@@ -251,7 +281,7 @@
             horario.style.color = C.corHorario;
             horario.textContent = s.horario;
             const yHorario = base + v.horarioDelta;
-            linha(horario, v.xHorario + dx, yHorario, v.tamHorario, v.larguraHorario);
+            linha(horario, v.xHorario + dx, yHorario, v.tamHorario, v.larguraHorario, 1);
 
             if (s.esgotado) {
                 const sc = C.selo;
