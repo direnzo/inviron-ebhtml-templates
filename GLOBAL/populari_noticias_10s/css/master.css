@@ -1,0 +1,187 @@
+@font-face {
+    font-family: 'Plus Jakarta Sans';
+    src: url('fonts/PlusJakartaSans-VariableFont_wght.ttf');
+    font-weight: normal;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.populari-body {
+    position: relative;
+    background: #000000;
+    color: #ffffff;
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+    font-size: 16px;
+    letter-spacing: 0;
+}
+
+#font-probe {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#stage, #noticia, #foto, #brand {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+#stage {
+    opacity: 0;
+    overflow: hidden;
+    -webkit-transition: opacity 350ms ease-in-out;
+    transition: opacity 350ms ease-in-out;
+}
+
+#noticia {
+    opacity: 0;
+    -webkit-transition: opacity 450ms ease-in-out;
+    transition: opacity 450ms ease-in-out;
+}
+
+#foto {
+    background-color: #c85a1a;
+    background-repeat: no-repeat;
+    background-position: center center;
+    -webkit-background-size: cover;
+    background-size: cover;
+}
+
+#foto-img {
+    display: none;
+}
+
+#gradiente {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 80%;
+    background: -webkit-gradient(linear, left bottom, left top,
+        color-stop(0, rgba(0, 0, 0, 0.94)),
+        color-stop(0.55, rgba(0, 0, 0, 0.76)),
+        color-stop(1, rgba(0, 0, 0, 0)));
+}
+
+#moldura, #moldura-base {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 8px solid #c85a1a;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+#moldura {
+    top: 0;
+}
+
+#moldura-base {
+    top: 50%;
+    border-color: #ffffff;
+    border-top: 0;
+}
+
+#logo {
+    position: absolute;
+    top: 6%;
+    right: 6%;
+    width: auto;
+    height: 4.2em;
+}
+
+#texto-wrap {
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    bottom: 6%;
+    height: 50%;
+    opacity: 0;
+    -webkit-transform: translateY(0.65em);
+    transform: translateY(0.65em);
+    -webkit-transition: opacity 400ms ease-in-out, -webkit-transform 400ms ease-in-out;
+    transition: opacity 400ms ease-in-out, transform 400ms ease-in-out;
+}
+
+#texto {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    font-size: 1.05em;
+    font-weight: normal;
+    line-height: 1.23;
+    word-wrap: break-word;
+    text-shadow: 0 0.06em 0.25em rgba(0, 0, 0, 0.6);
+}
+
+#brand {
+    opacity: 0;
+    background: #f4f1ea;
+    -webkit-transition: opacity 450ms ease-in-out;
+    transition: opacity 450ms ease-in-out;
+}
+
+#brand-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 76%;
+    height: 4em;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+#brand-logo svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.phase-intro #stage, .phase-news #stage,
+.phase-text-out #stage, .phase-outro #stage {
+    opacity: 1;
+}
+
+.phase-intro #brand, .phase-outro #brand, .phase-fade-out #brand {
+    opacity: 1;
+}
+
+.phase-news #noticia, .phase-text-out #noticia {
+    opacity: 1;
+}
+
+.phase-news #texto-wrap {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+}
+
+.phase-text-out #texto-wrap, .phase-outro #texto-wrap {
+    -webkit-transform: translateY(-0.4em);
+    transform: translateY(-0.4em);
+}
+
+@media (max-aspect-ratio: 1/1) {
+    #texto-wrap { height: 43%; }
+    #logo { height: 5.2em; }
+    #gradiente { height: 72%; }
+}
+
+@media (max-aspect-ratio: 2/3) {
+    #texto-wrap { height: 39%; }
+    #logo { height: 5.8em; }
+    #gradiente { height: 64%; }
+}

@@ -1,0 +1,10 @@
+{
+  "readySelector": ".phase-news #texto",
+  "timeoutMs": 30000,
+  "regions": [
+    { "selector": "#texto", "minFontPx": 12 },
+    { "selector": "#logo", "minFontPx": 1 }
+  ],
+  "overlapPairs": [["#texto", "#logo"]],
+  "scenarios": [{ "name": "dados-reais" }]
+}
