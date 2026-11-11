@@ -12,6 +12,7 @@ Template de relógio digital para EdgeContents CMS com flip-card animation e bac
 ## Configuração
 
 Edite `CLOCK_CONFIG` em `js/master.js` e `WAVE_CONFIG` em `js/wave-effect.js` para ajustar cores, fontes, velocidades.
+Paleta padrão atual: `colorTheme: 3` (laranja/dourado), fixa em vez de aleatória.
 
 ## Desenvolvimento
 
@@ -45,3 +46,4 @@ Ative `MOCK_DATA.enabled = true` em `js/mock-data.js` para testar sem servidor.
 | `js/mock-data.js` | Dados de teste |
 
 Validacao 2026-10-27: regressao HG Brasil, SVGs e clima ativo/inativo em `scripts/hgbrasil-current-icons.test.js`; visual/runtime pendente (slot local em previsao_tempo). Escopo integral: 1.012 formatos, snapshot 2026-10-20; matriz/hash em `.validation/hgbrasil-current-icons-20261027/catalog-matrix-not-run.json`, nao executada. Nenhum `.eh5` gerado nesta correcao.
+Snapshot 2026-11-11: pacote existente `_EH5/hora_certa_HG_10seg_laranja_dourado.eh5` preservado sem regenerar; ZIP/CRC/referências HTML e `js/master.js` igual à fonte conferidos. Também incorpora modo reduzido e ícone atual HG Brasil; EBHTML legado igual ao template/ao pacote anterior, tooling preexistente preservado. `npm.cmd test`: 160/160; limpeza do pacote e visual/runtime na matriz integral pendentes, sem homologação nova.

@@ -15,7 +15,7 @@ var CLOCK_CONFIG = {
     sponsorRandomTest: false, // se true, alterna sponsor true/false a cada load (teste)
     climateRandomTest: false, // se true, ativa teste aleatório de clima (para desenvolvimento sem D_CLIMA)
 
-    colorTheme: -1, // índice da paleta em COLOR_PALETTES (0–9), ou -1 para aleatório a cada load
+    colorTheme: 3, // índice da paleta em COLOR_PALETTES (0–9), ou -1 para aleatório a cada load
 
     /*
     colorTheme: -1,   // aleatório a cada load (comportamento anterior)
