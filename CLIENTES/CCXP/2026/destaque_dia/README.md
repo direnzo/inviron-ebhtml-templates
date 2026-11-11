@@ -56,8 +56,9 @@ Vídeos (`videos/destaques_intro|outro.mp4`) ficam fora do Git (`*.mp4`): copiar
 - `npm run build` (Tailwind global) gera `css/master.css`. As regras novas (borda da foto,
   foto ausente) estão em `css/input.css` e foram replicadas à mão em `css/master.css`
   porque o Tailwind não está instalado nesta máquina.
-- Antes do `.eh5`: remover o script do mock,
-  `CONFIG.debug = false`, excluir `mock/`, incluir só os 6 fundos, os 2 vídeos e o logo.
+- Snapshot 2026-11-11: `_EH5/ccxp26_destaque_dia.eh5` preservado por decisão do usuário, **não homologado**; logo Omelete igual à fonte e ZIP/CRC/referências HTML/EBHTML canônico conferidos.
+- O snapshot adiciona `mock/`, `js/mock-data.js`, tooling e `CONFIG.debug = true` (mock não carregado no HTML); antes da entrega, remover desenvolvimento e desligar debug. Nenhum pacote regenerado.
+- Gate `npm.cmd test`: 160/160; visual `1080x1920` e runtime pendentes para o novo logo/pacote.
 
 ## Pendências
 

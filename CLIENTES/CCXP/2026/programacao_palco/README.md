@@ -44,6 +44,8 @@ Plano e decisões: `../docs/PLANO-EXECUCAO.md`. Contexto: `../README.md`.
   fundo, ornamento e vídeos do palco correspondente, além da fonte e do logo.
 - Para atualizar CSS durante desenvolvimento, usar `npm run dev` (Tailwind global).
 - Os `.eh5` não incluem `mock/`, fontes de build ou arquivos-fonte do Tailwind.
+- Snapshot 2026-11-11: logo Omelete atualizado; pacote existente também altera `videos/omelete_intro.mp4`, sem regeneração nesta tarefa. ZIP/CRC, referências HTML, EBHTML canônico e logo idêntico à fonte conferidos.
+- `npm.cmd test`: 160/160; revisão visual `1080x1920`, reprodução do vídeo e homologação do pacote atualizado pendentes.
 
 ## Pendências
 - A consulta atual ao canal retornou vazia para os seis IDs; testar cada pacote no
