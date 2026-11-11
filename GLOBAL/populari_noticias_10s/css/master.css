@@ -36,7 +36,7 @@ html, body {
 }
 
 #stage {
-    opacity: 0;
+    opacity: 1;
     overflow: hidden;
     -webkit-transition: opacity 350ms ease-in-out;
     transition: opacity 350ms ease-in-out;
@@ -107,11 +107,8 @@ html, body {
     right: 6%;
     bottom: 6%;
     height: 50%;
-    opacity: 0;
-    -webkit-transform: translateY(0.65em);
-    transform: translateY(0.65em);
-    -webkit-transition: opacity 400ms ease-in-out, -webkit-transform 400ms ease-in-out;
-    transition: opacity 400ms ease-in-out, transform 400ms ease-in-out;
+    -webkit-transition: -webkit-transform 400ms ease-in-out;
+    transition: transform 400ms ease-in-out;
 }
 
 #texto {
@@ -150,12 +147,7 @@ html, body {
     height: 100%;
 }
 
-.phase-intro #stage, .phase-news #stage,
-.phase-text-out #stage, .phase-outro #stage {
-    opacity: 1;
-}
-
-.phase-intro #brand, .phase-outro #brand, .phase-fade-out #brand {
+.phase-outro #brand, .phase-fade-out #brand {
     opacity: 1;
 }
 
@@ -163,15 +155,13 @@ html, body {
     opacity: 1;
 }
 
-.phase-news #texto-wrap {
-    opacity: 1;
-    -webkit-transform: translateY(0);
-    transform: translateY(0);
-}
-
 .phase-text-out #texto-wrap, .phase-outro #texto-wrap {
     -webkit-transform: translateY(-0.4em);
     transform: translateY(-0.4em);
+}
+
+.phase-fade-out #stage {
+    opacity: 0;
 }
 
 @media (max-aspect-ratio: 1/1) {

@@ -45,10 +45,9 @@
                 if (done || started) { return; }
                 started = true;
                 origin = clock.now();
-                phase('intro');
+                phase('news');
                 if (done) { return; }
                 markLoaded();
-                at(timing.news, function () { phase('news'); });
                 at(timing.textOut, function () { phase('text-out'); });
                 at(timing.outro, function () { phase('outro'); });
                 at(timing.fadeOut, function () { phase('fade-out'); });

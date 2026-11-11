@@ -45,13 +45,13 @@ function fixture(onPhase) {
     } };
 }
 
-test('10 seconds include intro, news and outro; never add 10 seconds after intro', () => {
+test('news starts with a single fade-in and the complete cycle remains 10 seconds', () => {
     const { cycle, events, advance } = fixture();
     cycle.start();
     advance(799);
-    assert.deepEqual(events, [['intro', 0], ['loaded', 0]]);
+    assert.deepEqual(events, [['news', 0], ['loaded', 0]]);
     advance(800);
-    assert.deepEqual(events.at(-1), ['news', 800]);
+    assert.deepEqual(events.at(-1), ['loaded', 0]);
     advance(8800);
     assert.deepEqual(events.at(-1), ['text-out', 8800]);
     advance(9200);
@@ -84,7 +84,7 @@ test('phase exception releases the playlist and cancels future phases', () => {
     });
     cycle.start();
     advance(30000);
-    assert.deepEqual(events.slice(-3), [['news', 800], ['empty', 800], ['finished', 800]]);
+    assert.deepEqual(events, [['news', 0], ['empty', 0], ['loaded', 0], ['finished', 0]]);
     assert.equal(events.filter(([name]) => name === 'loaded').length, 1);
 });
 
@@ -122,7 +122,7 @@ for (const value of ['Cortado\u2026', 'Cortado...', 'Cortado. . .', 'Cortado&hel
         assert.equal(readCompleteText({ value: name => ({ value: name === 'TEXTO' ? value : '' }) }, config.dataset), value);
         const app = runtime({ text: value, cached: true });
         app.success();
-        assert.equal(app.window.document.body.className, 'populari-body phase-intro');
+        assert.equal(app.window.document.body.className, 'populari-body phase-news');
         app.advance(30000);
         assert.deepEqual(app.events, [['loaded', 0], ['finished', 10000]]);
         assert.equal(app.elements.texto.textContent, value);
@@ -306,7 +306,7 @@ test('fit rejects fractional glyph overflow even when width and height fit', () 
     assert.equal(app.elements.texto.textContent, 'Noticia <b>literal</b>');
 });
 
-test('one inline SVG is ready before loaded and is reused for intro and outro', () => {
+test('one inline SVG is ready before loaded for the outro', () => {
     const app = runtime({ cached: true, logoLoading: true });
     app.success();
     app.advance(500);
@@ -361,4 +361,16 @@ test('layout keeps the small horizontal formats out of portrait media rules', ()
     assert.doesNotMatch(script, /\b(?:const|let|Promise)\b|=>|\.innerHTML\s*=/);
     assert.equal(fs.readFileSync(path.join(__dirname, '../GLOBAL/populari_noticias_10s/js/ebhtml.js'), 'utf8'),
         fs.readFileSync(path.join(__dirname, '../_template-base/js/ebhtml.js'), 'utf8'));
+});
+
+test('initial display has no intro and fades the news scene as one unit', () => {
+    const css = fs.readFileSync(path.join(__dirname, '../GLOBAL/populari_noticias_10s/css/master.css'), 'utf8');
+    const stage = css.match(/#stage\s*\{([^}]+)\}/)[1];
+    const news = css.match(/#noticia\s*\{([^}]+)\}/)[1];
+    const text = css.match(/#texto-wrap\s*\{([^}]+)\}/)[1];
+    assert.doesNotMatch(css, /phase-intro/);
+    assert.match(stage, /opacity:\s*1/);
+    assert.match(news, /opacity:\s*0/);
+    assert.match(news, /transition:\s*opacity\s+450ms/);
+    assert.doesNotMatch(text, /opacity|translateY/);
 });

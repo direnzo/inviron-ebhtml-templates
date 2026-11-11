@@ -1,7 +1,6 @@
 var CONFIG = {
     timing: {
         total: 10000,
-        news: 800,
         textOut: 8800,
         outro: 9200,
         fadeOut: 9650,
