@@ -10,9 +10,9 @@ var CONFIG = {
     // fixtureId: jogo oficial fixo (Vasco x Flamengo, API-Football 1492439); D_SPD e compartilhado e pode trazer outro jogo. Nulo = usar D_SPD.TITLE (teste).
     // apiIds: IDs API-Football do jogo oficial. Outro jogo (teste): mandante->esquerda, visitante->direita, nomes da API.
     // TESTE (jogo que o D_SPD trouxer agora; hoje 1562654 Kraluv Dvur x Sparta Praha II, ja finalizado):
-    channel: { fixtureId: null, apiIds: { vasco: 133, flamengo: 127 }, pollMs: 5000 },
+    // channel: { fixtureId: null, apiIds: { vasco: 133, flamengo: 127 }, pollMs: 5000 },
     // OFICIAL Vasco x Flamengo (descomentar esta e comentar a de teste acima):
-    // channel: { fixtureId: '1492439', apiIds: { vasco: 133, flamengo: 127 }, pollMs: 5000 },
+    channel: { fixtureId: '1492439', apiIds: { vasco: 133, flamengo: 127 }, pollMs: 5000 },
     // cycle: ciclo completo (pre-jogo, 1T+acrescimos, intervalo, 2T+acrescimos, fim) e recomeca; speed = segundos de jogo por segundo real
     mock: { scenario: 'cycle', stepMs: 14000, speed: 30, phaseMs: 15000 },
     audio: { muted: true },

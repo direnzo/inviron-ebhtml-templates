@@ -1,5 +1,5 @@
 # WEOOH - Placar Vasco x Flamengo
-Prototipo patrocinado continuo, com dados MOCK; nao homologado para producao.
+Placar patrocinado continuo; configuração atual usa canal e partida oficial, sem homologação nova.
 Branch: `feat/weooh-placar-flamengo-vasco`. Base: EBHTML 2.0.7 canonico.
 
 ## Execucao
@@ -34,15 +34,15 @@ Branch: `feat/weooh-placar-flamengo-vasco`. Base: EBHTML 2.0.7 canonico.
 - `videos/`: 21 MP4 com nomes ASCII (`<full|portrait|strip>-<base|goal|yellow|red>-<time>.mp4`), cerca de 55MB no total; nomes originais retornaram HTTP 200 vazio no player.
 
 ## Integracao E Entrega
-- Canal real ainda indisponivel; nenhum dataset ou fixture ID de producao presumido.
+- Canal configurado: `D_SPD`; partida oficial fixa `1492439` (Vasco x Flamengo); `fixtureId: null` fica comentado para teste.
 - Adaptador futuro: `WEOOH_DATA_SOURCE(callback)` retorna o contrato de `match-state.js`.
 - Ativar `CONFIG.dataset.mode='channel'` e `MOCK_DATA.enabled=false`; sem fallback mock.
 - Snapshot vazio inicial/falha fatal encerra; dado valido e conservado por ate 120s.
 - Alertas novos de ate 90s; repetidos/cancelados nao disparam; fila cronologica.
 - Cronometro mm:ss: avanca em 1H/2H e para em HT/FT; second opcional, sem reiniciar a cada poll sem segundos.
-- `npm test` na raiz roda so `scripts/weooh-match-state.test.js` (10 testes, sem servidor).
+- `npm.cmd test` na raiz: 160/160 em 2026-11-11, incluindo match-state e channel-source; player continua separado.
 - Suite de player: `node --test scripts/weooh-player.test.js`; exige ebcliente4 em `localhost:12099`, Chrome e Playwright.
-- Validacao visual/runtime e geracao de `.eh5` dependem de homologacao.
+- Snapshot 2026-11-11: `_EH5/placar_Vasco_Flamengo_oficial.eh5` preservado sem regenerar; única mudança interna em `js/config.js`, idêntico à fonte; ZIP/CRC/referências HTML/EBHTML canônico OK. Tooling preexistente preservado; limpeza e testes reais nos três formatos pendentes.
 - Pacote final deve excluir mocks ativos, fontes de build, testes e modelos nao usados.
 - Para outras partidas, substituir tambem os videos: escudos/patrocinio estao incorporados.
 
