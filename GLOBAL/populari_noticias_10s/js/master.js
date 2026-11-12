@@ -48,9 +48,6 @@
                 phase('news');
                 if (done) { return; }
                 markLoaded();
-                at(timing.textOut, function () { phase('text-out'); });
-                at(timing.outro, function () { phase('outro'); });
-                at(timing.fadeOut, function () { phase('fade-out'); });
                 at(timing.total, function () { finish(false); });
             },
             skip: function () { finish(true); },
@@ -92,17 +89,13 @@
         var photoImage = doc.getElementById('foto-img');
         var text = doc.getElementById('texto');
         var textBox = doc.getElementById('texto-wrap');
-        var brandLogo = doc.getElementById('brand-logo');
         var cycle;
         var dataTimer;
         var imageTimer;
         var fontTimer;
-        var logoTimer;
-        var logoRequest;
         var resizeTimer;
         var acceptingData = true;
         var imageSettled = false;
-        var logoReady = false;
         var contentReady = false;
         var currentPhase = 'empty';
         var clock = {
@@ -125,16 +118,10 @@
             var frame = doc.getElementById('moldura');
             var frameBase = doc.getElementById('moldura-base');
             var logo = doc.getElementById('logo');
-            var brand = doc.getElementById('brand');
             var news = doc.getElementById('noticia');
             body.style.fontSize = (shortSide * config.layout.baseScale) + 'px';
-            brandLogo.style.width = config.layout.brandWidthPercent + '%';
-            brandLogo.style.height = (width * config.layout.brandWidthPercent / 100 *
-                config.assets.brandHeight / config.assets.brandWidth /
-                (shortSide * config.layout.baseScale)) + 'em';
             body.style.backgroundColor = config.colors.background;
             body.style.color = config.colors.text;
-            brand.style.backgroundColor = config.colors.opening;
             frame.style.borderColor = config.colors.brand;
             frame.style.borderWidth = border + 'px';
             frameBase.style.borderColor = config.colors.text;
@@ -148,12 +135,8 @@
             logo.style.right = inset;
             news.style.webkitTransitionDuration = config.timing.transition + 'ms';
             news.style.transitionDuration = config.timing.transition + 'ms';
-            textBox.style.webkitTransitionDuration = (config.timing.outro - config.timing.textOut) + 'ms';
-            textBox.style.transitionDuration = (config.timing.outro - config.timing.textOut) + 'ms';
-            brand.style.webkitTransitionDuration = config.timing.transition + 'ms';
-            brand.style.transitionDuration = config.timing.transition + 'ms';
-            stage.style.webkitTransitionDuration = (config.timing.total - config.timing.fadeOut) + 'ms';
-            stage.style.transitionDuration = (config.timing.total - config.timing.fadeOut) + 'ms';
+            textBox.style.webkitTransitionDuration = config.timing.transition + 'ms';
+            textBox.style.transitionDuration = config.timing.transition + 'ms';
         }
 
         function fitText() {
@@ -202,51 +185,7 @@
             root.clearTimeout(dataTimer);
             root.clearTimeout(imageTimer);
             root.clearTimeout(fontTimer);
-            root.clearTimeout(logoTimer);
             if (cycle) { cycle.skip(); }
-            if (logoRequest && logoRequest.readyState !== 4) { logoRequest.abort(); }
-        }
-
-        function loadBrandLogo() {
-            var settled = false;
-
-            function complete(svg) {
-                if (settled || cycle.ended()) { return; }
-                settled = true;
-                root.clearTimeout(logoTimer);
-                try {
-                    if (!svg || (svg.localName || svg.nodeName).toLowerCase() !== 'svg') {
-                        skip();
-                        return;
-                    }
-                    var inline = doc.importNode(svg, true);
-                    inline.setAttribute('width', '100%');
-                    inline.setAttribute('height', '100%');
-                    inline.setAttribute('aria-hidden', 'true');
-                    brandLogo.appendChild(inline);
-                    logoReady = true;
-                    if (contentReady) { cycle.start(); }
-                } catch (error) { skip(); }
-            }
-
-            try {
-                logoRequest = new root.XMLHttpRequest();
-                logoRequest.onreadystatechange = function () {
-                    if (logoRequest.readyState !== 4 || settled || cycle.ended()) { return; }
-                    try {
-                        if (logoRequest.status !== 200) { complete(null); return; }
-                        var xml = logoRequest.responseXML;
-                        if (!xml || !xml.documentElement) {
-                            xml = new root.DOMParser().parseFromString(logoRequest.responseText, 'image/svg+xml');
-                        }
-                        complete(xml.documentElement);
-                    } catch (error) { complete(null); }
-                };
-                logoRequest.onerror = function () { complete(null); };
-                logoTimer = root.setTimeout(function () { complete(null); }, config.timing.logoTimeout);
-                logoRequest.open('GET', config.assets.brandLogo, true);
-                logoRequest.send(null);
-            } catch (error) { skip(); }
         }
 
         function prepare(data) {
@@ -266,7 +205,7 @@
                     }
                     fitText();
                     contentReady = true;
-                    if (logoReady) { cycle.start(); }
+                    cycle.start();
                 } catch (error) { skip(); }
             }
 
@@ -302,7 +241,6 @@
             loader.autoloaded = false;
             loader.nodataiserror = false;
             try {
-                loadBrandLogo();
                 if (cycle.ended()) { return; }
                 loader.addData(config.dataset.name, false, config.dataset.parameters);
                 loader.load(function () {

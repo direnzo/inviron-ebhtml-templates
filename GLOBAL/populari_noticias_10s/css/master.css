@@ -27,7 +27,7 @@ html, body {
     pointer-events: none;
 }
 
-#stage, #noticia, #foto, #brand {
+#stage, #noticia, #foto {
     position: absolute;
     top: 0;
     right: 0;
@@ -124,44 +124,8 @@ html, body {
     text-shadow: 0 0.06em 0.25em rgba(0, 0, 0, 0.6);
 }
 
-#brand {
-    opacity: 0;
-    background: #f4f1ea;
-    -webkit-transition: opacity 450ms ease-in-out;
-    transition: opacity 450ms ease-in-out;
-}
-
-#brand-logo {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 76%;
-    height: 4em;
-    -webkit-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-}
-
-#brand-logo svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-
-.phase-outro #brand, .phase-fade-out #brand {
+.phase-news #noticia {
     opacity: 1;
-}
-
-.phase-news #noticia, .phase-text-out #noticia {
-    opacity: 1;
-}
-
-.phase-text-out #texto-wrap, .phase-outro #texto-wrap {
-    -webkit-transform: translateY(-0.4em);
-    transform: translateY(-0.4em);
-}
-
-.phase-fade-out #stage {
-    opacity: 0;
 }
 
 @media (max-aspect-ratio: 1/1) {
