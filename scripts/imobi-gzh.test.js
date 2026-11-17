@@ -162,12 +162,34 @@ var second = {
     FOTO: 'img/placeholder.jpg'
 };
 
+async function interceptGzhTemplate(page, records) {
+    await page.route('**/*', function(route) {
+        var url = new URL(route.request().url());
+        if (url.origin !== 'http://localhost:12099' || !url.pathname.startsWith('/FILES/1/')) {
+            return route.abort();
+        }
+        if (url.pathname === '/FILES/1/index.html') {
+            var html = fs.readFileSync(path.join(template, 'index.html'), 'utf8');
+            var mockScripts = '<script src="js/mock-data.js"></script>';
+            if (records) {
+                mockScripts += '<script>MOCK_DATA.datasets[CONFIG.dataset.name] = ' + JSON.stringify(records) + ';</script>';
+            }
+            return route.fulfill({
+                contentType: 'text/html',
+                body: html.replace('<!-- <script src="js/mock-data.js"></script> -->', mockScripts)
+            });
+        }
+        return route.fulfill({ path: path.join(template, decodeURIComponent(url.pathname.slice('/FILES/1/'.length))) });
+    });
+}
+
 test('mock real inicializa duas noticias sem canal nos dois formatos explicitos', function() {
     [[1536, 768], [768, 1152]].forEach(function(format) {
         var app = createHarness({ useMock: true, width: format[0], height: format[1] });
         assert.equal(app.elements.title0.textContent, 'Projeto amplia oportunidades para estudantes e jovens profissionais');
         assert.equal(app.elements.title1.textContent, 'Veja as novidades e os destaques do esporte nesta semana');
         assert.equal(app.elements.card1.classList.contains('hidden'), false);
+        assert.equal(app.elements.cardsWrap.classList.contains('cards-wrap--single'), false);
         assert.equal(app.elements.photo0.src, 'img/placeholder.jpg');
         assert.equal(app.elements.photo1.src, 'img/placeholder.jpg');
         assert.equal(app.elements.dynamicContent.classList.contains('is-visible'), true);
@@ -184,6 +206,7 @@ test('mock real com uma noticia nao duplica o card e conclui o ciclo', function(
     assert.equal(app.elements.title0.textContent, first.TITULO);
     assert.equal(app.elements.title1.textContent, '');
     assert.equal(app.elements.card1.classList.contains('hidden'), true);
+    assert.equal(app.elements.cardsWrap.classList.contains('cards-wrap--single'), true);
     app.advance(10000);
     assert.deepEqual(app.events, [['loaded', 0], ['finished', 10000]]);
 });
@@ -265,20 +288,7 @@ test('editorias encostam nas fotos e deslizam da esquerda por tras delas nos doi
     try {
         for (var format of [[1536, 768], [768, 1152]]) {
             var page = await browser.newPage({ viewport: { width: format[0], height: format[1] } });
-            await page.route('**/*', function(route) {
-                var url = new URL(route.request().url());
-                if (url.origin !== 'http://localhost:12099' || !url.pathname.startsWith('/FILES/1/')) {
-                    return route.abort();
-                }
-                if (url.pathname === '/FILES/1/index.html') {
-                    var html = fs.readFileSync(path.join(template, 'index.html'), 'utf8');
-                    return route.fulfill({
-                        contentType: 'text/html',
-                        body: html.replace('<!-- <script src="js/mock-data.js"></script> -->', '<script src="js/mock-data.js"></script>')
-                    });
-                }
-                return route.fulfill({ path: path.join(template, decodeURIComponent(url.pathname.slice('/FILES/1/'.length))) });
-            });
+            await interceptGzhTemplate(page);
             await page.goto('http://localhost:12099/FILES/1/index.html');
             await page.waitForSelector('#dynamicContent.is-visible');
             var cards = await page.evaluate(async function() {
@@ -337,6 +347,39 @@ test('editorias encostam nas fotos e deslizam da esquerda por tras delas nos doi
                 assert.equal(card.covering, 'photo' + index, 'foto deve ficar à frente da editoria');
                 assert.equal(card.clip, 'hidden', 'editoria não deve aparecer do outro lado da foto');
             });
+            await page.close();
+        }
+    } finally {
+        await browser.close();
+    }
+});
+
+test('uma noticia fica centralizada verticalmente nos formatos explicitos', async function() {
+    var browser = await require('playwright').chromium.launch({ headless: true });
+    var record = [{
+        TITULO: 'Manchete única para conferir a centralização vertical',
+        CATEGORY: 'CIDADE',
+        FOTO: 'img/placeholder.jpg'
+    }];
+    try {
+        for (var format of [[1536, 768], [768, 1152]]) {
+            var page = await browser.newPage({ viewport: { width: format[0], height: format[1] } });
+            await interceptGzhTemplate(page, record);
+            await page.goto('http://localhost:12099/FILES/1/index.html');
+            await page.waitForSelector('#dynamicContent.is-visible');
+            var layout = await page.evaluate(function() {
+                var cards = document.getElementById('cardsWrap');
+                var card = document.getElementById('card0').getBoundingClientRect();
+                var area = cards.getBoundingClientRect();
+                return {
+                    centerOffset: Math.abs((card.top + card.bottom - area.top - area.bottom) / 2),
+                    isSingle: cards.classList.contains('cards-wrap--single'),
+                    secondHidden: document.getElementById('card1').classList.contains('hidden')
+                };
+            });
+            assert.ok(layout.centerOffset <= 1, 'bloco único deve ficar no centro vertical da área dos cards');
+            assert.equal(layout.isSingle, true);
+            assert.equal(layout.secondHidden, true);
             await page.close();
         }
     } finally {

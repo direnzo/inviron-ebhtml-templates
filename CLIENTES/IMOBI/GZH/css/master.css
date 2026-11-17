@@ -1129,6 +1129,10 @@ body {
   justify-content: space-between;
 }
 
+.cards-wrap--single {
+  justify-content: center;
+}
+
 .news-card {
   display: flex;
   flex: 0 0 46.5%;
