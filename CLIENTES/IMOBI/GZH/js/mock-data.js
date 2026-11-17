@@ -6,7 +6,7 @@
 var MOCK_DATA = {
     enabled: true,
     datasets: {
-        'D_GZH': [
+        'D_GAUCHAZH': [
             {
                 TITULO: 'Projeto amplia oportunidades para estudantes e jovens profissionais',
                 TEXTO: '',

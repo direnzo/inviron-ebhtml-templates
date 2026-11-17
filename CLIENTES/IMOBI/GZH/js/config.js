@@ -7,7 +7,7 @@ var CONFIG = {
         emptyFinishDelay: 100
     },
     dataset: {
-        name: 'D_GZH',
+        name: 'D_GAUCHAZH',
         params: 'amount=2'
     },
     layout: {

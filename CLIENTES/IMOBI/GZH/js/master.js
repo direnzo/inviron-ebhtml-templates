@@ -161,7 +161,7 @@ window.onload = function() {
         }
 
         function handleLoadError(error) {
-            if (error) { console.warn('[GZH] Falha ao carregar D_GZH:', error); }
+            if (error) { console.warn('[GZH] Falha ao carregar D_GAUCHAZH:', error); }
             finish('falha no carregamento do dataset', CONFIG.timing.emptyFinishDelay);
         }
 
@@ -170,7 +170,7 @@ window.onload = function() {
             loader.nodataiserror = false;
             loader.autoloaded = false;
             loadWatchdog = setTimeout(function() {
-                console.warn('[GZH] Timeout ao carregar D_GZH');
+                console.warn('[GZH] Timeout ao carregar D_GAUCHAZH');
                 finish('timeout do dataset', CONFIG.timing.emptyFinishDelay);
             }, LOAD_TIMEOUT);
 
@@ -207,12 +207,12 @@ window.onload = function() {
                     bindImage(photo0, urls[0]);
                     if (!singleItem) { bindImage(photo1, urls[1]); }
                 } catch (error) {
-                    console.warn('[GZH] Erro ao interpretar D_GZH:', error);
+                    console.warn('[GZH] Erro ao interpretar D_GAUCHAZH:', error);
                     finish('exceção ao renderizar dados', CONFIG.timing.emptyFinishDelay);
                 }
             }, handleLoadError);
         } catch (error) {
-            console.warn('[GZH] Erro ao iniciar D_GZH:', error);
+            console.warn('[GZH] Erro ao iniciar D_GAUCHAZH:', error);
             finish('erro ao iniciar loader', CONFIG.timing.emptyFinishDelay);
         }
     });

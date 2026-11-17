@@ -79,7 +79,7 @@ function createHarness(options) {
     };
     var loader = {
         addData: function(name, required, params) {
-            assert.equal(name, 'D_GZH');
+            assert.equal(name, 'D_GAUCHAZH');
             assert.equal(required, false);
             assert.equal(params, 'amount=2');
         },
@@ -127,7 +127,7 @@ function createHarness(options) {
     if (options.useMock) {
         vm.runInContext(fs.readFileSync(path.join(template, 'js/mock-data.js'), 'utf8'), context);
         context.ebhtml = window.ebhtml;
-        if (options.mockRecords) { context.MOCK_DATA.datasets.D_GZH = options.mockRecords; }
+        if (options.mockRecords) { context.MOCK_DATA.datasets[context.CONFIG.dataset.name] = options.mockRecords; }
     }
     vm.runInContext(fs.readFileSync(path.join(template, 'js/master.js'), 'utf8'), context);
     window.onload();
