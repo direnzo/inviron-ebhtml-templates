@@ -64,6 +64,7 @@ window.onload = function() {
     aplicarConfigVisual();
     var body = document.body;
     var dynamicContent = document.getElementById('dynamicContent');
+    var cardsWrap = document.getElementById('cardsWrap');
     var brandLogo = document.getElementById('brandLogo');
     var card1 = document.getElementById('card1');
     var photo0 = document.getElementById('photo0');
@@ -189,6 +190,7 @@ window.onload = function() {
                     }
                     item0 = list.get(0);
                     singleItem = total < 2;
+                    cardsWrap.classList.toggle('cards-wrap--single', singleItem);
                     card1.classList.toggle('hidden', singleItem);
                     urls.push(renderItem(item0, photo0, title0, category0));
                     if (!singleItem) {
