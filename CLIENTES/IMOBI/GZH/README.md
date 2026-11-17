@@ -24,4 +24,4 @@
 - **Layout de notícia única (2026-11-17):** mock de uma notícia; centro do card na área entre cabeçalho e rodapé validado nos viewports `1536x768` e `768x1152` (tolerância de 1 px). `node --test scripts/imobi-gzh.test.js` passou 12/12; homologação no `ebcliente4` pendente.
 - **Validação no player:** homologação pendente no ebcliente4; conferência no Chrome/Builder não certifica o runtime legado.
 - **Checkpoint (2026-11-11):** canal `D_GZH` indisponível; mock desativado no HTML por decisão do usuário. Teste visual sintético ativa sua inclusão somente na resposta interceptada, sem alterar o HTML salvo; teste conclusivo com dados reais pendente.
-- **Entrega:** nenhum `.eh5` gerado; revisão visual e homologação no player-alvo pendentes.
+- **Entrega (2026-11-17):** `_EH5/imobi-gzh.eh5` reconstruído e reaberto; 9 arquivos de runtime, canal e layout conferidos, sem mock/tooling. SHA-256: `4B96C157CC5C21BBA92A78E83778BBC9AC685ED9DC013987352BCF65508EF148`. Homologação no `ebcliente4` pendente.
