@@ -13,7 +13,7 @@
     const ASC = 0.952;          // GothamCond-Ultra: ascendente e area de conteudo (em)
     const CONTEUDO = 0.952 + 0.222;
     const CURVA = 'cubic-bezier(0.4, 0, 0.2, 1)';
-    const SELO_RAZAO = 22 / 103;   // img/selo.png: 103x22 px
+    const SELO_RAZAO = 22 / 103;   // SVG e PNG: 103x22 px
     const FOTO_AUSENTE = '#17269D'; // cor das formas do fundo, escurecida pelo CSS (.sem-foto)
 
     const log = (...args) => { if (C.debug) { console.log('[CCXP]', ...args); } };
@@ -180,6 +180,44 @@
         });
     }
 
+    function carregarSelo() {
+        return new Promise((resolve) => {
+            const xhr = new XMLHttpRequest();
+            let concluido = false;
+            function concluir(svg, erro) {
+                if (concluido) { return; }
+                concluido = true;
+                if (erro) { console.warn('[CCXP] Selo SVG indisponivel; usando PNG:', erro); }
+                resolve(svg);
+            }
+            xhr.onload = () => {
+                if (xhr.status !== 200) { concluir(null, 'HTTP ' + xhr.status); return; }
+                try {
+                    const doc = new DOMParser().parseFromString(xhr.responseText, 'image/svg+xml');
+                    const svg = doc.documentElement;
+                    if (!svg || svg.localName !== 'svg' || svg.namespaceURI !== 'http://www.w3.org/2000/svg' ||
+                        doc.querySelector('parsererror')) {
+                        concluir(null, 'SVG invalido');
+                        return;
+                    }
+                    concluir(document.importNode(svg, true));
+                } catch (erro) {
+                    concluir(null, erro.message || String(erro));
+                }
+            };
+            xhr.onerror = () => concluir(null, 'falha de rede');
+            xhr.ontimeout = () => concluir(null, 'timeout');
+            xhr.onabort = () => concluir(null, 'requisicao abortada');
+            try {
+                xhr.open('GET', C.selo.svg, true);
+                xhr.timeout = T.carregarMidia;
+                xhr.send();
+            } catch (erro) {
+                concluir(null, erro.message || String(erro));
+            }
+        });
+    }
+
     function carregarFonte() {
         if (!document.fonts || !document.fonts.load) { return Promise.resolve(false); }
         return Promise.race([
@@ -275,7 +313,7 @@
             const rotulo = criar('rotulo absolute whitespace-nowrap', interno);
             rotulo.style.color = C.corRotulo;
             rotulo.textContent = s.rotulo;
-            linha(rotulo, v.xRotulo + dx, base, v.tamRotulo, 270);
+            linha(rotulo, v.xRotulo + dx, base, v.tamRotulo, v.larguraHorario, 1);
 
             const horario = criar('horario absolute whitespace-nowrap', interno);
             horario.style.color = C.corHorario;
@@ -287,10 +325,10 @@
                 const sc = C.selo;
                 const w = sc.w * kSelo;
                 const h = w * SELO_RAZAO;
-                const selo = document.createElement('img');
-                selo.className = 'selo absolute';
-                selo.alt = '';
-                selo.src = sc.img;
+                const selo = midia[sc.svg] ? midia[sc.svg].cloneNode(true) : document.createElement('img');
+                selo.setAttribute('class', 'selo absolute');
+                selo.setAttribute('aria-hidden', 'true');
+                if (!midia[sc.svg]) { selo.alt = ''; selo.src = sc.img; }
                 selo.style.left = (v.xHorario + dx + sc.dx * kSelo - w / 2) + 'px';
                 selo.style.top = (yHorario + sc.dy * kSelo - h / 2) + 'px';
                 selo.style.width = w + 'px';
@@ -410,10 +448,12 @@
                 if (a.foto && fotos.indexOf(a.foto) === -1) { fotos.push(a.foto); }
             }));
             const urls = fotos.concat([C.fundo, C.selo.img]);
-            const [ok, fonteOk] = await Promise.all([Promise.all(urls.map(precarregar)), carregarFonte()]);
+            const [ok, fonteOk, seloSvg] = await Promise.all([Promise.all(urls.map(precarregar)), carregarFonte(), carregarSelo()]);
             if (!fonteOk) { log('fonte GothamCond-Ultra indisponivel; usando fallback'); }
             const midia = {};
             urls.forEach((url, i) => { midia[url] = ok[i]; });
+            midia[C.selo.svg] = seloSvg;
+            if (!seloSvg && !midia[C.selo.img]) { console.warn('[CCXP] Selo PNG de fallback indisponivel'); }
 
             const fundo = $('fundo');
             fundoOk = midia[C.fundo];
