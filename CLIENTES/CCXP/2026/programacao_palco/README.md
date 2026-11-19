@@ -2,7 +2,6 @@
 
 Seis pacotes independentes: cada `js/master.js` fixa o ID do palco em `PALCO_FIXO`.
 Plano e decisões: `../docs/PLANO-EXECUCAO.md`. Contexto: `../README.md`.
-
 ## Estado (2026-10-19)
 
 - Pronto: motor, ciclo do player, steps 0-4, relógio (hora real), 6 pacotes `.eh5`;
@@ -13,12 +12,10 @@ Plano e decisões: `../docs/PLANO-EXECUCAO.md`. Contexto: `../README.md`.
   e sai pela esquerda, 1 s ease-in-out.
 - Cada pacote fixa seu ID em `js/master.js` e inclui somente seus próprios vídeos e artes.
   PNGs 1081x1921: `ARTE_X` em `master.js`.
-
 ## Arquivos (js/)
 
 `config.js` ajustes (tempos, posições, cores) | `programacao.js` lógica pura |
 `master.js` player e palco fixo por pacote | `ebhtml.js` 2.0.7 canônico.
-
 ## Regras de dados
 
 - Atual: `início <= agora < fim`. Próximo: primeiro futuro **do mesmo dia**. Lista: 5 seguintes.
@@ -29,14 +26,12 @@ Plano e decisões: `../docs/PLANO-EXECUCAO.md`. Contexto: `../README.md`.
 - Sem conteúdo, erro ou timeout: `loaded()` + `finished()` em ~100 ms, sem desenhar.
 - Descrição: 3 linhas em tamanho fixo (75 px nos frames grandes, 37,92 px na lista), sem
   encolher. Cabem ~85 car. (~90 na lista); acima disso corta com `...`.
-
 ## Teste
 
 - Lógica: `node --test CLIENTES/CCXP/2026/tests/programacao.test.js` (18 casos).
 - Player: `http://localhost:12099/FILES/1/index.html`; `?mock=0` usa o EBHTML real.
 - Cenários de mock continuam disponíveis em `js/mock-data.js` para desenvolvimento,
   mas o script não é carregado nesta versão de produção.
-
 ## CSS e pacote
 
 - Pacotes em `_EH5/ccxp26_programacao_{universe,omelete,thunder,blast,magic,omni}.eh5`;
@@ -45,8 +40,8 @@ Plano e decisões: `../docs/PLANO-EXECUCAO.md`. Contexto: `../README.md`.
 - Para atualizar CSS durante desenvolvimento, usar `npm run dev` (Tailwind global).
 - Os `.eh5` não incluem `mock/`, fontes de build ou arquivos-fonte do Tailwind.
 - Snapshot 2026-11-11: logo Omelete atualizado; pacote existente também altera `videos/omelete_intro.mp4`, sem regeneração nesta tarefa. ZIP/CRC, referências HTML, EBHTML canônico e logo idêntico à fonte conferidos.
-- `npm.cmd test`: 160/160; revisão visual `1080x1920`, reprodução do vídeo e homologação do pacote atualizado pendentes.
-
+- Pacote Omelete regenerado em 2026-11-19: 12 arquivos, `PALCO_FIXO=23007`, EBHTML canônico e hashes dos assets conferidos. Homologação no ebcliente4 pendente.
+- Testes: formatos passaram via `powershell.exe` e `pwsh`; suíte Node 162/169, com 7 falhas fora da CCXP. `npm.cmd test` falha ao chamar `Get-FileHash` via npm.
 ## Pendências
 - A consulta atual ao canal retornou vazia para os seis IDs; testar cada pacote no
   `ebcliente4` quando os respectivos eventos estiverem publicados.
